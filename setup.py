@@ -21,7 +21,7 @@ class MyInstall(install):
         #subprocess.call(['chmod', '+x', os.path.join(path,'createGraphLibFile.sh')])
         #os.system("sh "+path+"createGraphLibFile.sh")
         #subprocess.call(['sh',os.path.join(path,'createGraphLibFile.sh')])
-        os.system('cd localgraphclustering/graph_lib/lib/graph_lib_test; pwd; make clean; make -f Makefile; cp libgraph.dylib ../../../../build/lib/localgraphclustering/graph_lib/lib/graph_lib_test/')
+        os.system('cd localgraphclustering/graph_lib/lib/graph_lib_test; pwd; ls; make clean; make -f Makefile; cp libgraph.dylib ../../../../build/lib/localgraphclustering/graph_lib/lib/graph_lib_test/')
         install.run(self)
 
 here = path.abspath(path.dirname(__file__))
@@ -78,10 +78,7 @@ setup(
       # You can just specify the packages manually here if your project is
       # simple. Or you can use find_packages().
       packages=find_packages(),
-      
-      scripts=['bin/createGraphLibFile.sh'],
-      cmdclass={'install': MyInstall},
-      
+
       # Alternatively, if you want to distribute just a my_module.py, uncomment
       # this:
       #   py_modules=["my_module"],
@@ -133,4 +130,7 @@ setup(
       #                    'localgraphclustering=sample:main',
       #                    ],
       #},
+      
+      scripts=['bin/createGraphLibFile.sh'],
+      cmdclass={'install': MyInstall},
       )
