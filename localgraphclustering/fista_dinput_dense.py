@@ -9,10 +9,10 @@ def fista_dinput_dense(ref_node, g, alpha = 0.15, rho = 1.0e-5, epsilon = 1.0e-4
     S      = ref_node
     S_and_neigh = S
     
-    grad   = np.zeros((n, 1))
-    q      = np.zeros((n, 1))
-    y      = np.zeros((n, 1))
-    z      = np.zeros((n, 1))
+    grad   = np.zeros(n)
+    q      = np.zeros(n)
+    y      = np.zeros(n)
+    z      = np.zeros(n)
 
     d_sqrt_S = g.d_sqrt[S]
     dn_sqrt_S = g.dn_sqrt[S]
@@ -36,7 +36,7 @@ def fista_dinput_dense(ref_node, g, alpha = 0.15, rho = 1.0e-5, epsilon = 1.0e-4
     
     scale_grad = np.multiply(grad[S],-dn_sqrt_S)
         
-    max_sc_grad = max(scale_grad)
+    max_sc_grad = scale_grad.max()
         
     iter = 1    
     
