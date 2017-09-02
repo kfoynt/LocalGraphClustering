@@ -222,7 +222,7 @@ class graph:
         """
         n = self.A.shape[0]
         
-        self.d = self.A.sum(axis=1)
+        self.d = np.ravel(self.A.sum(axis=1))
         self.dangling = np.where(self.d == 0)[0]
         if self.dangling.shape[0] > 0:
             print('The following nodes have no outgoing edges:',self.dangling,'\n')
@@ -239,7 +239,7 @@ class graph:
                 
             self.A = sp.csr_matrix(self.A)
 
-            self.d = self.A.sum(axis=1)
+            self.d = np.ravel(self.A.sum(axis=1))
         
         self.dn = 1/self.d
         self.d_sqrt = np.sqrt(self.d)
