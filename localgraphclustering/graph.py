@@ -470,7 +470,8 @@ class graph:
         
                 for rho in rho_list:
                 
-                    a_list = np.arange(1.0e-2,0.999,0.09)
+                    #a_list = np.arange(1.0e-2,0.999,0.09)
+                    a_list = [0.99]
 
                     for alpha in a_list:
 
@@ -635,7 +636,8 @@ class graph:
         
                 for rho in rho_list:
                 
-                    a_list = np.arange(1.0e-2,0.999,0.09)
+                    #a_list = np.arange(1.0e-2,0.999,0.09)
+                    a_list = [0.99]
 
                     for alpha in a_list:
 
@@ -795,7 +797,8 @@ class graph:
         
             for rho in rho_list:
 
-                a_list = np.arange(1.0e-2,0.999,0.09)
+                #a_list = np.arange(1.0e-2,0.999,0.09)
+                a_list = [0.99]
 
                 for alpha in a_list:
 
