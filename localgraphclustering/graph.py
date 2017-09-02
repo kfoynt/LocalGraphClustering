@@ -495,7 +495,7 @@ class graph:
                             print("There is no such algorithm provided")
                             return
 
-                        vol = sum(g_copy.d[S_l1pr])[0,0]
+                        vol = sum(g_copy.d[S_l1pr])
                         size = len(S_l1pr)
 
                         if vol in self.conductance_vs_vol[cmp]:
@@ -661,7 +661,7 @@ class graph:
                             print("There is no such algorithm provided")
                             return
 
-                        vol = sum(g_copy.d[S_l1pr])[0,0]
+                        vol = sum(g_copy.d[S_l1pr])
                         size = len(S_l1pr)
 
                         if vol in self.biconnected_conductance_vs_vol[cmp]:
@@ -822,7 +822,7 @@ class graph:
                         print("There is no such algorithm provided")
                         return
 
-                    vol = sum(g_copy.d[S_l1pr])[0,0]
+                    vol = sum(g_copy.d[S_l1pr])
                     size = len(S_l1pr)
 
                     if vol in self.component_conductance_vs_vol:
