@@ -36,13 +36,13 @@ setup(
       # Versions should comply with PEP440.  For a discussion on single-sourcing
       # the version across setup.py and the project code, see
       # https://packaging.python.org/en/latest/single_source_version.html
-      version='0.1.6',
+      version='0.1.7',
       
       description='Package for local graph clustering',
       long_description=long_description,
       
       # The project's main homepage.
-      url='https://github.com/pypa/localgraphclustering',
+      url='https://github.com/kfoynt/LocalGraphClustering',
       
       # Author details
       author='Kimon Fountoulakis',
