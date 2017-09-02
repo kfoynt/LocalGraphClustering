@@ -9,8 +9,8 @@ def ista_dinput_dense(ref_node, g, alpha = 0.15, rho = 1.0e-5, epsilon = 1.0e-2,
     S      = ref_node
     S_and_neigh = S
     
-    grad   = np.zeros((n, 1), dtype = np.float64)
-    q      = np.zeros((n, 1), dtype = np.float64)
+    grad   = np.zeros(n, dtype = np.float64)
+    q      = np.zeros(n, dtype = np.float64)
 
     d_sqrt_S = g.d_sqrt[S]
     dn_sqrt_S = g.dn_sqrt[S]
