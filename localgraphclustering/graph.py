@@ -466,12 +466,12 @@ class graph:
 #                else:
 #                    a_list = np.arange(lambda_val/2,2*lambda_val,step)
     
-                rho_list = [1.0e-14,1.0e-10,1.0e-8,1.0e-6]
+                rho_list = [1.0e-14,1.0e-12,1.0e-10,1.0e-8,1.0e-7,1.0e-6,1.0e-5,1.0e-4]
         
                 for rho in rho_list:
                 
                     #a_list = np.arange(1.0e-2,0.999,0.09)
-                    a_list = [0.99]
+                    a_list = [1-0.99]
 
                     for alpha in a_list:
 
@@ -632,12 +632,12 @@ class graph:
 #                else:
 #                    a_list = np.arange(lambda_val/2,2*lambda_val,step)
 
-                rho_list = [1.0e-14,1.0e-10,1.0e-8,1.0e-6]
+                rho_list = [1.0e-14,1.0e-12,1.0e-10,1.0e-8,1.0e-7,1.0e-6,1.0e-5,1.0e-4]
         
                 for rho in rho_list:
                 
                     #a_list = np.arange(1.0e-2,0.999,0.09)
-                    a_list = [0.99]
+                    a_list = [1-0.99]
 
                     for alpha in a_list:
 
@@ -793,12 +793,12 @@ class graph:
 #            else:
 #                a_list = np.arange(lambda_val/2,2*lambda_val,step)
 
-            rho_list = [1.0e-14,1.0e-10,1.0e-8,1.0e-6]
+            rho_list = [1.0e-14,1.0e-12,1.0e-10,1.0e-8,1.0e-7,1.0e-6,1.0e-5,1.0e-4]
         
             for rho in rho_list:
 
                 #a_list = np.arange(1.0e-2,0.999,0.09)
-                a_list = [0.99]
+                a_list = [1-0.99]
 
                 for alpha in a_list:
 
