@@ -112,6 +112,7 @@ setup(
       package_data={
       'localgraphclustering.graph_lib': ['*'],
       'localgraphclustering.graph_lib.lib.graph_lib_test': ['*.dylib'],
+      'localgraphclustering.graph_lib.lib.graph_lib_test': ['Makefile'],
       },
       
       include_package_data=True,
