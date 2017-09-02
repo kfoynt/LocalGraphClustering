@@ -29,7 +29,7 @@ def ista_dinput_dense(ref_node, g, alpha = 0.15, rho = 1.0e-5, epsilon = 1.0e-2,
     
     scale_grad = np.multiply(grad[S],-dn_sqrt_S)
         
-    max_sc_grad = max(scale_grad)
+    max_sc_grad = scale_grad.max()
         
     iter = 1    
     
