@@ -1,4 +1,5 @@
 include README.rst
 recursive-include localgraphclustering/graph_lib *
 recursive-include localgraphclustering/graph_lib/lib/graph_lib_test *.dylib
+recursive-include localgraphclustering/graph_lib/lib/graph_lib_test *
 recursive-include localgraphclustering/graph_lib/lib/graph_lib_test Makefile

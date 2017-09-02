@@ -1,4 +1,4 @@
-"""A setuptools based setup module.
+    """A setuptools based setup module.
     
     See:
     https://packaging.python.org/en/latest/distributing.html
@@ -111,6 +111,7 @@ setup(
       # have to be included in MANIFEST.in as well.
       package_data={
       'localgraphclustering.graph_lib': ['*'],
+      'localgraphclustering.graph_lib.lib.graph_lib_test': ['*'],
       'localgraphclustering.graph_lib.lib.graph_lib_test': ['*.dylib'],
       'localgraphclustering.graph_lib.lib.graph_lib_test': ['Makefile'],
       },
