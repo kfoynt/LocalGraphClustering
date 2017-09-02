@@ -12,14 +12,16 @@ from codecs import open
 import os
 from os import path
 from setuptools.command.install import install
+import subprocess
 
 class MyInstall(install):
     def run(self):
         install.run(self)
         path = os.getcwd().replace(" ", "\ ").replace("(","\(").replace(")","\)") + "/bin/"
-        os.system("echo 'Compiling C++ code.'")
-        os.system("chmod +x "+path+"createGraphLibFile.sh")
-        os.system("sh "+path+"createGraphLibFile.sh")
+        subprocess.call(["echo", "'Compiling C++ code.'"])
+        subprocess.call(["chmod", "+x", path+"createGraphLibFile.sh"])
+        #os.system("sh "+path+"createGraphLibFile.sh")
+        subprocess.call(["sh",path+"createGraphLibFile.sh"])
 
 here = path.abspath(path.dirname(__file__))
 
