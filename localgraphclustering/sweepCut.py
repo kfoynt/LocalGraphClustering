@@ -204,11 +204,11 @@ class sweepCut:
             self.sweep_profile[1][i] = current_support
 
             if cond < self.best_conductance:
-                self.best_conductance = cond[0,0]
+                self.best_conductance = cond
                 self.best_cluster = current_support
                 
             if vol_user < vol_sum and vol_sum < 2*g.vol_G/3:
-                self.volume_profile[0].append(cond[0,0])
+                self.volume_profile[0].append(cond)
                 self.volume_profile[1].append(current_support)
 
     def sweep_normalized(self,p,g,vol_user = 0):
