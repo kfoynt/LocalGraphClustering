@@ -12,11 +12,33 @@ from codecs import open
 import os
 from os import path
 from setuptools.command.install import install
+from setuptools.command.develop import develop
+from setuptools.command.egg_info import egg_info
 import subprocess
 
 class MyInstall(install):
     def run(self):
         install.run(self)
+        path = os.getcwd().replace(" ", "\ ").replace("(","\(").replace(")","\)") + "/bin/"
+        subprocess.call(['echo', 'Compiling C++ code.'])
+        subprocess.call(['chmod', '+x', os.path.join(path,'createGraphLibFile.sh')])
+        #os.system("sh "+path+"createGraphLibFile.sh")
+        subprocess.call(['sh',os.path.join(path,'createGraphLibFile.sh')])
+#        os.system('cd localgraphclustering/graph_lib/lib/graph_lib_test; pwd; make clean; make -f Makefile; cp libgraph.dylib ../../../../build/lib/localgraphclustering/graph_lib/lib/graph_lib_test/')
+
+class MyDevelop(develop):
+    def run(self):
+        develop.run(self)
+        path = os.getcwd().replace(" ", "\ ").replace("(","\(").replace(")","\)") + "/bin/"
+        subprocess.call(['echo', 'Compiling C++ code.'])
+        subprocess.call(['chmod', '+x', os.path.join(path,'createGraphLibFile.sh')])
+        #os.system("sh "+path+"createGraphLibFile.sh")
+        subprocess.call(['sh',os.path.join(path,'createGraphLibFile.sh')])
+#        os.system('cd localgraphclustering/graph_lib/lib/graph_lib_test; pwd; make clean; make -f Makefile; cp libgraph.dylib ../../../../build/lib/localgraphclustering/graph_lib/lib/graph_lib_test/')
+
+class MyEgg(egg_info):
+    def run(self):
+        egg_info.run(self)
         path = os.getcwd().replace(" ", "\ ").replace("(","\(").replace(")","\)") + "/bin/"
         subprocess.call(['echo', 'Compiling C++ code.'])
         subprocess.call(['chmod', '+x', os.path.join(path,'createGraphLibFile.sh')])
@@ -80,7 +102,7 @@ setup(
       packages=find_packages(),
       
       scripts=['bin/createGraphLibFile.sh'],
-      cmdclass={'install': MyInstall},
+      cmdclass={'install': MyInstall,'develop':MyDevelop,'egg_info':MyEgg,},
       
       # Alternatively, if you want to distribute just a my_module.py, uncomment
       # this:

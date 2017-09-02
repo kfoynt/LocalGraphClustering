@@ -1,0 +1,16 @@
+# Ignore all
+*
+
+# Unignore all with extensions
+!*.*
+
+# Unignore all dirs
+!*/
+
+*.ipynb
+*.pyc
+*.swp
+*.o
+*.dylib
+*.DS_Store
+*.m~
