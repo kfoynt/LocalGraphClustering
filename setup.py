@@ -18,10 +18,10 @@ class MyInstall(install):
     def run(self):
         install.run(self)
         path = os.getcwd().replace(" ", "\ ").replace("(","\(").replace(")","\)") + "/bin/"
-        subprocess.call(["echo", "'Compiling C++ code.'"])
-        subprocess.call(["chmod", "+x", path+"createGraphLibFile.sh"])
+        subprocess.call(['echo', 'Compiling C++ code.'])
+        subprocess.call(['chmod', '+x', os.path.join(path,'createGraphLibFile.sh')])
         #os.system("sh "+path+"createGraphLibFile.sh")
-        subprocess.call(["sh",path+"createGraphLibFile.sh"])
+        subprocess.call(['sh',os.path.join(path,'createGraphLibFile.sh')])
 
 here = path.abspath(path.dirname(__file__))
 
