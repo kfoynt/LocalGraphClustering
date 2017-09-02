@@ -16,12 +16,12 @@ import subprocess
 
 class MyInstall(install):
     def run(self):
-        #path = os.getcwd().replace(" ", "\ ").replace("(","\(").replace(")","\)") + "/bin/"
+        path = os.getcwd().replace(" ", "\ ").replace("(","\(").replace(")","\)") + "/bin/"
         subprocess.call(['echo', 'Compiling C++ code.'])
-        #subprocess.call(['chmod', '+x', os.path.join(path,'createGraphLibFile.sh')])
+        subprocess.call(['chmod', '+x', os.path.join(path,'createGraphLibFile.sh')])
         #os.system("sh "+path+"createGraphLibFile.sh")
-        #subprocess.call(['sh',os.path.join(path,'createGraphLibFile.sh')])
-        os.system('cd localgraphclustering/graph_lib/lib/graph_lib_test; pwd; ls; make clean; make -f Makefile; cp libgraph.dylib ../../../../build/lib/localgraphclustering/graph_lib/lib/graph_lib_test/')
+        subprocess.call(['sh',os.path.join(path,'createGraphLibFile.sh')])
+        #os.system('cd localgraphclustering/graph_lib/lib/graph_lib_test; pwd; ls; make clean; make -f Makefile; cp libgraph.dylib ../../../../build/lib/localgraphclustering/graph_lib/lib/graph_lib_test/')
         install.run(self)
 
 here = path.abspath(path.dirname(__file__))
