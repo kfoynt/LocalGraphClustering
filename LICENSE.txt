@@ -1,7 +1,7 @@
 
-Program’s name: LocalGraphClustering. Description: a collection of 
+Program’s name: localgraphclustering. Description: a collection of 
 methods for local graph clustering applications.
-Copyright (C) 2017 Kimon Fountoulakis  
+Copyright (C) 2017 Kimon Fountoulakis, Meng Liu, David Gleich and Michael W. Mahoney.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
