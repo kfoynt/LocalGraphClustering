@@ -45,7 +45,7 @@ setup(
       url='https://github.com/kfoynt/LocalGraphClustering',
       
       # Author details
-      author= ['Kimon Fountoulakis','Meng Liu','David Gleich','Michael W. Mahoney']
+      author= ['Kimon Fountoulakis','Meng Liu','David Gleich','Michael W. Mahoney'],
       author_email='kfount@berkeley.edu',
       
       # Choose your license
