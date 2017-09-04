@@ -238,6 +238,10 @@ class localCluster:
            max_iter: integer
                      default = 100000
                      Maximum number of iterations of ACL.
+                     
+           max_time: float, double
+                     default = 100
+                     Maximum time in seconds
 
            RETURNS
            -------
@@ -328,6 +332,10 @@ class localCluster:
            max_iter: integer
                      default = 10000
                      Maximum number of iterations of FISTA.
+                     
+           max_time: float, double
+                     default = 100
+                     Maximum time in seconds
 
            cpp: boolean
                 default = True
@@ -451,6 +459,10 @@ class localCluster:
            max_iter: integer
                      default = 10000
                      Maximum number of iterations of ISTA.
+                     
+           max_time: float, double
+                     default = 100
+                     Maximum time in seconds
 
            RETURNS
            ------- 
@@ -505,14 +517,14 @@ class localCluster:
                       we are looking for a target cluster.
 
            vol:       float, double
-                      lower bound for the volume of the output cluster
+                      Lower bound for the volume of the output cluster.
 
            PARAMETERS (optional)
            ---------------------
 
            phi: float, double
                 default == 0.5
-                Target conductance for the output cluster
+                Target conductance for the output cluster.
 
            algorithm: string
                       default == 'fista'

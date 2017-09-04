@@ -159,8 +159,8 @@ class sweepCut:
             PARAMETERS 
             ----------
 
-            sc_p: numpy array
-                  A vector that is used to perform rounding.
+            p: numpy array
+               A vector that is used to perform rounding.
 
             g: graph object   
 

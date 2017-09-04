@@ -1,0 +1,77 @@
+{
+    "id": "realML.localgraphclustering.sweepCut.sweep_cut_cpp",
+    "name": "realML.localgraphclustering.sweepCut.sweep_cut_cpp",
+    "common_name": "sweep_cut_cpp",
+    "description": "Computes a cluster using sweep cut and conductance as a criterion. It initializes variables g.best_cluster, g.best_conductance. This method is a wrapper for the C++ rounding procedure.",
+    "languages": [
+        "python2.7.13"
+    ],
+    "library": "RealML",
+    "version": "0.2.2",
+    "source_code": "https://github.com/kfoynt/LocalGraphClustering/blob/master/localgraphclustering/sweepCut.py",
+    "is_class": "false",
+    "parameters": [ 
+        {
+            "is_hyperparameter": false,
+            "type": "numpy array",
+            "name": "p",
+            "description": "A vector that is used to perform rounding."
+        }
+        ,
+        {
+            "is_hyperparameter": false,
+            "type": "class",
+            "name": "g",
+            "description": "graph object"
+        }
+        ,
+        {
+            "is_hyperparameter": true,
+            "type": "boolean",
+            "name": "do_sort",
+            "description": "If do_sort is equal to 1 then vector p is sorted in descending order first. If do_sort is equal to 0 then vector p is not sorted."
+        }
+        ,
+        {
+            "is_hyperparameter": true,
+            "type": "float",
+            "name": "vol_user",
+            "description": "Upper bound on volume for clusters added in variable volume_profile. See documentation for variable volume_profile for details."
+        }
+    ],
+    "algorithm_type": [                                                         
+        "Clustering"                                              
+    ],
+    "output_type": [
+        "PREDICTIONS"
+    ], 
+    "team": "RealML",
+    "interface_type" : "supervised_learning",
+    "schema_version": 1.0,
+    "build": [
+        {
+            "type": "pip",
+            "package": "localgraphclustering"
+        }
+    ],
+    "compute_resources": {
+        "num_nodes": [
+            1
+        ],
+        "cores_per_node": [
+            1
+        ],
+        "gpus_per_node": [
+            0
+        ],
+        "mem_per_node": [
+            1.0
+        ],
+        "disk_per_node": [
+            1.0
+        ],
+        "mem_per_gpu": [
+            0.0
+        ]
+    }
+}

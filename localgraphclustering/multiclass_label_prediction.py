@@ -48,6 +48,10 @@ def multiclass_label_prediction(labels, g, alpha = 0.15, rho = 1.0e-10, epsilon 
                  default = 10000
                  Maximum number of iterations of FISTA.
                  
+       max_time: float, double
+                 default = 100
+                 Maximum time in seconds
+                 
        cpp: boolean
             default = True
             Use the faster C++ version of FISTA or not.

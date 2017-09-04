@@ -1,0 +1,91 @@
+{
+    "id": "realML.localgraphclustering.localCluster.acl",
+    "name": "realML.localgraphclustering.localCluster.acl",
+    "common_name": "acl",
+    "description": "Andersen Chung and Lang (ACL) Algorithm. For details please refer to: R. Andersen, F. Chung and K. Lang. Local Graph Partitioning using PageRank Vectors link: http://www.cs.cmu.edu/afs/cs/user/glmiller/public/Scientific-Computing/F-11/RelatedWork/local_partitioning_full.pdf",
+    "languages": [
+        "python2.7.13"
+    ],
+    "library": "RealML",
+    "version": "0.2.2",
+    "source_code": "https://github.com/kfoynt/LocalGraphClustering/blob/master/localgraphclustering/localCluster.py",
+    "is_class": "false",
+    "parameters": [ 
+        {
+            "is_hyperparameter": false,
+            "type": "integer",
+            "name": "ref_node",
+            "description": "The reference node, i.e., node of interest around which we are looking for a target cluster."
+        }
+        ,
+        {
+            "is_hyperparameter": false,
+            "type": "class",
+            "name": "g",
+            "description": "graph object"
+        }
+        ,
+        {
+            "is_hyperparameter": true,
+            "type": "float",
+            "name": "alpha",
+            "description": "Teleportation parameter of the personalized PageRank linear system. The smaller the more global the personalized PageRank vector is."
+        }
+        ,
+        {
+            "is_hyperparameter": true,
+            "type": "float",
+            "name": "rho",
+            "description": "Regularization parameter for the l1-norm of the model."
+        }
+        ,
+        {
+            "is_hyperparameter": true,
+            "type": "float",
+            "name": "max_iter",
+            "description": "Maximum number of iterations of ACL."
+        }
+        ,
+        {
+            "is_hyperparameter": true,
+            "type": "float",
+            "name": "max_time",
+            "description": "Maximum time in seconds."
+        }
+    ],
+    "algorithm_type": [                                                         
+        "Clustering"                                              
+    ],
+    "output_type": [
+        "PREDICTIONS"
+    ], 
+    "team": "RealML",
+    "interface_type" : "supervised_learning",
+    "schema_version": 1.0,
+    "build": [
+        {
+            "type": "pip",
+            "package": "localgraphclustering"
+        }
+    ],
+    "compute_resources": {
+        "num_nodes": [
+            1
+        ],
+        "cores_per_node": [
+            1
+        ],
+        "gpus_per_node": [
+            0
+        ],
+        "mem_per_node": [
+            1.0
+        ],
+        "disk_per_node": [
+            1.0
+        ],
+        "mem_per_gpu": [
+            0.0
+        ]
+    }
+}

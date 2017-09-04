@@ -1,0 +1,105 @@
+{
+    "id": "realML.localgraphclustering.localCluster.fista",
+    "name": "realML.localgraphclustering.localCluster.fista",
+    "common_name": "fista",
+    "description": "Fast Iterative Soft Thresholding Algorithm (FISTA). This algorithm solves the l1-regularized personalized PageRank problem using an accelerated version of ISTA. It rounds the solution using sweep cut.",
+    "languages": [
+        "python2.7.13"
+    ],
+    "library": "RealML",
+    "version": "0.2.2",
+    "source_code": "https://github.com/kfoynt/LocalGraphClustering/blob/master/localgraphclustering/localCluster.py",
+    "is_class": "false",
+    "parameters": [ 
+        {
+            "is_hyperparameter": false,
+            "type": "integer",
+            "name": "ref_node",
+            "description": "The reference node, i.e., node of interest around which we are looking for a target cluster."
+        }
+        ,
+        {
+            "is_hyperparameter": false,
+            "type": "class",
+            "name": "g",
+            "description": "graph object"
+        }
+        ,
+        {
+            "is_hyperparameter": true,
+            "type": "float",
+            "name": "alpha",
+            "description": "Teleportation parameter of the personalized PageRank linear system. The smaller the more global the personalized PageRank vector is."
+        }
+        ,
+        {
+            "is_hyperparameter": true,
+            "type": "float",
+            "name": "rho",
+            "description": "Regularization parameter for the l1-norm of the model."
+        }
+        ,
+        {
+            "is_hyperparameter": true,
+            "type": "float",
+            "name": "epsilon",
+            "description": "Tolerance for FISTA for solving the l1-regularized personalized PageRank problem."
+        }
+        ,
+        {
+            "is_hyperparameter": true,
+            "type": "float",
+            "name": "max_iter",
+            "description": "Maximum number of iterations of FISTA."
+        }
+        ,
+        {
+            "is_hyperparameter": true,
+            "type": "float",
+            "name": "max_time",
+            "description": "Maximum time in seconds."
+        }
+        ,
+        {
+            "is_hyperparameter": true,
+            "type": "Boolean",
+            "name": "cpp",
+            "description": "Use the faster C++ version of FISTA or not."
+        }
+    ],
+    "algorithm_type": [                                                         
+        "Clustering"                                              
+    ],
+    "output_type": [
+        "PREDICTIONS"
+    ], 
+    "team": "RealML",
+    "interface_type" : "supervised_learning",
+    "schema_version": 1.0,
+    "build": [
+        {
+            "type": "pip",
+            "package": "localgraphclustering"
+        }
+    ],
+    "compute_resources": {
+        "num_nodes": [
+            1
+        ],
+        "cores_per_node": [
+            1
+        ],
+        "gpus_per_node": [
+            0
+        ],
+        "mem_per_node": [
+            1.0
+        ],
+        "disk_per_node": [
+            1.0
+        ],
+        "mem_per_gpu": [
+            0.0
+        ]
+    }
+}

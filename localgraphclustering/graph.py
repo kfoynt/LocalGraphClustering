@@ -375,7 +375,7 @@ class graph:
 
            epsilon: float, double
                     default = 1.0e-4
-                    Termination tolerance for l1-regularized PageRank, i.e., applies to FISTA and ISTA algorithms.
+                    Termination tolerance for l1-regularized PageRank, i.e., applies to all algorithms.
 
            max_iter: integer
                      default = 10000
