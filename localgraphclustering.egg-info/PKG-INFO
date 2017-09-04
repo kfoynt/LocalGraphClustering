@@ -1,0 +1,23 @@
+Metadata-Version: 1.1
+Name: localgraphclustering
+Version: 0.2.1
+Summary: Package for local graph clustering
+Home-page: https://github.com/kfoynt/LocalGraphClustering
+Author: ['Kimon Fountoulakis', 'Meng Liu', 'David Gleich', 'Michael W. Mahoney']
+Author-email: kfount@berkeley.edu
+License: GPL
+Description: Local Graph Clustering
+        ======================
+        
+        Local Graph Clustering provides methods to find local clusters in a given graph
+        without touching the whole graph.  
+Keywords: local graph clustering
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: License :: OSI Approved :: GNU General Public License (GPL)
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
