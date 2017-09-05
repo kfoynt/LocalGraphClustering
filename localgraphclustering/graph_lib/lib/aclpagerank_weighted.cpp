@@ -113,14 +113,14 @@ vtype graph<vtype,itype>::pprgrow_weighted(double alpha, double eps, vtype* seed
 {
     vector<double> vdegree(n);
     degrees = &vdegree[0];
-    for(size_t i = 0; i < n; i ++){
+    for(size_t i = 0; i < (size_t)n; i ++){
         degrees[i] = get_degree_weighted(i);
     }
     unordered_map<vtype, double> x_map;
     unordered_map<vtype, double> r_map;
     typename unordered_map<vtype, double>::const_iterator x_iter, r_iter;
     queue<vtype> Q;
-    for(int i = 0; i < nseedids; i ++){
+    for(size_t i = 0; i < (size_t)nseedids; i ++){
         r_map[seedids[i] - offset] = 1;
         x_map[seedids[i] - offset] = 0;
     }

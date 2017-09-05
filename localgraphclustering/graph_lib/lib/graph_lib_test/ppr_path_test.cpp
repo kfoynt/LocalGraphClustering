@@ -65,7 +65,7 @@ int main()
 	cout << "actual length" << endl;
     cout<<actual_length<<endl;
     cout << "best set" << endl;
-    for(size_t i = 0; i < actual_length; ++ i){
+    for(size_t i = 0; i < (size_t)actual_length; ++ i){
         cout << xids[i] << " ";
     }
     cout << endl;
@@ -82,7 +82,7 @@ int main()
     int64_t correct_length;
     ss >> correct_length;
     int64_t* correct_xids = (int64_t *)malloc(sizeof(int64_t) * correct_length);
-    for(size_t i = 0; i < correct_length; i ++){
+    for(size_t i = 0; i < (size_t)correct_length; i ++){
         ss >> correct_xids[i];
     }
     ss.str("");
@@ -93,7 +93,7 @@ int main()
         return EXIT_FAILURE;
     }
     else{
-        for(size_t i = 0; i < correct_length; i ++){
+        for(size_t i = 0; i < (size_t)correct_length; i ++){
             if(xids[i] != correct_xids[i]){
                 cout << "best cluster is not correct!" << endl;
                 return EXIT_FAILURE;
@@ -122,7 +122,7 @@ int main()
     double* correct_vols = (double*)malloc(sizeof(double) * num_eps);
     int64_t* correct_setsizes = (int64_t*)malloc(sizeof(int64_t) * num_eps);
     int64_t* correct_stepnums = (int64_t*)malloc(sizeof(int64_t) * num_eps);
-    for(size_t i = 0; i < num_eps; i ++){
+    for(size_t i = 0; i < (size_t)num_eps; i ++){
         ss >> correct_epsilon[i];
         ss >> correct_conds[i];
         ss >> correct_cuts[i];
@@ -130,7 +130,7 @@ int main()
         ss >> correct_setsizes[i];
         ss >> correct_stepnums[i];
     }
-    for(size_t i = 0; i < num_eps; i ++){
+    for(size_t i = 0; i < (size_t)num_eps; i ++){
         if(abs(epsilon[i] - correct_epsilon[i]) > pow(10,-5)
            || abs(conds[i] - correct_conds[i]) > pow(10,5)
            || abs(cuts[i] - correct_cuts[i]) > pow(10,-5)
@@ -177,7 +177,7 @@ int main()
     int64_t* correct_size_of_r = (int64_t*)malloc(sizeof(int64_t) * nsteps);
     double* correct_val_of_push = (double*)malloc(sizeof(double) * nsteps);
     double* correct_global_bcond = (double*)malloc(sizeof(double) * nsteps);
-    for(size_t i = 0; i < nsteps; i ++){
+    for(size_t i = 0; i < (size_t)nsteps; i ++){
         ss >> correct_starts[i];
         ss >> correct_ends[i];
         ss >> correct_nodes[i];
@@ -187,9 +187,9 @@ int main()
         ss >> correct_val_of_push[i];
         ss >> correct_global_bcond[i];
     }
-    for(size_t i = 0; i < nsteps; i ++){
+    for(size_t i = 0; i < (size_t)nsteps; i ++){
         if(starts[i] != correct_starts[i] || ends[i] != correct_ends[i] || nodes[i] != correct_nodes[i]
-           || deg_of_pushed[i] != correct_deg_of_pushed[i] || correct_size_of_solvec[i] != correct_size_of_solvec[i]
+           || deg_of_pushed[i] != correct_deg_of_pushed[i] || size_of_solvec[i] != correct_size_of_solvec[i]
            || size_of_r[i] != correct_size_of_r[i] || abs(val_of_push[i] - correct_val_of_push[i]) > pow(10,-5)
            || abs(global_bcond[i] - correct_global_bcond[i]) > pow(10,5)){
             cout << "rank stats is not correct!" << endl;

@@ -38,11 +38,11 @@ int main()
 	cout << "actual length" << endl;
     cout<<actual_length<<endl;
     cout << "nonzero pagerank sets and values" << endl;
-    for(size_t i = 0; i < actual_length; ++ i){
+    for(size_t i = 0; i < (size_t)actual_length; ++ i){
         cout << xids[i] << " ";
     }
     cout << endl;
-    for(size_t i = 0; i < actual_length; ++ i){
+    for(size_t i = 0; i < (size_t)actual_length; ++ i){
         cout << values[i] << " ";
     }
     cout << endl;
@@ -60,7 +60,7 @@ int main()
     int64_t correct_length;
     ss >> correct_length;
     int64_t* correct_xids = (int64_t *)malloc(sizeof(int64_t) * correct_length);
-    for(size_t i = 0; i < correct_length; i ++){
+    for(size_t i = 0; i < (size_t)correct_length; i ++){
         ss >> correct_xids[i];
     }
     ss.str("");
@@ -71,7 +71,7 @@ int main()
     free(read_file);
     ss >> correct_length;
     double* correct_values = (double *)malloc(sizeof(double) * correct_length);
-    for(size_t i = 0; i < correct_length; i ++){
+    for(size_t i = 0; i < (size_t)correct_length; i ++){
         ss >> correct_values[i];
     }
     ss.str("");
@@ -81,7 +81,7 @@ int main()
         return EXIT_FAILURE;
     }
     else{
-        for(size_t i = 0; i < correct_length; i ++){
+        for(size_t i = 0; i < (size_t)correct_length; i ++){
             if(xids[i] != correct_xids[i] || fabs(values[i] - correct_values[i]) > pow(10, -5)){
                 cout << "output is not correct! " << endl;
                 return EXIT_FAILURE;

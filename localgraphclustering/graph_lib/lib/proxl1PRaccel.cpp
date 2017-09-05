@@ -92,7 +92,7 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
     //cout << thd << " " << find_max<vtype>(grad,ds,n) << endl;
     double thd1,betak;
     t1 = clock();
-    while((iter < maxiter) && (find_max<vtype>(grad,ds,n) > thd)){
+    while((iter < (size_t)maxiter) && (find_max<vtype>(grad,ds,n) > thd)){
         iter ++;
         q_old = q;
         for(vtype i = 0; i < n; i ++){
@@ -148,7 +148,7 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
         }*/
     }
     
-    if(iter >= maxiter){
+    if(iter >= (size_t)maxiter){
         not_converged = 1;
     }
     

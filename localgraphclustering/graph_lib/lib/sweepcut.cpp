@@ -154,8 +154,8 @@ vtype graph<vtype,itype>::sweepcut_without_sorting(vtype* ids, vtype* results, v
 template<typename vtype, typename itype>
 vtype graph<vtype,itype>::sweep_cut(vtype* ids, vtype* results, vtype num, double* ret_cond)
 {
-    //cout << m << endl;
-    //cout << n << endl;
+    cout << m << endl;
+    cout << n << endl;
     unordered_map<vtype, size_t> rank;
     for(vtype i = 0; i < num; i ++){
         rank[ids[i] - offset] = i + 1;
@@ -167,7 +167,7 @@ vtype graph<vtype,itype>::sweep_cut(vtype* ids, vtype* results, vtype num, doubl
     }
     //cout << total_degree << endl;
     double deg, cut_change, neighbor;
-    vtype min_id;
+    vtype min_id = 0;
     double cur_cond;
     double curcutsize = 0;
     double curvolume = 0;

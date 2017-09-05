@@ -56,7 +56,7 @@ int main()
     int64_t correct_length;
     ss >> correct_length;
     int64_t* correct_ret_set = (int64_t *)malloc(sizeof(int64_t) * correct_length);
-    for(size_t i = 0; i < correct_length; i ++){
+    for(size_t i = 0; i < (size_t)correct_length; i ++){
         ss >> correct_ret_set[i];
     }
     ss.str("");
@@ -65,7 +65,7 @@ int main()
         return EXIT_FAILURE;
     }
     else{
-        for(size_t i = 0; i < correct_length; i ++){
+        for(size_t i = 0; i < (size_t)correct_length; i ++){
             if(ret_set[i] != correct_ret_set[i]){
                 cout << "output is not correct!" << endl;
                 return EXIT_FAILURE;

@@ -122,11 +122,11 @@ vtype graph<vtype,itype>::ppr_path(double alpha, double eps, double rho, vtype* 
 
     xlength = bestclus.size();
 
-    for(size_t i = 0; i < xlength; ++ i){
+    for(size_t i = 0; i < (size_t)xlength; ++ i){
         xids[i] = bestclus[i] + offset;
     }
     *(ret_path_results.num_eps) = eps_stats.num_epsilons;
-    for(size_t i = 0; i < eps_stats.num_epsilons; i ++){
+    for(size_t i = 0; i < (size_t)eps_stats.num_epsilons; i ++){
         ret_path_results.epsilon[i] = eps_stats.epsilons[i];
         ret_path_results.conds[i] = eps_stats.conds[i];
         ret_path_results.cuts[i] = eps_stats.cuts[i];
@@ -139,7 +139,7 @@ vtype graph<vtype,itype>::ppr_path(double alpha, double eps, double rho, vtype* 
     *(ret_rank_results.nrank_inserts) = rkrecord.nrank_inserts;
     *(ret_rank_results.nsteps) = rkrecord.nsteps;
     *(ret_rank_results.size_for_best_cond) = rkrecord.size_for_best_cond;
-    for(size_t i = 0; i < rkrecord.nsteps; i ++){
+    for(size_t i = 0; i < (size_t)rkrecord.nsteps; i ++){
         ret_rank_results.starts[i] = rkrecord.starts[i];
         ret_rank_results.ends[i] = rkrecord.ends[i];
         ret_rank_results.nodes[i] = rkrecord.nodes[i];
@@ -161,7 +161,7 @@ bool graph<vtype,itype>::resweep(vtype r_end, vtype r_start, sparse_max_rank<vty
 {
 
     // ensure sweep_info vectors are big enough
-    if ( r_start >= swinfo.cut.size() ){
+    if ( r_start >= (vtype)swinfo.cut.size() ){
         swinfo.cut.resize((r_start+1)*2);
         swinfo.vol.resize((r_start+1)*2);
         swinfo.cond.resize((r_start+1)*2);
@@ -289,7 +289,7 @@ void graph<vtype,itype>::graphdiffseed(sparsevec& set, const double t, const dou
     cout << "ppr_all_mex::graphdiffseed()  BEGIN " << endl;
     vtype npush = 0;
     vtype nsteps = 0;
-    double best_eps = 1.0;
+    //double best_eps = 1.0;
     double cur_eps = 1.0;
     std::vector<double> epsilons;
     std::vector<double> conds;
@@ -360,7 +360,7 @@ void graph<vtype,itype>::graphdiffseed(sparsevec& set, const double t, const dou
             ep_stats.update(nsteps, cur_eps, loc_bcond,cur_cut, cur_vol, (rank_of_bcond+1) );
         }         
         if ( new_bcond == 1 ){ // new best_cond_global, so update
-            best_eps = cur_eps;
+            //best_eps = cur_eps;
             rkrecord.size_for_best_cond = rkrecord.nrank_changes;
         }
         nsteps++;        
@@ -376,7 +376,7 @@ void graph<vtype,itype>::graphdiffseed(sparsevec& set, const double t, const dou
         vtype rs = rkrecord.starts[j];
         vtype re = rkrecord.ends[j];
         vtype rn = rkrecord.nodes[j];
-        if (rs == rkrecord.size_of_solvec[j]){ // node rn added for the first time
+        if (rs == (vtype)rkrecord.size_of_solvec[j]){ // node rn added for the first time
             cluster[cluster_length] = rn;
             rs = cluster_length;
             cluster_length++;
@@ -429,7 +429,7 @@ void graph<vtype,itype>::copy_array_to_index_vector(const vtype* v, std::vector<
 {
     vec.resize(num);
     
-    for (size_t i=0; i<num; ++i) {
+    for (size_t i=0; i < (size_t)num; ++i) {
         vec[i] = v[i] - offset;
     }
 }  // END copy_array_to_index_vector()

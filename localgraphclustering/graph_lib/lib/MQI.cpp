@@ -84,7 +84,7 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
     pair<double, vtype> retData = max_flow<vtype, itype>(ai, aj, offset, curvol, curcutsize, nedges,
             nR + 2, R_map, degree_map, nR, nR + 1, mincut);
     vtype nRold = nR;
-    vtype nRnew; 
+    vtype nRnew = 0; 
     while(condNew < condOld){
         nRnew = nRold - retData.second + 1;
         //cout << nRnew << " " << nedges << endl;
