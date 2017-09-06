@@ -46,7 +46,7 @@ struct sparse_max_rank
     local_index_type index_to_rank(index_type j){
         if ( index_to_lindex.count(j) == 0 ){ return lastval; }
         index_type lind = index_to_lindex[j];
-        if (lind >= hsize) { return lastval; }
+        if (lind >= (index_type)hsize) { return lastval; }
         return L[lind];
     }
 

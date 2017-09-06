@@ -136,7 +136,7 @@ vtype graph<vtype,itype>::pprgrow(double alpha, double eps,vtype* seedids, vtype
     unordered_map<vtype, double> r_map;
     typename unordered_map<vtype, double>::const_iterator x_iter, r_iter;
     queue<vtype> Q;
-    for(int i = 0; i < nseedids; i ++){
+    for(size_t i = 0; i < (size_t)nseedids; i ++){
         r_map[seedids[i] - offset] = 1;
         x_map[seedids[i] - offset] = 0;
     }

@@ -61,7 +61,9 @@ char* readSMAT(const char* filename)
     size_t fsize = ftell(rptr);
     char *read_file = (char *)malloc(sizeof(char) * fsize);
     fseek(rptr, 0, SEEK_SET);
-    fread(read_file, sizeof(char), fsize, rptr);
+    size_t ret = 0;
+    ret = fread(read_file, sizeof(char), fsize, rptr);
+    (void)ret;
     fclose(rptr);
 
     return read_file;
@@ -127,7 +129,7 @@ void read_seed(const char* filename, vtype* n, vtype** ids)
     vtype nseedids;
     ss >> nseedids;
     vtype* seedids = (vtype*)malloc(sizeof(vtype) * nseedids);
-    for(size_t i = 0; i < nseedids; i ++){
+    for(size_t i = 0; i < (size_t)nseedids; i ++){
        ss >> seedids[i];
     }
     ss.str("");
