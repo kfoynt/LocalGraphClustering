@@ -7,7 +7,7 @@
         "python2.7.13"
     ],
     "library": "RealML",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "source_code": "https://github.com/kfoynt/LocalGraphClustering/blob/master/localgraphclustering/graph.py",
     "is_class": false,
     "algorithm_type": [                                                         
