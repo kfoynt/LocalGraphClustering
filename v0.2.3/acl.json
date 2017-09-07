@@ -9,7 +9,7 @@
     "library": "RealML",
     "version": "0.2.2",
     "source_code": "https://github.com/kfoynt/LocalGraphClustering/blob/master/localgraphclustering/localCluster.py",
-    "is_class": "false",
+    "is_class": false,
     "parameters": [ 
         {
             "is_hyperparameter": false,
@@ -69,6 +69,13 @@
         }
     ],
     "compute_resources": {
+        "sample_size": [
+            5180, 
+            5180
+        ],
+        "sample_unit": [
+            "MB"
+        ],
         "num_nodes": [
             1
         ],
@@ -86,6 +93,9 @@
         ],
         "mem_per_gpu": [
             0.0
+        ],
+        "expected_running_time": [
+            12.0
         ]
     }
 }
