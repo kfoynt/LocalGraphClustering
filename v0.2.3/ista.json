@@ -1,15 +1,15 @@
 {
-    "id": "realML.localgraphclustering.localCluster.page_rank_nibble",
-    "name": "realML.localgraphclustering.localCluster.page_rank_nibble",
-    "common_name": "page_rank_nibble",
-    "description": "Page Rank Nibble Algorithm. For details please refer to: R. Andersen, F. Chung and K. Lang. Local Graph Partitioning using PageRank Vectors link: http://www.cs.cmu.edu/afs/cs/user/glmiller/public/Scientific-Computing/F-11/RelatedWork/local_partitioning_full.pdf. The algorithm works on the connected component that the given reference node belongs to.",
+    "id": "realML.localgraphclustering.localCluster.ista",
+    "name": "realML.localgraphclustering.localCluster.ista",
+    "common_name": "ista",
+    "description": "Iterative Soft Thresholding Algorithm (ISTA). This algorithm solves the l1-regularized personalized PageRank problem. It rounds the solution using sweep cut.",
     "languages": [
         "python2.7.13"
     ],
     "library": "RealML",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "source_code": "https://github.com/kfoynt/LocalGraphClustering/blob/master/localgraphclustering/localCluster.py",
-    "is_class": "false",
+    "is_class": false,
     "parameters": [ 
         {
             "is_hyperparameter": false,
@@ -28,43 +28,29 @@
         {
             "is_hyperparameter": true,
             "type": "float",
-            "name": "vol",
-            "description": "Lower bound for the volume of the output cluster."
-        }
-        ,
-        {
-            "is_hyperparameter": true,
-            "type": "float",
-            "name": "phi",
-            "description": "Target conductance for the output cluster."
-        }
-        ,
-        {
-            "is_hyperparameter": true,
-            "type": "float",
             "name": "alpha",
             "description": "Teleportation parameter of the personalized PageRank linear system. The smaller the more global the personalized PageRank vector is."
         }
         ,
         {
             "is_hyperparameter": true,
-            "type": "string",
-            "name": "algorithm",
-            "description": "Algorithm for spectral local graph clustering. Options: 'fista', 'ista', 'acl'."
+            "type": "float",
+            "name": "rho",
+            "description": "Regularization parameter for the l1-norm of the model."
         }
         ,
         {
             "is_hyperparameter": true,
             "type": "float",
             "name": "epsilon",
-            "description": "Termination tolerance for l1-regularized PageRank, i.e., applies to FISTA and ISTA algorithms."
+            "description": "Tolerance for ISTA for solving the l1-regularized personalized PageRank problem."
         }
         ,
         {
             "is_hyperparameter": true,
             "type": "float",
             "name": "max_iter",
-            "description": "Maximum number of iterations of FISTA, ISTA or ACL."
+            "description": "Maximum number of iterations of ISTA."
         }
         ,
         {
@@ -72,13 +58,6 @@
             "type": "float",
             "name": "max_time",
             "description": "Maximum time in seconds."
-        }
-        ,
-        {
-            "is_hyperparameter": true,
-            "type": "Boolean",
-            "name": "cpp",
-            "description": "Use the faster C++ version of FISTA or not."
         }
     ],
     "algorithm_type": [                                                         
@@ -97,6 +76,13 @@
         }
     ],
     "compute_resources": {
+        "sample_size": [
+            5180, 
+            5180
+        ],
+        "sample_unit": [
+            "MB"
+        ],
         "num_nodes": [
             1
         ],
@@ -114,6 +100,9 @@
         ],
         "mem_per_gpu": [
             0.0
+        ],
+        "expected_running_time": [
+            3.0
         ]
     }
 }

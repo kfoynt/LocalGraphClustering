@@ -1,16 +1,23 @@
 {
-    "id": "realML.localgraphclustering.graph.ncp",
-    "name": "realML.localgraphclustering.graph.ncp",
-    "common_name": "ncp",
-    "description": "Network Community Profile for all connected components of the graph. For details please refer to: Jure Leskovec, Kevin J Lang, Anirban Dasgupta, Michael W Mahoney. Community structure in large networks: Natural cluster sizes and the absence of large well-defined clusters. The NCP is computed for each connected component of the given graph.",
+    "id": "realML.localgraphclustering.graph.ncp_one_component",
+    "name": "realML.localgraphclustering.graph.ncp_one_component",
+    "common_name": "ncp_one_component",
+    "description": "Network Community Profile for a given set of nodes. For details please refer to: Jure Leskovec, Kevin J Lang, Anirban Dasgupta, Michael W Mahoney. Community structure in large networks: Natural cluster sizes and the absence of large well-defined clusters. This function checks if the given nodes are connected.",
     "languages": [
         "python2.7.13"
     ],
     "library": "RealML",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "source_code": "https://github.com/kfoynt/LocalGraphClustering/blob/master/localgraphclustering/graph.py",
-    "is_class": "false",
+    "is_class": false,
     "parameters": [ 
+        {
+            "is_hyperparameter": false,
+            "type": "list",
+            "name": "nodes_of_component",
+            "description": "A list of nodes."
+        }
+        ,
         {
             "is_hyperparameter": true,
             "type": "float",
@@ -79,6 +86,13 @@
         }
     ],
     "compute_resources": {
+        "sample_size": [
+            5180, 
+            5180
+        ],
+        "sample_unit": [
+            "MB"
+        ],
         "num_nodes": [
             1
         ],
@@ -96,6 +110,9 @@
         ],
         "mem_per_gpu": [
             0.0
+        ],
+        "expected_running_time": [
+            1000.0
         ]
     }
 }

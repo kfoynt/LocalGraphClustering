@@ -1,15 +1,15 @@
 {
-    "id": "realML.localgraphclustering.localCluster.ista",
-    "name": "realML.localgraphclustering.localCluster.ista",
-    "common_name": "ista",
-    "description": "Iterative Soft Thresholding Algorithm (ISTA). This algorithm solves the l1-regularized personalized PageRank problem. It rounds the solution using sweep cut.",
+    "id": "realML.localgraphclustering.localCluster.fista",
+    "name": "realML.localgraphclustering.localCluster.fista",
+    "common_name": "fista",
+    "description": "Fast Iterative Soft Thresholding Algorithm (FISTA). This algorithm solves the l1-regularized personalized PageRank problem using an accelerated version of ISTA. It rounds the solution using sweep cut.",
     "languages": [
         "python2.7.13"
     ],
     "library": "RealML",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "source_code": "https://github.com/kfoynt/LocalGraphClustering/blob/master/localgraphclustering/localCluster.py",
-    "is_class": "false",
+    "is_class": false,
     "parameters": [ 
         {
             "is_hyperparameter": false,
@@ -43,14 +43,14 @@
             "is_hyperparameter": true,
             "type": "float",
             "name": "epsilon",
-            "description": "Tolerance for ISTA for solving the l1-regularized personalized PageRank problem."
+            "description": "Tolerance for FISTA for solving the l1-regularized personalized PageRank problem."
         }
         ,
         {
             "is_hyperparameter": true,
             "type": "float",
             "name": "max_iter",
-            "description": "Maximum number of iterations of ISTA."
+            "description": "Maximum number of iterations of FISTA."
         }
         ,
         {
@@ -58,6 +58,13 @@
             "type": "float",
             "name": "max_time",
             "description": "Maximum time in seconds."
+        }
+        ,
+        {
+            "is_hyperparameter": true,
+            "type": "Boolean",
+            "name": "cpp",
+            "description": "Use the faster C++ version of FISTA or not."
         }
     ],
     "algorithm_type": [                                                         
@@ -76,6 +83,13 @@
         }
     ],
     "compute_resources": {
+        "sample_size": [
+            5180, 
+            5180
+        ],
+        "sample_unit": [
+            "MB"
+        ],
         "num_nodes": [
             1
         ],
@@ -93,6 +107,9 @@
         ],
         "mem_per_gpu": [
             0.0
+        ],
+        "expected_running_time": [
+            0.1
         ]
     }
 }

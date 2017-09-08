@@ -1,15 +1,15 @@
 {
-    "id": "realML.localgraphclustering.sweepCut.sweep_cut_cpp",
-    "name": "realML.localgraphclustering.sweepCut.sweep_cut_cpp",
-    "common_name": "sweep_cut_cpp",
-    "description": "Computes a cluster using sweep cut and conductance as a criterion. It initializes variables g.best_cluster, g.best_conductance. This method is a wrapper for the C++ rounding procedure.",
+    "id": "realML.localgraphclustering.sweepCut.sweep_general",
+    "name": "realML.localgraphclustering.sweepCut.sweep_general",
+    "common_name": "sweep_general",
+    "description": "Computes a cluster using sweep cut and conductance as a criterion. It initializes variables g.best_cluster, g.best_conductance, g.sweep_profile and g.volume_profile. This method is written in Python. Call help(SweepCut.__init__) to get the documentation for the variables of this class.",
     "languages": [
         "python2.7.13"
     ],
     "library": "RealML",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "source_code": "https://github.com/kfoynt/LocalGraphClustering/blob/master/localgraphclustering/sweepCut.py",
-    "is_class": "false",
+    "is_class": false,
     "parameters": [ 
         {
             "is_hyperparameter": false,
@@ -23,13 +23,6 @@
             "type": "class",
             "name": "g",
             "description": "graph object"
-        }
-        ,
-        {
-            "is_hyperparameter": true,
-            "type": "boolean",
-            "name": "do_sort",
-            "description": "If do_sort is equal to 1 then vector p is sorted in descending order first. If do_sort is equal to 0 then vector p is not sorted."
         }
         ,
         {
@@ -55,6 +48,13 @@
         }
     ],
     "compute_resources": {
+        "sample_size": [
+            5180, 
+            5180
+        ],
+        "sample_unit": [
+            "MB"
+        ],
         "num_nodes": [
             1
         ],
@@ -72,6 +72,9 @@
         ],
         "mem_per_gpu": [
             0.0
+        ],
+        "expected_running_time": [
+            2.0
         ]
     }
 }

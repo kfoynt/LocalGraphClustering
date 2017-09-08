@@ -1,15 +1,15 @@
 {
-    "id": "realML.localgraphclustering.graph.plot_one_component_ncp",
-    "name": "realML.localgraphclustering.graph.plot_one_component_ncp",
-    "common_name": "plot_one_component_ncp",
-    "description": "Plots the Network Community Profile for the given connected component.",
+    "id": "realML.localgraphclustering.graph.plot_ncp",
+    "name": "realML.localgraphclustering.graph.plot_ncp",
+    "common_name": "plot_ncp",
+    "description": "Plots the Network Community Profile for each connected component of the graph.",
     "languages": [
         "python2.7.13"
     ],
     "library": "RealML",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "source_code": "https://github.com/kfoynt/LocalGraphClustering/blob/master/localgraphclustering/graph.py",
-    "is_class": "false",
+    "is_class": false,
     "algorithm_type": [                                                         
         "Clustering"                                              
     ],
@@ -29,6 +29,13 @@
         }
     ],
     "compute_resources": {
+        "sample_size": [
+            5180, 
+            5180
+        ],
+        "sample_unit": [
+            "MB"
+        ],
         "num_nodes": [
             1
         ],
@@ -46,6 +53,9 @@
         ],
         "mem_per_gpu": [
             0.0
+        ],
+        "expected_running_time": [
+            0.1
         ]
     }
 }
