@@ -5,5 +5,8 @@ set -e
 make clean
 make -f Makefile
 
-cp libgraph.dylib ../../../../build/lib/localgraphclustering/graph_lib/lib/graph_lib_test/
+lib=$(find . -type f | grep libgraph)
+loc=$(find ../../../../build -type d -name "graph_lib_test")
+
+cp ${lib} ${loc}
 
