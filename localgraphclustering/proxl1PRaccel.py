@@ -21,24 +21,29 @@ from operator import itemgetter
 import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
-import platform
+from sys import platform
 import imp
 
 def proxl1PRaccel(ai,aj,a,ref_node,d,ds,dsinv,alpha = 0.15,rho = 1.0e-5,epsilon = 1.0e-4,maxiter = 10000,max_time = 100):
     n = len(ai) - 1
-    if platform.architecture() == ('64bit', ''):
-        float_type = np.float64
-    else:
-        float_type = np.float32
-
+    float_type = ctypes.c_double
     dt = np.dtype(ai[0])
     (itype, ctypes_itype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
     dt = np.dtype(aj[0])
     (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
 
     #load library
+    if platform == "linux2":
+        extension = ".so"
+    elif platform == "darwin":
+        extension = ".dylib"
+    elif platform == "win32":
+        extension = ".dll"
+    else:
+        print("Unknown system type!")
+        return (True,0,0)
     path_lgc = imp.find_module('localgraphclustering')[1]
-    lib=ctypes.cdll.LoadLibrary(path_lgc+"/graph_lib/lib/graph_lib_test/libgraph.dylib")
+    lib=ctypes.cdll.LoadLibrary(path_lgc+"/graph_lib/lib/graph_lib_test/libgraph"+extension)
     
     if (vtype, itype) == (np.int64, np.int64):
         fun = lib.proxl1PRaccel64
@@ -57,14 +62,15 @@ def proxl1PRaccel(ai,aj,a,ref_node,d,ds,dsinv,alpha = 0.15,rho = 1.0e-5,epsilon 
     fun.restype=ctypes_vtype
     fun.argtypes=[ctypes_vtype,ndpointer(ctypes_itype, flags="C_CONTIGUOUS"),
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
-                  ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                  ctypes.c_double,ctypes.c_double,
+                  ndpointer(float_type, flags="C_CONTIGUOUS"),
+                  float_type,float_type,
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),ctypes_vtype,
-                  ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                  ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                  ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),ctypes.c_double,
-                  ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                  ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),ctypes_vtype,ctypes_vtype,ctypes.c_double]
+                  ndpointer(float_type, flags="C_CONTIGUOUS"),
+                  ndpointer(float_type, flags="C_CONTIGUOUS"),
+                  ndpointer(float_type, flags="C_CONTIGUOUS"),float_type,
+                  ndpointer(float_type, flags="C_CONTIGUOUS"),
+                  ndpointer(float_type, flags="C_CONTIGUOUS"),ctypes_vtype,ctypes_vtype,
+                  float_type]
     not_converged=fun(n,ai,aj,a,alpha,rho,ref_node,len(ref_node),d,ds,dsinv,epsilon,grad,p,maxiter,0,max_time)
 
 
