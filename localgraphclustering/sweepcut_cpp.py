@@ -14,7 +14,7 @@ from operator import itemgetter
 import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
-import platform
+from sys import platform
 import imp
 
 def wrapped_ndptr(*args, **kwargs):
@@ -26,20 +26,24 @@ def wrapped_ndptr(*args, **kwargs):
     return type(base.__name__, (base,), {'from_param': classmethod(from_param)})
 
 def sweepcut_cpp(n,ai,aj,a,ids,num,values,flag,degrees = None):
-    
-    if platform.architecture() == ('64bit', ''):
-        float_type = np.float64
-    else:
-        float_type = np.float32
-
+    float_type = ctypes.c_double
     dt = np.dtype(ai[0])
     (itype, ctypes_itype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
     dt = np.dtype(aj[0])
     (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
 
     #load library
+    if platform == "linux2":
+        extension = ".so"
+    elif platform == "darwin":
+        extension = ".dylib"
+    elif platform == "win32":
+        extension = ".dll"
+    else:
+        print("Unknown system type!")
+        return (0,[],0)
     path_lgc = imp.find_module('localgraphclustering')[1]
-    lib=ctypes.cdll.LoadLibrary(path_lgc+"/graph_lib/lib/graph_lib_test/libgraph.dylib")
+    lib=ctypes.cdll.LoadLibrary(path_lgc+"/graph_lib/lib/graph_lib_test/libgraph"+extension)
     
     if (vtype, itype) == (np.int64, np.int64):
         fun = lib.sweepcut_with_sorting64 if flag == 0 else lib.sweepcut_without_sorting64
