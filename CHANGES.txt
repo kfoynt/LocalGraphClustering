@@ -1,3 +1,5 @@
 v0.2.2, 09/02/2017 -- Initial release  
 v0.2.3, 09/05/2017 -- Fixed warnings for Linux  
 v0.2.4, 09/05/2017 -- Fixed location error for C++ library on linux 
+v0.2.5, 09/11/2017 -- Fixed errors for Linux and documentation
+v0.2.6, 09/11/2017 -- Fixed errors in documentation

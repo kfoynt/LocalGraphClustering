@@ -121,7 +121,8 @@ def import_text(filename, separator):
 
 class graph:
     
-    def __init__(self):
+    def __
+    __(self):
         """
             CLASS VARIABLES
             ---------------
@@ -214,9 +215,8 @@ class graph:
             DESCRIPTION
             -----------
 
-            Computes statistics for the graph. It initializes variables 
-            g.d, g.dangling, g.dn, g.d_sqrt, g.dn_sqrt and g.vol_G,
-            where g is a graph object. The user needs to call read the graph first before calling
+            Computes statistics for the graph. It stores the results in class variables 
+            d, dangling, dn, d_sqrt, dn_sqrt and vol_G. The user needs to call read the graph first before calling
             this function by calling the read_graph function from this class.
 
             Call help(graph.__init__) to get the documentation for the variables of this class.
@@ -274,8 +274,7 @@ class graph:
             DESCRIPTION
             -----------
 
-            Reads the graph from an edgelist and initialize the adjecancy matrix which is stored variable g.A,
-            where g is graph object.
+            Reads the graph from an edgelist and initializes the adjecancy matrix which is stored in class variable A.
 
             Call help(graph.__init__) to get the documentation for the variables of this class.
             
@@ -312,8 +311,8 @@ class graph:
             DESCRIPTION
             -----------
 
-            Computes the connected components of the graph. Stores the results in variables g.components 
-            and g.number_of_components, where g is a graph object. The user needs to call read the graph 
+            Computes the connected components of the graph. It stores the results in class variables components 
+            and number_of_components. The user needs to call read the graph 
             first before calling this function by calling the read_graph function from this class.
 
             Call help(graph.__init__) to get the documentation for the variables of this class.
@@ -383,8 +382,8 @@ class graph:
             DESCRIPTION
             -----------
         
-            Computes the biconnected components of the graph. Stores the results in variables g.bicomponents 
-            and g.number_of_bicomponents. The user needs to call read the graph first before calling this 
+            Computes the biconnected components of the graph. It stores the results in class variables bicomponents 
+            and number_of_bicomponents. The user needs to call read the graph first before calling this 
             function by calling the read_graph function from this class.
         
             Call help(graph.__init__) to get the documentation for the variables of this class.
@@ -417,7 +416,7 @@ class graph:
             is the largest value k of a k-core containing that node. The user needs to 
             call read the graph first before calling this function by calling the read_graph 
             function from this class. The output can be accessed from the graph object that 
-            calls this function.
+            calls this function. It stores the results in class variables core_numbers.
         
             Call help(graph.__init__) to get the documentation for the variables of this class.
             

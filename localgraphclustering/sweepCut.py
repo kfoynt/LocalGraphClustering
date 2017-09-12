@@ -107,7 +107,7 @@ class sweepCut:
             -----------
 
             Computes a cluster using sweep cut and conductance as a criterion. 
-            It initializes variables g.best_cluster, g.best_conductance.
+            It stores the results in class variable best_cluster.
             This method is a wrapper for the C++ rounding procedure. 
 
             Call help(SweepCut.__init__) to get the documentation for the variables of this class. 
@@ -159,8 +159,7 @@ class sweepCut:
             -----------
 
             Computes a cluster using sweep cut and conductance as a criterion. 
-            It initializes variables g.best_cluster, g.best_conductance, g.sweep_profile and g.volume_profile.
-            This method is written in Python. 
+            It stores the results in class variables best_cluster, best_conductance, sweep_profile and volume_profile.
 
             Call help(SweepCut.__init__) to get the documentation for the variables of this class. 
 
@@ -257,8 +256,7 @@ class sweepCut:
 
             Computes a cluster using sweep cut and conductance as a criterion.
             Each component of the input vector p is divided with the corresponding degree of the node. 
-            It initializes variables g.best_cluster, g.best_conductance, g.sweep_profile and g.volume_profile.
-            This method is written in Python. 
+            It stores the results in class variables best_cluster, best_conductance, sweep_profile and volume_profile.
 
             Call help(SweepCut.__init__) to get the documentation for the variables of this class. 
 
