@@ -5,7 +5,7 @@
     It implements rounding procedures for local graph clustering.
 
     Call help(SweepCut.__init__) to get the documentation for the variables of this class.
-    Call help(SweepCut.name_of_primitive) to get the documentation for function name_of_primitive.
+    Call help(SweepCut.name_of_function) to get the documentation for function name_of_function.
 
     CLASS VARIABLES
     ---------------
@@ -36,8 +36,8 @@
                        of all clusters that were calculated by the rounding procedure and also have 
                        volume less than or equal to the input parameter vol_user.                      
 
-    PRIMITIVES 
-    ----------
+    FUNCTIONS 
+    ---------
 
     1) sweep_cut_cpp(self, p, g, do_sort = 1, vol_user = 0)
     
@@ -62,7 +62,7 @@ class sweepCut:
             1) best_cluster: list
                              Stores indices of the best clusters found by the last called rounding procedure.
 
-            2) best_conductance: float, double
+            2) best_conductance: float
                                  Stores the value of the best conductance found by the last called rounding procedure.
 
             3) sweep_profile: list of objects
@@ -128,6 +128,14 @@ class sweepCut:
             vol_user: float
                       Upper bound on volume for clusters added in variable volume_profile.
                       See documentation for variable volume_profile for details. 
+                      
+           RETURNS
+           -------
+
+           The output can be accessed from the sweepCut object that calls this function.
+           
+           best_cluster: float
+                         Stores the value of the best conductance found by the last called rounding procedure.
         """        
         n = g.A.shape[0]
         
@@ -167,6 +175,37 @@ class sweepCut:
             vol_user: float
                       Upper bound on volume for clusters added in variable volume_profile.
                       See documentation for variable volume_profile for details. 
+                      
+           RETURNS
+           -------
+
+           The output can be accessed from the sweepCut object that calls this function.
+           
+           best_cluster: list
+                         Stores indices of the best clusters found by the last called rounding procedure.
+           
+           best_conductance: float
+                             Stores the value of the best conductance found by the last called rounding procedure.
+                         
+           sweep_profile: list of objects
+                           A two dimensional list of objects. For example,
+                           sweep_profile[0] contains a numpy array with all conductances for all
+                           clusters that were calculated by the last called rounding procedure.
+                           sweep_profile[1] is a multidimensional list that contains the indices
+                           of all clusters that were calculated by the rounding procedure. For example,
+                           sweep_profile[1,5] is a list that contains the indices of the 5th cluster
+                           that was calculated by the rounding procedure. 
+                           The set of indices in sweep_profile[1][5] also correspond 
+                           to conductance in sweep_profile[0][5].
+           
+           volume_profile: list of objects
+                            A two dimensional list of objects. For example,
+                            sweep_profile[0] contains a numpy array with all conductances for all
+                            clusters that were calculated by the last called rounding procedure and also have 
+                            volume less than or equal to the input parameter vol_user.
+                            sweep_profile[1] is a multidimensional list that contains the indices
+                            of all clusters that were calculated by the rounding procedure and also have 
+                            volume less than or equal to the input parameter vol_user. 
         """    
         n = g.A.shape[0]
 
@@ -234,6 +273,37 @@ class sweepCut:
             vol_user: float
                       Upper bound on volume for clusters added in variable volume_profile.
                       See documentation for variable volume_profile for details. 
+                      
+           RETURNS
+           -------
+
+           The output can be accessed from the sweepCut object that calls this function.
+           
+           best_cluster: list
+                         Stores indices of the best clusters found by the last called rounding procedure.
+           
+           best_conductance: float
+                             Stores the value of the best conductance found by the last called rounding procedure.
+                         
+           sweep_profile: list of objects
+                           A two dimensional list of objects. For example,
+                           sweep_profile[0] contains a numpy array with all conductances for all
+                           clusters that were calculated by the last called rounding procedure.
+                           sweep_profile[1] is a multidimensional list that contains the indices
+                           of all clusters that were calculated by the rounding procedure. For example,
+                           sweep_profile[1,5] is a list that contains the indices of the 5th cluster
+                           that was calculated by the rounding procedure. 
+                           The set of indices in sweep_profile[1][5] also correspond 
+                           to conductance in sweep_profile[0][5].
+           
+           volume_profile: list of objects
+                            A two dimensional list of objects. For example,
+                            sweep_profile[0] contains a numpy array with all conductances for all
+                            clusters that were calculated by the last called rounding procedure and also have 
+                            volume less than or equal to the input parameter vol_user.
+                            sweep_profile[1] is a multidimensional list that contains the indices
+                            of all clusters that were calculated by the rounding procedure and also have 
+                            volume less than or equal to the input parameter vol_user. 
         """  
         [n,n] = g.A.shape
 

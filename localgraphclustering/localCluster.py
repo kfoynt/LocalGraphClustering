@@ -5,21 +5,21 @@
     LocalCluster class. It implements local graph clustering methods.
 
     Call help(localCluster.__init__) to get the documentation for the variables of this class.
-    Call help(localCluster.name_of_primitive) to get the documentation for function name_of_primitive.
+    Call help(localCluster.name_of_function) to get the documentation for function name_of_function.
 
     CLASS VARIABLES 
     ---------------
 
     1) node_embedding_acl: numpy array, float
-                           1D node embedding for each node of the graph when using ACL primitive.
+                           1D node embedding for each node of the graph when using ACL function.
        
     2) best_cluster_acl: list
                          A list of nodes that correspond to the cluster with the best 
-                         conductance that was found by ACL primitive.
+                         conductance that was found by ACL function.
                          
     3) best_conductance_acl: float
                              Conductance value that corresponds to the cluster with the best 
-                             conductance that was found by ACL primitive.
+                             conductance that was found by ACL function.
                              
     4) sweep_profile_acl: list of objects
                           A two dimensional list of objects. For example,
@@ -30,43 +30,43 @@
                           sweep_profile[1,5] is a list that contains the indices of the 5th cluster
                           that was calculated by sweep_cut. The set of indices in sweep_profile[1][5] also correspond 
                           to conductance in sweep_profile[0][5]. The number of clusters is unknwon apriori 
-                          and depends on the data and that parameter setting of ACL primitive.  
+                          and depends on the data and that parameter setting of ACL function.  
                           
     5) node_embedding_ista: numpy array, float
-                            Similar to node_embedding_acl but using ISTA primitive.
+                            Similar to node_embedding_acl but using ISTA function.
        
     6) best_cluster_ista: list
-                          Similar to best_cluster_ista but using ISTA primitive.
+                          Similar to best_cluster_ista but using ISTA function.
                          
     7) best_conductance_ista: float
-                              Similar to best_conductance_ista but using ISTA primitive.
+                              Similar to best_conductance_ista but using ISTA function.
                              
     8) sweep_profile_ista: list of objects
-                           Similar to sweep_profile_ista but using ISTA primitive. 
+                           Similar to sweep_profile_ista but using ISTA function. 
                            
     9) node_embedding_fista: numpy array, float
-                             Similar to node_embedding_fista but using FISTA primitive.
+                             Similar to node_embedding_fista but using FISTA function.
        
     10) best_cluster_fista: list
-                            Similar to best_cluster_fista but using FISTA primitive.
+                            Similar to best_cluster_fista but using FISTA function.
                          
     11) best_conductance_fista: float
-                                Similar to best_conductance_fista but using FISTA primitive.
+                                Similar to best_conductance_fista but using FISTA function.
                              
     12) sweep_profile_fista: list of objects
-                             Similar to sweep_profile_fista but using FISTA primitive. 
+                             Similar to sweep_profile_fista but using FISTA function. 
                              
     13) node_embedding_nibble: numpy array, float
-                               Similar to node_embedding_nibble but using PageRank Nibble primitive.
+                               Similar to node_embedding_nibble but using PageRank Nibble function.
         
     14) best_cluster_nibble: list
-                             Similar to best_cluster_nibble but using PageRank Nibble primitive.
+                             Similar to best_cluster_nibble but using PageRank Nibble function.
                          
     15) best_conductance_nibble: float
-                                 Similar to best_conductance_nibble but using PageRank Nibble primitive.
+                                 Similar to best_conductance_nibble but using PageRank Nibble function.
                              
     16) sweep_profile_nibble: list of objects
-                              Similar to sweep_profile_nibble but using PageRank Nibble primitive. 
+                              Similar to sweep_profile_nibble but using PageRank Nibble function. 
 
     17) volume_profile_nibble: list of objects
                                A two dimensional list of objects which stores information about clusters
@@ -80,9 +80,9 @@
                                indices of the 5th cluster that was calculated by sweep_cut and also satisfies 
                                the previous volume constraint. The set of indices in volume_profile[1][5] also correspond 
                                to conductance in volume_profile[0][5]. The number of clusters is unknwon apriori and 
-                               depends on the data and that parameter setting of PageRank Nibble primitive. 
-    Primitives
-    ----------
+                               depends on the data and that parameter setting of PageRank Nibble function. 
+    FUNCTIONS
+    ---------
 
     1) acl(ref_node, g, alpha = 0.15, rho = 1.0e-5, max_iter = 100000, max_time = 100)
     
@@ -110,15 +110,15 @@ class localCluster:
             ---------------
 
             1) node_embedding_acl: numpy array, float
-                                   1D node embedding for each node of the graph when using ACL primitive.
+                                   1D node embedding for each node of the graph when using ACL function.
 
             2) best_cluster_acl: list
                                  A list of nodes that correspond to the cluster with the best 
-                                 conductance that was found by ACL primitive.
+                                 conductance that was found by ACL function.
 
             3) best_conductance_acl: float
                                      Conductance value that corresponds to the cluster with the best 
-                                     conductance that was found by ACL primitive.
+                                     conductance that was found by ACL function.
 
             4) sweep_profile_acl: list of objects
                                   A two dimensional list of objects. For example,
@@ -129,43 +129,43 @@ class localCluster:
                                   sweep_profile[1,5] is a list that contains the indices of the 5th cluster
                                   that was calculated by sweep_cut. The set of indices in sweep_profile[1][5] also correspond 
                                   to conductance in sweep_profile[0][5]. The number of clusters is unknwon apriori 
-                                  and depends on the data and that parameter setting of ACL primitive.  
+                                  and depends on the data and that parameter setting of ACL function.  
 
             5) node_embedding_ista: numpy array, float
-                                    Similar to node_embedding_acl but using ISTA primitive.
+                                    Similar to node_embedding_acl but using ISTA function.
 
             6) best_cluster_ista: list
-                                  Similar to best_cluster_ista but using ISTA primitive.
+                                  Similar to best_cluster_ista but using ISTA function.
 
             7) best_conductance_ista: float
-                                      Similar to best_conductance_ista but using ISTA primitive.
+                                      Similar to best_conductance_ista but using ISTA function.
 
             8) sweep_profile_ista: list of objects
-                                   Similar to sweep_profile_ista but using ISTA primitive. 
+                                   Similar to sweep_profile_ista but using ISTA function. 
 
             9) node_embedding_fista: numpy array, float
-                                     Similar to node_embedding_fista but using FISTA primitive.
+                                     Similar to node_embedding_fista but using FISTA function.
 
             10) best_cluster_fista: list
-                                    Similar to best_cluster_fista but using FISTA primitive.
+                                    Similar to best_cluster_fista but using FISTA function.
 
             11) best_conductance_fista: float
-                                        Similar to best_conductance_fista but using FISTA primitive.
+                                        Similar to best_conductance_fista but using FISTA function.
 
             12) sweep_profile_fista: list of objects
-                                     Similar to sweep_profile_fista but using FISTA primitive. 
+                                     Similar to sweep_profile_fista but using FISTA function. 
 
             13) node_embedding_nibble: numpy array, float
-                                       Similar to node_embedding_nibble but using PageRank Nibble primitive.
+                                       Similar to node_embedding_nibble but using PageRank Nibble function.
 
             14) best_cluster_nibble: list
-                                     Similar to best_cluster_nibble but using PageRank Nibble primitive.
+                                     Similar to best_cluster_nibble but using PageRank Nibble function.
 
             15) best_conductance_nibble: float
-                                         Similar to best_conductance_nibble but using PageRank Nibble primitive.
+                                         Similar to best_conductance_nibble but using PageRank Nibble function.
 
             16) sweep_profile_nibble: list of objects
-                                      Similar to sweep_profile_nibble but using PageRank Nibble primitive. 
+                                      Similar to sweep_profile_nibble but using PageRank Nibble function. 
 
             17) volume_profile_nibble: list of objects
                                        A two dimensional list of objects which stores information about clusters
@@ -179,7 +179,7 @@ class localCluster:
                                        indices of the 5th cluster that was calculated by sweep_cut and also satisfies 
                                        the previous volume constraint. The set of indices in volume_profile[1][5] also correspond 
                                        to conductance in volume_profile[0][5]. The number of clusters is unknwon apriori and 
-                                       depends on the data and that parameter setting of PageRank Nibble primitive. 
+                                       depends on the data and that parameter setting of PageRank Nibble function. 
         """
         self.node_embedding_acl = []
         self.best_cluster_acl = []
@@ -246,7 +246,7 @@ class localCluster:
            RETURNS
            -------
 
-           The output can be accessed from localCluster object that calls this primitive.
+           The output can be accessed from the localCluster object that calls this function.
 
            node_embedding_acl: numpy array, float
                                Approximate personalized PageRank vector
@@ -344,7 +344,7 @@ class localCluster:
            RETURNS
            -------
 
-           The output can be accessed from localCluster object that calls this primitive.
+           The output can be accessed from the localCluster object that calls this function.
 
            If cpp = False then the output is:
 
@@ -466,6 +466,8 @@ class localCluster:
 
            RETURNS
            ------- 
+           
+           The output can be accessed from the localCluster object that calls this function.
 
            node_embedding_ista: numpy array, float
                                 Approximate personalized PageRank vector
@@ -549,6 +551,8 @@ class localCluster:
 
            RETURNS
            -------
+           
+           The output can be accessed from the localCluster object that calls this function.
 
            If cpp = False then the output is:
 
