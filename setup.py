@@ -133,6 +133,6 @@ setup(
       #                    ],
       #},
       
-      scripts=['bin/createGraphLibFile.sh'],
+      #scripts=['bin/createGraphLibFile.sh'],
       cmdclass={'install': MyInstall},
       )
