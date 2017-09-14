@@ -92,11 +92,11 @@
    
     4) page_rank_nibble(g, ref_node, vol, phi = 0.5, algorithm = 'fista', epsilon = 1.0e-2, max_iter = 10000, max_time = 100, calculate_component = 0, cpp = True)
 """     
-from acl_list import acl_list
-from sweepCut import *
-from fista_dinput_dense import fista_dinput_dense
-from proxl1PRaccel import proxl1PRaccel
-from ista_dinput_dense import ista_dinput_dense
+from localgraphclustering.acl_list import acl_list
+from localgraphclustering.sweepCut import *
+from localgraphclustering.fista_dinput_dense import fista_dinput_dense
+from localgraphclustering.proxl1PRaccel import proxl1PRaccel
+from localgraphclustering.ista_dinput_dense import ista_dinput_dense
 
 import numpy as np
 import networkx as nx

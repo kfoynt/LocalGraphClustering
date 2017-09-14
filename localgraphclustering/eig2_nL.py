@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.sparse.linalg as splinalg
-from sweepCut import *
+from localgraphclustering.sweepCut import *
 
 def eig2_nL(g, tol_eigs = 1.0e-6):
     """

@@ -1,8 +1,8 @@
 import time
 import numpy as np
 from scipy import sparse as sp
-from fista_dinput_dense import fista_dinput_dense
-from proxl1PRaccel import proxl1PRaccel
+from localgraphclustering.fista_dinput_dense import fista_dinput_dense
+from localgraphclustering.proxl1PRaccel import proxl1PRaccel
 
 def multiclass_label_prediction(labels, g, alpha = 0.15, rho = 1.0e-10, epsilon = 1.0e-2, max_iter = 10000, max_time = 100, cpp = True):
     """

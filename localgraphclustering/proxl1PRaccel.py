@@ -33,7 +33,7 @@ def proxl1PRaccel(ai,aj,a,ref_node,d,ds,dsinv,alpha = 0.15,rho = 1.0e-5,epsilon 
     (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
 
     #load library
-    if platform == "linux2":
+    if platform == "linux2" or "linux":
         extension = ".so"
     elif platform == "darwin":
         extension = ".dylib"

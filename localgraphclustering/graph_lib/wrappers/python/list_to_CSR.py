@@ -12,8 +12,8 @@ def list_to_CSR(filename):
     first_line = f.readline().strip()
     import re
     first_line = re.split(" ", first_line)
-    n = long(first_line[0])
-    m = long(first_line[2])
+    n = int(first_line[0])
+    m = int(first_line[2])
     ei = []
     ej = []
     w = []

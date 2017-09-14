@@ -22,6 +22,9 @@ import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
 from sys import platform
+from os import path
+
+libloc = path.join(path.abspath(path.dirname(__file__)),"../../lib/graph_lib_test/libgraph")
 
 def proxl1PRaccel(ai,aj,a,ref_node,d,ds,dsinv,alpha = 0.15,rho = 1.0e-5,epsilon = 1.0e-4,maxiter = 10000,max_time = 100):
     n = len(ai) - 1
@@ -32,7 +35,7 @@ def proxl1PRaccel(ai,aj,a,ref_node,d,ds,dsinv,alpha = 0.15,rho = 1.0e-5,epsilon 
     (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
 
     #load library
-    if platform == "linux2":
+    if platform == "linux2" or "linux":
         extension = ".so"
     elif platform == "darwin":
         extension = ".dylib"
@@ -41,7 +44,7 @@ def proxl1PRaccel(ai,aj,a,ref_node,d,ds,dsinv,alpha = 0.15,rho = 1.0e-5,epsilon 
     else:
         print("Unknown system type!")
         return (True,0,0)
-    lib=ctypes.cdll.LoadLibrary("../../lib/graph_lib_test/./libgraph"+extension)
+    lib=ctypes.cdll.LoadLibrary(libloc+extension)
     
     if (vtype, itype) == (np.int64, np.int64):
         fun = lib.proxl1PRaccel64
