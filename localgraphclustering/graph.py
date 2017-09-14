@@ -279,7 +279,7 @@ class graph:
             PARAMETERS
             ----------
             
-            filename: string, name of the file, for example 'JohnsHopkins'.
+            filename: string, name of the file, for example 'JohnsHopkins.edgelist' or 'JohnsHopkins.gml'.
             
             file_type: string, type of file. Currently only 'edgelist' and 'gml' are supported.
                        Default = 'gml'
@@ -315,7 +315,7 @@ class graph:
             self.A = self.A.tocsr()
             self.A = self.A + self.A.T
         elif file_type == 'gml':
-            G = nx.read_gml(filename+file_type)
+            G = nx.read_gml(filename)
             self.A = nx.adjacency_matrix(G)
         else:
             print('This file type is not supported')
