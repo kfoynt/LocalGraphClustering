@@ -120,9 +120,7 @@ def import_text(filename, separator):
             yield line
 
 class graph:
-    
-    def __
-    __(self):
+    def __init__(self):
         """
             CLASS VARIABLES
             ---------------
@@ -269,7 +267,7 @@ class graph:
         self.dn_sqrt = np.sqrt(self.dn)
         self.vol_G = np.sum(self.d)
 
-    def read_graph(self,filename,separator):
+    def read_graph(self,filename,file_type = 'gml',separator = '\t'):
         """
             DESCRIPTION
             -----------
@@ -277,6 +275,17 @@ class graph:
             Reads the graph from an edgelist and initializes the adjecancy matrix which is stored in class variable A.
 
             Call help(graph.__init__) to get the documentation for the variables of this class.
+            
+            PARAMETERS
+            ----------
+            
+            filename: string, name of the file, for example 'JohnsHopkins'.
+            
+            file_type: string, type of file. Currently only 'edgelist' and 'gml' are supported.
+                       Default = 'gml'
+                       
+            separator: string, used if file_type = 'edgelist'
+                       Default = '\t'
             
             RETURNS
             -------
@@ -287,22 +296,30 @@ class graph:
                Adjacency matrix
         """
         
-        first_column = []
-        second_column = []
+        if file_type == 'edgelist':
         
-        for data in import_text(filename, separator):
-            first_column.extend([int(data[0])])
-            second_column.extend([int(data[1])])
-            
-        if len(first_column) != len(second_column):
-            print('The edgelist input is corrupted')
-        
-        m = len(first_column)
-        n = max([max(second_column),max(first_column)]) + 1
-        
-        self.A = sp.coo_matrix((np.ones(m),(first_column,second_column)), shape=(n,n))
-        self.A = self.A.tocsr()
-        self.A = self.A + self.A.T
+            first_column = []
+            second_column = []
+
+            for data in import_text(filename, separator):
+                first_column.extend([int(data[0])])
+                second_column.extend([int(data[1])])
+
+            if len(first_column) != len(second_column):
+                print('The edgelist input is corrupted')
+
+            m = len(first_column)
+            n = max([max(second_column),max(first_column)]) + 1
+
+            self.A = sp.coo_matrix((np.ones(m),(first_column,second_column)), shape=(n,n))
+            self.A = self.A.tocsr()
+            self.A = self.A + self.A.T
+        elif file_type == 'gml':
+            G = nx.read_gml(filename+file_type)
+            self.A = nx.adjacency_matrix(G)
+        else:
+            print('This file type is not supported')
+            return
             
         self.compute_statistics()
         
