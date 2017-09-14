@@ -2,10 +2,10 @@
     DESCRIPTION
     -----------
 
-    Graph class. It implements graph loading from an edgelist and provides functions that operate on the graph.
+    Graph class. It implements graph loading from an edgelist or gml and provides functions that operate on the graph.
 
-    Call help(graph.__init__) to get the documentation for the variables of this class.
-    Call help(graph.name_of_primitive) to get the documentation for function name_of_primitive.
+    Call help(graph.__init__) to get the documentation for the variables and functions of this class.
+    Call help(graph.name_of_function) to get the documentation for function name_of_function.
 
     CLASS VARIABLES 
     ---------------
@@ -74,8 +74,8 @@
     18) core_numbers: dictionary
                   Core number for each vertex
 
-    Primitives
-    ----------
+    FUNCTIONS
+    ---------
 
     1) compute_statistics(self)
 
@@ -120,7 +120,6 @@ def import_text(filename, separator):
             yield line
 
 class graph:
-    
     def __init__(self):
         """
             CLASS VARIABLES
@@ -214,11 +213,33 @@ class graph:
             DESCRIPTION
             -----------
 
-            Computes statistics for the graph. It initializes variables 
-            g.d, g.dangling, g.dn, g.d_sqrt, g.dn_sqrt and g.vol_G,
-            where g is a graph object.
+            Computes statistics for the graph. It stores the results in class variables 
+            d, dangling, dn, d_sqrt, dn_sqrt and vol_G. The user needs to read the graph first before calling
+            this function by calling the read_graph function from this class.
 
             Call help(graph.__init__) to get the documentation for the variables of this class.
+            
+
+            RETURNS
+            -------
+           
+            dangling: interger numpy array
+                      Nodes with zero edges.
+            
+            d: floating point numpy vector 
+               Degrees vector
+           
+            dn: floating point numpy vector 
+                Component-wise reciprocal of degrees vector
+            
+            d_sqrt: floating point numpy vector
+                    Component-wise square root of degrees vector
+           
+            dn_sqrt: floating point numpy vector 
+                     Component-wise reciprocal of sqaure root degrees vector
+            
+            vol_G: floating point scalar 
+                   Volume of graph
         """
         n = self.A.shape[0]
         
@@ -241,38 +262,64 @@ class graph:
 
             self.d = np.ravel(self.A.sum(axis=1))
         
-        self.dn = 1/self.d
+        self.dn = 1.0/self.d
         self.d_sqrt = np.sqrt(self.d)
         self.dn_sqrt = np.sqrt(self.dn)
         self.vol_G = np.sum(self.d)
 
-    def read_graph(self,filename,separator):
+    def read_graph(self,filename,file_type = 'edgelist',separator = '\t'):
         """
             DESCRIPTION
             -----------
 
-            Reads the graph from an edgelist and initialize the adjecancy matrix which is stored variable g.A,
-            where g is graph object.
+            Reads the graph from an edgelist or gml and initializes the adjecancy matrix which is stored in class variable A.
 
             Call help(graph.__init__) to get the documentation for the variables of this class.
+            
+            PARAMETERS
+            ----------
+            
+            filename: string, name of the file, for example 'JohnsHopkins.edgelist' or 'JohnsHopkins.gml'.
+            
+            file_type: string, type of file. Currently only 'edgelist' and 'gml' are supported.
+                       Default = 'edgelist'
+                       
+            separator: string, used if file_type = 'edgelist'
+                       Default = '\t'
+            
+            RETURNS
+            -------
+           
+            The output can be accessed from the graph object that calls this function.
+           
+            A: sparse row format matirx
+               Adjacency matrix
         """
         
-        first_column = []
-        second_column = []
+        if file_type == 'edgelist':
         
-        for data in import_text(filename, separator):
-            first_column.extend([int(data[0])])
-            second_column.extend([int(data[1])])
-            
-        if len(first_column) != len(second_column):
-            print('The edgelist input is corrupted')
-        
-        m = len(first_column)
-        n = max([max(second_column),max(first_column)]) + 1
-        
-        self.A = sp.coo_matrix((np.ones(m),(first_column,second_column)), shape=(n,n))
-        self.A = self.A.tocsr()
-        self.A = self.A + self.A.T
+            first_column = []
+            second_column = []
+
+            for data in import_text(filename, separator):
+                first_column.extend([int(data[0])])
+                second_column.extend([int(data[1])])
+
+            if len(first_column) != len(second_column):
+                print('The edgelist input is corrupted')
+
+            m = len(first_column)
+            n = max([max(second_column),max(first_column)]) + 1
+
+            self.A = sp.coo_matrix((np.ones(m),(first_column,second_column)), shape=(n,n))
+            self.A = self.A.tocsr()
+            self.A = self.A + self.A.T
+        elif file_type == 'gml':
+            G = nx.read_gml(filename)
+            self.A = nx.adjacency_matrix(G).astype(np.float64)
+        else:
+            print('This file type is not supported')
+            return
             
         self.compute_statistics()
         
@@ -281,10 +328,22 @@ class graph:
             DESCRIPTION
             -----------
 
-            Computes the connected components of the graph. Stores the results in variables g.components 
-            and g.number_of_components, where g is a graph object
+            Computes the connected components of the graph. It stores the results in class variables components 
+            and number_of_components. The user needs to call read the graph 
+            first before calling this function by calling the read_graph function from this class.
 
             Call help(graph.__init__) to get the documentation for the variables of this class.
+            
+            RETURNS
+            -------
+           
+            The output can be accessed from the graph object that calls this function.
+           
+            components: list of sets 
+                        Each set contains the indices of a connected component of the graph
+
+            number_of_components: integer
+                                  Number of connected components of the graph
         """
         
         g_nx = nx.from_scipy_sparse_matrix(self.A)
@@ -299,9 +358,19 @@ class graph:
         """
             DESCRIPTION
             -----------
+            
+            The output can be accessed from the graph object that calls this function.
 
             Checks if the graph is a disconnected graph. It prints the result as a comment and 
-            returns True if the graph is disconnected, or false otherwise.
+            returns True if the graph is disconnected, or false otherwise. The user needs to 
+            call read the graph first before calling this function by calling the read_graph function from this class.
+            
+            RETURNS
+            -------
+           
+            True: if connected 
+
+            False: if disconnected
         """
         
         if self.d == []:
@@ -330,10 +399,22 @@ class graph:
             DESCRIPTION
             -----------
         
-            Computes the biconnected components of the graph. Stores the results in variables g.bicomponents 
-            and g.number_of_bicomponents.
+            Computes the biconnected components of the graph. It stores the results in class variables bicomponents 
+            and number_of_bicomponents. The user needs to call read the graph first before calling this 
+            function by calling the read_graph function from this class.
         
             Call help(graph.__init__) to get the documentation for the variables of this class.
+            
+            RETURNS
+            -------
+           
+            The output can be accessed from the graph object that calls this function.
+           
+            bicomponents: list of sets  
+                          Each set contains the indices of a biconnected component of the graph
+
+            number_of_bicomponents: integer
+                                    Number of biconnected components of the graph
         """
         
         g_nx = nx.from_scipy_sparse_matrix(self.A)
@@ -343,6 +424,27 @@ class graph:
         self.number_of_bicomponents = len(self.bicomponents)
         
     def core_number(self):
+        """
+            DESCRIPTION
+            -----------
+        
+            From Networkx: Return the core number for each vertex. A k-core is a maximal 
+            subgraph that contains nodes of degree k or more. The core number of a node 
+            is the largest value k of a k-core containing that node. The user needs to 
+            call read the graph first before calling this function by calling the read_graph 
+            function from this class. The output can be accessed from the graph object that 
+            calls this function. It stores the results in class variables core_numbers.
+        
+            Call help(graph.__init__) to get the documentation for the variables of this class.
+            
+            RETURNS
+            -------
+           
+            The output can be accessed from the graph object that calls this function.
+           
+            core_numbers: list of integers  
+                          Each set contains the indices of a biconnected component of the graph
+        """
         
         g_nx = nx.from_scipy_sparse_matrix(self.A)
 
@@ -395,7 +497,7 @@ class graph:
            RETURNS
            -------
 
-           The output can be accessed from graph object that calls this primitive.
+           The output can be accessed from graph object that calls this function.
 
            conductance_vs_vol: a list of dictionaries
                                The length of the list is the number of connected components of the given graph.

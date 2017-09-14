@@ -34,7 +34,7 @@ def eig2_nL(g, tol_eigs = 1.0e-6):
                      A list of nodes that correspond to the cluster with the best 
                      conductance among the one that were found by this method.
                       
-       best_conductance: float, double
+       best_conductance: float
                          Conductance value that corresponds to the cluster with the best 
                          conductance that was found by this method.
                           
