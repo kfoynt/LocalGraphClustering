@@ -50,7 +50,7 @@
 
 from scipy import sparse as sp
 import numpy as np
-from sweepcut_cpp import sweepcut_cpp
+from localgraphclustering.sweepcut_cpp import sweepcut_cpp
 
 class sweepCut:
     

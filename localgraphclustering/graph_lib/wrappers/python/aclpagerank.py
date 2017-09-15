@@ -1,6 +1,6 @@
 # A python wrapper for aclpagerank
 # n - number of vertices
-# ei,ej - edge list
+# ai,aj - graph in CSR
 # alpha - value of alpha
 # eps - value of epsilon
 # seedids,nseedids - the set of indices for seeds
@@ -14,8 +14,11 @@ import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
 from sys import platform
+from os import path
 
-def aclpagerank(n,ai,aj,alpha,eps,seedids,nseedids,maxsteps,xlength,flag):
+libloc = path.join(path.abspath(path.dirname(__file__)),"../../lib/graph_lib_test/libgraph")
+
+def aclpagerank(n,ai,aj,alpha,eps,seedids,nseedids,maxsteps,xlength,flag=0):
 
     float_type = ctypes.c_double
 
@@ -34,7 +37,7 @@ def aclpagerank(n,ai,aj,alpha,eps,seedids,nseedids,maxsteps,xlength,flag):
     else:
         print("Unknown system type!")
         return (True,0,0)
-    lib=ctypes.cdll.LoadLibrary("../../lib/graph_lib_test/./libgraph"+extension)
+    lib=ctypes.cdll.LoadLibrary(libloc+extension)
     
     if (vtype, itype) == (np.int64, np.int64):
         fun = lib.aclpagerank64
