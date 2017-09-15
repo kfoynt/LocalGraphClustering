@@ -1,19 +1,19 @@
 # A python wrapper for ppr_path
 # n - number of vertices
-# ei,ej - edge list
+# ai,aj - graph in CSR
 # alpha - value of alpha
 # eps - value of epsilon
 # rho - value of rho
 # seedids,nseedids - the set of indices for seeds
 # xlength - the max number of ids in the solution vector
-# xids, actual_length - the solution vector
-# fun_id - 0 for aclpagerank64, 1 for aclpagerank32 and 2 for aclpagerank32_64
+# actual_xids, actual_length - the solution vector
 
 from operator import itemgetter
 import numpy as np
 from numpy.ctypeslib import ndpointer
 from ctypes import *
 from sys import platform
+from os import path
 
 class ret_path_info:
     num_eps = 0
@@ -38,6 +38,8 @@ class ret_rank_info:
     nsteps = 0
     size_for_best_cond = 0
 
+libloc = path.join(path.abspath(path.dirname(__file__)),"../../lib/graph_lib_test/libgraph")
+
 def ppr_path(n,ai,aj,alpha,eps,rho,seedids,nseedids,xlength):
     
     float_type = c_double
@@ -48,7 +50,7 @@ def ppr_path(n,ai,aj,alpha,eps,rho,seedids,nseedids,xlength):
     (vtype, ctypes_vtype) = (np.int64, c_int64) if dt.name == 'int64' else (np.uint32, c_uint32)
 
     #load library
-    if platform == "linux2":
+    if platform == "linux2" or "linux":
         extension = ".so"
     elif platform == "darwin":
         extension = ".dylib"
@@ -57,7 +59,7 @@ def ppr_path(n,ai,aj,alpha,eps,rho,seedids,nseedids,xlength):
     else:
         print("Unknown system type!")
         return (True,0,0)
-    lib=cdll.LoadLibrary("../../lib/graph_lib_test/./libgraph"+extension)
+    lib=cdll.LoadLibrary(libloc+extension)
 
     if (vtype, itype) == (np.int64, np.int64):
         fun = lib.ppr_path64

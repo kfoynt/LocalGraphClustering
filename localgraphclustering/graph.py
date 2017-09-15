@@ -109,8 +109,8 @@ import csv
 import networkx as nx
 import matplotlib.pylab as plt
 
-from localCluster import *
-from eig2L_subgraph import eig2L_subgraph
+from localgraphclustering.localCluster import *
+from localgraphclustering.eig2L_subgraph import eig2L_subgraph
 import time
 
 def import_text(filename, separator):
@@ -253,7 +253,7 @@ class graph:
             self.A = sp.lil_matrix(self.A)
             
             for i in self.dangling:
-                numbers = range(0,i) + range(i + 1,n - 1)
+                numbers = list(range(0,i))+list(range(i + 1,n - 1))
                 j = np.random.choice(numbers)
                 self.A[i,j] = 1
                 self.A[j,i] = 1

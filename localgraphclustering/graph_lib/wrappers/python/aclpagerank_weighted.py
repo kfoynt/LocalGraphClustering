@@ -14,8 +14,11 @@ import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
 from sys import platform
+from os import path
 
-def aclpagerank_weighted(n,ai,aj,a,alpha,eps,seedids,nseedids,maxsteps,xlength,offset):
+libloc = path.join(path.abspath(path.dirname(__file__)),"../../lib/graph_lib_test/libgraph")
+
+def aclpagerank_weighted(n,ai,aj,a,alpha,eps,seedids,nseedids,maxsteps,xlength,offset=0):
 
     float_type = ctypes.c_double
 
@@ -34,7 +37,7 @@ def aclpagerank_weighted(n,ai,aj,a,alpha,eps,seedids,nseedids,maxsteps,xlength,o
     else:
         print("Unknown system type!")
         return (True,0,0)
-    lib=ctypes.cdll.LoadLibrary("../../lib/graph_lib_test/./libgraph"+extension)
+    lib=ctypes.cdll.LoadLibrary(libloc+extension)
     
     if (vtype, itype) == (np.int64, np.int64):
         fun = lib.aclpagerank_weighted64

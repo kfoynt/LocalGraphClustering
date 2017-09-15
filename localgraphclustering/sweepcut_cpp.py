@@ -33,7 +33,7 @@ def sweepcut_cpp(n,ai,aj,a,ids,num,values,flag,degrees = None):
     (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
 
     #load library
-    if platform == "linux2":
+    if platform == "linux2" or "linux":
         extension = ".so"
     elif platform == "darwin":
         extension = ".dylib"
