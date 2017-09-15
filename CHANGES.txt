@@ -8,4 +8,5 @@ v0.2.8, 09/13/2017 -- Errors in read_graph
 v0.2.9, 09/13/2017 -- Errors in setup
 v0.3.0, 09/13/2017 -- Errors in setup
 v0.3.1, 09/13/2017 -- Errors in setup
-v0.3.2, 09/13/2017 -- Removing erros 
+v0.3.2, 09/13/2017 -- Removing errors 
+v0.3.3, 09/15/2017 -- Fixing errors for reading gml 
