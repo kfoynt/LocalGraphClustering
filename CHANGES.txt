@@ -10,3 +10,4 @@ v0.3.0, 09/13/2017 -- Errors in setup
 v0.3.1, 09/13/2017 -- Errors in setup
 v0.3.2, 09/13/2017 -- Removing errors 
 v0.3.3, 09/15/2017 -- Fixing errors for reading gml 
+v0.3.4, 09/17/2017 -- Fixed bugs in proxl1accel for python 3 
