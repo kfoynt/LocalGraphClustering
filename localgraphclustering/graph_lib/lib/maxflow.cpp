@@ -1,5 +1,3 @@
-#ifdef MQI_H
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unordered_map>
@@ -92,20 +90,12 @@ void find_cut(vtype u, vtype *cut, vtype *another_pro, vtype *next, vtype *to, d
 
 
 template<typename vtype, typename itype>
-pair<double, vtype> max_flow(itype* ai, vtype* aj, vtype offset, double a, double c, itype nedges, vtype nverts,
+pair<double, vtype> max_flow_MQI(itype* ai, vtype* aj, vtype offset, double a, double c, itype nedges, vtype nverts,
                              unordered_map<vtype, vtype>R_map, unordered_map<vtype, vtype>degree_map, 
-                             vtype src, vtype dest, vtype* mincut)
+                             vtype src, vtype dest, vtype* mincut, vtype* Q, vtype* fin, vtype* pro, vtype* another_pro,
+                             vtype* dist, double* flow, double* cap, vtype *next, vtype *to)
 {
     //cout << "nverts " << nverts << " nedges " << nedges << endl;
-    vtype* Q = (vtype*)malloc(sizeof(vtype) * nverts);
-    vtype* fin = (vtype*)malloc(sizeof(vtype) * nverts);
-    vtype* pro = (vtype*)malloc(sizeof(vtype) * nverts);
-    vtype* another_pro = (vtype*)malloc(sizeof(vtype) * nverts);
-    vtype* dist = (vtype*)malloc(sizeof(vtype) * nverts);
-    double* flow = (double*)malloc(sizeof(double) * 2 * nedges);
-    double* cap = (double*)malloc(sizeof(double) * 2 * nedges);
-    vtype *next = (vtype*)malloc(sizeof(vtype) * 2 * nedges);
-    vtype *to = (vtype*)malloc(sizeof(vtype) * 2 * nedges);
 
     fill(fin, fin + nverts, -1);
     fill(mincut, mincut + nverts, 0);
@@ -129,12 +119,12 @@ pair<double, vtype> max_flow(itype* ai, vtype* aj, vtype offset, double a, doubl
         vtype v1 = R_iter->second;
         auto got = degree_map.find(v);
         double w = a * got->second;
-        new_edge(u1, v1, w, to, cap, flow, next, fin, &nEdge);
+        new_edge<vtype,itype>(u1, v1, w, to, cap, flow, next, fin, &nEdge);
         u1 = v1;
         v1 = dest;
         vtype u = v;
         w = c * (ai[u + 1] - ai[u]);
-        new_edge(u1, v1, w, to, cap, flow, next, fin, &nEdge);
+        new_edge<vtype,itype>(u1, v1, w, to, cap, flow, next, fin, &nEdge);
     }
 
     double ret = 0;
@@ -157,15 +147,88 @@ pair<double, vtype> max_flow(itype* ai, vtype* aj, vtype offset, double a, doubl
     find_cut<vtype, itype>(src, mincut, another_pro, next, to, flow, cap, &length);
     pair<double, vtype> retData (ret,length);
    
-    free(Q);
-    free(fin);
-    free(pro);
-    free(another_pro);
-    free(dist);
-    free(flow);
-    free(cap);
-    free(next);
-    free(to);
     return retData;
 }
-#endif
+
+template<typename vtype, typename itype>
+double max_flow_ds(itype* ai, vtype* aj, double* a, double* degrees, vtype n,
+                                itype m, vtype src, vtype dest, vtype *Q, vtype *fin, vtype *pro,
+                                vtype *dist, vtype *next, vtype *to, vtype *cut,
+                                vtype *another_pro, vtype *pro3, double *flow, double *cap, double g)
+{
+    
+    vtype nverts = n + 2;
+    fill(fin, fin + nverts, -1);
+    fill(cut, cut + nverts, 0);
+    itype nEdge = 0;
+    //cout << "nverts " << nverts << endl;
+    for(size_t i = 0; i < (size_t)n; i ++){
+        //cout << i << " " << ai[i] << " " << ai[i+1] << endl;
+        for(size_t j = ai[i]; j < (size_t)ai[i+1]; j ++){
+            //cout << "aj= " << aj[j] << endl;
+            //cout << "a= " << a[j] << endl;
+            new_edge<vtype,itype>(i+1,aj[j]+1,a[j],to,cap,flow,next,fin,&nEdge);
+        }
+    }
+    //cout << "start" << endl;
+    for(size_t i = 0; i < (size_t)n; i ++){
+        new_edge<vtype,itype>(src,i+1,m*1.0/2,to,cap,flow,next,fin,&nEdge);
+    }
+    //cout << "start" << endl;
+    for(size_t i = 0; i < (size_t)n; i ++){
+        new_edge<vtype,itype>(i+1,dest,m*1.0/2+2*g-degrees[i],to,cap,flow,next,fin,&nEdge);
+    }
+    
+    double ret = 0;
+    double df;
+    //cout << "start" << endl;
+    while(dinic_bfs<vtype, itype>(nverts, src, dest, dist, Q, fin, next, to, flow, cap))
+    {
+        for(vtype i = 0; i < nverts; i++)
+        {
+            pro[i] = fin[i];
+            another_pro[i] = fin[i];
+            pro3[i] = fin[i];
+        }
+        while(true)
+        {
+            df = dinic_dfs<vtype, itype>(src, 0, src, dest, pro, next, to, dist, cap, flow);
+            if(df) ret += df;
+            else break;
+        }
+    }
+    vtype length = 0;
+    find_cut<vtype, itype>(src, cut, another_pro, next, to, flow, cap, &length);
+    (void)length;
+    
+    return ret;
+}
+
+
+template<typename vtype, typename itype>
+pair<double, vtype> max_flow_SL(vtype src, vtype dest, vtype* Q, vtype* fin, vtype* pro, vtype* dist, vtype *next, vtype *to,
+                                 vtype* mincut, vtype* another_pro, double* flow, double* cap, vtype nverts)
+{
+    //cout << "nverts " << nverts << " nedges " << nedges << endl;
+    double ret = 0;
+    double df;
+    while(dinic_bfs<vtype, itype>(nverts, src, dest, dist, Q, fin, next, to, flow, cap))
+    {
+        for(vtype i = 0; i < nverts; i++)
+        {
+            pro[i] = fin[i];
+            another_pro[i] = fin[i];
+        }
+        while(true)
+        {
+            df = dinic_dfs<vtype, itype>(src, 0, src, dest, pro, next, to, dist, cap, flow);
+            if(df) ret += df;
+            else break;
+        }
+    }
+    vtype length = 0;
+    find_cut<vtype, itype>(src, mincut, another_pro, next, to, flow, cap, &length);
+    pair<double, vtype> retData (ret,length);
+    
+    return retData;
+}

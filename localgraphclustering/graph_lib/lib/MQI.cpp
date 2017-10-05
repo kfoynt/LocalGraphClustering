@@ -8,7 +8,7 @@
  *     offset   - offset for zero based arrays (matlab) or one based arrays (julia)
  *     R        - the seed set
  *     nR       - number of nodes in the original seed set
- *     ret_set  - preallocated memmory the best cluster with the smallest conductance.
+ *     ret_set  - preallocated memmory for the best cluster with the smallest conductance.
  *
  * OUTPUT:
  *     actual_length - the number of nonzero entries in the best set with the lowest conductance
@@ -78,11 +78,23 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
     nedges = curvol - curcutsize + 2 * nR;
     //cout << "deg " << total_degree << " cut " << curcutsize << " vol " << curvol << endl;
     condNew = (double)curcutsize/(double)min(total_degree - curvol, curvol);
-    cout << "iter: " << total_iter << " conductance: " << condNew << endl;
+    //cout << "iter: " << total_iter << " conductance: " << condNew << endl;
     total_iter ++;
     vtype* mincut = (vtype*)malloc(sizeof(vtype) * (nR + 2));
-    pair<double, vtype> retData = max_flow<vtype, itype>(ai, aj, offset, curvol, curcutsize, nedges,
-            nR + 2, R_map, degree_map, nR, nR + 1, mincut);
+    vtype nverts = nR + 2;
+    //allocate enough memory to store temp results
+    vtype* Q = (vtype*)malloc(sizeof(vtype) * nverts);
+    vtype* fin = (vtype*)malloc(sizeof(vtype) * nverts);
+    vtype* pro = (vtype*)malloc(sizeof(vtype) * nverts);
+    vtype* another_pro = (vtype*)malloc(sizeof(vtype) * nverts);
+    vtype* dist = (vtype*)malloc(sizeof(vtype) * nverts);
+    double* flow = (double*)malloc(sizeof(double) * 2 * nedges);
+    double* cap = (double*)malloc(sizeof(double) * 2 * nedges);
+    vtype *next = (vtype*)malloc(sizeof(vtype) * 2 * nedges);
+    vtype *to = (vtype*)malloc(sizeof(vtype) * 2 * nedges);
+    
+    pair<double, vtype> retData = max_flow_MQI<vtype, itype>(ai, aj, offset, curvol, curcutsize, nedges,
+            nverts, R_map, degree_map, nR, nR + 1, mincut, Q, fin, pro, another_pro, dist, flow, cap, next, to);
     vtype nRold = nR;
     vtype nRnew = 0; 
     while(condNew < condOld){
@@ -109,12 +121,12 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
         if(nRnew > 0){
             condNew = (double)curcutsize/(double)min(total_degree - curvol, curvol);
             //cout << "here" << nedges << " " << curvol << " " << curcutsize << endl;
-            retData = max_flow<vtype, itype>(ai, aj, offset, curvol, curcutsize, nedges, nRnew + 2,
-                    R_map, degree_map, nRnew, nRnew + 1, mincut);
+            retData = max_flow_MQI<vtype, itype>(ai, aj, offset, curvol, curcutsize, nedges, nRnew + 2,
+                    R_map, degree_map, nRnew, nRnew + 1, mincut, Q, fin, pro, another_pro, dist, flow, cap, next, to);
         }
         free(Rnew);
         nRold = nRnew;
-        cout << "iter: " << total_iter << " conductance: " << condNew << endl;
+        //cout << "iter: " << total_iter << " conductance: " << condNew << endl;
         total_iter ++;
     }
 
@@ -124,6 +136,16 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
         ret_set[j] = R_iter->first + offset;
         j ++;
     }
+    
+    free(Q);
+    free(fin);
+    free(pro);
+    free(another_pro);
+    free(dist);
+    free(flow);
+    free(cap);
+    free(next);
+    free(to);
     return nRnew;
 }
 

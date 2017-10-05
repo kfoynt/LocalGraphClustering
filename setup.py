@@ -112,10 +112,12 @@ setup(
       # installed, specify them here.  If using Python 2.6 or less, then these
       # have to be included in MANIFEST.in as well.
       package_data={
-      'localgraphclustering.graph_lib': ['*'],
-      'localgraphclustering.graph_lib.lib.graph_lib_test': ['*'],
-      'localgraphclustering.graph_lib.lib.graph_lib_test': ['*.dylib'],
-      'localgraphclustering.graph_lib.lib.graph_lib_test': ['Makefile'],
+      'localgraphclustering.src': ['*'],
+      'localgraphclustering.src.lib.graph_lib_test': ['*'],
+      'localgraphclustering.src.lib.graph_lib_test': ['*.dylib'],
+      'localgraphclustering.src.lib.graph_lib_test': ['Makefile'],
+      'localgraphclustering.interface': ['*.py'],
+      'localgraphclustering.interface.types': ['*.py']
       },
       
       # Although 'package_data' is the preferred approach, in some case you may

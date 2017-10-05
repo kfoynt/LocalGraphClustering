@@ -10,6 +10,31 @@
 
 using namespace std;
 
+
+template <class T>
+inline void hash_combine(std::size_t& seed, const T& v)
+{
+    std::hash<T> hasher;
+    seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+}
+
+// Only for pairs of std::hash-able types for simplicity.
+// You can of course template this struct to allow other hash functions
+struct pair_hash {
+    template <class T1, class T2>
+    std::size_t operator () (const std::pair<T1,T2> &p) const {
+        size_t seed = 0;
+        hash_combine(seed,p.first);
+        hash_combine(seed,p.second);
+        
+        //cout << p.first << " " << p.second << " " << seed << endl;
+        
+        // Mainly for demonstration purposes, i.e. works but is overly simple
+        // In the real world, use sth. like boost.hash_combine
+        return seed;
+    }
+};
+
 template<typename vtype, typename itype>
 class graph{
     itype m; //number of edges
@@ -19,7 +44,7 @@ class graph{
     double* a; //Compressed sparse row representation
     vtype offset; //offset for zero based arrays (matlab) or one based arrays (julia)
     double* degrees; //degrees of vertices
-    double volume;
+    double volume; //the volume of graph, 2m for undirected graph
 public:
     //declare constructors
     graph<vtype,itype>(itype,vtype,itype*,vtype*,double*,vtype,double*);
@@ -64,6 +89,16 @@ public:
     vtype proxl1PRaccel(double alpha, double rho, vtype* v, vtype v_nums, double* d,
                         double* ds, double* dsinv, double epsilon, double* grad, double* p,
                         vtype maxiter,double max_time);
+    //functions in densest_subgraph.cpp
+    double densest_subgraph(vtype *ret_set, vtype *actual_length);
+    //functions in SimpleLocal.cpp
+    void STAGEFLOW(double delta, double alpha, double beta, unordered_map<vtype,vtype>& fullyvisited, unordered_map<vtype,vtype>& R_map);
+    vtype SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double delta);
+    void init_VL(unordered_map<vtype,vtype>& VL, unordered_map<vtype,vtype>& VL_rev,unordered_map<vtype,vtype>& R_map, vtype s, vtype t);
+    void init_EL(vector<tuple<vtype,vtype,double>>& EL, unordered_map<vtype,vtype>& R_map, vtype s, vtype t, double alpha, double beta);
+    void update_VL(unordered_map<vtype,vtype>& VL, unordered_map<vtype,vtype>& VL_rev, vector<vtype>& E);
+    void update_EL(vector<tuple<vtype,vtype,double>>& EL, unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& W_map,
+                   vtype s, vtype t, double alpha, double beta);
 };
 
 template<typename vtype, typename itype>

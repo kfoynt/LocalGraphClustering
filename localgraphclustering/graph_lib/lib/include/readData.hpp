@@ -22,4 +22,5 @@ template<typename vtype, typename itype>
 void read_seed(const char* filename, vtype* n, vtype** ids);
 
 #include "../graph_lib_test/readData.cpp"
+
 #endif

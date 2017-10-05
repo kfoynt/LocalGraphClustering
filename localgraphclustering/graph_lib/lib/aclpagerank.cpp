@@ -147,24 +147,27 @@ vtype graph<vtype,itype>::pprgrow(double alpha, double eps,vtype* seedids, vtype
     }
     vtype steps_count = 0;
     vtype j;
-    double xj, rj, delta, pushval;
+    double xj, rj, delta;
     while(Q.size()>0 && steps_count<maxsteps){
         j = Q.front();
         Q.pop();
         x_iter = x_map.find(j);
         r_iter = r_map.find(j);
         rj = r_iter->second;
-        pushval = rj - eps * get_degree_unweighted(j) * 0.5;
+        //pushval = rj - eps * get_degree_unweighted(j) * 0.5;
         if(x_iter == x_map.end()){
-            xj = (1-alpha)*pushval;
+            xj = alpha*rj;
             x_map[j] = xj;
         }
         else{
-            xj = x_iter->second + (1-alpha)*pushval;
+            xj = x_iter->second + alpha*rj;
             x_map.at(j) = xj;
         }
-        delta = alpha * pushval / get_degree_unweighted(j);
-        r_map.at(j) = rj - pushval;
+        delta = ((1-alpha)/2)*(rj/get_degree_unweighted(j));
+        r_map.at(j) = ((1-alpha)/2)*rj;
+        if (r_map[j] >= eps * get_degree_unweighted(j)) {
+            Q.push(j);
+        }
         vtype u;
         double ru_new, ru_old;
         for(itype i = ai[j] - offset; i < ai[j+1] - offset; i++){
