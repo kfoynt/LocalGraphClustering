@@ -23,7 +23,7 @@ from numpy.ctypeslib import ndpointer
 import ctypes
 from localgraphclustering.find_library import load_library
 
-def proxl1PRaccel(ai,aj,a,ref_node,d,ds,dsinv,alpha = 0.15,rho = 1.0e-5,epsilon = 1.0e-4,maxiter = 10000,max_time = 100):
+def proxl1PRaccel(ai,aj,a,p0,ref_node,d,ds,dsinv,alpha = 0.15,rho = 1.0e-5,epsilon = 1.0e-4,maxiter = 10000,max_time = 100):
     n = len(ai) - 1
     float_type = ctypes.c_double
     dt = np.dtype(ai[0])
@@ -47,6 +47,7 @@ def proxl1PRaccel(ai,aj,a,ref_node,d,ds,dsinv,alpha = 0.15,rho = 1.0e-5,epsilon 
         ref_node = np.array(ref_node,dtype = ctypes_vtype)
     grad = np.zeros(n,dtype=float_type)
     p = np.zeros(n,dtype=float_type)
+    p0 = np.array(p0,dtype=float_type)
     fun.restype=ctypes_vtype
     fun.argtypes=[ctypes_vtype,ndpointer(ctypes_itype, flags="C_CONTIGUOUS"),
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
@@ -57,9 +58,10 @@ def proxl1PRaccel(ai,aj,a,ref_node,d,ds,dsinv,alpha = 0.15,rho = 1.0e-5,epsilon 
                   ndpointer(float_type, flags="C_CONTIGUOUS"),
                   ndpointer(float_type, flags="C_CONTIGUOUS"),float_type,
                   ndpointer(float_type, flags="C_CONTIGUOUS"),
+                  ndpointer(float_type, flags="C_CONTIGUOUS"),
                   ndpointer(float_type, flags="C_CONTIGUOUS"),ctypes_vtype,ctypes_vtype,
                   float_type]
-    not_converged=fun(n,ai,aj,a,alpha,rho,ref_node,len(ref_node),d,ds,dsinv,epsilon,grad,p,maxiter,0,max_time)
+    not_converged=fun(n,ai,aj,a,alpha,rho,ref_node,len(ref_node),d,ds,dsinv,epsilon,grad,p,p0,maxiter,0,max_time)
 
 
     return (not_converged,grad,p)

@@ -20,13 +20,15 @@ class L1_regularized_PageRank_fast(GraphBase[Input, Output]):
 
     def produce(self, 
                 inputs: Sequence[Input], 
+                p0s: Sequence[Sequence[float]],
                 timeout: float = 100, 
                 iterations: int = 1000,
                 ref_node: int = 0,
                 alpha: float = 0.15,
                 rho: float = 1.0e-6,
                 epsilon: float = 1.0e-6,
-                cpp: bool = True) -> Sequence[Output]:
+                cpp: bool = True
+                ) -> Sequence[Output]:
         """
         Computes an l1-regularized PageRank vector. 
         
@@ -95,4 +97,4 @@ class L1_regularized_PageRank_fast(GraphBase[Input, Output]):
             return [fista_dinput_dense(ref_node, input, alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout) for input in inputs]
         
         else:
-            return [np.abs(proxl1PRaccel(np.uint32(input.adjacency_matrix.indptr) , np.uint32(input.adjacency_matrix.indices), input.adjacency_matrix.data, ref_node, input.d, input.d_sqrt, input.dn_sqrt, alpha = alpha, rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2]) for input in inputs]
+            return [np.abs(proxl1PRaccel(np.uint32(inputs[i].adjacency_matrix.indptr) , np.uint32(inputs[i].adjacency_matrix.indices), inputs[i].adjacency_matrix.data, p0s[i], ref_node, inputs[i].d, inputs[i].d_sqrt, inputs[i].dn_sqrt, alpha = alpha, rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2]) for i in range(len(inputs))]

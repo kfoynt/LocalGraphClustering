@@ -87,7 +87,7 @@ public:
                    vtype* R, vtype nR);
     //functions in proxl1PRaccel.cpp
     vtype proxl1PRaccel(double alpha, double rho, vtype* v, vtype v_nums, double* d,
-                        double* ds, double* dsinv, double epsilon, double* grad, double* p,
+                        double* ds, double* dsinv, double epsilon, double* grad, double* p, double* p0,
                         vtype maxiter,double max_time);
     //functions in densest_subgraph.cpp
     double densest_subgraph(vtype *ret_set, vtype *actual_length);
