@@ -541,11 +541,16 @@ class graph:
 
             n_nodes = min(np.ceil(ratio*n),n)
             n_nodes = int(n_nodes)
+            
+            p = g_copy.d/g_copy.vol_G
 
-            nodes = np.random.choice(np.arange(0,n), n_nodes, replace=False)
+            #nodes = np.random.choice(np.arange(0,n), size=n_nodes, replace=False, p=p)
+            nodes = np.random.choice(np.arange(0,n), size=n_nodes, replace=False)
 
             lc = localCluster()
 
+            fista_counter = 0
+            
             for node in nodes:
 
 #                if algorithm == 'fista':
@@ -568,7 +573,7 @@ class graph:
 #                else:
 #                    a_list = np.arange(lambda_val/2,2*lambda_val,step)
     
-                rho_list = [1.0e-14,1.0e-12,1.0e-10,1.0e-8,1.0e-7,1.0e-6,1.0e-5,1.0e-4]
+                rho_list = [1.0e-10,1.0e-8,1.0e-7,1.0e-6,1.0e-5,1.0e-4]
         
                 for rho in rho_list:
                 
@@ -576,6 +581,8 @@ class graph:
                     a_list = [1-0.99]
 
                     for alpha in a_list:
+                        
+                        fista_counter = fista_counter + 1
 
                         if algorithm == 'fista':
                             if not cpp:
@@ -616,7 +623,8 @@ class graph:
                         
                 if end - start > max_time_ncp:
                     break
-
+            print("# of calls to FISTA:", fista_counter)
+        
     def biconnected_ncp(self, ratio, algorithm = 'fista', epsilon = 1.0e-4, max_iter = 1000, max_time_ncp = 1000, max_time_algorithm = 10, cpp = True):
         """
            DESCRIPTION
@@ -964,7 +972,7 @@ class graph:
             fig = plt.figure()
             ax = fig.add_subplot(111)
             
-            plt.plot(x, y)
+            plt.loglog(x, y)
             
             ax.set_xlabel('Volume')
             ax.set_ylabel('Minimum conductance')  
@@ -979,7 +987,7 @@ class graph:
             fig = plt.figure()
             ax = fig.add_subplot(111)
             
-            plt.plot(x, y)
+            plt.loglog(x, y)
             
             ax.set_xlabel('Size')
             ax.set_ylabel('Minimum conductance')  
@@ -1023,7 +1031,7 @@ class graph:
             fig = plt.figure()
             ax = fig.add_subplot(111)
             
-            plt.plot(x, y)
+            plt.loglog(x, y)
             
             ax.set_xlabel('Size')
             ax.set_ylabel('Minimum conductance')  
@@ -1064,7 +1072,7 @@ class graph:
         fig = plt.figure()
         ax = fig.add_subplot(111)
             
-        plt.plot(x, y)
+        plt.loglog(x, y)
             
         ax.set_xlabel('Size')
         ax.set_ylabel('Minimum conductance')  
