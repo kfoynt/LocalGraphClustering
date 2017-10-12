@@ -27,7 +27,7 @@ class Multiclass_label_prediction(GraphBase[Input, Output]):
                 labels: np.ndarray = [],
                 alpha: float = 0.15,
                 rho: float = 1.0e-6,
-                epsilon: float = 1.0e-6,
+                epsilon: float = 1.0e-2,
                 cpp: bool = True) -> Sequence[Output]:
         """
         This function predicts labels for unlabelled nodes. For details refer to:

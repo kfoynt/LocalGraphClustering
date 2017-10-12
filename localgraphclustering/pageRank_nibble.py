@@ -24,7 +24,7 @@ class PageRank_nibble(GraphBase[Input, Output]):
                 vol: float = 100,
                 phi: float = 0.5,
                 algorithm: str = 'fista',
-                epsilon: float = 1.0e-4,
+                epsilon: float = 1.0e-2,
                 cpp: bool = True) -> Sequence[Output]:
         """
         Computes an approximate PageRank vector. Uses the Page Rank Nibble Algorithm. 
@@ -64,6 +64,10 @@ class PageRank_nibble(GraphBase[Input, Output]):
         timeout: float
             Default = 100
             Maximum time in seconds.
+            
+        epsilon: float64
+            Default == 1.0e-2
+            Tolerance for FISTA for solving the l1-regularized personalized PageRank problem.
             
         cpp: boolean
             Default = True

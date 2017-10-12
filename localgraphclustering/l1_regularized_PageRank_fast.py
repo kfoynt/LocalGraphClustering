@@ -26,7 +26,7 @@ class L1_regularized_PageRank_fast(GraphBase[Input, Output]):
                 iterations: int = 1000,
                 alpha: float = 0.15,
                 rho: float = 1.0e-6,
-                epsilon: float = 1.0e-6,
+                epsilon: float = 1.0e-2,
                 cpp: bool = True
                 ) -> Sequence[Output]:
         """
@@ -76,7 +76,7 @@ class L1_regularized_PageRank_fast(GraphBase[Input, Output]):
             Regularization parameter for the l1-norm of the model.
             
         epsilon: float64
-            Default == 1.0e-6
+            Default == 1.0e-2
             Tolerance for FISTA for solving the l1-regularized personalized PageRank problem.
             
         iterations: int

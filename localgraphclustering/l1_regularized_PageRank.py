@@ -24,7 +24,7 @@ class L1_regularized_PageRank(GraphBase[Input, Output]):
                 iterations: int = 1000,
                 alpha: float = 0.15,
                 rho: float = 1.0e-6,
-                epsilon: float = 1.0e-4) -> Sequence[Output]:
+                epsilon: float = 1.0e-2) -> Sequence[Output]:
         """
         Computes an l1-regularized PageRank vector. 
         
@@ -66,7 +66,7 @@ class L1_regularized_PageRank(GraphBase[Input, Output]):
             Regularization parameter for the l1-norm of the model.
             
         epsilon: float64
-            Default == 1.0e-6
+            Default == 1.0e-2
             Tolerance for ISTA for solving the l1-regularized personalized PageRank problem.
             
         iterations: int
