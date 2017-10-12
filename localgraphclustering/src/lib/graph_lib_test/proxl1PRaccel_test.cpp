@@ -27,7 +27,8 @@ int main()
         ds[i] = sqrt(d[i]);
         dsinv[i] = 1/ds[i];
     }
-    cout << proxl1PRaccel64(n,ai,aj,a,alpha,rho,v,2,d,ds,dsinv,epsilon,grad,p,maxiter,0,100) << endl;
+    double p0[4] = {0,0,0,0};
+    cout << proxl1PRaccel64(n,ai,aj,a,alpha,rho,v,2,d,ds,dsinv,epsilon,grad,p,p0,maxiter,0,100) << endl;
     cout << "p" << endl;
     for(int i = 0; i < 4; i ++){
         cout << p[i] << endl;
