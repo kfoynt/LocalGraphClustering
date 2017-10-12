@@ -2,33 +2,32 @@ from typing import *
 import numpy as np
 from .interface.graph import GraphBase
 from .interface.types.graph import Graph
-from localgraphclustering.ista_dinput_dense import ista_dinput_dense
 
 Input = TypeVar('Input', bound=Graph)
 Output = TypeVar('Output',bound=np.ndarray)
 
 
-class L1_regularized_PageRank(GraphBase[Input, Output]):
+class Ncp(GraphBase[Input, Output]):
 
     def __init__(self) -> None:
         """
-        Initialize the l1_regularized_PageRank class.
+        Initialize the l1_regularized_PageRank_fast class.
         """
 
         super().__init__()
 
     def produce(self, 
                 inputs: Sequence[Input], 
-                ref_nodes: Sequence[int],
+                algorithm = 'fista',
                 timeout: float = 100, 
                 iterations: int = 1000,
-                alpha: float = 0.15,
-                rho: float = 1.0e-6,
-                epsilon: float = 1.0e-4) -> Sequence[Output]:
+                epsilon: float = 1.0e-6,
+                cpp: bool = True
+                ) -> Sequence[Output]:
         """
         Computes an l1-regularized PageRank vector. 
         
-        Uses the Iterative Soft Thresholding Algorithm (ISTA). This algorithm solves the l1-regularized
+        Uses the Fast Iterative Soft Thresholding Algorithm (FISTA). This algorithm solves the l1-regularized
         personalized PageRank problem.
 
         The l1-regularized personalized PageRank problem is defined as
@@ -56,6 +55,12 @@ class L1_regularized_PageRank(GraphBase[Input, Output]):
         Parameters (optional)
         ---------------------
 
+        p0s: Sequence[Sequence[float]]
+            Defaul == []
+            Initial solutions for l1-regularized PageRank algorithm.
+            If not provided then it is initialized to zero.
+            This is only used for the C++ version of FISTA.
+
         alpha: float
             Default == 0.15
             Teleportation parameter of the personalized PageRank linear system.
@@ -67,15 +72,19 @@ class L1_regularized_PageRank(GraphBase[Input, Output]):
             
         epsilon: float64
             Default == 1.0e-6
-            Tolerance for ISTA for solving the l1-regularized personalized PageRank problem.
+            Tolerance for FISTA for solving the l1-regularized personalized PageRank problem.
             
         iterations: int
             Default = 100000
-            Maximum number of iterations of ISTA algorithm.
+            Maximum number of iterations of FISTA algorithm.
                      
         timeout: float
             Default = 100
-            Maximum time in seconds. 
+            Maximum time in seconds.
+            
+        cpp: boolean
+            Default = True
+            Use the faster C++ version of FISTA or not.            
             
         Returns
         -------
@@ -85,5 +94,5 @@ class L1_regularized_PageRank(GraphBase[Input, Output]):
         An np.ndarray (1D embedding) of the nodes for each graph.
         """ 
         
-        return [ista_dinput_dense(ref_nodes[i], inputs[i], alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout) for i in range(len(inputs))]
+        return [fista_dinput_dense(ref_nodes[i], inputs[i], alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout) for i in range(len(inputs))]
 

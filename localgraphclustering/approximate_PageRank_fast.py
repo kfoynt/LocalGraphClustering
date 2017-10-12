@@ -24,7 +24,7 @@ class Approximate_PageRank_fast(GraphBase[Input, Output]):
 
     def produce(self,
                 inputs: Sequence[Input], 
-                ref_node: int = 0,
+                ref_nodes: Sequence[int],
                 iterations: int = 1000,
                 alpha: float = 0.15,
                 rho: float = 1.0e-6,
@@ -40,8 +40,8 @@ class Approximate_PageRank_fast(GraphBase[Input, Output]):
 
         inputs: Sequence[Graph]
 
-        ref_node: int
-            The reference node, i.e., node of interest around which
+        ref_nodes: Sequence[int]
+            A sequence of reference nodes, i.e., nodes of interest around which
             we are looking for a target cluster.
 
         Parameters (optional)
@@ -80,12 +80,12 @@ class Approximate_PageRank_fast(GraphBase[Input, Output]):
 
         counter = 0
 
-        for input in inputs:
+        for i in range(len(inputs)):
 
-            n = input.adjacency_matrix.shape[0]
+            n = inputs[i].adjacency_matrix.shape[0]
 
-            (actual_length,actual_xids,actual_values) = aclpagerank_cpp(n,np.uint32(input.adjacency_matrix.indptr),
-                np.uint32(input.adjacency_matrix.indices),alpha,rho,[ref_node],1,iterations,xlength=xlength)
+            (actual_length,actual_xids,actual_values) = aclpagerank_cpp(n,np.uint32(inputs[i].adjacency_matrix.indptr),
+                np.uint32(inputs[i].adjacency_matrix.indices),alpha,rho,[ref_nodes[i]],1,iterations,xlength=xlength)
             
             output[counter] = [actual_xids,actual_values]
 

@@ -22,9 +22,9 @@ class Approximate_PageRank(GraphBase[Input, Output]):
 
     def produce(self,
                 inputs: Sequence[Input], 
+                ref_nodes: Sequence[int],
                 timeout: float = 100, 
                 iterations: int = 1000,
-                ref_node: int = 0,
                 alpha: float = 0.15,
                 rho: float = 1.0e-6) -> Sequence[Output]:
         """
@@ -38,8 +38,8 @@ class Approximate_PageRank(GraphBase[Input, Output]):
 
         inputs: Sequence[Graph]
 
-        ref_node: int
-            The reference node, i.e., node of interest around which
+        ref_nodes: Sequence[int]
+            A sequence of reference nodes, i.e., nodes of interest around which
             we are looking for a target cluster.
 
         Parameters (optional)
@@ -70,4 +70,4 @@ class Approximate_PageRank(GraphBase[Input, Output]):
         An np.ndarray (1D embedding) of the nodes for each graph.
         """ 
             
-        return [acl_list(ref_node, input, alpha = alpha, rho = rho, max_iter = iterations, max_time = timeout) for input in inputs]
+        return [acl_list(ref_nodes[i], inputs[i], alpha = alpha, rho = rho, max_iter = iterations, max_time = timeout) for i in range(len(inputs))]

@@ -18,9 +18,9 @@ class PageRank_nibble(GraphBase[Input, Output]):
 
     def produce(self,
                 inputs: Sequence[Input], 
+                ref_nodes: Sequence[int],
                 timeout: float = 100, 
                 iterations: Optional[int] = 1000,
-                ref_node: int = 0,
                 vol: float = 100,
                 phi: float = 0.5,
                 algorithm: str = 'fista',
@@ -38,8 +38,8 @@ class PageRank_nibble(GraphBase[Input, Output]):
 
         inputs: Sequence[Graph]
 
-        ref_node: int
-            The reference node, i.e., node of interest around which
+        ref_nodes: Sequence[int]
+            A sequence of reference nodes, i.e., nodes of interest around which
             we are looking for a target cluster.
             
         vol: float
@@ -77,5 +77,5 @@ class PageRank_nibble(GraphBase[Input, Output]):
         An np.ndarray (1D embedding) of the nodes for each graph.
         """ 
         
-        return [page_rank_nibble_algo(input, ref_node, vol = vol, phi = phi, algorithm = algorithm, epsilon = epsilon, max_iter = iterations, max_time = timeout, cpp = cpp) for input in inputs]
+        return [page_rank_nibble_algo(inputs[i], ref_nodes[i], vol = vol, phi = phi, algorithm = algorithm, epsilon = epsilon, max_iter = iterations, max_time = timeout, cpp = cpp) for i in range(len(inputs))]
 

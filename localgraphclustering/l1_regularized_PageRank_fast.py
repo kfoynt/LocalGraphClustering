@@ -20,10 +20,10 @@ class L1_regularized_PageRank_fast(GraphBase[Input, Output]):
 
     def produce(self, 
                 inputs: Sequence[Input], 
-                p0s: Sequence[Sequence[float]],
+                ref_nodes: Sequence[int],
+                p0s: Sequence[Sequence[float]] = [],
                 timeout: float = 100, 
                 iterations: int = 1000,
-                ref_node: int = 0,
                 alpha: float = 0.15,
                 rho: float = 1.0e-6,
                 epsilon: float = 1.0e-6,
@@ -53,12 +53,18 @@ class L1_regularized_PageRank_fast(GraphBase[Input, Output]):
 
         inputs: Sequence[Graph]
 
-        ref_node: int
-            The reference node, i.e., node of interest around which
+        ref_nodes: Sequence[int]
+            A sequence of reference nodes, i.e., nodes of interest around which
             we are looking for a target cluster.
 
         Parameters (optional)
         ---------------------
+
+        p0s: Sequence[Sequence[float]]
+            Defaul == []
+            Initial solutions for l1-regularized PageRank algorithm.
+            If not provided then it is initialized to zero.
+            This is only used for the C++ version of FISTA.
 
         alpha: float
             Default == 0.15
@@ -94,7 +100,7 @@ class L1_regularized_PageRank_fast(GraphBase[Input, Output]):
         """ 
         
         if not cpp:
-            return [fista_dinput_dense(ref_node, input, alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout) for input in inputs]
+            return [fista_dinput_dense(ref_nodes[i], inputs[i], alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout) for i in range(len(inputs))]
         
         else:
-            return [np.abs(proxl1PRaccel(np.uint32(inputs[i].adjacency_matrix.indptr) , np.uint32(inputs[i].adjacency_matrix.indices), inputs[i].adjacency_matrix.data, p0s[i], ref_node, inputs[i].d, inputs[i].d_sqrt, inputs[i].dn_sqrt, alpha = alpha, rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2]) for i in range(len(inputs))]
+            return [np.abs(proxl1PRaccel(np.uint32(inputs[i].adjacency_matrix.indptr) , np.uint32(inputs[i].adjacency_matrix.indices), inputs[i].adjacency_matrix.data, ref_nodes[i], inputs[i].d, inputs[i].d_sqrt, inputs[i].dn_sqrt, p0 = p0s[i], alpha = alpha, rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2]) for i in range(len(inputs))]
