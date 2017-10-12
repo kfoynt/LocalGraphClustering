@@ -143,6 +143,8 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
             }
         }*/
         
+        cout << "Iteration: " << iter <<endl;
+        
         t2 = clock();
         if(((double)t2 - (double)t1)/double(CLOCKS_PER_SEC) > max_time){
             not_converged = 1;
