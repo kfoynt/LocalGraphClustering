@@ -24,7 +24,7 @@ class Ncp(GraphBase[Input, Output]):
                 timeout: float = 100, 
                 timeout_ncp = 1000,
                 iterations: int = 1000,
-                epsilon: float = 1.0e-2
+                epsilon: float = 1.0e-1
                 ) -> Sequence[Output]:
         """
         Network Community Profile for all connected components of the graph. For details please refer to: 
@@ -43,7 +43,7 @@ class Ncp(GraphBase[Input, Output]):
         ---------------------
 
         epsilon: float
-            default = 1.0e-2
+            default = 1.0e-1
             Termination tolerance for l1-regularized PageRank solver.
 
         iterations: int

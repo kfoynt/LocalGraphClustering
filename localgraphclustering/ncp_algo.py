@@ -9,7 +9,7 @@ from localgraphclustering.plot_ncp import plot_ncp_size
 
 import time
 
-def ncp_algo(g, ratio, timeout = 10, timeout_ncp = 1000, iterations = 1000, epsilon = 1.0e-2):
+def ncp_algo(g, ratio, timeout = 10, timeout_ncp = 1000, iterations = 1000, epsilon = 1.0e-1):
     """
     Network Community Profile for all connected components of the graph. For details please refer to: 
     Jure Leskovec, Kevin J Lang, Anirban Dasgupta, Michael W Mahoney. Community structure in 
@@ -27,7 +27,7 @@ def ncp_algo(g, ratio, timeout = 10, timeout_ncp = 1000, iterations = 1000, epsi
     ---------------------
 
     epsilon: float
-        default = 1.0e-2
+        default = 1.0e-1
         Termination tolerance for l1-regularized PageRank solver.
 
     iterations: int
