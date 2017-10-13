@@ -23,7 +23,7 @@ from numpy.ctypeslib import ndpointer
 import ctypes
 from localgraphclustering.find_library import load_library
 
-def proxl1PRaccel(ai,aj,a,ref_node,d,ds,dsinv,y,alpha = 0.15,rho = 1.0e-5,epsilon = 1.0e-4,maxiter = 10000,max_time = 100):
+def proxl1PRaccel(ai,aj,a,ref_node,d,ds,dsinv,y=[],alpha = 0.15,rho = 1.0e-5,epsilon = 1.0e-4,maxiter = 10000,max_time = 100):
     n = len(ai) - 1
     float_type = ctypes.c_double
     dt = np.dtype(ai[0])
@@ -68,9 +68,9 @@ def proxl1PRaccel(ai,aj,a,ref_node,d,ds,dsinv,y,alpha = 0.15,rho = 1.0e-5,epsilo
                   float_type]
     not_converged=fun(n,ai,aj,a,alpha,rho,ref_node,len(ref_node),d,ds,dsinv,epsilon,grad,p,new_y,maxiter,0,max_time)
     
-    for i in range(n):
-      y[i] = new_y[i]
-
+    if y != []:
+        for i in range(n):
+            y[i] = new_y[i]
 
     return (not_converged,grad,p)
 

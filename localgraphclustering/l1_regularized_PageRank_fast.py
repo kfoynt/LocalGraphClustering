@@ -60,7 +60,7 @@ class L1_regularized_PageRank_fast(GraphBase[Input, Output]):
         Parameters (optional)
         ---------------------
 
-        p0s: Sequence[Sequence[float]]
+        ys: Sequence[Sequence[float]]
             Defaul == []
             Initial solutions for l1-regularized PageRank algorithm.
             If not provided then it is initialized to zero.
