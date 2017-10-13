@@ -4,6 +4,8 @@ from localgraphclustering import approximate_PageRank_fast
 from localgraphclustering import approximate_PageRank_weighted_fast
 from localgraphclustering import l1_regularized_PageRank
 from localgraphclustering import l1_regularized_PageRank_fast
+from localgraphclustering import ncp
+from localgraphclustering import plot_ncp
 from localgraphclustering import pageRank_nibble
 from localgraphclustering import sweepCut_general
 from localgraphclustering import sweepCut_fast

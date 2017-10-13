@@ -85,7 +85,7 @@ class GraphLocal(Graph):
     import_text(filename, separator)
         Reads text from filename
     """
-    def __init__(self, filename, file_type='gml', separator='\t'):
+    def __init__(self, filename = None, file_type='edgelist', separator='\t'):
         """
         Initializes the graph from a gml or a edgelist file and initializes the attributes of the class.
 
@@ -93,10 +93,11 @@ class GraphLocal(Graph):
         ----------
         filename : string
             Name of the file, for example 'JohnsHopkins.edgelist' or 'JohnsHopkins.gml'.
+            Default = 'None'
 
         dtype : string
             Type of file. Currently only 'edgelist' and 'gml' are supported.
-            Default = 'gml'
+            Default = 'edgelist'
 
         separator : string
             used if file_type = 'edgelist'
@@ -104,7 +105,8 @@ class GraphLocal(Graph):
         """
         super().__init__(filename,file_type,separator)
 
-        self.read_graph(filename, file_type, separator)
+        if filename != None:
+            self.read_graph(filename, file_type, separator)
 
     def import_text(self, filename, separator):
         """

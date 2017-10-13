@@ -56,7 +56,7 @@ class Graph(metaclass=abc.ABCMeta):
         Core number for each vertex
     """
 
-    def __init__(self, filename, file_type='gml', separator='\t'):
+    def __init__(self, filename = None, file_type='edgelist', separator='\t'):
         """
         Initializes the graph from a gml or a edgelist file and initializes the attributes of the class.
 
@@ -67,7 +67,7 @@ class Graph(metaclass=abc.ABCMeta):
 
         dtype : string
             Type of file. Currently only 'edgelist' and 'gml' are supported.
-            Default = 'gml'
+            Default = 'edgelist'
 
         separator : string
             used if file_type = 'edgelist'

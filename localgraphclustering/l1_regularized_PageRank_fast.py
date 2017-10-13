@@ -21,7 +21,7 @@ class L1_regularized_PageRank_fast(GraphBase[Input, Output]):
     def produce(self, 
                 inputs: Sequence[Input], 
                 ref_nodes: Sequence[int],
-                ys: Sequence[Sequence[float]],
+                ys: Sequence[Sequence[float]] = None,
                 timeout: float = 100, 
                 iterations: int = 1000,
                 alpha: float = 0.15,
@@ -61,7 +61,7 @@ class L1_regularized_PageRank_fast(GraphBase[Input, Output]):
         ---------------------
 
         ys: Sequence[Sequence[float]]
-            Defaul == []
+            Defaul == None
             Initial solutions for l1-regularized PageRank algorithm.
             If not provided then it is initialized to zero.
             This is only used for the C++ version of FISTA.
@@ -103,4 +103,7 @@ class L1_regularized_PageRank_fast(GraphBase[Input, Output]):
             return [fista_dinput_dense(ref_nodes[i], inputs[i], alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout) for i in range(len(inputs))]
         
         else:
-            return [proxl1PRaccel(np.uint32(inputs[i].adjacency_matrix.indptr) , np.uint32(inputs[i].adjacency_matrix.indices), inputs[i].adjacency_matrix.data, ref_nodes[i], inputs[i].d, inputs[i].d_sqrt, inputs[i].dn_sqrt, ys[i], alpha = alpha, rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2] for i in range(len(inputs))]
+            if ys == None:
+                return [proxl1PRaccel(np.uint32(inputs[i].adjacency_matrix.indptr) , np.uint32(inputs[i].adjacency_matrix.indices), inputs[i].adjacency_matrix.data, ref_nodes[i], inputs[i].d, inputs[i].d_sqrt, inputs[i].dn_sqrt, alpha = alpha, rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2] for i in range(len(inputs))]                
+            else:
+                return [proxl1PRaccel(np.uint32(inputs[i].adjacency_matrix.indptr) , np.uint32(inputs[i].adjacency_matrix.indices), inputs[i].adjacency_matrix.data, ref_nodes[i], inputs[i].d, inputs[i].d_sqrt, inputs[i].dn_sqrt, ys[i], alpha = alpha, rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2] for i in range(len(inputs))]

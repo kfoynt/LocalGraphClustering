@@ -3,6 +3,8 @@ import numpy as np
 from .interface.graph import GraphBase
 from .interface.types.graph import Graph
 
+from localgraphclustering.ncp_algo import ncp_algo
+
 Input = TypeVar('Input', bound=Graph)
 Output = TypeVar('Output',bound=np.ndarray)
 
@@ -11,88 +13,66 @@ class Ncp(GraphBase[Input, Output]):
 
     def __init__(self) -> None:
         """
-        Initialize the l1_regularized_PageRank_fast class.
+        Initialize the Ncp class.
         """
 
         super().__init__()
 
     def produce(self, 
                 inputs: Sequence[Input], 
-                algorithm = 'fista',
+                ratio: float = 0.3,
                 timeout: float = 100, 
+                timeout_ncp = 1000,
                 iterations: int = 1000,
-                epsilon: float = 1.0e-6,
-                cpp: bool = True
+                epsilon: float = 1.0e-2
                 ) -> Sequence[Output]:
         """
-        Computes an l1-regularized PageRank vector. 
-        
-        Uses the Fast Iterative Soft Thresholding Algorithm (FISTA). This algorithm solves the l1-regularized
-        personalized PageRank problem.
-
-        The l1-regularized personalized PageRank problem is defined as
-
-        min rho*||p||_1 + <c,p> + <p,Q*p>
-
-        where p is the PageRank vector, ||p||_1 is the l1-norm of p, rho is the regularization parameter 
-        of the l1-norm, c is the right hand side of the personalized PageRank linear system and Q is the 
-        symmetrized personalized PageRank matrix.
-
-        For details please refer to: 
-        K. Fountoulakis, F. Roosta-Khorasani, J. Shun, X. Cheng and M. Mahoney. Variational 
-        Perspective on Local Graph Clustering. arXiv:1602.01886, 2017.
-        arXiv link:https://arxiv.org/abs/1602.01886
+        Network Community Profile for all connected components of the graph. For details please refer to: 
+        Jure Leskovec, Kevin J Lang, Anirban Dasgupta, Michael W Mahoney. Community structure in 
+        large networks: Natural cluster sizes and the absence of large well-defined clusters.
+        The NCP is computed for each connected component of the given graph(s).
 
         Parameters
-        ----------
+        ----------  
 
-        inputs: Sequence[Graph]
-
-        ref_nodes: Sequence[int]
-            A sequence of reference nodes, i.e., nodes of interest around which
-            we are looking for a target cluster.
+        ratio: float
+            Ratio of nodes to be used for computation of NCP.
+            It should be between 0 and 1.
 
         Parameters (optional)
         ---------------------
 
-        p0s: Sequence[Sequence[float]]
-            Defaul == []
-            Initial solutions for l1-regularized PageRank algorithm.
-            If not provided then it is initialized to zero.
-            This is only used for the C++ version of FISTA.
+        epsilon: float
+            default = 1.0e-2
+            Termination tolerance for l1-regularized PageRank solver.
 
-        alpha: float
-            Default == 0.15
-            Teleportation parameter of the personalized PageRank linear system.
-            The smaller the more global the personalized PageRank vector is.
-
-        rho: float
-            Defaul == 1.0e-5
-            Regularization parameter for the l1-norm of the model.
-            
-        epsilon: float64
-            Default == 1.0e-6
-            Tolerance for FISTA for solving the l1-regularized personalized PageRank problem.
-            
         iterations: int
-            Default = 100000
-            Maximum number of iterations of FISTA algorithm.
-                     
+            default = 10000
+            Maximum number of iterations of l1-regularized PageRank solver.
+
+        timeout_ncp: float
+            default = 1000
+            Maximum time in seconds for NCP calculation.
+
         timeout: float
-            Default = 100
-            Maximum time in seconds.
-            
-        cpp: boolean
-            Default = True
-            Use the faster C++ version of FISTA or not.            
-            
+            default = 10
+            Maximum time in seconds for each algorithm run during the NCP calculation.
+
         Returns
         -------
         
         For each graph in inputs it returns the following:
+
+        conductance_vs_vol: a list of dictionaries
+            The length of the list is the number of connected components of the given graph.
+            Each element of the list is a dictionary where keys are volumes of clusters and 
+            the values are conductance. It can be used to plot the conductance vs volume NCP.
+
+        conductance_vs_size: a list of dictionaries
+            The length of the list is the number of connected components of the given graph.
+            Each element of the list is a dictionary where keys are sizes of clusters and 
+            the values are conductance. It can be used to plot the conductance vs volume NCP.
+        """       
         
-        An np.ndarray (1D embedding) of the nodes for each graph.
-        """ 
-        
-        return [fista_dinput_dense(ref_nodes[i], inputs[i], alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout) for i in range(len(inputs))]
+        return [ncp_algo(inputs[i], ratio=ratio, timeout=timeout, timeout_ncp=timeout_ncp, iterations=iterations, epsilon=epsilon) for i in range(len(inputs))]
 
