@@ -160,7 +160,7 @@ def ncp_algo(g, ratio, timeout = 10, timeout_ncp = 1000, iterations = 1000, epsi
         #print(n_nodes)
         #print(for_each_worker)
         
-        if n_nodes < 2000 or (not multi_threads):
+        if (not multi_threads):
             nthreads = 1
         for i in range(nthreads):
             start_pos = for_each_worker*i
