@@ -8,8 +8,70 @@ from localgraphclustering.plot_ncp import plot_ncp_vol
 from localgraphclustering.plot_ncp import plot_ncp_size
 
 import time
+import threading
+import math
 
-def ncp_algo(g, ratio, timeout = 10, timeout_ncp = 1000, iterations = 1000, epsilon = 1.0e-1):
+conductance_vs_vol = []
+conductance_vs_size = []
+fista_counter = 0
+lock = threading.RLock()
+start = 0
+g_copy = 0
+l1reg_fast = 0
+sc_fast = 0
+cmp = 0
+
+def worker(nodes,timeout_ncp,epsilon,iterations,timeout):
+    global fista_counter
+    for node in nodes:
+
+    
+        rho_list = [1.0e-10,1.0e-8,1.0e-7,1.0e-6,1.0e-5,1.0e-4]
+        
+        for rho in rho_list:
+                
+            #a_list = np.arange(1.0e-2,0.999,0.09)
+            a_list = [1-0.99]
+
+            for alpha in a_list:
+                        
+                lock.acquire()
+                try:    
+                    fista_counter = fista_counter + 1
+                    print(fista_counter)
+                finally:
+                    lock.release()
+
+
+                output_l1reg_fast = l1reg_fast.produce([g_copy],[node],alpha=alpha,rho=rho,epsilon=epsilon,iterations=iterations,timeout=timeout)
+                    
+                output_sc_fast = sc_fast.produce([g_copy],p=output_l1reg_fast[0])
+
+                S_l1pr = output_sc_fast[0][0]
+                cond = output_sc_fast[0][1]
+
+                vol = sum(g_copy.d[S_l1pr])
+                size = len(S_l1pr)
+
+                if vol in conductance_vs_vol[cmp]:
+                    if cond <= conductance_vs_vol[cmp][vol]:
+                        conductance_vs_vol[cmp][vol] = cond
+                else:
+                    conductance_vs_vol[cmp][vol] = cond  
+
+                if size in conductance_vs_size[cmp]:
+                    if cond <= conductance_vs_size[cmp][size]:
+                        conductance_vs_size[cmp][size] = cond
+                else:
+                    conductance_vs_size[cmp][size] = cond     
+
+                end = time.time()
+                        
+        if end - start > timeout_ncp:
+            break
+
+
+def ncp_algo(g, ratio, timeout = 10, timeout_ncp = 1000, iterations = 1000, epsilon = 1.0e-1, nthreads = 20):
     """
     Network Community Profile for all connected components of the graph. For details please refer to: 
     Jure Leskovec, Kevin J Lang, Anirban Dasgupta, Michael W Mahoney. Community structure in 
@@ -54,7 +116,8 @@ def ncp_algo(g, ratio, timeout = 10, timeout_ncp = 1000, iterations = 1000, epsi
         The length of the list is the number of connected components of the given graph.
         Each element of the list is a dictionary where keys are sizes of clusters and 
         the values are conductance. It can be used to plot the conductance vs volume NCP.
-    """          
+    """
+    global start, g_copy, l1reg_fast, sc_fast, cmp         
     if ratio < 0 or ratio > 1:
         print("Ratio must be between 0 and 1.")
         return []        
@@ -70,8 +133,6 @@ def ncp_algo(g, ratio, timeout = 10, timeout_ncp = 1000, iterations = 1000, epsi
         print("There are no connected components in the given graph")
         return
         
-    conductance_vs_vol = []
-    conductance_vs_size = []
     for i in range(number_of_components):
         conductance_vs_vol.append({})
         conductance_vs_size.append({})
@@ -93,48 +154,24 @@ def ncp_algo(g, ratio, timeout = 10, timeout_ncp = 1000, iterations = 1000, epsi
         #p = g_copy.d/g_copy.vol_G
         #nodes = np.random.choice(np.arange(0,n), size=n_nodes, replace=False, p=p)
         nodes = np.random.choice(np.arange(0,n), size=n_nodes, replace=False)
-
-        fista_counter = 0
-            
-        for node in nodes:
-    
-            rho_list = [1.0e-10,1.0e-8,1.0e-7,1.0e-6,1.0e-5,1.0e-4]
         
-            for rho in rho_list:
-                
-                #a_list = np.arange(1.0e-2,0.999,0.09)
-                a_list = [1-0.99]
+        threads = []
+        for_each_worker = math.floor(n_nodes/nthreads)
+        #print(n_nodes)
+        #print(for_each_worker)
+        
+        if n_nodes < 2000:
+            nthreads = 1
+        for i in range(nthreads):
+            start_pos = for_each_worker*i
+            end_pos = min(for_each_worker*(i+1),n_nodes)
+            t = threading.Thread(target=worker,args=(nodes[start_pos:end_pos],timeout_ncp,
+                epsilon,iterations,timeout))
+            threads.append(t)
+            t.start()
+        for t in threads:
+            t.join()
 
-                for alpha in a_list:
-                        
-                    fista_counter = fista_counter + 1
-
-                    output_l1reg_fast = l1reg_fast.produce([g_copy],[node],alpha=alpha,rho=rho,epsilon=epsilon,iterations=iterations,timeout=timeout)
-                    
-                    output_sc_fast = sc_fast.produce([g_copy],p=output_l1reg_fast[0])
-
-                    S_l1pr = output_sc_fast[0][0]
-                    cond = output_sc_fast[0][1]
-
-                    vol = sum(g_copy.d[S_l1pr])
-                    size = len(S_l1pr)
-
-                    if vol in conductance_vs_vol[cmp]:
-                        if cond <= conductance_vs_vol[cmp][vol]:
-                            conductance_vs_vol[cmp][vol] = cond
-                    else:
-                        conductance_vs_vol[cmp][vol] = cond  
-
-                    if size in conductance_vs_size[cmp]:
-                        if cond <= conductance_vs_size[cmp][size]:
-                            conductance_vs_size[cmp][size] = cond
-                    else:
-                        conductance_vs_size[cmp][size] = cond     
-
-                    end = time.time()
-                        
-            if end - start > timeout_ncp:
-                break
         print("# of calls to FISTA:", fista_counter)
         
         print('NCP plots for component: ' + str(cmp))

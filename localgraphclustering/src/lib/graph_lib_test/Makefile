@@ -11,7 +11,7 @@ endif
 LIB := libgraph.$(SHAREDLIB_EXT)
 
 CC := $(CXX)
-CXXFLAGS := -std=c++11 -Wall -O3 -Wshadow -fPIC
+CXXFLAGS := -g -std=c++11 -Wall -Wshadow -fPIC
 
 SWEEPCUT_SRCS = ../sweepcut.cpp sweepcut_test.cpp readData.cpp
 ACLPAGERANK_SRCS = ../aclpagerank.cpp aclpagerank_test.cpp readData.cpp
@@ -19,6 +19,8 @@ MQI_SRCS = ../MQI.cpp MQI_test.cpp ../maxflow.cpp ../MQI_c_interface.cpp readDat
 PPR_PATH_SRCS = ../ppr_path.cpp ppr_path_test.cpp readData.cpp
 ACLPAGERANK_WEIGHTED_SRCS = ../aclpagerank_weighted.cpp aclpagerank_weighted_test.cpp readData.cpp
 PROXL1PRACCEL_SRCS = ../proxl1PRaccel.cpp proxl1PRaccel_test.cpp readData.cpp
+DENSEST_SUBGRAPH_SRCS = ../densest_subgraph.cpp densest_subgraph_test.cpp ../maxflow.cpp ../densest_subgraph_c_interface.cpp readData.cpp ../graph_check.cpp
+SIMPLELOCAL_SRCS = ../SimpleLocal.cpp SimpleLocal_test.cpp ../maxflow.cpp ../SimpleLocal_c_interface.cpp readData.cpp
 
 SWEEPCUT_OBJS = $(SWEEPCUT_SRCS:%.cpp=%.o)
 ACLPAGERANK_OBJS = $(ACLPAGERANK_SRCS:%.cpp=%.o)
@@ -26,10 +28,12 @@ MQI_OBJS = $(MQI_SRCS:%.cpp=%.o)
 PPR_PATH_OBJS = $(PPR_PATH_SRCS:%.cpp=%.o)
 ACLPAGERANK_WEIGHTED_OBJS = $(ACLPAGERANK_WEIGHTED_SRCS:%.cpp=%.o)
 PROXL1PRACCEL_OBJS = $(PROXL1PRACCEL_SRCS:%.cpp=%.o)
+DENSEST_SUBGRAPH_OBJS = $(DENSEST_SUBGRAPH_SRCS:%.cpp=%.o)
+SIMPLELOCAL_OBJS = $(SIMPLELOCAL_SRCS:%.cpp=%.o)
 
-LIBOBJS = ../sweepcut.o ../aclpagerank.o ../MQI_c_interface.o ../ppr_path.o ../aclpagerank_weighted.o ../proxl1PRaccel.o
+LIBOBJS = ../sweepcut.o ../aclpagerank.o ../MQI_c_interface.o ../ppr_path.o ../aclpagerank_weighted.o ../proxl1PRaccel.o ../densest_subgraph_c_interface.o ../SIMPLELOCAL_c_interface.o
 
-all: sweepcut aclpagerank MQI ppr_path aclpagerank_weighted proxl1PRaccel $(LIB)
+all: sweepcut aclpagerank MQI ppr_path aclpagerank_weighted proxl1PRaccel densest_subgraph SimpleLocal $(LIB)
 
 sweepcut: $(SWEEPCUT_OBJS)
 	$(CC) $(SWEEPCUT_OBJS) -o sweepcut
@@ -43,13 +47,17 @@ aclpagerank_weighted: $(ACLPAGERANK_WEIGHTED_OBJS)
 	$(CC) $(ACLPAGERANK_WEIGHTED_OBJS) -o aclpagerank_weighted
 proxl1PRaccel: $(PROXL1PRACCEL_OBJS)
 	$(CC) $(PROXL1PRACCEL_OBJS) -o proxl1PRaccel
+densest_subgraph: $(DENSEST_SUBGRAPH_OBJS)
+	$(CC) $(DENSEST_SUBGRAPH_OBJS) -o densest_subgraph
+SimpleLocal: $(SIMPLELOCAL_OBJS)
+	$(CC) $(SIMPLELOCAL_OBJS) -o SimpleLocal
 
 $(LIB): $(LIBOBJS)
 	$(CC) $(SHAREDLIB_FLAG) -o $(LIB) $(LIBOBJS)
 
 
-TARGET := sweepcut aclpagerank MQI ppr_path aclpagerank_weighted proxl1PRaccel
-OBJS := $(SWEEPCUT_OBJS) $(ACLPAGERANK_OBJS) $(MQI_OBJS) $(PPR_PATH_OBJS) $(ACLPAGERANK_WEIGHTED_OBJS) $(PROXL1PRACCEL_OBJS)
+TARGET := sweepcut aclpagerank MQI ppr_path aclpagerank_weighted proxl1PRaccel densest_subgraph SimpleLocal
+OBJS := $(SWEEPCUT_OBJS) $(ACLPAGERANK_OBJS) $(MQI_OBJS) $(PPR_PATH_OBJS) $(ACLPAGERANK_WEIGHTED_OBJS) $(PROXL1PRACCEL_OBJS) $(DENSEST_SUBGRAPH_OBJS) $(SIMPLELOCAL_OBJS)
 
 test:
 	./sweepcut
