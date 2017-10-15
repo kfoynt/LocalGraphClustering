@@ -24,7 +24,9 @@ class Ncp(GraphBase[Input, Output]):
                 timeout: float = 100, 
                 timeout_ncp = 1000,
                 iterations: int = 1000,
-                epsilon: float = 1.0e-1
+                epsilon: float = 1.0e-1,
+                nthreads: int = 20,
+                multi_threads: bool = True
                 ) -> Sequence[Output]:
         """
         Network Community Profile for all connected components of the graph. For details please refer to: 
@@ -74,5 +76,5 @@ class Ncp(GraphBase[Input, Output]):
             the values are conductance. It can be used to plot the conductance vs volume NCP.
         """       
         
-        return [ncp_algo(inputs[i], ratio=ratio, timeout=timeout, timeout_ncp=timeout_ncp, iterations=iterations, epsilon=epsilon) for i in range(len(inputs))]
+        return [ncp_algo(inputs[i], ratio=ratio, timeout=timeout, timeout_ncp=timeout_ncp, iterations=iterations, epsilon=epsilon, nthreads=nthreads, multi_threads=multi_threads) for i in range(len(inputs))]
 

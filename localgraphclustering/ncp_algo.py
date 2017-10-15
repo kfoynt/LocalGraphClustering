@@ -38,7 +38,7 @@ def worker(nodes,timeout_ncp,epsilon,iterations,timeout):
                 lock.acquire()
                 try:    
                     fista_counter = fista_counter + 1
-                    print(fista_counter)
+                    #print(fista_counter)
                 finally:
                     lock.release()
 
@@ -71,7 +71,7 @@ def worker(nodes,timeout_ncp,epsilon,iterations,timeout):
             break
 
 
-def ncp_algo(g, ratio, timeout = 10, timeout_ncp = 1000, iterations = 1000, epsilon = 1.0e-1, nthreads = 20):
+def ncp_algo(g, ratio, timeout = 10, timeout_ncp = 1000, iterations = 1000, epsilon = 1.0e-1, nthreads = 20, multi_threads = True):
     """
     Network Community Profile for all connected components of the graph. For details please refer to: 
     Jure Leskovec, Kevin J Lang, Anirban Dasgupta, Michael W Mahoney. Community structure in 
@@ -160,7 +160,7 @@ def ncp_algo(g, ratio, timeout = 10, timeout_ncp = 1000, iterations = 1000, epsi
         #print(n_nodes)
         #print(for_each_worker)
         
-        if n_nodes < 2000:
+        if n_nodes < 2000 or (not multi_threads):
             nthreads = 1
         for i in range(nthreads):
             start_pos = for_each_worker*i

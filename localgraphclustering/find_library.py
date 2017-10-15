@@ -4,7 +4,7 @@ import ctypes
 
 def load_library():
     #load library
-    if platform == "linux2":
+    if platform == "linux2" or platform == "linux":
         extension = ".so"
     elif platform == "darwin":
         extension = ".dylib"
