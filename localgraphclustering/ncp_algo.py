@@ -156,12 +156,12 @@ def ncp_algo(g, ratio, timeout = 10, timeout_ncp = 1000, iterations = 1000, epsi
         nodes = np.random.choice(np.arange(0,n), size=n_nodes, replace=False)
         
         threads = []
-        for_each_worker = math.floor(n_nodes/nthreads)
         #print(n_nodes)
         #print(for_each_worker)
         
         if (not multi_threads):
             nthreads = 1
+        for_each_worker = math.floor(n_nodes/nthreads)
         for i in range(nthreads):
             start_pos = for_each_worker*i
             end_pos = min(for_each_worker*(i+1),n_nodes)
