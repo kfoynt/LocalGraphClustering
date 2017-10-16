@@ -14,8 +14,7 @@ from operator import itemgetter
 import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
-from sys import platform
-import imp
+from localgraphclustering.find_library import load_library
 
 def wrapped_ndptr(*args, **kwargs):
     base = ndpointer(*args, **kwargs)
@@ -32,18 +31,7 @@ def sweepcut_cpp(n,ai,aj,a,ids,num,values,flag,degrees = None):
     dt = np.dtype(aj[0])
     (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
 
-    #load library
-    if (platform == "linux2") or (platform == "linux"):
-        extension = ".so"
-    elif platform == "darwin":
-        extension = ".dylib"
-    elif platform == "win32":
-        extension = ".dll"
-    else:
-        print("Unknown system type!")
-        return (0,[],0)
-    path_lgc = imp.find_module('localgraphclustering')[1]
-    lib=ctypes.cdll.LoadLibrary(path_lgc+"/graph_lib/lib/graph_lib_test/libgraph"+extension)
+    lib = load_library()
     
     if (vtype, itype) == (np.int64, np.int64):
         fun = lib.sweepcut_with_sorting64 if flag == 0 else lib.sweepcut_without_sorting64

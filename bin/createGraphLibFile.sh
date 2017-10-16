@@ -1,5 +1,5 @@
 #!/bin/bash
-cd "localgraphclustering/graph_lib/lib/graph_lib_test"
+cd "localgraphclustering/src/lib/graph_lib_test"
 pwd
 set -e
 make clean

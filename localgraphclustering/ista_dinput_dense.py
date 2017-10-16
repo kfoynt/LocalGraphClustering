@@ -4,7 +4,7 @@ from scipy import sparse as sp
 
 def ista_dinput_dense(ref_node, g, alpha = 0.15, rho = 1.0e-5, epsilon = 1.0e-2, max_iter = 10000, max_time = 100):
     
-    size_A = g.A.shape
+    size_A = g.adjacency_matrix.shape
     n      = size_A[0]
     S      = ref_node
     S_and_neigh = S
@@ -69,7 +69,7 @@ def mat_vec_with_Q(g,alpha,x):
     
     y = np.multiply(x,g.dn_sqrt)
     
-    y = g.A.dot(y)
+    y = g.adjacency_matrix.dot(y)
     
     y = np.multiply(y,g.dn_sqrt)
 
