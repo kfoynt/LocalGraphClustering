@@ -77,7 +77,7 @@ double graph<vtype,itype>::densest_subgraph(vtype *ret_set, vtype *actual_length
         //cout << "flow iteration " << iter << ": range = (" << L << ", " << U << "), solution = ";
         maxflow = max_flow_ds<vtype,itype>(ai, aj, a, all_degs, n, m, src, dest, Q, fin, pro, dist,
                                            next, to,cut, another_pro, pro3, flow, cap, g);
-        cout << maxflow << endl;
+        //cout << maxflow << endl;
         if(accumulate(cut, cut + nverts, 0) == 1){
             U = g;
         }
