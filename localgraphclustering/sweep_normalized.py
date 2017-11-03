@@ -40,7 +40,7 @@ def sweep_normalized(p,g):
     nnz_idx = p.nonzero()[0]
     nnz_ct = nnz_idx.shape[0]
 
-    sc_p = np.zeros((nnz_ct, 1))
+    sc_p = np.zeros(nnz_ct)
     for i in range(nnz_ct):
         degree = g.d[nnz_idx[i]]
         sc_p[i] = (-p[nnz_idx[i]]/degree)

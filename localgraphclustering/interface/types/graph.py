@@ -24,6 +24,9 @@ class Graph(metaclass=abc.ABCMeta):
 
     _dangling_nodes : int numpy array
         Nodes with zero edges
+        
+    edges: int numpy array
+        List of all edges
 
     d : float64 numpy vector
         Degrees vector
@@ -90,6 +93,7 @@ class Graph(metaclass=abc.ABCMeta):
         self.number_of_bicomponents = None
         self.bicomponents = None
         self.core_numbers = None
+        self.edges = None
 
     @abc.abstractmethod
     def import_text(self, filename, separator):
@@ -98,18 +102,18 @@ class Graph(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def read_graph(self, filename, file_type='gml', separator='\t'):
+    def read_graph(self, filename, file_type='edgelist', separator='\t'):
         """
-        Reads the graph from a gml or a edgelist file and initializes the class attribute adjacency_matrix.
+        Reads the graph from an edgelist, gml or graphml file and initializes the class attribute adjacency_matrix.
 
         Parameters
         ----------
         filename : string
-            Name of the file, for example 'JohnsHopkins.edgelist' or 'JohnsHopkins.gml'.
+            Name of the file, for example 'JohnsHopkins.edgelist', 'JohnsHopkins.gml', 'JohnsHopkins.graphml'.
 
         dtype : string
-            Type of file. Currently only 'edgelist' and 'gml' are supported.
-            Default = 'gml'
+            Type of file. Currently only 'edgelist', 'gml' and 'graphml' are supported.
+            Default = 'edgelist'
 
         separator : string
             used if file_type = 'edgelist'
