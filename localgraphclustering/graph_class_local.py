@@ -8,7 +8,7 @@ import numpy as np
 
 class GraphLocal(Graph):
     """
-    This class implements graph loading from an edgelist or gml and provides methods that operate on the graph.
+    This class implements graph loading from an edgelist, gml or graphml and provides methods that operate on the graph.
 
     Attributes
     ----------
@@ -28,6 +28,9 @@ class GraphLocal(Graph):
 
     _dangling_nodes : int numpy array
         Nodes with zero edges
+
+    edges: int numpy array
+        List of all edges
 
     d : float64 numpy vector
         Degrees vector
@@ -64,7 +67,7 @@ class GraphLocal(Graph):
     import_text(filename, separator)
         Imports text from file.
 
-    read_graph(fname, dtype='gml', separator='\t')
+    read_graph(filename, file_type='edgelist', separator='\t')
         Reads the graph from a file
 
     compute_statistics()
@@ -116,18 +119,18 @@ class GraphLocal(Graph):
             if line:
                 yield line
 
-    def read_graph(self, filename, file_type='gml', separator='\t'):
+    def read_graph(self, filename, file_type='edgelist', separator='\t'):
         """
-        Reads the graph from a gml or a edgelist file and initializes the class attribute adjacency_matrix.
+        Reads the graph from an edgelist, gml or graphml file and initializes the class attribute adjacency_matrix.
 
         Parameters
         ----------
         filename : string
-            Name of the file, for example 'JohnsHopkins.edgelist' or 'JohnsHopkins.gml'.
+            Name of the file, for example 'JohnsHopkins.edgelist', 'JohnsHopkins.gml', 'JohnsHopkins.graphml'.
 
         dtype : string
-            Type of file. Currently only 'edgelist' and 'gml' are supported.
-            Default = 'gml'
+            Type of file. Currently only 'edgelist', 'gml' and 'graphml' are supported.
+            Default = 'edgelist'
 
         separator : string
             used if file_type = 'edgelist'
@@ -137,7 +140,8 @@ class GraphLocal(Graph):
         
             first_column = []
             second_column = []
-
+            self.edges = []
+            
             for data in self.import_text(filename, separator):
                 first_column.extend([int(data[0])])
                 second_column.extend([int(data[1])])
@@ -153,11 +157,32 @@ class GraphLocal(Graph):
             self.adjacency_matrix = sp.coo_matrix((np.ones(m),(first_column,second_column)), shape=(n,n))
             self.adjacency_matrix = self.adjacency_matrix.tocsr()
             self.adjacency_matrix = self.adjacency_matrix + self.adjacency_matrix.T
+            
+            unique_elements = set(first_column).copy()
+            unique_elements.update(set(second_column))
+            self._num_vertices = len(unique_elements)
+            n = self._num_vertices
+            
+            self.adjacency_matrix = self.adjacency_matrix.tocsr()[list(unique_elements), :].tocsc()[:, list(unique_elements)]
+            
+            self.edges = self.adjacency_matrix.nonzero()
+            
         elif file_type == 'gml':
             G = nx.read_gml(filename)
             self.adjacency_matrix = nx.adjacency_matrix(G).astype(np.float64)
             self._num_edges = nx.number_of_edges(G)
             self._num_vertices = nx.number_of_nodes(G)
+            self.edges = []
+            for i in G.edges():
+                self.edges.append([int(i[0]),int(i[1])])
+        elif file_type == 'graphml':
+            G = nx.read_graphml(filename)
+            self.adjacency_matrix = nx.adjacency_matrix(G).astype(np.float64)
+            self._num_edges = nx.number_of_edges(G)
+            self._num_vertices = nx.number_of_nodes(G)
+            self.edges = []
+            for i in G.edges():
+                self.edges.append([int(i[0]),int(i[1])])
         else:
             print('This file type is not supported')
             return
