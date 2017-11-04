@@ -7,9 +7,18 @@
 #include "sparseheap.hpp" // include our heap functions
 #include "sparserank.hpp" // include our sorted-list functions
 #include "sparsevec.hpp" // include our sparse hashtable functions
+#include <tuple>
 
 using namespace std;
 
+template<typename vtype,typename itype>
+struct Edge
+{
+    vtype v ; 
+    double flow ; 
+    double C; 
+    itype rev; 
+};
 
 template <class T>
 inline void hash_combine(std::size_t& seed, const T& v)
@@ -53,24 +62,40 @@ public:
     double get_degree_weighted(vtype id);
     vtype get_degree_unweighted(vtype id);
     pair<itype, itype> get_stats(unordered_map<vtype, vtype>& R_map, vtype nR);
+    void addEdge(vtype u, vtype v, double C);
+    bool BFS(vtype s, vtype t, vtype V);
+    double sendFlow(vtype u, double flow, vtype t, vtype start[]);
+    pair<double,vtype> DinicMaxflow(vtype s, vtype t, vtype V, vector<bool>& mincut);
+    void find_cut(vtype u, vector<bool>& mincut, vtype& length);
+
+    //common data
+    vtype* level;
+    vector< Edge<vtype,itype> > *adj;
     
     //declare routines
+
     //functions in aclpagerank.cpp
     vtype aclpagerank(double alpha, double eps, vtype* seedids, vtype nseedids,
                       vtype maxsteps, vtype* xids, vtype xlength, double* values);
     vtype pprgrow(double alpha, double eps, vtype* seedids, vtype nseedids,
                   vtype maxsteps, vtype* xids, vtype xlength, double* values);
+
+
     //functions in aclpagerank_weighted.cpp
     vtype aclpagerank_weighted(double alpha, double eps, vtype* seedids, vtype nseedids,
                       vtype maxsteps, vtype* xids, vtype xlength, double* values);
     vtype pprgrow_weighted(double alpha, double eps, vtype* seedids, vtype nseedids,
                   vtype maxsteps, vtype* xids, vtype xlength, double* values);
+
+
     //functions in sweepcut.cpp
     vtype sweepcut_with_sorting(double* value, vtype* ids, vtype* results,
                                 vtype num, double* ret_cond);
     vtype sweepcut_without_sorting(vtype* ids, vtype* results, vtype num,
                                    double* ret_cond);
     vtype sweep_cut(vtype* ids, vtype* results, vtype num, double* ret_cond);
+
+
     //functions in ppr_path.hpp
     vtype ppr_path(double alpha, double eps, double rho, vtype* seedids, vtype nseedids, vtype* xids,
                    vtype xlength, struct path_info ret_path_results, struct rank_info ret_rank_results);
@@ -81,24 +106,41 @@ public:
     bool resweep(vtype r_end, vtype r_start, sparse_max_rank<vtype,double,size_t>& rankinfo, sweep_info<vtype>& swinfo);
     vtype rank_permute(vector<vtype> &cluster, vtype r_end, vtype r_start);
     void copy_array_to_index_vector(const vtype* v, vector<vtype>& vec, vtype num);
+
+
     //functions in MQI.cpp
     vtype MQI(vtype nR, vtype* R, vtype* ret_set);
     void build_map(unordered_map<vtype, vtype>& R_map,unordered_map<vtype, vtype>& degree_map,
                    vtype* R, vtype nR);
+    void build_list(unordered_map<vtype, vtype>& R_map, unordered_map<vtype, vtype>& degree_map, vtype src, vtype dest, itype a, itype c);
+
+
     //functions in proxl1PRaccel.cpp
     vtype proxl1PRaccel(double alpha, double rho, vtype* v, vtype v_nums, double* d,
                         double* ds, double* dsinv, double epsilon, double* grad, double* p, double* y,
                         vtype maxiter,double max_time);
+
+
     //functions in densest_subgraph.cpp
     double densest_subgraph(vtype *ret_set, vtype *actual_length);
+    void build_list_DS(double g, vtype src, vtype dest);
+
+
     //functions in SimpleLocal.cpp
     void STAGEFLOW(double delta, double alpha, double beta, unordered_map<vtype,vtype>& fullyvisited, unordered_map<vtype,vtype>& R_map);
     vtype SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double delta);
     void init_VL(unordered_map<vtype,vtype>& VL, unordered_map<vtype,vtype>& VL_rev,unordered_map<vtype,vtype>& R_map, vtype s, vtype t);
-    void init_EL(vector<tuple<vtype,vtype,double>>& EL, unordered_map<vtype,vtype>& R_map, vtype s, vtype t, double alpha, double beta);
+    void init_EL(vector< tuple<vtype,vtype,double> >& EL, unordered_map<vtype,vtype>& R_map, vtype s, vtype t, double alpha, double beta);
     void update_VL(unordered_map<vtype,vtype>& VL, unordered_map<vtype,vtype>& VL_rev, vector<vtype>& E);
-    void update_EL(vector<tuple<vtype,vtype,double>>& EL, unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& W_map,
+    void update_EL(vector< tuple<vtype,vtype,double> >& EL, unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& W_map,
                    vtype s, vtype t, double alpha, double beta);
+
+
+    //functions for capacity releasing diffusion
+    vtype capacity_releasing_diffusion(vector<vtype>& ref_node, vtype U,vtype h,vtype w,vtype iterations,vtype* cut);
+    void unit_flow(unordered_map<vtype,double>& Delta, vtype U, vtype h, vtype w, unordered_map<vtype,double>& f_v, 
+        unordered_map<vtype,double>& ex, unordered_map<vtype,vtype>& l);
+    void round_unit_flow(unordered_map<vtype,vtype>& l, unordered_map<vtype,double>& cond,unordered_map<vtype,vector<vtype>>& labels);
 };
 
 template<typename vtype, typename itype>
@@ -112,7 +154,26 @@ graph<vtype,itype>::graph(itype _m, vtype _n, itype* _ai, vtype* _aj, double* _a
     a = _a;
     offset = _offset;
     degrees = _degrees;
-    volume = (double)ai[n];
+    volume = 0;
+    if (ai != NULL) {
+        volume = (double)ai[n];
+    }
+    adj = NULL;
+    level = NULL;
+
+}
+
+template<typename vtype, typename itype>
+void graph<vtype,itype>::addEdge(vtype u, vtype v, double C)
+{
+    // Forward edge : 0 flow and C capacity
+    Edge<vtype,itype> p{v, 0, C, (itype)adj[v].size()};
+ 
+    // Back edge : 0 flow and 0 capacity
+    Edge<vtype,itype> q{u, 0, 0, (itype)adj[u].size()};
+ 
+    adj[u].push_back(p);
+    adj[v].push_back(q); // reverse edge
 }
 
 template<typename vtype,typename itype>
@@ -150,5 +211,7 @@ pair<itype, itype> graph<vtype,itype>::get_stats(unordered_map<vtype, vtype>& R_
     pair<itype, itype> set_stats (curvol, curcutsize);
     return set_stats;
 }
+
+#include "maxflow.cpp"
 
 #endif

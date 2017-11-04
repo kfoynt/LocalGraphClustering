@@ -5,6 +5,7 @@
 
 using namespace std;
 
+/*
 template<typename vtype, typename itype>
 void new_edge(vtype u, vtype v, double weight, vtype *to, double *cap, double *flow, vtype *next, vtype *fin, itype *nEdge);
 
@@ -24,6 +25,7 @@ pair<double, vtype> max_flow_ds(itype* ai, vtype* aj, vtype offset, double a, do
                                 vtype *dist, vtype *next, vtype *to, vtype *cut,
                                 vtype *another_pro, vtype *pro3, double *flow, double *cap, double g);
 
-#include "../maxflow.cpp"
+*/
+
 #include "../densest_subgraph.cpp"
 #endif
