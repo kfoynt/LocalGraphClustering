@@ -39,7 +39,7 @@
 using namespace std;
 
 
-    template<typename vtype, typename itype>
+template<typename vtype, typename itype>
 void graph<vtype,itype>::build_map(unordered_map<vtype, vtype>& R_map,
                                    unordered_map<vtype, vtype>& degree_map, vtype* R, vtype nR)
 {
@@ -60,8 +60,42 @@ void graph<vtype,itype>::build_map(unordered_map<vtype, vtype>& R_map,
     }
 }
 
+template<typename vtype, typename itype>
+void graph<vtype,itype>::build_list(unordered_map<vtype, vtype>& R_map, unordered_map<vtype, vtype>& degree_map,
+    vtype src, vtype dest, itype A, itype C)
+{
+    for(auto R_iter = R_map.begin(); R_iter != R_map.end(); ++R_iter){
+        vtype u = R_iter->first;
+        vtype u1 = R_iter->second;
+        for(vtype j = ai[u] - offset; j < ai[u + 1] - offset; j ++){
+            vtype v = aj[j] - offset;
+            auto got = R_map.find(v);
+            if(R_map.count(v) > 0){
+                vtype v1 = got->second;
+                double w = A;
+                addEdge(u1, v1, w);
+            }
+        }
+    }
+    for(auto R_iter = R_map.begin(); R_iter != R_map.end(); ++R_iter){
+        vtype u1 = src;
+        vtype v = R_iter->first;
+        vtype v1 = R_iter->second;
+        auto got = degree_map.find(v);
+        double w = A * got->second;
+        addEdge(u1, v1, w);
+        //new_edge<vtype,itype>(u1, v1, w, to, cap, flow, next, fin, &nEdge);
+        u1 = v1;
+        v1 = dest;
+        vtype u = v;
+        w = C * (ai[u + 1] - ai[u]);
+        addEdge(u1, v1, w);
+        //new_edge<vtype,itype>(u1, v1, w, to, cap, flow, next, fin, &nEdge);
+    }
+}
 
-    template<typename vtype, typename itype>
+
+template<typename vtype, typename itype>
 vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
 {
     vtype total_iter = 0;
@@ -78,34 +112,30 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
     nedges = curvol - curcutsize + 2 * nR;
     //cout << "deg " << total_degree << " cut " << curcutsize << " vol " << curvol << endl;
     condNew = (double)curcutsize/(double)min(total_degree - curvol, curvol);
-    //cout << "iter: " << total_iter << " conductance: " << condNew << endl;
+    cout << "iter: " << total_iter << " conductance: " << condNew << endl;
     total_iter ++;
-    vtype* mincut = (vtype*)malloc(sizeof(vtype) * (nR + 2));
     vtype nverts = nR + 2;
-    //allocate enough memory to store temp results
-    vtype* Q = (vtype*)malloc(sizeof(vtype) * nverts);
-    vtype* fin = (vtype*)malloc(sizeof(vtype) * nverts);
-    vtype* pro = (vtype*)malloc(sizeof(vtype) * nverts);
-    vtype* another_pro = (vtype*)malloc(sizeof(vtype) * nverts);
-    vtype* dist = (vtype*)malloc(sizeof(vtype) * nverts);
-    double* flow = (double*)malloc(sizeof(double) * 2 * nedges);
-    double* cap = (double*)malloc(sizeof(double) * 2 * nedges);
-    vtype *next = (vtype*)malloc(sizeof(vtype) * 2 * nedges);
-    vtype *to = (vtype*)malloc(sizeof(vtype) * 2 * nedges);
-    
-    pair<double, vtype> retData = max_flow_MQI<vtype, itype>(ai, aj, offset, curvol, curcutsize, nedges,
-            nverts, R_map, degree_map, nR, nR + 1, mincut, Q, fin, pro, another_pro, dist, flow, cap, next, to);
+    adj = new vector<Edge<vtype,itype>>[nverts];
+    for (int i = 0; i < nverts; i ++) {
+        adj[i].clear();
+    }
+    level = new vtype[nverts];
+    vector<bool> mincut (nverts);
+    build_list(R_map,degree_map,nR,nR+1,curvol,curcutsize);
+    pair<double, vtype> retData = DinicMaxflow(nR, nR+1, nverts, mincut);
+    delete [] adj;
+    delete [] level;
     vtype nRold = nR;
     vtype nRnew = 0; 
     while(condNew < condOld){
         nRnew = nRold - retData.second + 1;
-        //cout << nRnew << " " << nedges << endl;
+        //cout << retData.second << " " << nedges << endl;
         vtype* Rnew = (vtype*)malloc(sizeof(vtype) * nRnew);
         vtype iter = 0;
         for(auto R_iter = R_map.begin(); R_iter != R_map.end(); ++R_iter){
             vtype u = R_iter->first;
             vtype u1 = R_iter->second;
-            if(mincut[u1] == 0){
+            if(!mincut[u1]){
                 Rnew[iter] = u + offset;
                 iter ++;
             }
@@ -120,32 +150,34 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
         nedges = curvol - curcutsize + 2 * nRnew;
         if(nRnew > 0){
             condNew = (double)curcutsize/(double)min(total_degree - curvol, curvol);
-            //cout << "here" << nedges << " " << curvol << " " << curcutsize << endl;
-            retData = max_flow_MQI<vtype, itype>(ai, aj, offset, curvol, curcutsize, nedges, nRnew + 2,
-                    R_map, degree_map, nRnew, nRnew + 1, mincut, Q, fin, pro, another_pro, dist, flow, cap, next, to);
+            //cout << "curvol: " << curvol << " condNew: " << condNew << endl;
+            nverts = nRnew + 2;
+            adj = new vector<Edge<vtype,itype>>[nverts];
+            for (int i = 0; i < nverts; i ++) {
+                adj[i].clear();
+            }
+            level = new vtype[nverts];
+            //vector<bool> mincut (nverts);
+            build_list(R_map,degree_map,nRnew,nRnew+1,curvol,curcutsize);
+            retData = DinicMaxflow(nRnew, nRnew + 1, nverts, mincut);
+            delete [] adj;
+            delete [] level;
+            //cout << "here " << nedges << " " << curvol << " " << curcutsize << endl;
+            //retData = max_flow_MQI<vtype, itype>(ai, aj, offset, curvol, curcutsize, nedges, nRnew + 2,
+            //        R_map, degree_map, nRnew, nRnew + 1, mincut, Q, fin, pro, another_pro, dist, flow, cap, next, to);
         }
         free(Rnew);
         nRold = nRnew;
-        //cout << "iter: " << total_iter << " conductance: " << condNew << endl;
+        cout << "iter: " << total_iter << " conductance: " << condNew << endl;
         total_iter ++;
     }
 
-    free(mincut);
+    //free(mincut);
     vtype j = 0;
     for(auto R_iter = R_map.begin(); R_iter != R_map.end(); ++ R_iter){
         ret_set[j] = R_iter->first + offset;
         j ++;
     }
-    
-    free(Q);
-    free(fin);
-    free(pro);
-    free(another_pro);
-    free(dist);
-    free(flow);
-    free(cap);
-    free(next);
-    free(to);
     return nRnew;
 }
 

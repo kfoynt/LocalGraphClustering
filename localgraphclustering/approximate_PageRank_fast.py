@@ -1,9 +1,7 @@
 from typing import *
-from typing import *
 import numpy as np
 from .interface.graph import GraphBase
 from .interface.types.graph import Graph
-from localgraphclustering.acl_list import acl_list
 from localgraphclustering.aclpagerank_cpp import aclpagerank_cpp
 
 Input = TypeVar('Input', bound=Graph)

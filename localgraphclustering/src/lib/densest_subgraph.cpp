@@ -31,15 +31,36 @@
 
 using namespace std;
 
+
+template<typename vtype, typename itype>
+void graph<vtype,itype>::build_list_DS(double g, vtype src, vtype dest)
+{
+    for(size_t i = 0; i < (size_t)n; i ++){
+        //cout << i << " " << ai[i] << " " << ai[i+1] << endl;
+        for(size_t j = ai[i]; j < (size_t)ai[i+1]; j ++){
+            //cout << "aj= " << aj[j] << endl;
+            //cout << "a= " << a[j] << endl;
+            addEdge(i+1,aj[j]+1,a[j]);
+        }
+    }
+    //cout << "start" << endl;
+    for(size_t i = 0; i < (size_t)n; i ++){
+        addEdge(src,i+1,m*1.0/2);
+    }
+    //cout << "start" << endl;
+    for(size_t i = 0; i < (size_t)n; i ++){
+        addEdge(i+1,dest,m*1.0/2+2*g-get_degree_weighted(i));
+    }
+}
+
+
 template<typename vtype, typename itype>
 double graph<vtype,itype>::densest_subgraph(vtype *ret_set, vtype *actual_length)
 {
     //cout << "here" << endl;
     vtype nverts, src, dest;
-    itype nedges;
     double g, maxflow;
     nverts = n + 2;
-    nedges = m + 2 * n;
 
     double final_degree = 0;//the degree of the densest subgraph
     double L = 0;//lower bound of Andrew Goldberg's algorithm
@@ -48,25 +69,9 @@ double graph<vtype,itype>::densest_subgraph(vtype *ret_set, vtype *actual_length
 
     size_t iter = 0;
 
-    /*malloc enough space to store data used to calculate max flow*/
-    vtype *Q = (vtype *)malloc(sizeof(vtype) * nverts);
-    vtype *fin = (vtype *)malloc(sizeof(vtype) * nverts);
-    vtype *pro = (vtype *)malloc(sizeof(vtype) * nverts);
-    vtype *another_pro = (vtype *)malloc(sizeof(vtype) * nverts);
-    vtype *pro3 = (vtype *)malloc(sizeof(vtype) * nverts);
-    vtype *dist = (vtype *)malloc(sizeof(vtype) * nverts);
-    double *flow = (double *)malloc(sizeof(double) * 2 * nedges);
-    double *cap = (double *)malloc(sizeof(double) * 2 * nedges);
-    vtype *next = (vtype *)malloc(sizeof(vtype) * 2 * nedges);
-    vtype *to = (vtype *)malloc(sizeof(vtype) * 2 * nedges);
-    vtype *cut = (vtype *)malloc(sizeof(vtype) * nverts);
-    double* all_degs = (double*)malloc(sizeof(double) * n);
-    //cout << "ok" << endl;
-
-    for(size_t i = 0; i < (size_t)n; i ++){
-        all_degs[i] = get_degree_weighted(i);
-    }
-
+    adj = new vector<Edge<vtype,itype>>[nverts];
+    level = new vtype[nverts];
+    vector<bool> cut (nverts);
     /*Andrew Goldberg's algorithm*/
     while(n * (n - 1) * (U - L) >= 1){
         //cout << "ok" << endl;
@@ -74,11 +79,19 @@ double graph<vtype,itype>::densest_subgraph(vtype *ret_set, vtype *actual_length
         g = (U + L) / 2;
         src = 0;
         dest = nverts - 1;
-        //cout << "flow iteration " << iter << ": range = (" << L << ", " << U << "), solution = ";
-        maxflow = max_flow_ds<vtype,itype>(ai, aj, a, all_degs, n, m, src, dest, Q, fin, pro, dist,
-                                           next, to,cut, another_pro, pro3, flow, cap, g);
-        //cout << maxflow << endl;
-        if(accumulate(cut, cut + nverts, 0) == 1){
+
+
+        build_list_DS(g,src,dest);
+        pair<double, vtype> retData = DinicMaxflow(src, dest, nverts, cut);
+        maxflow = retData.first;
+        for (int i = 0; i < nverts; i ++) {
+            adj[i].clear();
+        }
+
+
+
+
+        if(accumulate(cut.begin(), cut.end(), 0) == 1){
             U = g;
         }
         else{
@@ -98,32 +111,18 @@ double graph<vtype,itype>::densest_subgraph(vtype *ret_set, vtype *actual_length
         if(final_cut[i] != 0){
             ret_set[num ++] = i - 1;
             //cout << pro3[i] << endl;
-            for(vtype &e = pro3[i]; e >= 0; e = next[e]){
-                if(final_cut[to[e]] != 0){
-                    final_degree += cap[e];
+            for(vtype j = ai[i-1]; j < ai[i]; j ++){
+                if(final_cut[aj[j]+1] != 0){
+                    final_degree += a[aj[j]];
                     //cout << e << " " << cap[e] << endl; 
                 }
             }
         }
     }
-    final_degree /= (2 * num);
+    final_degree /= num;
     *actual_length = num;
 
-    /*free space*/
     free(final_cut);
-    free(Q);
-    free(fin);
-    free(pro);
-    free(another_pro);
-    free(pro3);
-    free(dist);
-    free(flow);
-    free(cap);
-    free(next);
-    free(to);
-    free(cut);
-    free(all_degs);
-    //cout << "final_degree " << final_degree << endl;
     return final_degree;
 }
 
