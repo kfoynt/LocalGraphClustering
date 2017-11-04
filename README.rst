@@ -14,4 +14,5 @@ Note that this package runs only with python3.
 Examples
 ========
 
-In the "notebooks" folder see the Jupyter notebooks "examples" and "examples_with_visualization".
+In the "notebooks" folder see the Jupyter notebooks "examples", "examples_with_visualization" 
+and "more_local_examples_with_visualization".
