@@ -109,7 +109,7 @@ vtype graph<vtype,itype>::capacity_releasing_diffusion(vector<vtype>& ref_node,
     unordered_map<vtype,vector<vtype>> labels_temp,labels;
 
     for (size_t i = 0; i < iterations; i ++) {
-        cout << "iter: " << i << endl;
+        //cout << "iter: " << i << endl;
     	reset<vtype,itype>(f_v,ex,cond_temp,l,labels_temp);
         //print_map<vtype,double>(Delta);
     	unit_flow(Delta, U, h, w, f_v, ex, l);
@@ -127,7 +127,7 @@ vtype graph<vtype,itype>::capacity_releasing_diffusion(vector<vtype>& ref_node,
         		idx = iter->first;
         	}
         }
-        cout << cond_temp.size() << " " << cond_best << " " << idx << endl;
+        //cout << cond_temp.size() << " " << cond_best << " " << idx << endl;
         if (cond_temp[idx] < cond_best) {
         	cond_best = cond_temp[idx];
         	map_copy<vtype,itype>(cond_best_array, cond_temp);
@@ -174,7 +174,7 @@ vtype graph<vtype,itype>::capacity_releasing_diffusion(vector<vtype>& ref_node,
         }
         keys.push_back(iter->first);
     }
-    cout << cond_best_array.size() << " " << idx << endl;
+    //cout << cond_best_array.size() << " " << idx << endl;
     sort(keys.begin(),keys.end(),greater<vtype>());
     for (auto iter = keys.begin(); iter != keys.end(); ++iter) {
     	if (*iter >= idx) {
