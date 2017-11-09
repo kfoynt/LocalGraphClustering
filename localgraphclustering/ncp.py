@@ -70,10 +70,10 @@ class Ncp(GraphBase[Input, Output]):
             Each element of the list is a dictionary where keys are volumes of clusters and 
             the values are conductance. It can be used to plot the conductance vs volume NCP.
 
-        conductance_vs_size: a list of dictionaries
+        isoperimetry_vs_size: a list of dictionaries
             The length of the list is the number of connected components of the given graph.
             Each element of the list is a dictionary where keys are sizes of clusters and 
-            the values are conductance. It can be used to plot the conductance vs volume NCP.
+            the values are isoperimetry. It can be used to plot the isoperimetry vs volume NCP.
         """       
         
         return [ncp_algo(inputs[i], ratio=ratio, timeout=timeout, timeout_ncp=timeout_ncp, iterations=iterations, epsilon=epsilon, nthreads=nthreads, multi_threads=multi_threads) for i in range(len(inputs))]

@@ -84,6 +84,9 @@ class GraphLocal(Graph):
 
     core_number()
         Returns the core number for each vertex
+        
+    neighbors(vertex)
+        Returns a list with the neighbors of the given vertex
 
     import_text(filename, separator)
         Reads text from filename
@@ -290,3 +293,8 @@ class GraphLocal(Graph):
 
         self.core_numbers = nx.core_number(g_nx)
 
+    def neighbors(self,vertex):
+        """
+        Returns a list with the neighbors of the given vertex.
+        """
+        return self.adjacency_matrix[:,vertex].nonzero()[0].tolist()

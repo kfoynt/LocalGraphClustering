@@ -173,3 +173,9 @@ class Graph(metaclass=abc.ABCMeta):
         function from this class. The output can be accessed from the graph object that
         calls this function. It stores the results in class attribute core_numbers.
         """
+        
+    @abc.abstractmethod
+    def neighbors(self):
+        """
+        Returns a list with the neighbors of the given vertex.
+        """

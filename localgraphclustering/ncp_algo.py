@@ -12,7 +12,7 @@ import threading
 import math
 
 conductance_vs_vol = []
-conductance_vs_size = []
+isoperimetry_vs_size = []
 fista_counter = 0
 lock = threading.RLock()
 start = 0
@@ -60,11 +60,11 @@ def worker(nodes,timeout_ncp,epsilon,iterations,timeout):
                 else:
                     conductance_vs_vol[cmp][vol] = cond  
 
-                if size in conductance_vs_size[cmp]:
-                    if cond <= conductance_vs_size[cmp][size]:
-                        conductance_vs_size[cmp][size] = cond
+                if size in isoperimetry_vs_size[cmp]:
+                    if cond <= isoperimetry_vs_size[cmp][size]:
+                        isoperimetry_vs_size[cmp][size] = cond
                 else:
-                    conductance_vs_size[cmp][size] = cond     
+                    isoperimetry_vs_size[cmp][size] = cond     
 
                 end = time.time()
                         
@@ -113,10 +113,10 @@ def ncp_algo(g, ratio, timeout = 10, timeout_ncp = 1000, iterations = 1000, epsi
         Each element of the list is a dictionary where keys are volumes of clusters and 
         the values are conductance. It can be used to plot the conductance vs volume NCP.
 
-    conductance_vs_size: a list of dictionaries
+    isoperimetry_vs_size: a list of dictionaries
         The length of the list is the number of connected components of the given graph.
         Each element of the list is a dictionary where keys are sizes of clusters and 
-        the values are conductance. It can be used to plot the conductance vs volume NCP.
+        the values are isoperimetry. It can be used to plot the isoperimetry vs size NCP.
     """
     global start, g_copy, l1reg_fast, sc_fast, cmp         
     if ratio < 0 or ratio > 1:
@@ -136,7 +136,7 @@ def ncp_algo(g, ratio, timeout = 10, timeout_ncp = 1000, iterations = 1000, epsi
         
     for i in range(number_of_components):
         conductance_vs_vol.append({})
-        conductance_vs_size.append({})
+        isoperimetry_vs_size.append({})
         
     start = time.time()    
         
@@ -177,6 +177,6 @@ def ncp_algo(g, ratio, timeout = 10, timeout_ncp = 1000, iterations = 1000, epsi
         
         print('NCP plots for component: ' + str(cmp))
         plot_ncp_vol(conductance_vs_vol[cmp])
-        plot_ncp_size(conductance_vs_size[cmp])
+        plot_ncp_size(isoperimetry_vs_size[cmp])
 
-    return (conductance_vs_vol,conductance_vs_size)
+    return (conductance_vs_vol,isoperimetry_vs_size)

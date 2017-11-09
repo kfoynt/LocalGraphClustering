@@ -19,11 +19,11 @@ def plot_ncp_vol(conductance_vs_vol):
             
     plt.show()
     
-def plot_ncp_size(conductance_vs_size):
+def plot_ncp_size(isoperimetry_vs_size):
     """
-    Plots the Network Community Profile, i.e., minimum conductance vs size.
+    Plots the Network Community Profile, i.e., minimum isoperimetry vs size.
     """    
-    lists = sorted(conductance_vs_size.items())
+    lists = sorted(isoperimetry_vs_size.items())
     x, y = zip(*lists)
 
     fig = plt.figure()
@@ -32,9 +32,9 @@ def plot_ncp_size(conductance_vs_size):
     plt.loglog(x, y)
             
     ax.set_xlabel('Size')
-    ax.set_ylabel('Minimum conductance')  
+    ax.set_ylabel('Minimum isoperimetry')  
             
-    ax.set_title('Min. Conductance vs. Size NCP for component ')
+    ax.set_title('Min. Isoperimetry vs. Size NCP for component ')
             
     plt.show()
 
