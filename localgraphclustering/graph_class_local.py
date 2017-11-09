@@ -290,3 +290,23 @@ class GraphLocal(Graph):
 
         self.core_numbers = nx.core_number(g_nx)
 
+    def compute_conductance(self,R):
+        """
+        Returns the conductance corresponding to set R.
+        """
+        S = set(R)
+        curvol = 0
+        curcutsize = 0
+        if self.d == []:
+            print('The graph has to be read first.')
+            return 0
+        for i in R:
+            deg = self.d[i]
+            curvol += deg
+            for j in range(self.adjacency_matrix.indptr[i],self.adjacency_matrix.indptr[i+1]):
+                v = self.adjacency_matrix.indices[j]
+                if v not in S:
+                    curcutsize += self.adjacency_matrix.data[j]
+        return curcutsize/min(curvol,self.vol_G-curvol)
+
+
