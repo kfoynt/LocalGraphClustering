@@ -127,13 +127,14 @@ public:
 
 
     //functions in SimpleLocal.cpp
-    void STAGEFLOW(double delta, double alpha, double beta, unordered_map<vtype,vtype>& fullyvisited, unordered_map<vtype,vtype>& R_map);
+    void STAGEFLOW(double delta, double alpha, double beta, unordered_map<vtype,vtype>& fullyvisited, unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& S);
     vtype SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double delta);
-    void init_VL(unordered_map<vtype,vtype>& VL, unordered_map<vtype,vtype>& VL_rev,unordered_map<vtype,vtype>& R_map, vtype s, vtype t);
-    void init_EL(vector< tuple<vtype,vtype,double> >& EL, unordered_map<vtype,vtype>& R_map, vtype s, vtype t, double alpha, double beta);
+    void init_VL(unordered_map<vtype,vtype>& VL, unordered_map<vtype,vtype>& VL_rev,unordered_map<vtype,vtype>& R_map);
+    void init_EL(vector< tuple<vtype,vtype,double> >& EL, unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& VL, vtype s, vtype t, double alpha, double beta);
     void update_VL(unordered_map<vtype,vtype>& VL, unordered_map<vtype,vtype>& VL_rev, vector<vtype>& E);
-    void update_EL(vector< tuple<vtype,vtype,double> >& EL, unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& W_map,
+    void update_EL(vector< tuple<vtype,vtype,double> >& EL, unordered_map<vtype,vtype>& VL, unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& W_map,
                    vtype s, vtype t, double alpha, double beta);
+    void assemble_graph(vector<bool>& mincut, vtype nverts, itype nedges, vector<tuple<vtype,vtype,double>>& EL);
 
 
     //functions for capacity releasing diffusion
