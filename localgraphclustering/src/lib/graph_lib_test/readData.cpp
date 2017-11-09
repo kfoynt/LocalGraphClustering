@@ -57,14 +57,19 @@ void list_to_CSR(vtype m, itype n, vtype* ei, vtype* ej, double* w,
 char* readSMAT(const char* filename)
 {
     FILE *rptr = fopen(filename, "r");
+    //cout << "here" << endl;
     fseek(rptr, 0, SEEK_END);
+    //cout << "here" << endl;
     size_t fsize = ftell(rptr);
+    //cout << fsize << endl;
     char *read_file = (char *)malloc(sizeof(char) * fsize);
+    //cout << "here" << endl;
     fseek(rptr, 0, SEEK_SET);
     size_t ret = 0;
     ret = fread(read_file, sizeof(char), fsize, rptr);
     (void)ret;
     fclose(rptr);
+    //cout << "here" << endl;
 
     return read_file;
 }

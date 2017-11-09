@@ -11,20 +11,18 @@
 #include "include/routines.hpp"
 #include "include/SimpleLocal_c_interface.h"
 #include <tuple>
+#include <fstream>
+#include <limits>
+
 
 using namespace std;
 
 template<typename vtype, typename itype>
 void graph<vtype,itype>::init_VL(unordered_map<vtype,vtype>& VL, unordered_map<vtype,vtype>& VL_rev,
-                                 unordered_map<vtype,vtype>& R_map, vtype s, vtype t)
+                                 unordered_map<vtype,vtype>& R_map)
 {
-    vtype num = 0;
-    VL[s] = num;
-    VL_rev[num] = s;
-    num ++;
-    VL[t] = num;
-    VL_rev[num] = t;
-    num ++;
+    //cout << "changed" << endl;
+    vtype num = 1;
     for (auto iter = R_map.begin(); iter != R_map.end(); ++iter){
         vtype u = iter->first;
         if (VL.count(u) == 0) {
@@ -32,8 +30,8 @@ void graph<vtype,itype>::init_VL(unordered_map<vtype,vtype>& VL, unordered_map<v
             VL_rev[num] = u;
             num ++;
         }
-        for (itype j = ai[u-2]; j < ai[u-2+1]; j ++) {
-            vtype v = aj[j]+2;
+        for (itype j = ai[u]; j < ai[u+1]; j ++) {
+            vtype v = aj[j];
             if (VL.count(v) == 0) {
                 VL[v] = num;
                 VL_rev[num] = v;
@@ -45,40 +43,40 @@ void graph<vtype,itype>::init_VL(unordered_map<vtype,vtype>& VL, unordered_map<v
 
 template<typename vtype, typename itype>
 void graph<vtype,itype>::init_EL(vector<tuple<vtype,vtype,double>>& EL, unordered_map<vtype,vtype>& R_map,
-                                 vtype s, vtype t, double alpha, double beta)
+                                 unordered_map<vtype,vtype>& VL, vtype s, vtype t, double alpha, double beta)
 {
-    cout << "alpha " << alpha << " beta " << beta << endl;
+    //cout << "alpha " << alpha << " beta " << beta << endl;
     //unordered_map<vtype,vtype> R_map;
     unordered_map<vtype,vtype> B_map;
     vtype ARR  = 0;
     vtype ABR  = 0;
     for (auto iter = R_map.begin(); iter != R_map.end(); ++iter){
-        vtype u = iter->first+2;
-        EL.push_back(make_tuple(s,u,get_degree_unweighted(u-2)*alpha));
-        EL.push_back(make_tuple(u,s,get_degree_unweighted(u-2)*alpha));
-        for (itype j = ai[u-2]; j < ai[u-2+1]; j ++) {
-            vtype v = aj[j]+2;
-            if (R_map.count(v-2) == 0) {
+        vtype u = iter->first;
+        EL.push_back(make_tuple(s,VL[u],get_degree_unweighted(u)*alpha));
+        EL.push_back(make_tuple(VL[u],s,get_degree_unweighted(u)*alpha));
+        for (itype j = ai[u]; j < ai[u+1]; j ++) {
+            vtype v = aj[j];
+            if (R_map.count(v) == 0) {
                 //EL.push_back(make_tuple(v,t,get_degree_unweighted(v-2)*beta));
                 //EL.push_back(make_tuple(t,v,get_degree_unweighted(v-2)*beta));
-                EL.push_back(make_tuple(u,v,1.0));
-                EL.push_back(make_tuple(v,u,1.0));
+                EL.push_back(make_tuple(VL[u],VL[v],1.0));
+                EL.push_back(make_tuple(VL[v],VL[u],1.0));
                 B_map[v];
                 ABR ++;
             }
             else {
-                EL.push_back(make_tuple(u,v,1.0));
+                EL.push_back(make_tuple(VL[u],VL[v],1.0));
                 ARR ++;
             }
         }
     }
     
-    cout << " ARR " << ARR << " ABR " << ABR << endl;
+    //cout << " ARR " << ARR << " ABR " << ABR << endl;
     
     for (auto iter = B_map.begin(); iter != B_map.end(); ++iter){
         vtype v = iter->first;
-        EL.push_back(make_tuple(v,t,get_degree_unweighted(v-2)*beta));
-        EL.push_back(make_tuple(t,v,get_degree_unweighted(v-2)*beta));
+        EL.push_back(make_tuple(VL[v],t,get_degree_unweighted(v)*beta));
+        EL.push_back(make_tuple(t,VL[v],get_degree_unweighted(v)*beta));
     }
     
     /*
@@ -108,17 +106,17 @@ template<typename vtype, typename itype>
 void graph<vtype,itype>::update_VL(unordered_map<vtype,vtype>& VL, unordered_map<vtype,vtype>& VL_rev,
                vector<vtype>& E)
 {
-    vtype num = VL.size();
+    vtype num = VL.size()+1;
     vtype u,v;
     for (vtype i = 0; i < E.size(); i ++) {
-        u = E[i]+2;
+        u = E[i];
         if (VL.count(u) == 0) {
             VL[u] = num;
             VL_rev[num] = u;
             num ++;
         }
-        for (itype j = ai[u-2]; j < ai[u-2+1]; j ++) {
-            v = aj[j]+2;
+        for (itype j = ai[u]; j < ai[u+1]; j ++) {
+            v = aj[j];
             if (VL.count(v) == 0) {
                 VL[v] = num;
                 VL_rev[num] = v;
@@ -129,7 +127,8 @@ void graph<vtype,itype>::update_VL(unordered_map<vtype,vtype>& VL, unordered_map
 }
 
 template<typename vtype, typename itype>
-void graph<vtype,itype>::update_EL(vector<tuple<vtype,vtype,double>>& EL, unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& W_map,
+void graph<vtype,itype>::update_EL(vector<tuple<vtype,vtype,double>>& EL, unordered_map<vtype,vtype>& VL,
+                                   unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& W_map,
                                    vtype s, vtype t, double alpha, double beta)
 {
     EL.clear();
@@ -141,62 +140,65 @@ void graph<vtype,itype>::update_EL(vector<tuple<vtype,vtype,double>>& EL, unorde
     
     //Build ARR, AWR, AW
     for (auto iter = W_map.begin(); iter != W_map.end(); ++iter){
-        vtype u = iter->first+2;
-        for (itype j = ai[u-2]; j < ai[u-2+1]; j ++) {
-            vtype v = aj[j]+2;
-            EL.push_back(make_tuple(u,v,1.0));
+        vtype u = iter->first;
+        for (itype j = ai[u]; j < ai[u+1]; j ++) {
+            vtype v = aj[j];
+            if (W_map.count(v) > 0) {
+                EL.push_back(make_tuple(VL[u],VL[v],1.0));
+            }
         }
     }
     
     //Build WnR, B, ABR, ABW
     for (auto iter = W_map.begin(); iter != W_map.end(); ++iter){
-        vtype u = iter->first+2;
-        if (R_map.count(u-2) == 0) {
+        vtype u = iter->first;
+        if (R_map.count(u) == 0) {
             WnR_map[u];
         }
-        for (itype j = ai[u-2]; j < ai[u-2+1]; j ++) {
-            vtype v = aj[j]+2;
-            if (W_map.count(v-2) == 0) {
+        for (itype j = ai[u]; j < ai[u+1]; j ++) {
+            vtype v = aj[j];
+            if (W_map.count(v) == 0) {
                 B_map[v];
-                EL.push_back(make_tuple(u,v,1.0));
-                EL.push_back(make_tuple(v,u,1.0));
+                EL.push_back(make_tuple(VL[u],VL[v],1.0));
+                EL.push_back(make_tuple(VL[v],VL[u],1.0));
             }
         }
     }
     
     //Build sR, ARR
+    //cout << "for now: " << EL.size() << endl;
     for (auto iter = R_map.begin(); iter != R_map.end(); ++iter){
-        vtype u = iter->first+2;
-        EL.push_back(make_tuple(s,u,get_degree_unweighted(u-2)*alpha));
-        EL.push_back(make_tuple(u,s,get_degree_unweighted(u-2)*alpha));
+        vtype u = iter->first;
+        EL.push_back(make_tuple(s,VL[u],get_degree_unweighted(u)*alpha));
+        EL.push_back(make_tuple(VL[u],s,get_degree_unweighted(u)*alpha));
     }
     
-    cout << " ARR " << ARR << " ABR " << ABR << endl;
+    //cout << "ARR " << ARR << " ABR " << ABR << endl;
     
     //Build tB
     for (auto iter = B_map.begin(); iter != B_map.end(); ++iter){
         vtype v = iter->first;
-        EL.push_back(make_tuple(v,t,get_degree_unweighted(v-2)*beta));
-        EL.push_back(make_tuple(t,v,get_degree_unweighted(v-2)*beta));
+        EL.push_back(make_tuple(VL[v],t,get_degree_unweighted(v)*beta));
+        EL.push_back(make_tuple(t,VL[v],get_degree_unweighted(v)*beta));
     }
     
     //Build tWnR
     for (auto iter = WnR_map.begin(); iter != WnR_map.end(); ++iter){
         vtype v = iter->first;
-        EL.push_back(make_tuple(v,t,get_degree_unweighted(v-2)*beta));
-        EL.push_back(make_tuple(t,v,get_degree_unweighted(v-2)*beta));
+        EL.push_back(make_tuple(VL[v],t,get_degree_unweighted(v)*beta));
+        EL.push_back(make_tuple(t,VL[v],get_degree_unweighted(v)*beta));
     }
     
 }
 
 template<typename vtype, typename itype>
-void assemble_graph(vtype** mincut, vtype** Q, vtype** fin, vtype** pro, vtype** another_pro,
-                    vtype** dist, vtype** next, vtype** to, double** flow, double** cap,
-                    vtype nverts, itype nedges, vector<tuple<vtype,vtype,double>>& EL,
-                    unordered_map<vtype,vtype>& VL)
+void graph<vtype,itype>::assemble_graph(vector<bool>& mincut, vtype nverts, itype nedges, 
+                                        vector<tuple<vtype,vtype,double>>& EL)
 {
     vtype u,v;
     double w;
+    mincut.resize(nverts);
+    /*
     itype nEdge = 0;
     *mincut = (vtype*)malloc(sizeof(vtype) * nverts);
     *Q = (vtype*)malloc(sizeof(vtype) * nverts);
@@ -210,88 +212,159 @@ void assemble_graph(vtype** mincut, vtype** Q, vtype** fin, vtype** pro, vtype**
     *to = (vtype*)malloc(sizeof(vtype) * 2 * nedges);
     fill(*fin, *fin + nverts, -1);
     fill(*mincut, *mincut + nverts, 0);
+    */
     for (auto iter = EL.begin(); iter != EL.end(); ++iter) {
         u = get<0>(*iter);
         v = get<1>(*iter);
         w = get<2>(*iter);
-        new_edge<vtype,itype>(VL[u],VL[v],w,*to,*cap,*flow,*next,*fin,&nEdge);
+
+
+        //new_edge<vtype,itype>(VL[u],VL[v],w,*to,*cap,*flow,*next,*fin,&nEdge);
+        addEdge(u,v,w);
     }
 }
 
-template<typename vtype>
-void free_space(vtype* mincut, vtype* Q, vtype* fin, vtype* pro, vtype* another_pro,
-                vtype* dist, vtype* next, vtype* to, double* flow, double* cap)
+template<typename vtype, typename itype>
+void free_space(vtype* level, vector< Edge<vtype,itype> > *adj)
 {
-    free(mincut);
-    free(Q);
-    free(fin);
-    free(pro);
-    free(another_pro);
-    free(dist);
-    free(next);
-    free(to);
-    free(flow);
-    free(cap);
+    delete[] adj;
+    delete[] level;
 }
+
+
+template<typename vtype, typename itype>
+void save_EL(vector<tuple<vtype,vtype,double>>& EL)
+{
+    ofstream wptr;
+    wptr.open("EL.smat", std::ofstream::out | std::ofstream::trunc);
+    vtype u,v;
+    double w;
+    for (auto iter = EL.begin(); iter != EL.end(); ++iter) {
+        u = get<0>(*iter);
+        v = get<1>(*iter);
+        w = get<2>(*iter);
+        wptr << u << " " << v << " " << w << endl;
+    }
+    wptr.close();
+}
+
 
 template<typename vtype, typename itype>
 void graph<vtype,itype>::STAGEFLOW(double delta, double alpha, double beta, unordered_map<vtype,vtype>& fullyvisited,
-                                   unordered_map<vtype,vtype>& R_map)
+                                   unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& S)
 {
     unordered_map<vtype,vtype> VL;
     unordered_map<vtype,vtype> VL_rev;
     vector<tuple<vtype,vtype,double>> EL;
     vtype s = 0;
-    vtype t = 1;
-    init_VL(VL,VL_rev,R_map,s,t);
-    init_EL(EL,R_map,s,t,alpha,beta);
-    cout << "EL size " << EL.size() << endl;
-    double F = 0;
-    vtype nverts = VL.size();
+    init_VL(VL,VL_rev,R_map);
+    vtype t = VL.size()+1;
+    init_EL(EL,R_map,VL,s,t,alpha,beta);
+    //cout << "EL size " << EL.size() << endl;
+    
+    //double F = 0;
+    vtype nverts = VL.size()+2;
     itype nedges = EL.size();
+
+    
+    /*
     vtype *mincut = NULL, *Q = NULL, *fin = NULL, *pro = NULL, *another_pro = NULL, *dist = NULL, *next = NULL, *to = NULL;
     double *flow = NULL, *cap = NULL;
-    assemble_graph<vtype,itype>(&mincut,&Q,&fin,&pro,&another_pro,&dist,&next,&to,&flow,&cap,nverts,
-                                nedges,EL,VL);
-    cout << "here" << endl; 
+    */
+    
+    adj = new vector<Edge<vtype,itype>>[nverts];
+    level = new vtype[nverts];
+    vector<bool> mincut;
+    assemble_graph(mincut,nverts,nedges,EL);
+    itype sum = 0;
+    for (vtype i = 0; i < nverts; i ++) {
+        sum += adj[i].size();
+    }
+    //cout << "here sum: " << sum << endl; 
+
+
+    /*
     pair<double, vtype> retData = max_flow_SL<vtype,itype>(s,t,Q,fin,pro,dist,next,to,mincut,another_pro,flow,
                                               cap,nverts);
-    cout << "ok " << get<0>(retData) << " " << get<1>(retData) << endl;
-    //vtype* source_set = (vtype*)malloc(sizeof(vtype) * get<1>(retData));
+    */
+    pair<double, vtype> retData = DinicMaxflow(s,t,nverts,mincut);
 
+
+
+    //cout << "ok " << get<0>(retData) << " " << get<1>(retData) << endl;
+    //vtype* source_set = (vtype*)malloc(sizeof(vtype) * get<1>(retData));
+    
+
+    //TODO
     vector<vtype> E;
-    for (vtype i = 2; i < nverts; i ++){
-        if (mincut[i] > 0 and fullyvisited.count(VL_rev[i]-2) == 0) {
-            E.push_back(VL_rev[i]-2);
-            fullyvisited[VL_rev[i]-2];
+    for (vtype i = 1; i < nverts-1; i ++){
+        if (mincut[i] && fullyvisited.count(VL_rev[i]) == 0) {
+            E.push_back(VL_rev[i]);
+            fullyvisited[VL_rev[i]];
         }
     }
+
+    //cout << "size E: " << E.size() << endl;
+
+
     while (E.size() > 0 && get<1>(retData) > 1) {
-        update_EL(EL, R_map, fullyvisited, s, t, alpha, beta);
         update_VL(VL, VL_rev, E);
-        nverts = VL.size();
+        t = VL.size()+1;
+        update_EL(EL, VL, R_map, fullyvisited, s, t, alpha, beta);
+        //cout << "EL size " << EL.size() << " VL size " << VL.size() << endl;
+
+        nverts = VL.size()+2;
         nedges = EL.size();
-        free_space<vtype>(mincut,Q,fin,pro,another_pro,dist,next,to,flow,cap);
-        assemble_graph<vtype,itype>(&mincut,&Q,&fin,&pro,&another_pro,&dist,&next,&to,&flow,&cap,nverts,
-                                nedges,EL,VL);
-        retData = max_flow_SL<vtype,itype>(s,t,Q,fin,pro,dist,next,to,mincut,another_pro,flow,cap,nverts);
-        cout << "ok " << get<0>(retData) << " " << get<1>(retData) << endl;
+        free_space<vtype,itype>(level, adj);
+        adj = new vector<Edge<vtype,itype>>[nverts];
+        level = new vtype[nverts];
+        assemble_graph(mincut,nverts,nedges,EL);
+        sum = 0;
+        for (vtype i = 0; i < nverts; i ++) {
+            sum += adj[i].size();
+        }
+        /*
+        if (EL.size() == 1840) {
+            save_EL<vtype,itype>(EL);
+        }
+        */
+        
+        //cout << "here sum: " << sum << " " << adj[0][10].C << " " << adj[0][10].v << endl; 
+        //cout << "nverts: " << nverts << " mincut size: " << mincut.size() << endl;
+        
+
+
+        //retData = max_flow_SL<vtype,itype>(s,t,Q,fin,pro,dist,next,to,mincut,another_pro,flow,cap,nverts);
+        retData = DinicMaxflow(s,t,nverts,mincut);
+
+
+
+        //cout << "ok " << get<0>(retData) << " " << get<1>(retData) << endl;
         E.clear();
-        for (vtype i = 2; i < nverts; i ++){
-            if (mincut[i] > 0 and fullyvisited.count(VL_rev[i]-2) == 0) {
-                E.push_back(VL_rev[i]-2);
-                fullyvisited[VL_rev[i]-2];
+        for (vtype i = 1; i < nverts-1; i ++){
+            if (mincut[i] && fullyvisited.count(VL_rev[i]) == 0) {
+                E.push_back(VL_rev[i]);
+                fullyvisited[VL_rev[i]];
             }
         }
+
     }
 
-    free_space<vtype>(mincut,Q,fin,pro,another_pro,dist,next,to,flow,cap);
+
+    S.clear();
+    for (vtype i = 1; i < nverts-1; i ++){
+        if (mincut[i]) {
+            S[VL_rev[i]];
+        }
+    }
+
+    free_space<vtype,itype>(level, adj);
 }
 
 template<typename vtype, typename itype>
 vtype graph<vtype,itype>::SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double delta)
 {
-    unordered_map<vtype,vtype> fullyvisited;
+    unordered_map<vtype,vtype> fullyvisited, S;
     unordered_map<vtype,vtype> R_map;
     init_fullyvisited_R(fullyvisited, R_map, nR, R);
     pair<itype, itype> set_stats = get_stats(fullyvisited,fullyvisited.size());
@@ -300,24 +373,39 @@ vtype graph<vtype,itype>::SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double
     double alph0;
     double beta = alpha * (fR + delta);
     alph0 = alpha;
-    cout << "here" << endl;
-    STAGEFLOW(delta, alpha, beta, fullyvisited, R_map);
+    //cout << "here" << endl;
+    
+    STAGEFLOW(delta, alpha, beta, fullyvisited, R_map, S);
 
-    cout << "here" << endl;
-    set_stats = get_stats(fullyvisited,fullyvisited.size());
+    //cout << "here" << endl;
+
+    set_stats = get_stats(S,S.size());
     alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), ai[n] - get<0>(set_stats));
+    //cout << "after first step: " << alpha << endl;
+    vtype actual_length;
     while (alpha < alph0) {
+        actual_length = S.size();
+        vtype pos = 0;
+        for (auto iter = S.begin(); iter != S.end(); ++ iter) {
+             ret_set[pos++] = iter->first;
+        }
         alph0 = alpha;
         beta = alpha * (fR + delta);
-        STAGEFLOW(delta, alpha, beta, fullyvisited, R_map);
-        set_stats = get_stats(fullyvisited,fullyvisited.size());
-        alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), ai[n] - get<0>(set_stats));
+        fullyvisited.clear();
+        R_map.clear();
+        init_fullyvisited_R(fullyvisited, R_map, nR, R);
+        STAGEFLOW(delta, alpha, beta, fullyvisited, R_map, S);
+        set_stats = get_stats(S,S.size());
+        if (min(get<0>(set_stats), ai[n] - get<0>(set_stats)) != 0)
+        {
+            alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), ai[n] - get<0>(set_stats));
+        }
+        else {
+            alpha = numeric_limits<double>::max();
+        }
+        
     }
-    vtype actual_length = fullyvisited.size();
-    vtype pos = 0;
-    for (auto iter = fullyvisited.begin(); iter != fullyvisited.end(); ++ iter) {
-        ret_set[pos++] = iter->first;
-    }
+    
     //cout << alpha << min(get<0>(set_stats), ai[n] - get<0>(set_stats)) << endl;
 
     return actual_length;

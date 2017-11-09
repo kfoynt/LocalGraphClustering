@@ -21,6 +21,7 @@ int main()
     //Read and convert data
     string filename;
     filename = "../../graph/Unknown_sys.smat";
+    //filename = "../../graph/BrainSubgraph.smat";
     int64_t m = 0, n = 0;
     int64_t* ai = NULL, *aj = NULL;
     double* a = NULL;
