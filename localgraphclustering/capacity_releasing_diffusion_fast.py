@@ -18,8 +18,8 @@ class Capacity_Releasing_Diffusion_fast(GraphBase[Input, Output]):
 
 
   def produce(self,
-              ref_nodes: Sequence[int],
               inputs: Sequence[Input], 
+              ref_nodes: Sequence[int],
               U: int = 3,
               h: int = 10,
               w: int = 2,
