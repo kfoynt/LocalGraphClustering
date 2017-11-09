@@ -179,3 +179,9 @@ class Graph(metaclass=abc.ABCMeta):
         """
         Returns a list with the neighbors of the given vertex.
         """
+
+    @abc.abstractmethod
+    def compute_conductance(self):
+        """
+        Returns the conductance corresponding to set R.
+        """
