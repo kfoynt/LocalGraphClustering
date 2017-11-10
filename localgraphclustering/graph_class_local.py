@@ -303,17 +303,13 @@ class GraphLocal(Graph):
         """
         Returns the conductance corresponding to set R.
         """
-        S = set(R)
-        curvol = 0
-        curcutsize = 0
-        if self.d == []:
-            print('The graph has to be read first.')
-            return 0
-        for i in R:
-            deg = self.d[i]
-            curvol += deg
-            for j in range(self.adjacency_matrix.indptr[i],self.adjacency_matrix.indptr[i+1]):
-                v = self.adjacency_matrix.indices[j]
-                if v not in S:
-                    curcutsize += self.adjacency_matrix.data[j]
-        return curcutsize/min(curvol,self.vol_G-curvol)
+        v_ones_R = np.zeros(self._num_vertices)
+        v_ones_R[R] = 1
+
+        vol_R = sum(self.d[R])     
+
+        cut_R = vol_R - np.dot(v_ones_R,self.adjacency_matrix.dot(v_ones_R.T))
+
+        cond_R = cut_R/min(vol_R,self.vol_G - vol_R)
+        
+        return cond_R
