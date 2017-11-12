@@ -131,7 +131,10 @@ void graph<vtype,itype>::update_EL(vector<tuple<vtype,vtype,double>>& EL, unorde
                                    unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& W_map,
                                    vtype s, vtype t, double alpha, double beta)
 {
-    EL.clear();
+    if (!EL.empty() && EL.size() > 0) {
+        EL.clear();
+    }
+    
     unordered_map<vtype,vtype> B_map;
     unordered_map<vtype,vtype> WnR_map;
     vtype ARR  = 0;
@@ -303,6 +306,7 @@ void graph<vtype,itype>::STAGEFLOW(double delta, double alpha, double beta, unor
             fullyvisited[VL_rev[i]];
         }
     }
+    free_space<vtype,itype>(level, adj);
 
     //cout << "size E: " << E.size() << endl;
 
@@ -315,7 +319,7 @@ void graph<vtype,itype>::STAGEFLOW(double delta, double alpha, double beta, unor
 
         nverts = VL.size()+2;
         nedges = EL.size();
-        free_space<vtype,itype>(level, adj);
+        //free_space<vtype,itype>(level, adj);
         adj = new vector<Edge<vtype,itype>>[nverts];
         level = new vtype[nverts];
         assemble_graph(mincut,nverts,nedges,EL);
@@ -340,25 +344,34 @@ void graph<vtype,itype>::STAGEFLOW(double delta, double alpha, double beta, unor
 
 
         //cout << "ok " << get<0>(retData) << " " << get<1>(retData) << endl;
-        E.clear();
+        if (!E.empty() && E.size() > 0) {
+            E.clear();
+        }
         for (vtype i = 1; i < nverts-1; i ++){
             if (mincut[i] && fullyvisited.count(VL_rev[i]) == 0) {
                 E.push_back(VL_rev[i]);
                 fullyvisited[VL_rev[i]];
             }
         }
+        free_space<vtype,itype>(level, adj);
 
     }
 
-
-    S.clear();
     for (vtype i = 1; i < nverts-1; i ++){
         if (mincut[i]) {
             S[VL_rev[i]];
         }
     }
 
-    free_space<vtype,itype>(level, adj);
+    //free_space<vtype,itype>(level, adj);
+}
+
+template<typename vtype, typename itype>
+void clear_map(unordered_map<vtype,itype>& M)
+{
+    if (!M.empty() && M.size() > 0) {
+        M.clear();
+    }
 }
 
 template<typename vtype, typename itype>
@@ -374,7 +387,7 @@ vtype graph<vtype,itype>::SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double
     double beta = alpha * (fR + delta);
     alph0 = alpha;
     //cout << "here" << endl;
-    
+    clear_map<vtype,vtype>(S);
     STAGEFLOW(delta, alpha, beta, fullyvisited, R_map, S);
 
     //cout << "here" << endl;
@@ -391,9 +404,10 @@ vtype graph<vtype,itype>::SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double
         }
         alph0 = alpha;
         beta = alpha * (fR + delta);
-        fullyvisited.clear();
-        R_map.clear();
+        clear_map<vtype,vtype>(fullyvisited);
+        clear_map<vtype,vtype>(R_map);
         init_fullyvisited_R(fullyvisited, R_map, nR, R);
+        clear_map<vtype,vtype>(S);
         STAGEFLOW(delta, alpha, beta, fullyvisited, R_map, S);
         set_stats = get_stats(S,S.size());
         if (min(get<0>(set_stats), ai[n] - get<0>(set_stats)) != 0)

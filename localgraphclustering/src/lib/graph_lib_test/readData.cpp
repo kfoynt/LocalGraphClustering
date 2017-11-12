@@ -84,6 +84,7 @@ void readList(const char* filename, vtype* m, itype* n, vtype** ei, vtype** ej, 
     ss >> (*m);
     ss >> (*m);
     ss >> (*n);
+    //cout << m << " " << n << endl;
     *ei = (vtype*)malloc(sizeof(vtype) * (*n));
     *ej = (vtype*)malloc(sizeof(vtype) * (*n));
     *w = (double*)malloc(sizeof(double) * (*n));

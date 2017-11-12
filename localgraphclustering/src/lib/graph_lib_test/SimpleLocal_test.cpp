@@ -16,11 +16,11 @@ using namespace std;
 
 int main()
 {
-    cout << "test SimpleLocal on file Unknown_sys.smat with 0 offset" << endl;
+    cout << "test SimpleLocal on file senate.smat with 0 offset" << endl;
 
     //Read and convert data
     string filename;
-    filename = "../../graph/Unknown_sys.smat";
+    filename = "../../graph/senate.smat";
     //filename = "../../graph/BrainSubgraph.smat";
     int64_t m = 0, n = 0;
     int64_t* ai = NULL, *aj = NULL;
@@ -28,7 +28,7 @@ int main()
     read_and_convert<int64_t, int64_t>(filename.c_str(), &m, &n, &ai, &aj, &a);
 
     //Read seed
-    filename = "../../graph/Unknown_sys_R.smat";
+    filename = "../../graph/senate_R.smat";
     stringstream ss;
     int64_t nR = 0;
     int64_t* R = NULL;

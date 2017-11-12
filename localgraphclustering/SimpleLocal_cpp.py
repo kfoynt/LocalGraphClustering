@@ -33,7 +33,7 @@ def SimpleLocal_cpp(n,ai,aj,nR,R,delta):
 
     #call C function
     R=np.array(R,dtype=vtype)
-    ret_set=np.zeros(nR,dtype=vtype)
+    ret_set=np.zeros(n,dtype=vtype)
     fun.restype=ctypes_vtype
     fun.argtypes=[ctypes_vtype,ctypes_vtype,
                   ndpointer(ctypes_itype, flags="C_CONTIGUOUS"),
