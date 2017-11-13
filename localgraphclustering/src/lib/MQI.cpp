@@ -112,7 +112,7 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
     nedges = curvol - curcutsize + 2 * nR;
     //cout << "deg " << total_degree << " cut " << curcutsize << " vol " << curvol << endl;
     condNew = (double)curcutsize/(double)min(total_degree - curvol, curvol);
-    cout << "iter: " << total_iter << " conductance: " << condNew << endl;
+    //cout << "iter: " << total_iter << " conductance: " << condNew << endl;
     total_iter ++;
     vtype nverts = nR + 2;
     adj = new vector<Edge<vtype,itype>>[nverts];
@@ -168,7 +168,7 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
         }
         free(Rnew);
         nRold = nRnew;
-        cout << "iter: " << total_iter << " conductance: " << condNew << endl;
+        //cout << "iter: " << total_iter << " conductance: " << condNew << endl;
         total_iter ++;
     }
 
