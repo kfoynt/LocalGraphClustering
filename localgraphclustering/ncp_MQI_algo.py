@@ -31,6 +31,7 @@ def worker(nodes,timeout_ncp):
     for node in nodes:
         R = g_copy.adjacency_matrix[:,node].nonzero()[0].tolist()
         R.extend([node])
+        R = list(set(R))
         output_MQI_fast = MQI_fast_obj.produce([g_copy],[R])
         output = output_MQI_fast[0][0].tolist()
 
