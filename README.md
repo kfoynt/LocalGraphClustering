@@ -16,7 +16,8 @@ Import from Julia
 1. In Julia, add the PyCall package: 
    
    `Pkg.add(PyCall)`
-2. Update which version of Python that PyCall defaults to:   
+2. Update which version of Python that PyCall defaults to:
+
     `ENV["PYTHON"] = (path to python3 executable) `
 
     `Pkg.build("PyCall")`
