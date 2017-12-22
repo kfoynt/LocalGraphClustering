@@ -84,7 +84,7 @@ For a comparison of spectral- and flow-based methods with visualization see the 
 
 For a visual demonstration of algorithms that can improve a given seed set of nodes see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/improveType_algorithms_with_visualization.ipynb).
 
-## List of methods
+## List of applications and methods
 
 - Approximate PageRank
 - L1-regularized PageRank (solved using accelerated proxima gradient descent)
