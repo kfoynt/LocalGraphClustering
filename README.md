@@ -1,7 +1,11 @@
 # Local Graph Clustering
 
-Local Graph Clustering provides methods to find local (small) clusters in a given graph
-without touching the whole graph.  
+Local Graph Clustering provides
+
+- methods that find local clusters in a given graph without touching the whole graph
+- methods that improve a given cluster
+- methods for global graph partitioning
+- tools to compute [Network Community Profiles](http://www.tandfonline.com/doi/abs/10.1080/15427951.2009.10129177)
 
 ## Installation
 
