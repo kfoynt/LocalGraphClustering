@@ -5,8 +5,8 @@ without touching the whole graph.
 
 ## Installation
 
-Clone the repo, enter the folder using the termimal and type in the terminal "python setup.py install". 
-Note that this package runs only with python 3.
+Clone the repo, enter the folder using the termimal and type in the terminal 'python setup.py install'.
+Note that this package runs only with Python 3.
 
 ## Examples
 
