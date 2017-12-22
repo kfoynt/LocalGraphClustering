@@ -98,4 +98,3 @@ For a visual demonstration of algorithms that can improve a given seed set of no
 - Network Community Profiles
 - Global spectral partitioning
 - Densest subgraph
--
