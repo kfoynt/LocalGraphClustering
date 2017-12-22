@@ -4,6 +4,7 @@ import csv
 from scipy import sparse as sp
 import scipy.sparse.linalg as splinalg
 import numpy as np
+import warnings
 
 
 class GraphLocal(Graph):
@@ -313,3 +314,20 @@ class GraphLocal(Graph):
         cond_R = cut_R/min(vol_R,self.vol_G - vol_R)
         
         return cond_R
+
+    def largest_component(self):
+        self.connected_components()
+        if self.number_of_components == 1:
+            self.compute_statistics()
+            return self.graph
+        else:
+            # biggest component by len of it's list of nodes
+            maxccnodes = max(self.components, key=len)            
+            warnings.warn("The graph has multiple (%i) components, using the largest with %i / %i nodes"%(
+                     self.number_of_components, len(maxccnodes), self._num_vertices))
+            maxccnodes = list(maxccnodes)
+            g_copy = GraphLocal()
+            g_copy.adjacency_matrix = self.adjacency_matrix[maxccnodes,:].tocsc()[:,maxccnodes].tocsr()
+            g_copy.compute_statistics()   
+            g_copy._num_vertices = len(maxccnodes) # AHH!
+            return g_copy
