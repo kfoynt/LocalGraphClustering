@@ -12,5 +12,4 @@ Note that this package runs only with python 3.
 
 
 In the "notebooks" folder see the Jupyter notebooks "examples", "examples_with_visualization", 
-"more_local_examples_with_visualization", "spectral_vs_flow_with_visualization" and 
-"improve_algorithms_with_visualization".
+"more_examples_with_visualization", "spectral_vs_flow_with_visualization", "improveType_algorithms_with_visualization" and "test".
