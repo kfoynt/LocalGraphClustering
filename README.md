@@ -25,6 +25,33 @@ Type in the terminal `python setup.py install`
 ```
 Note that this package runs only with Python 3.
 
+It can also be installed through pip:
+
+```
+pip3 install localgraphclustering
+```
+
+## Import from Julia
+
+1. In Julia, add the PyCall package: 
+   
+   `Pkg.add(PyCall)`
+2. Update which version of Python that PyCall defaults to:
+
+    `ENV["PYTHON"] = (path to python3 executable) `
+
+    `Pkg.build("PyCall")`
+
+    (You can get the path to the python3 executable by just running "which python3" in the terminal.)
+3. Make sure the PyPlot package is added in Julia. 
+4. Import *localgraphclustering* by using:
+
+   `using PyPlot`
+
+   `@pyimport localgraphclustering`
+
+You can now use any routine in *localgraphluserting* from Julia.
+
 ## Examples
 
 All examples are in the [notebooks](https://github.com/kfoynt/LocalGraphClustering/tree/test_branch/notebooks) folder.

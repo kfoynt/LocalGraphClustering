@@ -2,11 +2,13 @@ from typing import *
 import numpy as np
 from .interface.graph import GraphBase
 from .interface.types.graph import Graph
+import pandas as pd
 
-from localgraphclustering.ncp_algo import ncp_algo
+from localgraphclustering.NCPData import NCPData
+from localgraphclustering.NCPAlgo import *
 
 Input = TypeVar('Input', bound=Graph)
-Output = TypeVar('Output',bound=np.ndarray)
+Output = TypeVar('Output',bound=pd.DataFrame)
 
 
 class Ncp(GraphBase[Input, Output]):
@@ -19,23 +21,31 @@ class Ncp(GraphBase[Input, Output]):
         super().__init__()
 
     def produce(self, 
-                inputs: Sequence[Input], 
+                input: Input, 
+                method: str,
                 ratio: float = 0.3,
-                timeout: float = 100, 
-                timeout_ncp = 1000,
-                iterations: int = 1000,
-                epsilon: float = 1.0e-1,
-                nthreads: int = 20,
-                multi_threads: bool = True
-                ) -> Sequence[Output]:
+                timeout: float = 1000,
+                nthreads: int = 4,
+                U: int = 3,
+                h: int = 10,
+                w: int = 2,
+                iterations: int = 20,
+                ) -> Output:
         """
-        Network Community Profile for all connected components of the graph. For details please refer to: 
+        Network Community Profile for the largest connected components of the graph. For details please refer to: 
         Jure Leskovec, Kevin J Lang, Anirban Dasgupta, Michael W Mahoney. Community structure in 
         large networks: Natural cluster sizes and the absence of large well-defined clusters.
-        The NCP is computed for each connected component of the given graph(s).
+        The NCP is computed for the largest connected component of the given graph.
 
         Parameters
         ----------  
+        
+        input: Graph
+            Given graph whose network community Profile needs to be computed.
+
+        method: str
+            Choose either Capacity Releasing Diffusion or Max Flow Quotient Cut Improvement as the local clustering
+            method, must be "crd" or "mqi".
 
         ratio: float
             Ratio of nodes to be used for computation of NCP.
@@ -44,37 +54,50 @@ class Ncp(GraphBase[Input, Output]):
         Parameters (optional)
         ---------------------
 
-        epsilon: float
-            default = 1.0e-1
-            Termination tolerance for l1-regularized PageRank solver.
-
-        iterations: int
-            default = 10000
-            Maximum number of iterations of l1-regularized PageRank solver.
-
-        timeout_ncp: float
+        timeout: float
             default = 1000
             Maximum time in seconds for NCP calculation.
 
-        timeout: float
-            default = 10
-            Maximum time in seconds for each algorithm run during the NCP calculation.
+        nthreads: int
+            default = 4
+            Choose the number of threads used for NCP calculation
+
+        U: integer
+            default == 3
+            The net mass any edge can be at most.
+          
+        h: integer
+            defaul == 10
+            The label of any node can have at most.
+          
+        w: integer
+            default == 2
+            Multiplicative factor for increasing the capacity of the nodes at each iteration.
+          
+        iterations: integer
+            default = 20
+            Maximum number of iterations of Capacity Releasing Diffusion Algorithm.
 
         Returns
         -------
         
-        For each graph in inputs it returns the following:
+        df: pandas.DataFrame
+            The output can be used as the parameter of NCPPlots to plot all sorts of graph.
+        """ 
+        G = input
+        G.compute_statistics()
+        ncp = NCPData(G)      
+        if method == "crd":
+            ncp.default_method = lambda G,R: crd_wrapper(G,R,w=w, U=U, h=h, iterations=iterations)
+            ncp.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout)
+            ncp.add_random_node_samples(ratio=ratio,nthreads=nthreads,timeout=timeout)
+        elif method == "mqi":
+            ncp.default_method = lambda G,R: mqi_wrapper(G,R)
+            ncp.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout)
+        else:
+            raise(ValueError("Must specify a method (crd or mqi)."))
+        df = ncp.as_data_frame()
 
-        conductance_vs_vol: a list of dictionaries
-            The length of the list is the number of connected components of the given graph.
-            Each element of the list is a dictionary where keys are volumes of clusters and 
-            the values are conductance. It can be used to plot the conductance vs volume NCP.
-
-        isoperimetry_vs_size: a list of dictionaries
-            The length of the list is the number of connected components of the given graph.
-            Each element of the list is a dictionary where keys are sizes of clusters and 
-            the values are isoperimetry. It can be used to plot the isoperimetry vs volume NCP.
-        """       
+        return df
         
-        return [ncp_algo(inputs[i], ratio=ratio, timeout=timeout, timeout_ncp=timeout_ncp, iterations=iterations, epsilon=epsilon, nthreads=nthreads, multi_threads=multi_threads) for i in range(len(inputs))]
 

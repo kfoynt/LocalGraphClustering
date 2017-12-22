@@ -37,11 +37,11 @@ def capacity_releasing_diffusion(ref_node,A,U=3,h=10,w=2,iterations=20, vol_G = 
       
        U: integer
           default == 3
-          The maximum flow that can be send out of a node for the push/relabel algorithm.
+          The net mass any edge can be at most.
           
        h: integer
           defaul == 10
-          The maximum flow that an edge can handle.
+          The label of any node can have at most.
           
        w: integer
           default == 2
