@@ -9,7 +9,7 @@ Local Graph Clustering provides
 
 ## Demonstration
 
-<img src="images/JHopkins.png" width="100" height="100">
+<img src="images/JHopkins.png" width="500" height="200">
 
 ![alt text](images/Hopkins_global.png)
 ![alt text](images/Hopkins_local_1.png)
