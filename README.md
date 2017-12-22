@@ -9,7 +9,7 @@ Local Graph Clustering provides
 
 ## Demonstration
 
-![alt text](images/Hopkins "Description goes here")
+![alt text](images/Hopkins.png "Description goes here")
 
 ## Installation
 
