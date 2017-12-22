@@ -58,11 +58,8 @@ class MQI_fast(GraphBase[Input, Output]):
 
             n = input.adjacency_matrix.shape[0]
 
-            R = list(set(ref_node[counter]))
-            nR = len(R)
-
             (actual_length,actual_xids) = MQI_cpp(n,np.uint32(input.adjacency_matrix.indptr),
-                np.uint32(input.adjacency_matrix.indices),nR,R)
+                np.uint32(input.adjacency_matrix.indices),len(ref_node[counter]),ref_node[counter])
             
             output[counter] = [actual_xids]
 
