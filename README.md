@@ -72,11 +72,13 @@ print("Conductance after improvement:",g.compute_conductance(output_SL_fast[0][0
 output_SL = output_SL_fast[0][0]
 ```
 
-## Advanced examples and visualization
+## Advanced examples
 
 For advanced examples see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/examples.ipynb).
 
-For advanced examples with visualization of the output see the Jupyter notebooks [examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/examples_with_visualization.ipynb), [more example with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/more_examples_with_visualization.ipynb).
+## Examples with visualization
+
+For examples with visualization of the output see the Jupyter notebooks [examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/examples_with_visualization.ipynb), [more example with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/more_examples_with_visualization.ipynb).
 
 For a comparison of spectral- and flow-based methods with visualization see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/spectral_vs_flow_with_visualization.ipynb).
 
