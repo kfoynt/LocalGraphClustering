@@ -9,10 +9,8 @@ Local Graph Clustering provides
 
 ## Demonstration
 
-<img src="images/JHopkins.png" width="350" height="200">
-<img src="images/Hopkins_global.png" width="350" height="200">
-<img src="images/Hopkins_local_1.png" width="350" height="200">
-<img src="images/Hopkins_local_2.png" width="350" height="200">
+<img src="images/JHopkins.png" width="350" height="200"> <img src="images/Hopkins_global.png" width="350" height="200">
+<img src="images/Hopkins_local_1.png" width="350" height="200"> <img src="images/Hopkins_local_2.png" width="350" height="200">
 
 ## Installation
 
