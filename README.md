@@ -18,6 +18,6 @@ Note that this package runs only with Python 3.
 
 ## Examples
 
+All examples are in the `notebooks` folder.
 
-In the "notebooks" folder see the Jupyter notebooks "examples", "examples_with_visualization", 
-"more_examples_with_visualization", "spectral_vs_flow_with_visualization", "improveType_algorithms_with_visualization" and "test".
+see the Jupyter notebooks [examples](http://localhost:8889/notebooks/notebooks/examples.ipynb)
