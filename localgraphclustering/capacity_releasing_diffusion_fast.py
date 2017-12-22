@@ -9,7 +9,7 @@ Output = TypeVar('Output',bound=np.ndarray)
 
 class Capacity_Releasing_Diffusion_fast(GraphBase[Input, Output]):
 
-  def __init__(self) -> None:
+   def __init__(self) -> None:
         """
         Initialize the Capacity_Releasing_Diffusion class.
         """
@@ -17,7 +17,7 @@ class Capacity_Releasing_Diffusion_fast(GraphBase[Input, Output]):
         super().__init__()
 
 
-  def produce(self,
+   def produce(self,
               inputs: Sequence[Input], 
               ref_nodes: Sequence[int],
               U: int = 3,

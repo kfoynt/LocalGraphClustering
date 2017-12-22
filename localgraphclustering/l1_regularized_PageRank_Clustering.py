@@ -2,18 +2,21 @@ from typing import *
 import numpy as np
 from .interface.graph import GraphBase
 from .interface.types.graph import Graph
-from localgraphclustering.fista_dinput_dense import fista_dinput_dense
-from localgraphclustering.proxl1PRaccel import proxl1PRaccel
+from localgraphclustering import l1_regularized_PageRank_fast
+from localgraphclustering import sweepCut_fast
 
 Input = TypeVar('Input', bound=Graph)
 Output = TypeVar('Output',bound=np.ndarray)
 
 
-class L1_regularized_PageRank_fast(GraphBase[Input, Output]):
+class L1_regularized_PageRank_Clustering(GraphBase[Input, Output]):
+    """
+    L1 regularized PageRank + Rounding algorithm, returns an cluster as an output.
+    """
 
     def __init__(self) -> None:
         """
-        Initialize the L1_regularized_PageRank_fast class.
+        Initialize the L1_regularized_PageRank_Clustering class.
         """
 
         super().__init__()
@@ -21,7 +24,6 @@ class L1_regularized_PageRank_fast(GraphBase[Input, Output]):
     def produce(self, 
                 inputs: Sequence[Input], 
                 ref_nodes: Sequence[int],
-                ys: Sequence[Sequence[float]] = None,
                 timeout: float = 100, 
                 iterations: int = 1000,
                 alpha: float = 0.15,
@@ -30,7 +32,7 @@ class L1_regularized_PageRank_fast(GraphBase[Input, Output]):
                 cpp: bool = True
                 ) -> Sequence[Output]:
         """
-        Computes an l1-regularized PageRank vector. 
+        Computes an l1-regularized PageRank vector and rounds the vector to produce a cluster.
         
         Uses the Fast Iterative Soft Thresholding Algorithm (FISTA). This algorithm solves the l1-regularized
         personalized PageRank problem.
@@ -59,12 +61,6 @@ class L1_regularized_PageRank_fast(GraphBase[Input, Output]):
 
         Parameters (optional)
         ---------------------
-
-        ys: Sequence[Sequence[float]]
-            Defaul == None
-            Initial solutions for l1-regularized PageRank algorithm.
-            If not provided then it is initialized to zero.
-            This is only used for the C++ version of FISTA.
 
         alpha: float
             Default == 0.15
@@ -98,12 +94,24 @@ class L1_regularized_PageRank_fast(GraphBase[Input, Output]):
         
         An np.ndarray (1D embedding) of the nodes for each graph.
         """ 
+            
+        output = [[] for i in range(len(inputs))]
+
+        counter = 0
         
-        if not cpp:
-            return [fista_dinput_dense(ref_nodes[i], inputs[i], alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout) for i in range(len(inputs))]
-        
-        else:
-            if ys == None:
-                return [proxl1PRaccel(np.uint32(inputs[i].adjacency_matrix.indptr) , np.uint32(inputs[i].adjacency_matrix.indices), inputs[i].adjacency_matrix.data, ref_nodes[i], inputs[i].d, inputs[i].d_sqrt, inputs[i].dn_sqrt, alpha = alpha, rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2] for i in range(len(inputs))]                
-            else:
-                return [proxl1PRaccel(np.uint32(inputs[i].adjacency_matrix.indptr) , np.uint32(inputs[i].adjacency_matrix.indices), inputs[i].adjacency_matrix.data, ref_nodes[i], inputs[i].d, inputs[i].d_sqrt, inputs[i].dn_sqrt, ys[i], alpha = alpha, rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2] for i in range(len(inputs))]
+        l1reg_fast = l1_regularized_PageRank_fast.L1_regularized_PageRank_fast()
+        sc_fast = sweepCut_fast.SweepCut_fast()
+
+        for i in range(len(inputs)):
+
+            n = inputs[i].adjacency_matrix.shape[0]
+
+            output_l1reg_fast = l1reg_fast.produce([inputs[i]],[ref_nodes[i]],alpha=alpha,rho=rho,epsilon=epsilon,iterations=iterations,timeout=timeout,cpp=cpp)[0]
+            
+            output[counter] = sc_fast.produce([inputs[i]],p=output_l1reg_fast)[0][0]
+
+            counter += 1
+
+        return output
+
+
