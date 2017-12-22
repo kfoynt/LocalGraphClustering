@@ -83,3 +83,18 @@ For examples with visualization of the output see the Jupyter notebooks [example
 For a comparison of spectral- and flow-based methods with visualization see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/spectral_vs_flow_with_visualization.ipynb).
 
 For a visual demonstration of algorithms that can improve a given seed set of nodes see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/improveType_algorithms_with_visualization.ipynb).
+
+## List of methods
+
+- Approximate PageRank
+- L1-regularized PageRank (solved using accelerated proxima gradient descent)
+- PageRank Nibble
+- Rounding methods for spectral embeddings
+- MQI
+- FlowImprove
+- SimpleLocal
+- Capacity Releasing Diffusion
+- Multiclass label prediction
+- Network Community Profiles
+- Global spectral partitioning
+- Densest subgraph
