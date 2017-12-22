@@ -97,5 +97,5 @@ For a visual demonstration of algorithms that can improve a given seed set of no
 - Multiclass label prediction
 - Network Community Profiles
 - Global spectral partitioning
-- Densest subgraph [[https://www.blog.google/static/blog/images/google-200x200.7714256da16f.png]]
+- Densest subgraph
 -
