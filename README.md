@@ -54,9 +54,9 @@ You can now use any routine in *localgraphluserting* from Julia.
 
 ## Examples
 
-All examples are in the [notebooks](https://github.com/kfoynt/LocalGraphClustering/tree/test_branch/notebooks) folder.
+All examples are in the [notebooks](https://github.com/kfoynt/LocalGraphClustering/tree/master/notebooks) folder.
 
-Below is a simple demonstration from [test.py](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/test.py) in [notebooks](https://github.com/kfoynt/LocalGraphClustering/tree/test_branch/notebooks) on how to improve spectral partitioning using flow-based methods from local graph clustering.
+Below is a simple demonstration from [test.py](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/test.py) in [notebooks](https://github.com/kfoynt/LocalGraphClustering/tree/master/notebooks) on how to improve spectral partitioning using flow-based methods from local graph clustering.
 
 ```python
 from localgraphclustering import *
@@ -106,15 +106,15 @@ output_SL = output_SL_fast[0][0]
 
 ## Advanced examples
 
-For advanced examples see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/examples.ipynb).
+For advanced examples see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples.ipynb).
 
 ## Examples with visualization
 
-For examples with visualization of the output see the Jupyter notebooks [examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/examples_with_visualization.ipynb), [more example with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/more_examples_with_visualization.ipynb).
+For examples with visualization of the output see the Jupyter notebooks [examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples_with_visualization.ipynb), [more example with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/more_examples_with_visualization.ipynb).
 
-For comparisons of spectral- and flow-based methods with visualization see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/spectral_vs_flow_with_visualization.ipynb).
+For comparisons of spectral- and flow-based methods with visualization see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/spectral_vs_flow_with_visualization.ipynb).
 
-For visual demonstration of algorithms that can improve a given seed set of nodes see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/improveType_algorithms_with_visualization.ipynb).
+For visual demonstration of algorithms that can improve a given seed set of nodes see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/improveType_algorithms_with_visualization.ipynb).
 
 ## List of applications and methods
 
