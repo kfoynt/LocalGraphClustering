@@ -97,4 +97,5 @@ For a visual demonstration of algorithms that can improve a given seed set of no
 - Multiclass label prediction
 - Network Community Profiles
 - Global spectral partitioning
-- Densest subgraph
+- Densest subgraph [[https://github.com/username/repository/blob/master/img/octocat.png|alt=octocat]]
+-
