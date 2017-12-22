@@ -85,9 +85,9 @@ For advanced examples see the Jupyter notebook [here](https://github.com/kfoynt/
 
 For examples with visualization of the output see the Jupyter notebooks [examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/examples_with_visualization.ipynb), [more example with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/more_examples_with_visualization.ipynb).
 
-For a comparison of spectral- and flow-based methods with visualization see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/spectral_vs_flow_with_visualization.ipynb).
+For comparisons of spectral- and flow-based methods with visualization see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/spectral_vs_flow_with_visualization.ipynb).
 
-For a visual demonstration of algorithms that can improve a given seed set of nodes see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/improveType_algorithms_with_visualization.ipynb).
+For visual demonstration of algorithms that can improve a given seed set of nodes see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/improveType_algorithms_with_visualization.ipynb).
 
 ## List of applications and methods
 
