@@ -18,6 +18,6 @@ Note that this package runs only with Python 3.
 
 ## Examples
 
-All examples are in the `notebooks` folder.
+All examples are in the [notebooks](https://github.com/kfoynt/LocalGraphClustering/tree/test_branch/notebooks) folder.
 
-see the Jupyter notebooks [examples](http://localhost:8889/notebooks/notebooks/examples.ipynb)
+see the Jupyter notebooks [examples](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/examples.ipynb)
