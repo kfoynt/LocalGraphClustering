@@ -7,7 +7,11 @@ without touching the whole graph.
 
 ```
 Clone the repo
+```
+```
 Enter the folder using the termimal
+```
+```
 Type in the terminal `python setup.py install`
 ```
 Note that this package runs only with Python 3.
