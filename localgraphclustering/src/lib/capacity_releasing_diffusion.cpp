@@ -143,8 +143,8 @@ vtype graph<vtype,itype>::capacity_releasing_diffusion(vector<vtype>& ref_node,
         }
         double degree_val = get_degree_unweighted(ref_node[0]);
         if (total_excess > (degree_val*pow(2,i)/10)) {
-        	cout << "Too much excess." << endl;
-        	cout << "iteration:" << endl;
+        	// cout << "Too much excess." << endl;
+        	// cout << "iteration:" << endl;
         	cout << i << endl;
         	break;
         }
@@ -156,8 +156,8 @@ vtype graph<vtype,itype>::capacity_releasing_diffusion(vector<vtype>& ref_node,
         	}
         }
         if (sum_ > volume/3) {
-        	cout << "Too much flow." << endl;
-        	cout << "iteration:" << endl;
+        	// cout << "Too much flow." << endl;
+        	// cout << "iteration:" << endl;
         	cout << i << endl;
         	break;
         }

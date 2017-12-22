@@ -4,7 +4,7 @@ import time
 import numpy as np
 
 # Read graph. This also supports gml and graphml format.
-g = graph_class_local.GraphLocal('senate.edgelist','edgelist',' ')
+g = graph_class_local.GraphLocal('./datasets/senate.edgelist','edgelist',' ')
 
 # Create an object for global spectral partitioning
 sp = spectral_partitioning.Spectral_partitioning()
