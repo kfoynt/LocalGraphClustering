@@ -7,6 +7,8 @@ Local Graph Clustering provides
 - methods for global graph partitioning
 - tools to compute [Network Community Profiles](http://www.tandfonline.com/doi/abs/10.1080/15427951.2009.10129177)
 
+![alt text](images/senate_global_spectral "Description goes here")
+
 ## Installation
 
 ```
