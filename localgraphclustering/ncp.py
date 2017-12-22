@@ -89,12 +89,13 @@ class Ncp(GraphBase[Input, Output]):
         ncp = NCPData(G)      
         if method == "crd":
             ncp.default_method = lambda G,R: crd_wrapper(G,R,w=w, U=U, h=h, iterations=iterations)
+            ncp.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout)
+            ncp.add_random_node_samples(ratio=ratio,nthreads=nthreads,timeout=timeout)
         elif method == "mqi":
             ncp.default_method = lambda G,R: mqi_wrapper(G,R)
+            ncp.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout)
         else:
-            ncp.default_method = None
-        ncp.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout)
-        ncp.add_random_node_samples(ratio=ratio,nthreads=nthreads,timeout=timeout)
+            raise(ValueError("Must specify a method (crd or mqi)."))
         df = ncp.as_data_frame()
 
         return df

@@ -90,16 +90,8 @@ setup(
                         #'time >= 0.7',
                         #'copy >= 2.5',
                         'matplotlib >= 2.0.0',
-                        'abs',
                         'typing',
-                        'time',
-                        'sys',
-                        'imp',
-                        'ctypes',
-                        'csv',
-                        'operator',
-                        'matplotlib',
-                        'Queue',
+                        'matplotlib'
                         ],
       
       # List additional groups of dependencies here (e.g. development

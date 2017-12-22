@@ -25,6 +25,12 @@ Type in the terminal `python setup.py install`
 ```
 Note that this package runs only with Python 3.
 
+It can also be installed through pip:
+
+```
+pip3 install localgraphclustering
+```
+
 ## Import from Julia
 
 1. In Julia, add the PyCall package: 

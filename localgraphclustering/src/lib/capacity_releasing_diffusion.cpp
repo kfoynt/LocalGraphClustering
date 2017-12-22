@@ -145,7 +145,7 @@ vtype graph<vtype,itype>::capacity_releasing_diffusion(vector<vtype>& ref_node,
         if (total_excess > (degree_val*pow(2,i)/10)) {
         	// cout << "Too much excess." << endl;
         	// cout << "iteration:" << endl;
-        	cout << i << endl;
+        	//cout << i << endl;
         	break;
         }
         double sum_ = 0;
@@ -158,7 +158,7 @@ vtype graph<vtype,itype>::capacity_releasing_diffusion(vector<vtype>& ref_node,
         if (sum_ > volume/3) {
         	// cout << "Too much flow." << endl;
         	// cout << "iteration:" << endl;
-        	cout << i << endl;
+        	//cout << i << endl;
         	break;
         }
     }
