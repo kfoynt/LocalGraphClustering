@@ -94,7 +94,7 @@ For a visual demonstration of algorithms that can improve a given seed set of no
 -  [Approximate PageRank](https://dl.acm.org/citation.cfm?id=1170528)
 - [L1-regularized PageRank](https://link.springer.com/article/10.1007/s10107-017-1214-8) (solved using accelerated proxima gradient descent)
 - [PageRank Nibble](https://dl.acm.org/citation.cfm?id=1170528)
-- [Rounding methods for spectral embeddings] (https://dl.acm.org/citation.cfm?id=1170528)
+- [Rounding methods for spectral embeddings](https://dl.acm.org/citation.cfm?id=1170528)
 - [MQI](https://link.springer.com/chapter/10.1007/978-3-540-25960-2_25)
 - [FlowImprove](https://dl.acm.org/citation.cfm?id=1347154)
 - [SimpleLocal](https://dl.acm.org/citation.cfm?id=3045595)
