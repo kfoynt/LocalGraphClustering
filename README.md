@@ -22,7 +22,7 @@ All examples are in the [notebooks](https://github.com/kfoynt/LocalGraphClusteri
 
 Below is a simple demonstration from [test.py](https://github.com/kfoynt/LocalGraphClustering/blob/test_branch/notebooks/test.py) in [notebooks](https://github.com/kfoynt/LocalGraphClustering/tree/test_branch/notebooks).
 
-```
+```python
 from localgraphclustering import *
 
 import time
