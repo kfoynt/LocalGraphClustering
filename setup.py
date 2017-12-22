@@ -36,7 +36,7 @@ setup(
       # Versions should comply with PEP440.  For a discussion on single-sourcing
       # the version across setup.py and the project code, see
       # https://packaging.python.org/en/latest/single_source_version.html
-      version='0.4.0',
+      version='0.4.1',
       
       description='Package for local graph clustering',
       long_description=long_description,
@@ -90,6 +90,16 @@ setup(
                         #'time >= 0.7',
                         #'copy >= 2.5',
                         'matplotlib >= 2.0.0',
+                        'abs',
+                        'typing',
+                        'time',
+                        'sys',
+                        'imp',
+                        'ctypes',
+                        'csv',
+                        'operator',
+                        'matplotlib',
+                        'Queue',
                         ],
       
       # List additional groups of dependencies here (e.g. development
