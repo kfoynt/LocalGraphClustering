@@ -14,7 +14,7 @@ The current version is 0.4.1 and it is appropriate for experts and intermediates
 - Kimon Fountoulakis, email: kfount at berkeley dot edu
 - Meng Liu, email: liu1740 at purdue dot edu
 - David Gleich, email: dgleich at purdue dot edu
-- Michael Mahoney, email: mmahoney at stat.berkeley.edu
+- Michael Mahoney, email: mmahoney at stat dot berkeley dot edu
 
 ## Demonstration
 
