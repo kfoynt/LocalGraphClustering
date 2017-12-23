@@ -11,7 +11,9 @@ The current version is 0.4.1 and it is appropriate for experts and intermediates
 
 ### Authors
 
-- [Kimon Fountoulakis](kfount@berkeley.edu)
+echo -e "email.address@host" | convert -background none -density 196 -resample 72 -unsharp 0x.5 -font "Courier" text:- -trim +repage -bordercolor white -border 0 email-address-image.gif
+
+- Kimon Fountoulakis, email: kfount at berkeley dot edu
 - [Meng Liu](liu1740@purdue.edu)
 - [David Gleich](dgleich@purdue.edu)
 - [Michael Mahoney](mmahoney@stat.berkeley.edu)
