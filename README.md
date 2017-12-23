@@ -139,3 +139,13 @@ For visual demonstration of algorithms that can improve a given seed set of node
 - [Network Community Profiles](http://www.tandfonline.com/doi/abs/10.1080/15427951.2009.10129177)
 - Global spectral partitioning
 - Densest subgraph
+
+## License
+
+LocalGraphClustering
+Copyright (C) 2017, Kimon Fountoulakis, Meng Liu, David Gleich, Michael Mahoney
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
