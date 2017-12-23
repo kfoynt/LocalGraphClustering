@@ -142,7 +142,7 @@ For visual demonstration of algorithms that can improve a given seed set of node
 
 ## License
 
-LocalGraphClustering
+LocalGraphClustering,
 Copyright (C) 2017, Kimon Fountoulakis, Meng Liu, David Gleich, Michael Mahoney
 
 This program is free software: you can redistribute it and/or modify
