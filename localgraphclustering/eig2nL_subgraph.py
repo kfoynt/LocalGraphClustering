@@ -2,10 +2,10 @@ import numpy as np
 from scipy import sparse as sp
 from scipy import linalg as sp_linalg
 
-def eig2L_subgraph(A, ref_nodes):
+def eig2nL_subgraph(g, ref_nodes, tol_eigs = 1.0e-6):
     
-    A_sub = A.tocsr()[ref_nodes, :].tocsc()[:, ref_nodes]
-    
+    A_sub = g.adjacency_matrix.tocsr()[ref_nodes, :].tocsc()[:, ref_nodes]
+
     n = A_sub.shape[0]
     
     d_sqrt = np.zeros(n)
@@ -25,7 +25,7 @@ def eig2L_subgraph(A, ref_nodes):
     
     d_sqrt_neg = np.zeros((n,1))      
         
-    for i in xrange(n):
+    for i in range(n):
         d_sqrt_neg[i] = 1/d_sqrt[i]        
     
     D_sqrt_neg = sp.spdiags(d_sqrt_neg.transpose(), 0, n, n)
@@ -35,5 +35,5 @@ def eig2L_subgraph(A, ref_nodes):
     if 2 >= A_sub.shape[0]-1:
         return [], [1]
     else:
-        emb_eig_val, emb_eig = sp.linalg.eigs(L_sub, which='SM', k=2, tol=1.0e-6)
-        return emb_eig[:,1], emb_eig_val[1]
+        emb_eig_val, emb_eig = sp.linalg.eigs(L_sub, which='SM', k=2, tol=tol_eigs)
+        return np.real(emb_eig[:,1])

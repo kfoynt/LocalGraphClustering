@@ -7,6 +7,15 @@ Local Graph Clustering provides
 - methods for global graph partitioning
 - tools to compute [Network Community Profiles](http://www.tandfonline.com/doi/abs/10.1080/15427951.2009.10129177)
 
+The current version is 0.4.1 and it is appropriate for experts and intermediates. Contact information for any questions and feedback is given below
+
+### Authors
+
+- [Kimon Fountoulakis](kfount@berkeley.edu)
+- [Meng Liu](liu1740@purdue.edu)
+- [David Gleich](dgleich@purdue.edu)
+- [Michael Mahoney](mmahoney@stat.berkeley.edu)
+
 ## Demonstration
 
 <img src="images/JHopkins.png" width="440" height="250"> <img src="images/Hopkins_global.png" width="440" height="250">

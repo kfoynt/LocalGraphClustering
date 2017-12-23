@@ -14,6 +14,7 @@ from localgraphclustering import sweepCut_fast
 from localgraphclustering import sweepCut_normalized
 from localgraphclustering import multiclass_label_prediction
 from localgraphclustering import spectral_partitioning
+from localgraphclustering import spectral_partitioning_subgraph
 from localgraphclustering import MQI_fast
 from localgraphclustering import densest_subgraph_fast
 from localgraphclustering import capacity_releasing_diffusion_fast
