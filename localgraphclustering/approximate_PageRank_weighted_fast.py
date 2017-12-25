@@ -30,7 +30,8 @@ class Approximate_PageRank_weighted_fast(GraphBase[Input, Output]):
                 rho: float = 1.0e-6,
                 xlength: int = 1000) -> Sequence[Output]:
         """
-        Computes an approximate PageRank vector. Uses the Andersen Chung and Lang (ACL) Algorithm. 
+        Computes an approximate PageRank vector on a weighted graph. Uses the modified Andersen Chung and Lang (ACL) Algorithm. 
+        Now, the diffusion from one node to its neighbors is proportional to the edge weight.
         For details please refer to: R. Andersen, F. Chung and K. Lang. Local Graph Partitioning 
         using PageRank Vectors
         link: http://www.cs.cmu.edu/afs/cs/user/glmiller/public/Scientific-Computing/F-11/RelatedWork/local_partitioning_full.pdf. 
