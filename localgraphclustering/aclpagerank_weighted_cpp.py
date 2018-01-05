@@ -38,6 +38,7 @@ def aclpagerank_weighted_cpp(n,ai,aj,a,alpha,eps,seedids,nseedids,maxsteps,xleng
     seedids=np.array(seedids,dtype=vtype)
     xids=np.zeros(xlength,dtype=vtype)
     values=np.zeros(xlength,dtype=float_type)
+    a=np.array(a,dtype=float_type)
     fun.restype=ctypes_vtype
     fun.argtypes=[ctypes_vtype,ndpointer(ctypes_itype, flags="C_CONTIGUOUS"),
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
@@ -47,7 +48,7 @@ def aclpagerank_weighted_cpp(n,ai,aj,a,alpha,eps,seedids,nseedids,maxsteps,xleng
                   ctypes_vtype,ctypes_vtype,
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
                   ctypes_vtype,ndpointer(ctypes.c_double, flags="C_CONTIGUOUS")]
-    actual_length=fun(n,ai,aj,flag,alpha,eps,seedids,nseedids,maxsteps,xids,xlength,values)
+    actual_length=fun(n,ai,aj,a,flag,alpha,eps,seedids,nseedids,maxsteps,xids,xlength,values)
     actual_values=np.empty(actual_length,dtype=float_type)
     actual_xids=np.empty(actual_length,dtype=vtype)
     actual_values[:]=[values[i] for i in range(actual_length)]
