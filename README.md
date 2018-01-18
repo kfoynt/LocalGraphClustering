@@ -23,7 +23,7 @@ The current version is 0.4.1 and it is appropriate for experts and intermediates
 
 ## Presentation
 
-[![]()](https://www.youtube.com/watch?v=mf9h1-jhyos)
+[![](http://img.youtube.com/vi/mf9h1-jhyos/0.jpg)](https://www.youtube.com/watch?v=mf9h1-jhyos)
 
 
 ## Installation
