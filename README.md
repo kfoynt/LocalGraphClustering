@@ -21,7 +21,7 @@ The current version is 0.4.1 and it is appropriate for experts and intermediates
 <img src="images/JHopkins.png" width="440" height="250"> <img src="images/Hopkins_global.png" width="440" height="250">
 <img src="images/Hopkins_local_1.png" width="440" height="250"> <img src="images/Hopkins_local_2.png" width="440" height="250">
 
-## Demonstration for
+## Demonstration for bioinformatics networks
 
 ## Presentation
 
