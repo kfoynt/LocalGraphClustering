@@ -30,8 +30,9 @@ class GraphLocal(Graph):
     _dangling_nodes : int numpy array
         Nodes with zero edges
 
-    edges: int numpy array
-        List of all edges
+    vertices: List of all vertices
+
+    edges: List of all edges
 
     d : float64 numpy vector
         Degrees vector
@@ -145,6 +146,7 @@ class GraphLocal(Graph):
             first_column = []
             second_column = []
             self.edges = []
+            self.vertices = []
             
             for data in self.import_text(filename, separator):
                 first_column.extend([int(data[0])])
@@ -170,6 +172,7 @@ class GraphLocal(Graph):
             self.adjacency_matrix = self.adjacency_matrix.tocsr()[list(unique_elements), :].tocsc()[:, list(unique_elements)]
             
             self.edges = self.adjacency_matrix.nonzero()
+            self.vertices = G.nodes()
             
         elif file_type == 'gml':
             G = nx.read_gml(filename)
@@ -178,7 +181,9 @@ class GraphLocal(Graph):
             self._num_vertices = nx.number_of_nodes(G)
             self.edges = []
             for i in G.edges():
-                self.edges.append([int(i[0]),int(i[1])])
+                self.edges.append([i[0],i[1]])
+            self.vertices = []
+            self.vertices = G.nodes()
         elif file_type == 'graphml':
             G = nx.read_graphml(filename)
             self.adjacency_matrix = nx.adjacency_matrix(G).astype(np.float64)
@@ -186,7 +191,9 @@ class GraphLocal(Graph):
             self._num_vertices = nx.number_of_nodes(G)
             self.edges = []
             for i in G.edges():
-                self.edges.append([int(i[0]),int(i[1])])
+                self.edges.append([i[0],i[1]])
+            self.vertices = []
+            self.vertices = G.nodes()
         else:
             print('This file type is not supported')
             return
