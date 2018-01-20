@@ -16,14 +16,10 @@ The current version is 0.4.1 and it is appropriate for experts and intermediates
 - [David Gleich](https://www.cs.purdue.edu/homes/dgleich/), email: dgleich at purdue dot edu
 - [Michael Mahoney](https://www.stat.berkeley.edu/~mmahoney/), email: mmahoney at stat dot berkeley dot edu
 
-## Demonstration for social networks
+## Demonstration
 
 <img src="images/JHopkins.png" width="440" height="250"> <img src="images/Hopkins_global.png" width="440" height="250">
 <img src="images/Hopkins_local_1.png" width="440" height="250"> <img src="images/Hopkins_local_2.png" width="440" height="250">
-
-## Demonstration for bioinformatics networks
-
-<img src="images/ppi.png" width="440" height="250"> <img src="images/ppi_local.png" width="440" height="250">
 
 ## Presentation
 
