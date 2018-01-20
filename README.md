@@ -20,11 +20,10 @@ The current version is 0.4.1 and it is appropriate for experts and intermediates
 
 <img src="images/JHopkins.png" width="440" height="250"> <img src="images/Hopkins_global.png" width="440" height="250">
 <img src="images/Hopkins_local_1.png" width="440" height="250"> <img src="images/Hopkins_local_2.png" width="440" height="250">
-
+See
 ## Demonstration for bioinformatics networks
 
 <img src="images/ppi.png" width="440" height="250"> <img src="images/ppi_local.png" width="440" height="250">
-<img src="images/pss.png" width="440" height="250"> <img src="images/pss_local.png" width="440" height="250">
 
 ## Presentation
 
@@ -127,13 +126,17 @@ output_SL = output_SL_fast[0][0]
 
 For advanced examples see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples.ipynb).
 
-## Examples with visualization
+## Examples with visualization for social networks
 
 For examples with visualization of the output see the Jupyter notebooks [examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples_with_visualization.ipynb), [more example with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/more_examples_with_visualization.ipynb).
 
 For comparisons of spectral- and flow-based methods with visualization see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/spectral_vs_flow_with_visualization.ipynb).
 
 For visual demonstration of algorithms that can improve a given seed set of nodes see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/improveType_algorithms_with_visualization.ipynb).
+
+## Examples with visualization for bioinformatics networks
+
+For examples with visualization of the output see the Jupyter notebooks [examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples_Bioinformatics_with_visualization.ipynb).
 
 ## List of applications and methods
 
