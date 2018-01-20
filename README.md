@@ -11,10 +11,10 @@ The current version is 0.4.1 and it is appropriate for experts and intermediates
 
 ### Authors
 
-- Kimon Fountoulakis, email: kfount at berkeley dot edu
-- Meng Liu, email: liu1740 at purdue dot edu
-- David Gleich, email: dgleich at purdue dot edu
-- Michael Mahoney, email: mmahoney at stat dot berkeley dot edu
+- [Kimon Fountoulakis](http://www1.icsi.berkeley.edu/~kfount/), email: kfount at berkeley dot edu
+- [Meng Liu](https://www.linkedin.com/in/meng-liu-111422a4/), email: liu1740 at purdue dot edu
+- [David Gleich](https://www.cs.purdue.edu/homes/dgleich/), email: dgleich at purdue dot edu
+- [Michael Mahoney](https://www.stat.berkeley.edu/~mmahoney/), email: mmahoney at stat dot berkeley dot edu
 
 ## Demonstration for social networks
 
