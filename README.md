@@ -23,6 +23,9 @@ The current version is 0.4.1 and it is appropriate for experts and intermediates
 
 ## Demonstration for bioinformatics networks
 
+<img src="images/ppi.png" width="440" height="250"> <img src="images/ppi_local.png" width="440" height="250">
+<img src="images/pss.png" width="440" height="250"> <img src="images/pss_local.png" width="440" height="250">
+
 ## Presentation
 
 [![](http://img.youtube.com/vi/mf9h1-jhyos/0.jpg)](https://www.youtube.com/watch?v=mf9h1-jhyos)
