@@ -132,7 +132,7 @@ For visual demonstration of algorithms that can improve a given seed set of node
 
 ## Examples with visualization for bioinformatics networks
 
-For examples with visualization of the output see the Jupyter notebook [bioinformatics examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples_Bioinformatics_with_visualization.ipynb).
+For examples with visualization see the Jupyter notebook [bioinformatics examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples_Bioinformatics_with_visualization.ipynb).
 
 ## Advanced examples
 
