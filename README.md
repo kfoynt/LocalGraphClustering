@@ -122,10 +122,6 @@ print("Conductance after improvement:",g.compute_conductance(output_SL_fast[0][0
 output_SL = output_SL_fast[0][0]
 ```
 
-## Advanced examples
-
-For advanced examples see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples.ipynb).
-
 ## Examples with visualization for social networks
 
 For examples with visualization of the output see the Jupyter notebooks [examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples_with_visualization.ipynb), [more example with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/more_examples_with_visualization.ipynb).
@@ -137,6 +133,10 @@ For visual demonstration of algorithms that can improve a given seed set of node
 ## Examples with visualization for bioinformatics networks
 
 For examples with visualization of the output see the Jupyter notebooks [examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples_Bioinformatics_with_visualization.ipynb).
+
+## Advanced examples
+
+For advanced examples see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples.ipynb).
 
 ## List of applications and methods
 
