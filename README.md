@@ -11,15 +11,20 @@ The current version is 0.4.1 and it is appropriate for experts and intermediates
 
 ### Authors
 
-- Kimon Fountoulakis, email: kfount at berkeley dot edu
-- Meng Liu, email: liu1740 at purdue dot edu
-- David Gleich, email: dgleich at purdue dot edu
-- Michael Mahoney, email: mmahoney at stat dot berkeley dot edu
+- [Kimon Fountoulakis](http://www1.icsi.berkeley.edu/~kfount/), email: kfount at berkeley dot edu
+- [Meng Liu](https://www.linkedin.com/in/meng-liu-111422a4/), email: liu1740 at purdue dot edu
+- [David Gleich](https://www.cs.purdue.edu/homes/dgleich/), email: dgleich at purdue dot edu
+- [Michael Mahoney](https://www.stat.berkeley.edu/~mmahoney/), email: mmahoney at stat dot berkeley dot edu
 
 ## Demonstration
 
 <img src="images/JHopkins.png" width="440" height="250"> <img src="images/Hopkins_global.png" width="440" height="250">
 <img src="images/Hopkins_local_1.png" width="440" height="250"> <img src="images/Hopkins_local_2.png" width="440" height="250">
+
+## Presentation
+
+[![](http://img.youtube.com/vi/mf9h1-jhyos/0.jpg)](https://www.youtube.com/watch?v=mf9h1-jhyos)
+
 
 ## Installation
 
@@ -113,17 +118,21 @@ print("Conductance after improvement:",g.compute_conductance(output_SL_fast[0][0
 output_SL = output_SL_fast[0][0]
 ```
 
-## Advanced examples
-
-For advanced examples see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples.ipynb).
-
-## Examples with visualization
+## Examples with visualization for social networks
 
 For examples with visualization of the output see the Jupyter notebooks [examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples_with_visualization.ipynb), [more example with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/more_examples_with_visualization.ipynb).
 
 For comparisons of spectral- and flow-based methods with visualization see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/spectral_vs_flow_with_visualization.ipynb).
 
 For visual demonstration of algorithms that can improve a given seed set of nodes see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/improveType_algorithms_with_visualization.ipynb).
+
+## Examples with visualization for bioinformatics networks
+
+For examples with visualization see the Jupyter notebook [bioinformatics examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples_Bioinformatics_with_visualization.ipynb).
+
+## Advanced examples
+
+For advanced examples see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples.ipynb).
 
 ## List of applications and methods
 
