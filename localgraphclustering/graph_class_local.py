@@ -172,7 +172,6 @@ class GraphLocal(Graph):
             self.adjacency_matrix = self.adjacency_matrix.tocsr()[list(unique_elements), :].tocsc()[:, list(unique_elements)]
             
             self.edges = self.adjacency_matrix.nonzero()
-            self.vertices = G.nodes()
             
         elif file_type == 'gml':
             G = nx.read_gml(filename)
