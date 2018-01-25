@@ -141,7 +141,7 @@ For advanced examples see the Jupyter notebook [here](https://github.com/kfoynt/
 ## List of applications and methods
 
 -  [Approximate PageRank](https://dl.acm.org/citation.cfm?id=1170528)
-- [L1-regularized PageRank](https://link.springer.com/article/10.1007/s10107-017-1214-8) (solved using accelerated proxima gradient descent)
+- [L1-regularized PageRank](https://link.springer.com/article/10.1007/s10107-017-1214-8) (solved using accelerated proximal gradient descent)
 - [PageRank Nibble](https://dl.acm.org/citation.cfm?id=1170528)
 - [Rounding methods for spectral embeddings](https://dl.acm.org/citation.cfm?id=1170528)
 - [MQI](https://link.springer.com/chapter/10.1007/978-3-540-25960-2_25)
