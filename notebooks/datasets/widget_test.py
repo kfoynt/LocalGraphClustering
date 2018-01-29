@@ -22,7 +22,7 @@ from localgraphclustering import *
 from gi.repository import Gtk, Gdk, GdkPixbuf, GObject
 
 # Read graph. This also supports gml and graphml format.
-g = graph_class_local.GraphLocal('Colgate88_reduced.graphml','graphml',' ')
+g = graph_class_local.GraphLocal('ASTRAL-small-sized-mammoth-sims-geq-2.graphml','graphml',' ')
 
 # Load local algorithms
 #import local_graph_clustering as lgc
@@ -43,7 +43,7 @@ for i in range(m):
 remove_self_loops(g_gtool)
 
 # Load pre-computed coordinates for nodes.
-ld_coord = np.loadtxt('Colgate88_reduced_coord.xy', dtype = 'str')
+ld_coord = np.loadtxt('ASTRAL-small-sized-mammoth-sims-geq-2.xy', dtype = 'str')
 
 pos = g_gtool.new_vertex_property("vector<double>")
 for i in ld_coord:
