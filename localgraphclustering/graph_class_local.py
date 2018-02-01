@@ -199,6 +199,56 @@ class GraphLocal(Graph):
         
         self.compute_statistics()
 
+    def list_to_CSR(self,ei,ej,ev):
+        """
+        Converts an edgelist into a CSR format.
+
+        Parameters
+        ----------
+        ei : numpy array
+            a numpy array of the source nodes of edges
+        ej : numpy array
+            a numpy array of the dest nodes of edges
+        ev : numpy array
+            a numpy array of the weight of edges
+
+        """
+        n = max(ei)+1
+        m = len(ei)
+        ai = np.zeros(n+1,dtype=np.int32)
+        for i in ei:
+            ai[i+1] += 1
+        ind = 0
+        for i in range(n):
+            ai[i+1] += ai[i] 
+        while ind < m:
+            if ev[ind] < 0:
+                ind += 1
+            else:
+                dest = ai[ei[ind]]
+                while ev[dest] < 0 and ej[dest] <= ej[ind]:
+                    dest += 1
+                if dest == ind:
+                    ev[dest] *= -1
+                    continue
+                temp_ei,temp_ej,temp_ev = ei[dest],ej[dest],abs(ev[dest])
+                if ev[dest] > 0:
+                    ei[dest],ej[dest],ev[dest] = ei[ind],ej[ind],-ev[ind]
+                    ei[ind],ej[ind],ev[ind] = temp_ei,temp_ej,temp_ev
+                else:
+                    ei[dest],ej[dest],ev[dest] = ei[ind],ej[ind],-ev[ind]
+                    while dest < m:
+                        dest += 1
+                        prev = ev[dest]
+                        temp_ei,temp_ej,temp_ev,ei[dest],ej[dest],ev[dest] = ei[dest],ej[dest],abs(ev[dest]),temp_ei,temp_ej,-temp_ev
+                        if prev > 0:
+                            break
+                    if dest != ind:
+                        ei[ind],ej[ind],ev[ind] = temp_ei,temp_ej,temp_ev
+        for i in range(m):
+            ev[i] = abs(ev[i])
+        return (ai,ej,ev)
+
     def compute_statistics(self):
         """
         Computes statistics for the graph. It updates the class attributes. The user needs to read the graph first before calling
