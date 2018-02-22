@@ -199,9 +199,9 @@ class GraphLocal(Graph):
         
         self.compute_statistics()
 
-    def list_to_CSR(self,ei,ej,ev):
+    def list_to_CSR(ei,ej,ev):
         """
-        Converts an edgelist into a CSR format.
+        This function takes an edge list and returns it in csr_matrix format.
 
         Parameters
         ----------
@@ -225,29 +225,26 @@ class GraphLocal(Graph):
             if ev[ind] < 0:
                 ind += 1
             else:
-                dest = ai[ei[ind]]
-                while ev[dest] < 0 and ej[dest] <= ej[ind]:
-                    dest += 1
+                index = ei[ind]
+                dest = ai[index]
                 if dest == ind:
                     ev[dest] *= -1
+                    ai[index] += 1
                     continue
                 temp_ei,temp_ej,temp_ev = ei[dest],ej[dest],abs(ev[dest])
-                if ev[dest] > 0:
-                    ei[dest],ej[dest],ev[dest] = ei[ind],ej[ind],-ev[ind]
-                    ei[ind],ej[ind],ev[ind] = temp_ei,temp_ej,temp_ev
-                else:
-                    ei[dest],ej[dest],ev[dest] = ei[ind],ej[ind],-ev[ind]
-                    while dest < m:
-                        dest += 1
-                        prev = ev[dest]
-                        temp_ei,temp_ej,temp_ev,ei[dest],ej[dest],ev[dest] = ei[dest],ej[dest],abs(ev[dest]),temp_ei,temp_ej,-temp_ev
-                        if prev > 0:
-                            break
-                    if dest != ind:
-                        ei[ind],ej[ind],ev[ind] = temp_ei,temp_ej,temp_ev
+                ei[dest],ej[dest],ev[dest] = ei[ind],ej[ind],-ev[ind]
+                ei[ind],ej[ind],ev[ind] = temp_ei,temp_ej,temp_ev
+                ai[index] += 1
         for i in range(m):
             ev[i] = abs(ev[i])
-        return (ai,ej,ev)
+        dummy = 0
+        for i in range(n+1):
+            temp = ai[i]
+            ai[i] -= (ai[i]-dummy)
+            dummy = temp
+        M = sp.csr_matrix((ev, ej, ai), shape=(n, n))
+        M.sort_indices()
+        return M
 
     def compute_statistics(self):
         """
