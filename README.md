@@ -155,6 +155,13 @@ For advanced examples see the Jupyter notebook [here](https://github.com/kfoynt/
 - Global spectral partitioning
 - Densest subgraph
 
+## When local graph clustering methods do not perform well
+
+In theory and in practice we have observed that the performance of local graph clustering methods
+depends on the magnitute of the conductance of the target cluster as well as the magnitute of the minimum conductance
+in the induced subgraph on the target cluster. Simply put, if the "internal connectivity" of the target cluster (the minimum conductance
+in the induced subgraph on the target cluster) is stronger than the "external connectivity" (the conductance of the target cluster) then local graph clustering should work. For theoretical details please see Section 3 in the [Capacity Releasing Diffusion for Speed and Locality](http://proceedings.mlr.press/v70/wang17b.html). For extensive numerical experiments please see Section 4 in [Capacity Releasing Diffusion for Speed and Locality](http://proceedings.mlr.press/v70/wang17b.html) as well as the supplementary material in the same link.
+
 ## License
 
 LocalGraphClustering,

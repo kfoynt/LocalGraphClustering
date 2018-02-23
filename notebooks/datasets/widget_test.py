@@ -22,7 +22,7 @@ from localgraphclustering import *
 from gi.repository import Gtk, Gdk, GdkPixbuf, GObject
 
 # Read graph. This also supports gml and graphml format.
-g = graph_class_local.GraphLocal('sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh.graphml','graphml',' ')
+g = graph_class_local.GraphLocal('brain.graphml','graphml',' ')
 
 # Load local algorithms
 #import local_graph_clustering as lgc
@@ -43,7 +43,7 @@ for i in range(m):
 remove_self_loops(g_gtool)
 
 # Load pre-computed coordinates for nodes.
-ld_coord = np.loadtxt('sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh_coordinates.xy', dtype = 'str')
+ld_coord = np.loadtxt('brain_coordinates.xy', dtype = 'str')
 
 pos = g_gtool.new_vertex_property("vector<double>")
 for i in ld_coord:
