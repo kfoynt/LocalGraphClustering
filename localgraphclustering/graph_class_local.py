@@ -2,6 +2,7 @@ from .interface.types.graph import Graph
 import networkx as nx
 import csv
 from scipy import sparse as sp
+from scipy.sparse import csgraph
 import scipy.sparse.linalg as splinalg
 import numpy as np
 import warnings
@@ -139,7 +140,7 @@ class GraphLocal(Graph):
             a numpy array of the weight of edges
 
         """
-        n = max(ei)+1
+        n = max(max(ei),max(ej))+1
         m = len(ei)
         ai = np.zeros(n+1,dtype=np.int32)
         for i in ei:
@@ -307,7 +308,7 @@ class GraphLocal(Graph):
         first before calling this function by calling the read_graph function from this class.
         """
 
-        output = sp.csgraph.connected_components(self.adjacency_matrix,directed=False)
+        output = csgraph.connected_components(self.adjacency_matrix,directed=False)
         
         self.components = output[1]
         self.number_of_components = output[0]
