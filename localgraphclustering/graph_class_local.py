@@ -5,6 +5,7 @@ from scipy import sparse as sp
 import scipy.sparse.linalg as splinalg
 import numpy as np
 import warnings
+import collections as cole
 
 
 class GraphLocal(Graph):
@@ -289,16 +290,16 @@ class GraphLocal(Graph):
         first before calling this function by calling the read_graph function from this class.
         """
 
-        #output = sp.csgraph.connected_components(self.adjacency_matrix,directed=False)
+        output = sp.csgraph.connected_components(self.adjacency_matrix,directed=False)
         
-        #self.components = output[1]
-        #self.number_of_components = output[0]
+        self.components = output[1]
+        self.number_of_components = output[0]
         
-        warnings.warn("Warning, connected_components is not efficiently implemented.")
+        #warnings.warn("Warning, connected_components is not efficiently implemented.")
         
-        g_nx = nx.from_scipy_sparse_matrix(self.adjacency_matrix)
-        self.components = list(nx.connected_components(g_nx))
-        self.number_of_components = nx.number_connected_components(g_nx)
+        #g_nx = nx.from_scipy_sparse_matrix(self.adjacency_matrix)
+        #self.components = list(nx.connected_components(g_nx))
+        #self.number_of_components = nx.number_connected_components(g_nx)
         
         print('There are ', self.number_of_components, ' connected components in the graph') 
 
@@ -388,11 +389,21 @@ class GraphLocal(Graph):
             #self.compute_statistics()
             return self
         else:
+            # find nodes of largest component
+            counter=cole.Counter(self.components)
+            maxccnodes = []
+            what_key = next(iter(counter))
+            for i in range(self._num_vertices):
+                if what_key == self.components:
+                    maxccnodes.append(i)        
+            
             # biggest component by len of it's list of nodes
-            maxccnodes = max(self.components, key=len)            
+            #maxccnodes = max(self.components, key=len)            
+            #maxccnodes = list(maxccnodes)
+            
             warnings.warn("The graph has multiple (%i) components, using the largest with %i / %i nodes"%(
-                     self.number_of_components, len(maxccnodes), self._num_vertices))
-            maxccnodes = list(maxccnodes)
+                     self.number_of_components, len(maxccnodes), self._num_vertices))  
+            
             g_copy = GraphLocal()
             g_copy.adjacency_matrix = self.adjacency_matrix[maxccnodes,:].tocsc()[:,maxccnodes].tocsr()
             g_copy.compute_statistics()   
