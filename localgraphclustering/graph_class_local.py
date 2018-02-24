@@ -271,25 +271,28 @@ class GraphLocal(Graph):
         """
         n = self._num_vertices
         
-        self.d = np.ravel(self.adjacency_matrix.sum(axis=1))
+        self.d = np.ravel(self.adjacency_matrix.sum(axis=1)) + 1.0e-10
+        # Add a small constant for dangling nodes. TODO, treat propertly dangling nodes in the future. 
+        min_val = min(self.d)
         self._dangling = np.where(self.d == 0)[0]
-        if self._dangling.shape[0] > 0:
-            print('The following nodes have no outgoing edges:',self._dangling,'\n')
-            print('These nodes are stored in the your_graph_object._dangling.')
-            print('To avoid numerical difficulties we connect each dangling node to another randomly chosen node.')
-            
-            #self.adjacency_matrix = sp.lil_matrix(self.adjacency_matrix)
-            
-            for i in self._dangling:
-                numbers = list(range(0,i))+list(range(i + 1,n - 1))
-                j = np.random.choice(numbers)
-                self.adjacency_matrix[i,j] = 1
-                self.adjacency_matrix[j,i] = 1
-                self.d[i] += 1
-                self.d[j] += 1
-            #self.adjacency_matrix = sp.csr_matrix(self.adjacency_matrix)
-
-            #self.d = np.ravel(self.adjacency_matrix.sum(axis=1))
+        self.d[self._dangling] += min_val/1000000
+        #if self._dangling.shape[0] > 0:
+        #    print('The following nodes have no outgoing edges:',self._dangling,'\n')
+        #    print('These nodes are stored in the your_graph_object._dangling.')
+        #    print('To avoid numerical difficulties we connect each dangling node to another randomly chosen node.')
+        #    
+        #    #self.adjacency_matrix = sp.lil_matrix(self.adjacency_matrix)
+        #    
+        #    for i in self._dangling:
+        #        numbers = list(range(0,i))+list(range(i + 1,n - 1))
+        #        j = np.random.choice(numbers)
+        #        self.adjacency_matrix[i,j] = 1
+        #        self.adjacency_matrix[j,i] = 1
+        #        self.d[i] += 1
+        #        self.d[j] += 1
+        #    #self.adjacency_matrix = sp.csr_matrix(self.adjacency_matrix)
+        #
+        #    #self.d = np.ravel(self.adjacency_matrix.sum(axis=1))
         
         self.dn = 1.0/self.d
         self.d_sqrt = np.sqrt(self.d)
