@@ -234,7 +234,7 @@ class GraphLocal(Graph):
             self.vertices = []
             self.vertices = G.nodes()
         elif file_type == 'graphml':
-            warnings.warn("Loading a gml is not efficient, we suggest using an edgelist format for this API.")
+            warnings.warn("Loading a graphml is not efficient, we suggest using an edgelist format for this API.")
             G = nx.read_graphml(filename)
             self.adjacency_matrix = nx.adjacency_matrix(G).astype(np.float64)
             self._num_edges = nx.number_of_edges(G)
@@ -261,7 +261,7 @@ class GraphLocal(Graph):
         self._dangling = np.where(self.d == 0)[0]
         if self._dangling.shape[0] > 0:
             print('The following nodes have no outgoing edges:',self._dangling,'\n')
-            print('These nodes are stored in the your_graph_object.dangling.')
+            print('These nodes are stored in the your_graph_object._dangling.')
             print('To avoid numerical difficulties we connect each dangling node to another randomly chosen node.')
             
             #self.adjacency_matrix = sp.lil_matrix(self.adjacency_matrix)
@@ -294,7 +294,7 @@ class GraphLocal(Graph):
         #self.components = output[1]
         #self.number_of_components = output[0]
         
-        warnings.warn("Warning this computation is not efficiently implemented.")
+        warnings.warn("Warning, connected_components is not efficiently implemented.")
         
         g_nx = nx.from_scipy_sparse_matrix(self.adjacency_matrix)
         self.components = list(nx.connected_components(g_nx))
@@ -338,7 +338,7 @@ class GraphLocal(Graph):
         and number_of_bicomponents. The user needs to call read the graph first before calling this
         function by calling the read_graph function from this class. This function calls Networkx.
         """
-        warnings.warn("Warning this computation is not efficiently implemented.")
+        warnings.warn("Warning, biconnected_components is not efficiently implemented.")
         
         g_nx = nx.from_scipy_sparse_matrix(self.adjacency_matrix)
 
@@ -355,7 +355,7 @@ class GraphLocal(Graph):
         function from this class. The output can be accessed from the graph object that
         calls this function. It stores the results in class attribute core_numbers.
         """
-        warnings.warn("Warning this computation is not efficiently implemented.")
+        warnings.warn("Warning, core_number is not efficiently implemented.")
         
         g_nx = nx.from_scipy_sparse_matrix(self.adjacency_matrix)
 

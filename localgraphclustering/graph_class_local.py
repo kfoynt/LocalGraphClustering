@@ -6,10 +6,6 @@ import scipy.sparse.linalg as splinalg
 import numpy as np
 import warnings
 
-import gzip
-import bz2
-import lzma
-
 
 class GraphLocal(Graph):
     """
@@ -124,16 +120,7 @@ class GraphLocal(Graph):
         """
         Reads text from filename.
         """
-        if filename.endswith(".gz"):
-            fh = gzip.open(filename, "rt")
-        elif filename.endswith(".bz2"):
-            fh = bz2.open(filename, "rt")
-        elif filename.endswith(".xz"):
-            fh = lzma.open(filename, "rt")
-        else:
-            fh = open(filename, "rt")
-            
-        for line in csv.reader(fh, delimiter=separator, skipinitialspace=True):
+        for line in csv.reader(open(filename), delimiter=separator, skipinitialspace=True):
             if line:
                 yield line
                 
@@ -247,7 +234,7 @@ class GraphLocal(Graph):
             self.vertices = []
             self.vertices = G.nodes()
         elif file_type == 'graphml':
-            warnings.warn("Loading a gml is not efficient, we suggest using an edgelist format for this API.")
+            warnings.warn("Loading a graphml is not efficient, we suggest using an edgelist format for this API.")
             G = nx.read_graphml(filename)
             self.adjacency_matrix = nx.adjacency_matrix(G).astype(np.float64)
             self._num_edges = nx.number_of_edges(G)
@@ -274,7 +261,7 @@ class GraphLocal(Graph):
         self._dangling = np.where(self.d == 0)[0]
         if self._dangling.shape[0] > 0:
             print('The following nodes have no outgoing edges:',self._dangling,'\n')
-            print('These nodes are stored in the your_graph_object.dangling.')
+            print('These nodes are stored in the your_graph_object._dangling.')
             print('To avoid numerical difficulties we connect each dangling node to another randomly chosen node.')
             
             #self.adjacency_matrix = sp.lil_matrix(self.adjacency_matrix)
