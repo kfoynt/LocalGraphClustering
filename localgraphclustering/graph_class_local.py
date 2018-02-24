@@ -385,7 +385,7 @@ class GraphLocal(Graph):
     def largest_component(self):
         self.connected_components()
         if self.number_of_components == 1:
-            self.compute_statistics()
+            #self.compute_statistics()
             return self
         else:
             # biggest component by len of it's list of nodes
