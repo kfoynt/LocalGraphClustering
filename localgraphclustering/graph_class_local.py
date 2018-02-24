@@ -206,7 +206,7 @@ class GraphLocal(Graph):
                     is_weighted = True
                     first_column.extend([int(data[0])])
                     second_column.extend([int(data[1])])
-                    third_column.extend([data[2]])
+                    third_column.extend([float(data[2])])
 
             if len(first_column) != len(second_column):
                 print('The edgelist input is corrupted')
