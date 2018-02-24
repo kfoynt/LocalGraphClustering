@@ -403,7 +403,8 @@ class GraphLocal(Graph):
     def largest_component(self):
         self.connected_components()
         if self.number_of_components == 1:
-            self.compute_statistics()
+            #self.compute_statistics()
+            return self
         else:
             # find nodes of largest component
             counter=cole.Counter(self.components)
