@@ -193,20 +193,28 @@ class GraphLocal(Graph):
         
             first_column = []
             second_column = []
+            third_column = []
             self.edges = []
             self.vertices = []
+            is_weighted = False
             
             for data in self.import_text(filename, separator):
-                first_column.extend([int(data[0])])
-                second_column.extend([int(data[1])])
+                if len(data) <= 2:
+                    first_column.extend([int(data[0])])
+                    second_column.extend([int(data[1])])
+                else:
+                    is_weighted = True
+                    first_column.extend([int(data[0])])
+                    second_column.extend([int(data[1])])
+                    third_column.extend([data[2]])
 
             if len(first_column) != len(second_column):
                 print('The edgelist input is corrupted')
 
             self._num_edges = len(first_column)
             m = self._num_edges
-            self._num_vertices = max([max(second_column),max(first_column)]) + 1
-            n = self._num_vertices
+            #self._num_vertices = max([max(second_column),max(first_column)]) + 1
+            #n = self._num_vertices
 
             #self.adjacency_matrix = sp.coo_matrix((np.ones(m),(first_column,second_column)), shape=(n,n))
             #self.adjacency_matrix = self.adjacency_matrix.tocsr()
@@ -219,9 +227,14 @@ class GraphLocal(Graph):
             
             #self.adjacency_matrix = self.adjacency_matrix.tocsr()[list(unique_elements), :].tocsc()[:, list(unique_elements)]
             
-            self.adjacency_matrix = self.list_to_CSR(first_column,second_column,np.ones(m))
+            if is_weighted:
+                self.adjacency_matrix = self.list_to_CSR(first_column,second_column,third_column)
+            else:
+                self.adjacency_matrix = self.list_to_CSR(first_column,second_column,np.ones(m))
             
-            self.edges = self.adjacency_matrix.nonzero()
+            self._num_vertices = self.adjacency_matrix.shape[0]
+            
+            #self.edges = self.adjacency_matrix.nonzero()
             
         elif file_type == 'gml':
             warnings.warn("Loading a gml is not efficient, we suggest using an edgelist format for this API.")
