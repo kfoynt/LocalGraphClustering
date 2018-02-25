@@ -155,7 +155,7 @@ For advanced examples see the Jupyter notebook [here](https://github.com/kfoynt/
 - Global spectral partitioning
 - Densest subgraph
 
-## When local graph clustering methods do not perform well
+## When local graph clustering methods do not perform well?
 
 In theory and in practice we have observed that the performance of local graph clustering methods
 depends on the magnitute of the conductance of the target cluster as well as the magnitute of the minimum conductance
