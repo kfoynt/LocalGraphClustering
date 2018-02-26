@@ -409,7 +409,7 @@ class GraphLocal(Graph):
             maxccnodes = []
             what_key = next(iter(counter))
             for i in range(self._num_vertices):
-                if what_key == self.components:
+                if what_key == self.components[i]:
                     maxccnodes.append(i)        
             
             # biggest component by len of it's list of nodes
