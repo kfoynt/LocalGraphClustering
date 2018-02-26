@@ -32,7 +32,7 @@ def graph_set_scores(graph, R):
     edgestrue = voltrue - cut
     edgeseff = voleff - cut
     
-    cond = cut / voleff
+    cond = cut / voleff if voleff != 0 else 1
     isop = cut / sizeeff
     
     # make a dictionary out of local variables
@@ -82,6 +82,8 @@ def ncp_experiment(ncpdata,R,func,method_stats):
     ret_stats = []
     dt = time.time() - start
     for S in Sets:
+        if len(S) == 0:
+            continue
         output_stats = graph_set_scores(ncpdata.graph, S)
         for F in ncpdata.set_funcs: # build the list of keys for set_funcs
             output_stats.update(F(ncpdata.graph, S))

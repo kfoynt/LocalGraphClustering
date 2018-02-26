@@ -66,6 +66,11 @@ class SweepCut_fast(GraphBase[Input, Output]):
             nnz_idx = p.nonzero()[0]
             nnz_ct = nnz_idx.shape[0]
 
+            if nnz_ct == 0:
+                output[counter] = [[],0]
+                counter += 1
+                continue
+
             sc_p = np.zeros(nnz_ct)
             for i in range(nnz_ct):
                 sc_p[i] = p[nnz_idx[i]]   
