@@ -187,27 +187,70 @@ class GraphLocal(Graph):
             Default = '\t'
         """ 
         if file_type == 'edgelist':
-        
-            source = []
-            target = []
-            weights = []
-            is_weighted = False
+            
+            counter = 0
             
             for data in self.import_text(filename, separator):
+                counter += 1
+                    
+            source = np.zeros(counter,int)
+            target = np.zeros(counter,int)
+            weights = np.zeros(counter,float)
+            
+            counter = 0
+            
+            for data in self.import_text(filename, separator):
+                
                 if len(data) <= 2:
-                    source.extend([int(data[0])])
-                    target.extend([int(data[1])])
+                    source[counter] = int(data[0])
+                    target[counter] = int(data[1])
+                    weights[counter] = 1
                 else:
-                    is_weighted = True
-                    source.extend([int(data[0])])
-                    target.extend([int(data[1])])
-                    weights.extend([float(data[2])])
+                    source[counter] = int(data[0])
+                    target[counter] = int(data[1])
+                    weights[counter] = float(data[2])
+                    
+                counter += 1
 
+            # Treat dangling nodes.
+            unique_elements = set(source)
+            unique_elements.update(set(target))
+            max_id = max(unique_elements)
+            
+            self._dangling = list(set(range(max_id)) - unique_elements)
+            
+            unique_elements = list(unique_elements)
+            
+            if len(self._dangling) > 0:
+                print('The following nodes have no outgoing edges:',self._dangling,'\n')
+                print('These nodes are stored in the your_graph_object._dangling.')
+                print('To avoid numerical difficulties we connect each dangling node to another randomly chosen node.')
+            
+            source_dangling = np.zeros(len(self._dangling),int)
+            target_dangling = np.zeros(len(self._dangling),int)
+            weights_dangling = np.zeros(len(self._dangling),float)
+            
+            counter = 0
+            
+            min_weight = min(weights)
+            
+            for i in self._dangling:
+                j = np.random.choice(unique_elements)
+                source_dangling[counter] = j
+                target_dangling[counter] = i
+                weights_dangling[counter] = min_weight
+                counter += 1
+                
+            # Update edges with info from dangling nodes.
+            source = np.append(source,source_dangling) 
+            target = np.append(target,target_dangling) 
+            weights = np.append(weights,weights_dangling) 
+                
             if len(source) != len(target):
                 print('The edgelist input is corrupted')
 
             self._num_edges = len(source)
-            m = self._num_edges
+            #m = self._num_edges
             #self._num_vertices = max([max(second_column),max(first_column)]) + 1
             #n = self._num_vertices
 
@@ -222,10 +265,7 @@ class GraphLocal(Graph):
             
             #self.adjacency_matrix = self.adjacency_matrix.tocsr()[list(unique_elements), :].tocsc()[:, list(unique_elements)]
             
-            if is_weighted:
-                self.adjacency_matrix = self.list_to_CSR(source,target,weights)
-            else:
-                self.adjacency_matrix = self.list_to_CSR(source,target,np.ones(m))
+            self.adjacency_matrix = self.list_to_CSR(source,target,weights)
             
             self._num_vertices = self.adjacency_matrix.shape[0]
             
@@ -252,31 +292,7 @@ class GraphLocal(Graph):
         Computes statistics for the graph. It updates the class attributes. The user needs to read the graph first before calling
         this method by calling the read_graph method from this class.
         """
-        n = self._num_vertices
-        
-        self.d = np.ravel(self.adjacency_matrix.sum(axis=1))
-        # Add a small constant for dangling nodes. TODO, treat propertly dangling nodes in the future. 
-        #min_val = np.min(self.d[np.nonzero(self.d)])
-        self._dangling = np.where(self.d == 0)[0]
-        #self.d[self._dangling] += min_val/1000000
-        if self._dangling.shape[0] > 0:
-            print('The following nodes have no outgoing edges:',self._dangling,'\n')
-            print('These nodes are stored in the your_graph_object._dangling.')
-            print('To avoid numerical difficulties we connect each dangling node to another randomly chosen node.')
-            
-            #self.adjacency_matrix = sp.lil_matrix(self.adjacency_matrix)
-            
-            for i in self._dangling:
-                numbers = list(range(0,i))+list(range(i + 1,n - 1))
-                j = np.random.choice(numbers)
-                self.adjacency_matrix[i,j] = 1
-                self.adjacency_matrix[j,i] = 1
-                self.d[i] += 1
-                self.d[j] += 1
-            #self.adjacency_matrix = sp.csr_matrix(self.adjacency_matrix)
-        
-            #self.d = np.ravel(self.adjacency_matrix.sum(axis=1))
-        
+        self.d = np.ravel(self.adjacency_matrix.sum(axis=1))        
         self.dn = 1.0/self.d
         self.d_sqrt = np.sqrt(self.d)
         self.dn_sqrt = np.sqrt(self.dn)
