@@ -32,10 +32,6 @@ class GraphLocal(Graph):
     _dangling_nodes : int numpy array
         Nodes with zero edges
 
-    vertices: List of all vertices
-
-    edges: List of all edges
-
     d : float64 numpy vector
         Degrees vector
 
@@ -189,30 +185,28 @@ class GraphLocal(Graph):
         separator : string
             used if file_type = 'edgelist'
             Default = '\t'
-        """
+        """ 
         if file_type == 'edgelist':
         
-            first_column = []
-            second_column = []
-            third_column = []
-            self.edges = []
-            self.vertices = []
+            source = []
+            target = []
+            weights = []
             is_weighted = False
             
             for data in self.import_text(filename, separator):
                 if len(data) <= 2:
-                    first_column.extend([int(data[0])])
-                    second_column.extend([int(data[1])])
+                    source.extend([int(data[0])])
+                    target.extend([int(data[1])])
                 else:
                     is_weighted = True
-                    first_column.extend([int(data[0])])
-                    second_column.extend([int(data[1])])
-                    third_column.extend([float(data[2])])
+                    source.extend([int(data[0])])
+                    target.extend([int(data[1])])
+                    weights.extend([float(data[2])])
 
-            if len(first_column) != len(second_column):
+            if len(source) != len(target):
                 print('The edgelist input is corrupted')
 
-            self._num_edges = len(first_column)
+            self._num_edges = len(source)
             m = self._num_edges
             #self._num_vertices = max([max(second_column),max(first_column)]) + 1
             #n = self._num_vertices
@@ -229,14 +223,11 @@ class GraphLocal(Graph):
             #self.adjacency_matrix = self.adjacency_matrix.tocsr()[list(unique_elements), :].tocsc()[:, list(unique_elements)]
             
             if is_weighted:
-                self.adjacency_matrix = self.list_to_CSR(first_column,second_column,third_column)
+                self.adjacency_matrix = self.list_to_CSR(source,target,weights)
             else:
-                self.adjacency_matrix = self.list_to_CSR(first_column,second_column,np.ones(m))
+                self.adjacency_matrix = self.list_to_CSR(source,target,np.ones(m))
             
             self._num_vertices = self.adjacency_matrix.shape[0]
-            
-            #self.edges = self.adjacency_matrix.nonzero()
-            self.edges = [first_column,second_column]
             
         elif file_type == 'gml':
             warnings.warn("Loading a gml is not efficient, we suggest using an edgelist format for this API.")
@@ -244,22 +235,12 @@ class GraphLocal(Graph):
             self.adjacency_matrix = nx.adjacency_matrix(G).astype(np.float64)
             self._num_edges = nx.number_of_edges(G)
             self._num_vertices = nx.number_of_nodes(G)
-            self.edges = []
-            for i in G.edges():
-                self.edges.append([i[0],i[1]])
-            self.vertices = []
-            self.vertices = G.nodes()
         elif file_type == 'graphml':
             warnings.warn("Loading a graphml is not efficient, we suggest using an edgelist format for this API.")
             G = nx.read_graphml(filename)
             self.adjacency_matrix = nx.adjacency_matrix(G).astype(np.float64)
             self._num_edges = nx.number_of_edges(G)
             self._num_vertices = nx.number_of_nodes(G)
-            self.edges = []
-            for i in G.edges():
-                self.edges.append([i[0],i[1]])
-            self.vertices = []
-            self.vertices = G.nodes()
         else:
             print('This file type is not supported')
             return
