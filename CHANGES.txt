@@ -18,3 +18,4 @@ v0.3.8, 11/3/2017  -- Added visualization and fixed bugs.
 v0.3.9, 11/3/2017  -- Added more examples with visualization.
 v0.4.0, 11/16/2017 -- Added more examples with visualization and more algorithms.
 v0.4.1, 12/22/2017 -- Added new Readme, new NCP interface, new examples and new methods.
+v0.4.2, 12/22/2017 -- Major update on methods and memory efficiency
