@@ -92,8 +92,7 @@ setup(
                         'matplotlib >= 2.0.0',
                         'typing',
                         'matplotlib',
-                        'pandas',
-                        'collections'
+                        'pandas'
                         ],
       
       # List additional groups of dependencies here (e.g. development
