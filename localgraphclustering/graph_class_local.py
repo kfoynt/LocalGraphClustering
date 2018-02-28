@@ -277,45 +277,45 @@ class GraphLocal(Graph):
                             counter += 1
                     
 
-            # Treat dangling nodes.
-            unique_elements = set(source)
-            unique_elements.update(set(target))
-            max_id = max(unique_elements)
-            
-            self._dangling = list(set(range(max_id)) - unique_elements)
-            
-            unique_elements = list(unique_elements)
-            
-            if len(self._dangling) > 0:
-                print('The following nodes have no outgoing edges:',self._dangling,'\n')
-                print('These nodes are stored in the your_graph_object._dangling.')
-                print('To avoid numerical difficulties we connect each dangling node to another randomly chosen node.')
-            
-            source_dangling = np.zeros(len(self._dangling)*2,int)
-            target_dangling = np.zeros(len(self._dangling)*2,int)
-            weights_dangling = np.zeros(len(self._dangling)*2,float)
-            
-            counter = 0
-            
-            min_weight = min(weights)
-            
-            for i in self._dangling:
-                j = np.random.choice(unique_elements)
-                while j == i:
-                    j = np.random.choice(unique_elements)
-                source_dangling[counter] = j
-                target_dangling[counter] = i
-                weights_dangling[counter] = min_weight
-                counter += 1
-                source_dangling[counter] = i
-                target_dangling[counter] = j
-                weights_dangling[counter] = min_weight
-                counter += 1
-                
-            # Update edges with info from dangling nodes.
-            source = np.append(source,source_dangling) 
-            target = np.append(target,target_dangling) 
-            weights = np.append(weights,weights_dangling) 
+#            # Treat dangling nodes.
+#            unique_elements = set(source)
+#            unique_elements.update(set(target))
+#            max_id = max(unique_elements)
+#            
+#            self._dangling = list(set(range(max_id)) - unique_elements)
+#            
+#            unique_elements = list(unique_elements)
+#            
+#            if len(self._dangling) > 0:
+#                print('The following nodes have no outgoing edges:',self._dangling,'\n')
+#                print('These nodes are stored in the your_graph_object._dangling.')
+#                print('To avoid numerical difficulties we connect each dangling node to another randomly chosen node.')
+#            
+#            source_dangling = np.zeros(len(self._dangling)*2,int)
+#            target_dangling = np.zeros(len(self._dangling)*2,int)
+#            weights_dangling = np.zeros(len(self._dangling)*2,float)
+#            
+#            counter = 0
+#            
+#            min_weight = min(weights)
+#            
+#            for i in self._dangling:
+#                j = np.random.choice(unique_elements)
+#                while j == i:
+#                    j = np.random.choice(unique_elements)
+#                source_dangling[counter] = j
+#                target_dangling[counter] = i
+#                weights_dangling[counter] = min_weight
+#                counter += 1
+#                source_dangling[counter] = i
+#                target_dangling[counter] = j
+#                weights_dangling[counter] = min_weight
+#                counter += 1
+#                
+#            # Update edges with info from dangling nodes.
+#            source = np.append(source,source_dangling) 
+#            target = np.append(target,target_dangling) 
+#            weights = np.append(weights,weights_dangling) 
                 
             if len(source) != len(target):
                 print('The edgelist input is corrupted')
@@ -363,8 +363,11 @@ class GraphLocal(Graph):
         Computes statistics for the graph. It updates the class attributes. The user needs to read the graph first before calling
         this method by calling the read_graph method from this class.
         """
-        self.d = np.ravel(self.adjacency_matrix.sum(axis=1))        
-        self.dn = 1.0/self.d
+        self.d = np.ravel(self.adjacency_matrix.sum(axis=1))            
+        self.dn = np.zeros(self._num_vertices)
+        for i in range(self._num_vertices):
+            if self.d[i] != 0:
+                self.dn[i] = 1.0/self.d[i]
         self.d_sqrt = np.sqrt(self.d)
         self.dn_sqrt = np.sqrt(self.dn)
         self.vol_G = np.sum(self.d)
@@ -492,6 +495,6 @@ class GraphLocal(Graph):
             
             g_copy = GraphLocal()
             g_copy.adjacency_matrix = self.adjacency_matrix[maxccnodes,:].tocsc()[:,maxccnodes].tocsr()
-            g_copy.compute_statistics()   
             g_copy._num_vertices = len(maxccnodes) # AHH!
+            g_copy.compute_statistics()   
             return g_copy
