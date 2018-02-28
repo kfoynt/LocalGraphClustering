@@ -23,10 +23,10 @@ class Approximate_PageRank_fast(GraphBase[Input, Output]):
     def produce(self,
                 inputs: Sequence[Input], 
                 ref_nodes: Sequence[int],
-                iterations: int = 1000,
+                iterations: int = 100000,
                 alpha: float = 0.15,
                 rho: float = 1.0e-6,
-                xlength: int = 1000) -> Sequence[Output]:
+                xlength: int = 10000) -> Sequence[Output]:
         """
         Computes an approximate PageRank vector. Uses the Andersen Chung and Lang (ACL) Algorithm. 
         For details please refer to: R. Andersen, F. Chung and K. Lang. Local Graph Partitioning 
