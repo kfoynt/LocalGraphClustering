@@ -169,7 +169,35 @@ class GraphLocal(Graph):
         M.sort_indices()
         return M
 
-    def read_graph(self, filename, file_type='edgelist', separator='\t'):
+    def check_symmetry(self,filename,separator):
+        counter = 0
+        another_count = 0
+        test_set = set()
+        not_checked = 0
+        added = 0
+        for data in self.import_text(filename, separator):
+            counter += 1
+            another_count += 1
+            ei = int(data[0])
+            ej = int(data[1])
+            if ei != ej:
+                another_count += 1
+                added += 1
+                if added <= 200:
+                    test_set.add((ei,ej))
+                    if (ej,ei) not in test_set:
+                        not_checked += 1
+                    else:
+                        not_checked -= 1
+                else:
+                    if (ej,ei) in test_set:
+                        not_checked -= 1
+        if not_checked > 0:
+            return (another_count,False)
+        else:
+            return (counter,True)
+
+    def read_graph(self, filename, file_type='edgelist', separator='\t', symmetry_check=True):
         """
         Reads the graph from an edgelist, gml or graphml file and initializes the class attribute adjacency_matrix.
 
@@ -187,11 +215,8 @@ class GraphLocal(Graph):
             Default = '\t'
         """ 
         if file_type == 'edgelist':
-            
-            counter = 0
-            
-            for data in self.import_text(filename, separator):
-                counter += 1
+
+            counter,is_complete = self.check_symmetry(filename,separator)
                     
             source = np.zeros(counter,int)
             target = np.zeros(counter,int)
@@ -199,18 +224,43 @@ class GraphLocal(Graph):
             
             counter = 0
             
-            for data in self.import_text(filename, separator):
+            if is_complete:
+                for data in self.import_text(filename, separator):
                 
-                if len(data) <= 2:
-                    source[counter] = int(data[0])
-                    target[counter] = int(data[1])
-                    weights[counter] = 1
-                else:
-                    source[counter] = int(data[0])
-                    target[counter] = int(data[1])
-                    weights[counter] = float(data[2])
+                    if len(data) <= 2:
+                        source[counter] = int(data[0])
+                        target[counter] = int(data[1])
+                        weights[counter] = 1
+                    else:
+                        source[counter] = int(data[0])
+                        target[counter] = int(data[1])
+                        weights[counter] = float(data[2])
                     
-                counter += 1
+                    counter += 1
+            else:
+                for data in self.import_text(filename, separator):
+                    ei,ej = int(data[0]),int(data[1])
+                    if len(data) <= 2:
+                        source[counter] = ei
+                        target[counter] = ej
+                        weights[counter] = 1
+                        counter += 1
+                        if ei != ej:
+                            source[counter] = ej
+                            target[counter] = ei
+                            weights[counter] = 1
+                            counter += 1
+                    else:
+                        source[counter] = ei
+                        target[counter] = ej
+                        weights[counter] = float(data[2])
+                        counter += 1
+                        if ei != ej:
+                            source[counter] = ej
+                            target[counter] = ei
+                            weights[counter] = float(data[2])
+                            counter += 1
+                    
 
             # Treat dangling nodes.
             unique_elements = set(source)
@@ -226,9 +276,9 @@ class GraphLocal(Graph):
                 print('These nodes are stored in the your_graph_object._dangling.')
                 print('To avoid numerical difficulties we connect each dangling node to another randomly chosen node.')
             
-            source_dangling = np.zeros(len(self._dangling),int)
-            target_dangling = np.zeros(len(self._dangling),int)
-            weights_dangling = np.zeros(len(self._dangling),float)
+            source_dangling = np.zeros(len(self._dangling)*2,int)
+            target_dangling = np.zeros(len(self._dangling)*2,int)
+            weights_dangling = np.zeros(len(self._dangling)*2,float)
             
             counter = 0
             
@@ -236,8 +286,14 @@ class GraphLocal(Graph):
             
             for i in self._dangling:
                 j = np.random.choice(unique_elements)
+                while j == i:
+                    j = np.random.choice(unique_elements)
                 source_dangling[counter] = j
                 target_dangling[counter] = i
+                weights_dangling[counter] = min_weight
+                counter += 1
+                source_dangling[counter] = i
+                target_dangling[counter] = j
                 weights_dangling[counter] = min_weight
                 counter += 1
                 
