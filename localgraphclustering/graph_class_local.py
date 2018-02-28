@@ -8,6 +8,10 @@ import numpy as np
 import warnings
 import collections as cole
 
+import gzip
+import bz2
+import lzma
+
 
 class GraphLocal(Graph):
     """
@@ -118,9 +122,20 @@ class GraphLocal(Graph):
         """
         Reads text from filename.
         """
-        for line in csv.reader(open(filename), delimiter=separator, skipinitialspace=True):
+        if filename.endswith(".gz"):
+            fh = gzip.open(filename, "rt")
+        elif filename.endswith(".bz2"):
+            fh = bz2.open(filename, "rt")
+        elif filename.endswith(".xz"):
+            fh = lzma.open(filename, "rt")
+        else:
+            fh = open(filename, "rt")
+            
+        for line in csv.reader(fh, delimiter=separator, skipinitialspace=True):
             if line:
                 yield line
+                
+        fh.close()
                 
     def list_to_CSR(self,ei,ej,ev):
         """
