@@ -481,7 +481,7 @@ class GraphLocal(Graph):
             # find nodes of largest component
             counter=cole.Counter(self.components)
             maxccnodes = []
-            what_key = next(iter(counter))
+            what_key = counter.most_common(1)[0][0]
             for i in range(self._num_vertices):
                 if what_key == self.components[i]:
                     maxccnodes.append(i)        
