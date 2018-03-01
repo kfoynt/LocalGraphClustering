@@ -55,11 +55,11 @@ class Approximate_PageRank_fast(GraphBase[Input, Output]):
             Regularization parameter for the l1-norm of the model.
 
         xlength: int
-            Default = 1000
+            Default = 10000
             Maximum number of node ids in the solution vector
 
         iterations: int
-            Default = 1000
+            Default = 100000
             Maximum number of iterations of ACL algorithm.
             
         Returns

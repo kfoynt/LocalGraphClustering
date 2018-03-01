@@ -49,7 +49,7 @@ def mqi_wrapper(G,R):
     #print(output_MQI_fast)
     return [output_MQI_fast[0][0].tolist()]
 
-def l1reg_wrapper(G,R,epsilon=1.0e-1,iterations=20):
+def l1reg_wrapper(G,R,epsilon=1.0e-1,iterations=1000):
     l1reg_fast = l1_regularized_PageRank_fast.L1_regularized_PageRank_fast()
     sc_fast = sweepCut_fast.SweepCut_fast()
     S = []
@@ -60,6 +60,17 @@ def l1reg_wrapper(G,R,epsilon=1.0e-1,iterations=20):
             output_l1reg_fast = l1reg_fast.produce([G],R,alpha=alpha,rho=rho,epsilon=epsilon,iterations=iterations)
             output_sc_fast = sc_fast.produce([G],p=output_l1reg_fast[0])
             S.append(output_sc_fast[0][0])
+    return S
+
+def approxPageRank_wrapper(G,R,iterations=10000):
+    pr_clustering = approximate_PageRank_Clustering.Approximate_PageRank_Clustering()
+    S = []
+    rho_list = [1.0e-10,1.0e-8,1.0e-7,1.0e-6,1.0e-5,1.0e-4]
+    for rho in rho_list:
+        a_list = [1-0.99]
+        for alpha in a_list:
+            output_pr_clustering = pr_clustering.produce([g],R,alpha=alpha,rho=rho,iterations=iterations)
+            S.append(output_pr_clustering[0])
     return S
 
 """

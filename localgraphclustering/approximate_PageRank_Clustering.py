@@ -3,7 +3,7 @@ import numpy as np
 from .interface.graph import GraphBase
 from .interface.types.graph import Graph
 from localgraphclustering.aclpagerank_cpp import aclpagerank_cpp
-from localgraphclustering.sweepcut_cpp import sweepcut_cpp
+from localgraphclustering import sweepCut_fast
 
 Input = TypeVar('Input', bound=Graph)
 Output = TypeVar('Output',bound=np.ndarray)
@@ -24,10 +24,10 @@ class Approximate_PageRank_Clustering(GraphBase[Input, Output]):
     def produce(self,
                 inputs: Sequence[Input], 
                 ref_nodes: Sequence[int],
-                iterations: int = 1000,
+                iterations: int = 100000,
                 alpha: float = 0.15,
                 rho: float = 1.0e-6,
-                xlength: int = 1000) -> Sequence[Output]:
+                xlength: int = 10000) -> Sequence[Output]:
         """
         Computes an approximate PageRank vector. Uses the Andersen Chung and Lang (ACL) Algorithm. 
         For details please refer to: R. Andersen, F. Chung and K. Lang. Local Graph Partitioning 
@@ -57,11 +57,11 @@ class Approximate_PageRank_Clustering(GraphBase[Input, Output]):
             Regularization parameter for the l1-norm of the model.
 
         xlength: int
-            Default = 1000
+            Default = 10000
             Maximum number of node ids in the solution vector
 
         iterations: int
-            Default = 1000
+            Default = 100000
             Maximum number of iterations of ACL algorithm.
             
         Returns
@@ -73,6 +73,8 @@ class Approximate_PageRank_Clustering(GraphBase[Input, Output]):
         """ 
             
         output = [[] for i in range(len(inputs))]
+        
+        sc_fast = sweepCut_fast.SweepCut_fast()
 
         counter = 0
 
@@ -82,8 +84,11 @@ class Approximate_PageRank_Clustering(GraphBase[Input, Output]):
 
             (actual_length,actual_xids,actual_values) = aclpagerank_cpp(n,np.uint32(inputs[i].adjacency_matrix.indptr),
                 np.uint32(inputs[i].adjacency_matrix.indices),alpha,rho,[ref_nodes[i]],1,iterations,xlength=xlength)
-            
-            output[counter] = actual_xids
+
+            output_sc_fast = sc_fast.produce([inputs[i]],p=actual_values)
+
+            # Get the rounded solution
+            output[counter] = actual_xids[output_sc_fast[0][0]]
 
             counter += 1
 

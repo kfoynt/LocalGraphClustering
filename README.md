@@ -6,8 +6,9 @@ Local Graph Clustering provides
 - methods that improve a given cluster
 - methods for global graph partitioning
 - tools to compute [Network Community Profiles](http://www.tandfonline.com/doi/abs/10.1080/15427951.2009.10129177)
+- scalable graph analytics on your laptop
 
-The current version is 0.4.1 and it is appropriate for experts and intermediates. Contact information for any questions and feedback is given below.
+The current version is 0.4.2 and it is appropriate for experts and intermediates. Contact information for any questions and feedback is given below.
 
 ### Authors
 
@@ -135,6 +136,10 @@ For visual demonstration of algorithms that can improve a given seed set of node
 ## Examples with visualization for bioinformatics networks
 
 For examples with visualization see the Jupyter notebook [bioinformatics examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples_Bioinformatics_with_visualization.ipynb).
+
+## Scalable graph analytics on your laptop
+
+For examples using reasonably large graphs (100 - 200 million edges) on a 16GB RAM laptop please see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples_scalable_graph_analytics.ipynb)
 
 ## Advanced examples
 

@@ -52,7 +52,7 @@ class Approximate_PageRank_weighted_fast(GraphBase[Input, Output]):
             Default == 0.15
             Teleportation parameter of the personalized PageRank linear system.
             The smaller the more global the personalized PageRank vector is.
-
+            
         rho: float
             Defaul == 1.0e-6
             Regularization parameter for the l1-norm of the model.
