@@ -357,6 +357,13 @@ class GraphLocal(Graph):
             return
         
         self.compute_statistics()
+        
+    def discard_weights(self):
+        """ Discard any weights that were loaded from the data file.
+        This sets all the weights associated with each edge to 1.0, 
+        which is our "no weight" case."""
+        self.adjacency_matrix.data.fill(1.0)
+        self.compute_statistics()
 
     def compute_statistics(self):
         """
