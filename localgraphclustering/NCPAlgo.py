@@ -10,6 +10,7 @@ from localgraphclustering import capacity_releasing_diffusion_fast
 from localgraphclustering import MQI_fast
 from localgraphclustering import l1_regularized_PageRank_fast
 from localgraphclustering import sweepCut_fast
+from localgraphclustering import approximate_PageRank_Clustering
 
 def graph_set_scores(graph, R):
     voltrue = sum(graph.d[R])     
@@ -69,7 +70,7 @@ def approxPageRank_wrapper(G,R,iterations=10000):
     for rho in rho_list:
         a_list = [1-0.99]
         for alpha in a_list:
-            output_pr_clustering = pr_clustering.produce([g],R,alpha=alpha,rho=rho,iterations=iterations)
+            output_pr_clustering = pr_clustering.produce([G],R,alpha=alpha,rho=rho,iterations=iterations)
             S.append(output_pr_clustering[0])
     return S
 
