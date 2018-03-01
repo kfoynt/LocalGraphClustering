@@ -46,7 +46,7 @@ class Ncp(GraphBase[Input, Output]):
 
         method: str
             Choose either Capacity Releasing Diffusion or Max Flow Quotient Cut Improvement as the local clustering
-            method, must be "crd", "mqi" or "l1reg".
+            method, must be "crd", "mqi", "l1reg" or "approxPageRank".
 
         ratio: float
             Ratio of nodes to be used for computation of NCP.
@@ -80,8 +80,8 @@ class Ncp(GraphBase[Input, Output]):
             Tolerance for FISTA for solving the l1-regularized personalized PageRank problem.
           
         iterations: integer
-            default = 20
-            Maximum number of iterations of Capacity Releasing Diffusion Algorithm or l1_regularized Pagerank.
+            default = 20, 1000, 10000
+            Maximum number of iterations of Capacity Releasing Diffusion Algorithm, l1_regularized Pagerank and Approximate PageRank.
 
         Returns
         -------
@@ -101,6 +101,9 @@ class Ncp(GraphBase[Input, Output]):
             ncp.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout)
         elif method == "l1reg":
             ncp.default_method = lambda G,R: l1reg_wrapper(G,R,epsilon=epsilon)
+            ncp.add_random_node_samples(ratio=ratio,nthreads=nthreads,timeout=timeout)
+        elif method == "approxPageRank":  
+            ncp.default_method = lambda G,R: approxPageRank_wrapper(G,R)
             ncp.add_random_node_samples(ratio=ratio,nthreads=nthreads,timeout=timeout)
         else:
             raise(ValueError("Must specify a method (crd, mqi or l1reg)."))
