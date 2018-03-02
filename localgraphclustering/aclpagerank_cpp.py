@@ -13,10 +13,10 @@ from operator import itemgetter
 import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
-from localgraphclustering.find_library import load_library
+#from localgraphclustering.find_library import load_library
 
 
-def aclpagerank_cpp(n,ai,aj,alpha,eps,seedids,nseedids,maxsteps,xlength=100,flag=0):
+def aclpagerank_cpp(n,ai,aj,alpha,eps,seedids,nseedids,maxsteps,lib,xlength=100,flag=0):
 
     float_type = ctypes.c_double
 
@@ -25,7 +25,7 @@ def aclpagerank_cpp(n,ai,aj,alpha,eps,seedids,nseedids,maxsteps,xlength=100,flag
     dt = np.dtype(aj[0])
     (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
     
-    lib = load_library()
+    #lib = load_library()
 
     if (vtype, itype) == (np.int64, np.int64):
         fun = lib.aclpagerank64

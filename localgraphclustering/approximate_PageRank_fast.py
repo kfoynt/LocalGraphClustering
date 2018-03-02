@@ -83,7 +83,7 @@ class Approximate_PageRank_fast(GraphBase[Input, Output]):
             n = inputs[i].adjacency_matrix.shape[0]
 
             (actual_length,actual_xids,actual_values) = aclpagerank_cpp(n,np.uint32(inputs[i].adjacency_matrix.indptr),
-                np.uint32(inputs[i].adjacency_matrix.indices),alpha,rho,[ref_nodes[i]],1,iterations,xlength=xlength)
+                np.uint32(inputs[i].adjacency_matrix.indices),alpha,rho,[ref_nodes[i]],1,iterations,inputs[i].lib,xlength=xlength)
             
             output[counter] = [actual_xids,actual_values]
 

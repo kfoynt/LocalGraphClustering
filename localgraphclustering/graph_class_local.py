@@ -7,6 +7,7 @@ import scipy.sparse.linalg as splinalg
 import numpy as np
 import warnings
 import collections as cole
+from localgraphclustering.find_library import *
 
 import gzip
 import bz2
@@ -117,6 +118,14 @@ class GraphLocal(Graph):
 
         if filename != None:
             self.read_graph(filename, file_type, separator)
+        self.load_library()
+
+    def load_library(self):
+        self.lib = load_library()
+        return is_loaded(self.lib._name)
+
+    def reload_library(self):
+        self.lib = reload_library(self.lib)
 
     def import_text(self, filename, separator):
         """

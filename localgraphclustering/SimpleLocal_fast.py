@@ -58,7 +58,7 @@ class SimpleLocal_fast(GraphBase[Input, Output]):
             n = input.adjacency_matrix.shape[0]
 
             (actual_length,actual_xids) = SimpleLocal_cpp(n,np.int64(input.adjacency_matrix.indptr),
-                np.int64(input.adjacency_matrix.indices),len(ref_node[counter]),ref_node[counter],delta)
+                np.int64(input.adjacency_matrix.indices),len(ref_node[counter]),ref_node[counter],delta,input.lib)
             
             output[counter] = [actual_xids]
 
