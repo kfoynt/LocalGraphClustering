@@ -8,8 +8,12 @@ import math
 from localgraphclustering.NCPAlgo import * 
 
 class NCPData:    
-    def __init__(self, graph, setfuncs=[],input_stats=True):
-        self.graph = graph.largest_component()
+    def __init__(self, graph, setfuncs=[],input_stats=True,do_largest_component=True):
+        if do_largest_component:
+            self.graph = graph.largest_component()
+        else:
+            self.graph = graph
+            
         # Todo - have "largest_component" return a graph for the largest component
         self.input_stats = input_stats
         self.set_funcs = setfuncs        

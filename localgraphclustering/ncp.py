@@ -26,6 +26,7 @@ class Ncp(GraphBase[Input, Output]):
                 ratio: float = 0.3,
                 timeout: float = 1000,
                 nthreads: int = 4,
+                do_largest_component: bool = True,
                 U: int = 3,
                 h: int = 10,
                 w: int = 2,
@@ -62,6 +63,12 @@ class Ncp(GraphBase[Input, Output]):
         nthreads: int
             default = 4
             Choose the number of threads used for NCP calculation
+            
+        do_largest_component: bool
+            default = True
+            If true it computes the NCP for the largest connected component.
+            This task might double the required memory. If False then it computes
+            the NCP for the given graph. This taks has minimal memory requirements.
 
         U: integer
             default == 3
@@ -91,7 +98,7 @@ class Ncp(GraphBase[Input, Output]):
         """ 
         G = input
         G.compute_statistics()
-        ncp = NCPData(G)      
+        ncp = NCPData(G,do_largest_component=do_largest_component)      
         if method == "crd":
             ncp.default_method = lambda G,R: crd_wrapper(G,R,w=w, U=U, h=h, iterations=iterations)
             ncp.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout)
