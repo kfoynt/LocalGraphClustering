@@ -10,10 +10,10 @@ from operator import itemgetter
 import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
-from localgraphclustering.find_library import load_library
+#from localgraphclustering.find_library import load_library
 
 
-def densest_subgraph_cpp(n,ai,aj,a):
+def densest_subgraph_cpp(n,ai,aj,a,lib):
     
     float_type = ctypes.c_double
     
@@ -22,7 +22,7 @@ def densest_subgraph_cpp(n,ai,aj,a):
     dt = np.dtype(aj[0])
     (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
     
-    lib = load_library()
+    #lib = load_library()
 
     if (vtype, itype) == (np.int64, np.int64):
         fun = lib.densest_subgraph64

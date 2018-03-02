@@ -53,7 +53,7 @@ class densest_subgraph_fast(GraphBase[Input, Output]):
             n = input.adjacency_matrix.shape[0]
 
             (density,actual_xids) = densest_subgraph_cpp(n,np.int64(input.adjacency_matrix.indptr),
-                np.int64(input.adjacency_matrix.indices),np.float64(input.adjacency_matrix.data/2))
+                np.int64(input.adjacency_matrix.indices),np.float64(input.adjacency_matrix.data/2),input.lib)
             
             output[counter] = [density,actual_xids]
 

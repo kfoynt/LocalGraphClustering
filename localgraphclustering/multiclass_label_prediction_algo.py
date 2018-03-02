@@ -80,7 +80,7 @@ def multiclass_label_prediction_algo(labels, g, alpha = 0.15, rho = 1.0e-10, eps
             uint_indptr = np.uint32(g.adjacency_matrix.indptr) 
             uint_indices = np.uint32(g.adjacency_matrix.indices)
         
-            (not_converged,grad,output_fista) = proxl1PRaccel(uint_indptr, uint_indices, g.adjacency_matrix.data, labels_i, g.d, g.d_sqrt, g.dn_sqrt, alpha = alpha, rho = rho, epsilon = epsilon, maxiter = max_iter, max_time = max_time)
+            (not_converged,grad,output_fista) = proxl1PRaccel(uint_indptr, uint_indices, g.adjacency_matrix.data, labels_i, g.d, g.d_sqrt, g.dn_sqrt, g.lib, alpha = alpha, rho = rho, epsilon = epsilon, maxiter = max_iter, max_time = max_time)
         
         p = np.zeros(n)
         for i in range(n):

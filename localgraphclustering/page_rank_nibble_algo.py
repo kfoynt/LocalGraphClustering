@@ -82,7 +82,7 @@ def page_rank_nibble_algo(g,ref_node,vol,phi = 0.5,algorithm='fista',epsilon=1.0
             uint_indptr = np.uint32(g.adjacency_matrix.indptr) 
             uint_indices = np.uint32(g.adjacency_matrix.indices)
 
-            (not_converged,grad,p) = proxl1PRaccel(uint_indptr, uint_indices, g.adjacency_matrix.data, ref_node, g.d, g.d_sqrt, g.dn_sqrt, alpha = alpha, rho = rho, epsilon = epsilon, maxiter = max_iter, max_time = max_time)
+            (not_converged,grad,p) = proxl1PRaccel(uint_indptr, uint_indices, g.adjacency_matrix.data, ref_node, g.d, g.d_sqrt, g.dn_sqrt, g.lib, alpha = alpha, rho = rho, epsilon = epsilon, maxiter = max_iter, max_time = max_time)
             p = np.abs(p)
     elif algorithm == 'ista':
         p = ista_dinput_dense(ref_node, g, alpha = alpha, rho = rho, epsilon = epsilon, max_iter = max_iter, max_time = max_time)

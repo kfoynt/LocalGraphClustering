@@ -106,7 +106,7 @@ class Capacity_Releasing_Diffusion_fast(GraphBase[Input, Output]):
 
         cut = capacity_releasing_diffusion_cpp(n,np.uint32(inputs[i].adjacency_matrix.indptr),
             np.uint32(inputs[i].adjacency_matrix.indices),np.float64(inputs[i].adjacency_matrix.data),
-            U,h,w,iterations,[ref_nodes[i]])
+            U,h,w,iterations,[ref_nodes[i]],inputs[i].lib)
             
         output[counter] = cut
 

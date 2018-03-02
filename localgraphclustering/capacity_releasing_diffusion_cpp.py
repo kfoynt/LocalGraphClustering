@@ -2,10 +2,10 @@ from operator import itemgetter
 import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
-from localgraphclustering.find_library import load_library
+#from localgraphclustering.find_library import load_library
 
 
-def capacity_releasing_diffusion_cpp(n,ai,aj,a,U,h,w,iterations,ref_node):
+def capacity_releasing_diffusion_cpp(n,ai,aj,a,U,h,w,iterations,ref_node,lib):
     
     float_type = ctypes.c_double
     
@@ -14,7 +14,7 @@ def capacity_releasing_diffusion_cpp(n,ai,aj,a,U,h,w,iterations,ref_node):
     dt = np.dtype(aj[0])
     (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
     
-    lib = load_library()
+    #lib = load_library()
 
     if (vtype, itype) == (np.int64, np.int64):
         fun = lib.capacity_releasing_diffusion64

@@ -77,7 +77,7 @@ class SweepCut_fast(GraphBase[Input, Output]):
 
             (actual_length,bestclus,best_conductance) = sweepcut_cpp(n, 
                 np.uint32(input.adjacency_matrix.indptr), np.uint32(input.adjacency_matrix.indices), 
-                input.adjacency_matrix.data, nnz_idx, nnz_ct, sc_p, 1 - do_sort)
+                input.adjacency_matrix.data, nnz_idx, nnz_ct, sc_p, 1 - do_sort,input.lib)
 
             best_cluster = bestclus.tolist()
             

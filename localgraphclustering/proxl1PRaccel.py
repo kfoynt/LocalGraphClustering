@@ -21,9 +21,9 @@ from operator import itemgetter
 import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
-from localgraphclustering.find_library import load_library
+#from localgraphclustering.find_library import load_library
 
-def proxl1PRaccel(ai,aj,a,ref_node,d,ds,dsinv,y=[],alpha = 0.15,rho = 1.0e-5,epsilon = 1.0e-4,maxiter = 10000,max_time = 100):
+def proxl1PRaccel(ai,aj,a,ref_node,d,ds,dsinv,lib,y=[],alpha = 0.15,rho = 1.0e-5,epsilon = 1.0e-4,maxiter = 10000,max_time = 100):
     n = len(ai) - 1
     float_type = ctypes.c_double
     dt = np.dtype(ai[0])
@@ -31,7 +31,7 @@ def proxl1PRaccel(ai,aj,a,ref_node,d,ds,dsinv,y=[],alpha = 0.15,rho = 1.0e-5,eps
     dt = np.dtype(aj[0])
     (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
 
-    lib = load_library()
+    #lib = load_library()
     
     if (vtype, itype) == (np.int64, np.int64):
         fun = lib.proxl1PRaccel64

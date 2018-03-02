@@ -87,7 +87,7 @@ class Approximate_PageRank_weighted_fast(GraphBase[Input, Output]):
 
             (actual_length,actual_xids,actual_values) = aclpagerank_weighted_cpp(n,np.uint32(inputs[i].adjacency_matrix.indptr),
                 np.uint32(inputs[i].adjacency_matrix.indices),np.uint32(inputs[i].adjacency_matrix.data),alpha,rho,
-                [ref_nodes[i]],1,iterations,xlength=xlength)
+                [ref_nodes[i]],1,iterations,inputs[i].lib,xlength=xlength)
             
             output[counter] = [actual_xids,actual_values]
 
