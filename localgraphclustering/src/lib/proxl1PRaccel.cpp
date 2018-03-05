@@ -45,17 +45,21 @@ double find_max(double* grad, double* ds, vtype n){
 
     template<typename vtype, typename itype>
 void update_grad(double* grad, double* y, vector<double>& c, itype* ai, vtype* aj, double* a,
-                 vtype n, double alpha, double* dsinv, vtype offset)
+                 vtype n, double alpha, double* dsinv, vtype offset, unordered_map<vtype,vtype>& indices)
 {
     for(vtype i = 0; i < n; i ++){
         grad[i] = (1+alpha)/2*y[i] - c[i];
     }
-    for(vtype i = 0; i < n; i ++){
+    vtype temp;
+    for(auto it = indices.begin() ; it != indices.end(); ++it){
+        vtype i = it->first;
         for(itype j = ai[i]-offset; j < ai[i+1]-offset; j ++){
-            grad[i] -= a[j] * y[aj[j]-offset] * dsinv[i] * dsinv[aj[j]-offset] * (1-alpha)/2 * 0.5;
-            grad[aj[j]-offset] -= a[j]* y[i] * dsinv[i] * dsinv[aj[j]-offset] * (1-alpha)/2 * 0.5;
+            temp = aj[j]-offset;
+            if(indices.find(temp) != indices.end()) {
+                grad[i] -= a[j] * y[temp] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5;
+            }
+            grad[temp] -= a[j]* y[i] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5;
         }
-        
     }
 }
 
@@ -73,16 +77,24 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
     for(vtype i = 0; i < 8; i ++){
         cout << a[i] << endl;
     }*/
-    clock_t t1,t2;
+    clock_t t1,t4;
     vtype not_converged = 0;
     vector<double> c (n,0);
     for(vtype i = 0; i < v_nums; i ++){
         grad[v[i]-offset] = -1 * alpha / (v_nums * ds[v[i]-offset]);
         c[v[i]-offset] = -1 * grad[v[i]-offset];
     }
+
+    //Find nonzero indices in y and dsinv
+    unordered_map<vtype,vtype> indices;
+    for (vtype i = 0; i < n; i ++) {
+        if (y[i] != 0 && dsinv[i] != 0) {
+            indices[i] = 0;
+        }
+    }
     
     //New Change for p_0
-    update_grad(grad,y,c,ai,aj,a,n,alpha,dsinv,offset);
+    update_grad(grad,y,c,ai,aj,a,n,alpha,dsinv,offset,indices);
     //cout << "max grad: " << *max_element(grad,grad+n) << " min grad: " << *min_element(grad,grad+n) << endl;
     /*for(vtype i = 0; i < n; i ++){
         cout << grad[i] << endl;
@@ -96,8 +108,10 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
     //cout << thd << " " << find_max<vtype>(grad,ds,n) << endl;
     double thd1,betak;
     t1 = clock();
+    //t2 = clock();
     if(find_max<vtype>(grad,ds,n) > thd) {
         fill(y,y+n,0);
+        indices.clear();
     }
     else {
         for(vtype i = 0; i < n; i ++){
@@ -108,8 +122,19 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
         return not_converged;
     }
     while((iter < (size_t)maxiter) && (find_max<vtype>(grad,ds,n) > thd)){
+        /*
+        t3 = clock();
+        cout << "1: " <<  ((double)t3 - (double)t2)/double(CLOCKS_PER_SEC) << endl;
+        t2 = clock();
+        */
         iter ++;
         q_old = q;
+        if(iter == 1){
+            betak = 0;
+        }
+        else{
+            betak = (1-sqrt(alpha))/(1+sqrt(alpha));
+        }
         for(vtype i = 0; i < n; i ++){
             z = y[i] - grad[i];
             thd1 = rho*alpha*ds[i];
@@ -123,46 +148,28 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
                 q[i] = 0;
             }
         }
-        if(iter == 1){
-            betak = 0;
-        }
-        else{
-            betak = (1-sqrt(alpha))/(1+sqrt(alpha));
-        }
         for(vtype i = 0; i < n; i ++){
             y[i] = q[i] + betak*(q[i]-q_old[i]);
+            if (y[i] != 0 && indices.find(i) == indices.end()) {
+                indices[i] = 0;
+            }
         }
-        update_grad(grad,y,c,ai,aj,a,n,alpha,dsinv,offset);
-        
-        /*if(iter == 1){
-            cout << "y" << endl;
-            for(vtype i = 0; i < n; i ++){
-                cout << y[i] << endl;
-            }
-            cout << "q" << endl;
-            for(vtype i = 0; i < n; i ++){
-                cout << q[i] << endl;
-            }
-            cout << "c" << endl;
-            for(vtype i = 0; i < n; i ++){
-                cout << c[i] << endl;
-            }
-            cout << "grad" << endl;
-            for(vtype i = 0; i < n; i ++){
-                cout << grad[i] << endl;
-            }
-        }*/
-        
-        //cout << "Iteration: " << iter <<endl;
-        
+        /*
+        t3 = clock();
+        cout << "2: " <<  ((double)t3 - (double)t2)/double(CLOCKS_PER_SEC) << endl;
         t2 = clock();
-        if(((double)t2 - (double)t1)/double(CLOCKS_PER_SEC) > max_time){
+        */
+        update_grad(grad,y,c,ai,aj,a,n,alpha,dsinv,offset,indices);
+        /*
+        t3 = clock();
+        cout << "3: " <<  ((double)t3 - (double)t2)/double(CLOCKS_PER_SEC) << endl;
+        t2 = clock();
+        */
+        t4 = clock();
+        if(((double)t4 - (double)t1)/double(CLOCKS_PER_SEC) > max_time){
             not_converged = 1;
             return not_converged;
         }
-        /*if(iter == 1){
-            cout << find_max<vtype>(grad,ds,n) << endl;
-        }*/
     }
     
     if(iter >= (size_t)maxiter){
