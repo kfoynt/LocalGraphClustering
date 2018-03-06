@@ -21,9 +21,6 @@ from localgraphclustering import *
 # We need some Gtk and gobject functions
 from gi.repository import Gtk, Gdk, GdkPixbuf, GObject
 
-# Read graph. This also supports gml and graphml format.
-g = graph_class_local.GraphLocal('brain.graphml','graphml',' ')
-
 # Load local algorithms
 #import local_graph_clustering as lgc
 
@@ -31,19 +28,18 @@ seed(42)
 seed_rng(42)
 
 # Add data to graphtool.
-g_gtool = Graph(directed=False)
-m = g._num_edges
-
-idxs = dict(zip(g.vertices, range(len(g.vertices))))
-iedges = [(idxs[e[0]], idxs[e[1]]) for e in g.edges]
-
-for i in range(m):
-    g_gtool.add_edge(iedges[i][0], iedges[i][1], add_missing=True)
+g_gtool = load_graph("sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh.graphml")
 
 remove_self_loops(g_gtool)
 
 # Load pre-computed coordinates for nodes.
-ld_coord = np.loadtxt('brain_coordinates.xy', dtype = 'str')
+ld_coord = np.loadtxt('sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh_coordinates.xy', dtype = 'str')
+
+temp = []
+for i in ld_coord:
+    temp.append(i[0])
+
+idxs = dict(zip(temp, range(len(temp))))
 
 pos = g_gtool.new_vertex_property("vector<double>")
 for i in ld_coord:

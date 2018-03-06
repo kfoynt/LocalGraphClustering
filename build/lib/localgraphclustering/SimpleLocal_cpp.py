@@ -1,0 +1,49 @@
+# A python wrapper for SimpleLocal
+# ai,aj - graph in CSR
+# n - number of nodes in the graph
+# R - seed set
+# nR - number of nodes in seed set
+# actual_length - number of nodes in the optimal subset
+# ret_set - optimal subset with the smallest conductance
+
+from operator import itemgetter
+import numpy as np
+from numpy.ctypeslib import ndpointer
+import ctypes
+#from localgraphclustering.find_library import load_library
+
+
+def SimpleLocal_cpp(n,ai,aj,nR,R,delta,lib):
+    
+    float_type = ctypes.c_double
+    
+    dt = np.dtype(ai[0])
+    (itype, ctypes_itype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
+    dt = np.dtype(aj[0])
+    (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
+    
+    #lib = load_library()
+
+    if (vtype, itype) == (np.int64, np.int64):
+        fun = lib.SimpleLocal64
+    elif (vtype, itype) == (np.uint32, np.int64):
+        fun = lib.SimpleLocal32_64
+    else:
+        fun = lib.SimpleLocal32
+
+    #call C function
+    R=np.array(R,dtype=vtype)
+    ret_set=np.zeros(n,dtype=vtype)
+    fun.restype=ctypes_vtype
+    fun.argtypes=[ctypes_vtype,ctypes_vtype,
+                  ndpointer(ctypes_itype, flags="C_CONTIGUOUS"),
+                  ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
+                  ctypes_vtype,
+                  ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
+                  ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
+                  float_type]
+    actual_length=fun(n,nR,ai,aj,0,R,ret_set,delta)
+    actual_set=np.empty(actual_length,dtype=vtype)
+    actual_set[:]=[ret_set[i] for i in range(actual_length)]
+    
+    return (actual_length,actual_set)
