@@ -50,9 +50,9 @@ void update_grad(double* grad, double* y, vector<double>& c, itype* ai, vtype* a
     for(vtype i = 0; i < n; i ++){
         grad[i] = (1+alpha)/2*y[i] - c[i];
     }
-    vtype temp,j1;
+    vtype temp;
     
-    /*
+    
     for(auto it = indices.begin() ; it != indices.end(); ++it){
         vtype i = it->first;
         for(itype j = ai[i]-offset; j < ai[i+1]-offset; j ++){
@@ -61,8 +61,8 @@ void update_grad(double* grad, double* y, vector<double>& c, itype* ai, vtype* a
             grad[temp] -= 2*(a[j]* y[i] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5);
         }
     }
-    */
     
+    /*
     for(vtype i = 0; i < n; i ++){
         for(itype j = ai[i]-offset; j < ai[i+1]-offset; j ++){
             temp = aj[j]-offset;
@@ -71,7 +71,7 @@ void update_grad(double* grad, double* y, vector<double>& c, itype* ai, vtype* a
             //grad[temp] -= (a[j]* y[i] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5);
         }
     }
-    
+    */
     
 }
 
