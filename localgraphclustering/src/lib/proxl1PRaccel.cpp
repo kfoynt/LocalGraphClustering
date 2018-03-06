@@ -51,16 +51,28 @@ void update_grad(double* grad, double* y, vector<double>& c, itype* ai, vtype* a
         grad[i] = (1+alpha)/2*y[i] - c[i];
     }
     vtype temp;
+    
+    
     for(auto it = indices.begin() ; it != indices.end(); ++it){
         vtype i = it->first;
         for(itype j = ai[i]-offset; j < ai[i+1]-offset; j ++){
             temp = aj[j]-offset;
-            if(indices.find(temp) != indices.end()) {
-                grad[i] -= a[j] * y[temp] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5;
-            }
-            grad[temp] -= a[j]* y[i] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5;
+            //grad[i] -= a[j] * y[temp] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5;
+            grad[temp] -= 2*(a[j]* y[i] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5);
         }
     }
+    
+    /*
+    for(vtype i = 0; i < n; i ++){
+        for(itype j = ai[i]-offset; j < ai[i+1]-offset; j ++){
+            temp = aj[j]-offset;
+            //grad[i] -= a[j] * y[temp] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5;
+            grad[temp] -= 2*(a[j]* y[i] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5);
+            //grad[temp] -= (a[j]* y[i] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5);
+        }
+    }
+    */
+    
 }
 
     template<typename vtype, typename itype>
@@ -150,7 +162,7 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
         }
         for(vtype i = 0; i < n; i ++){
             y[i] = q[i] + betak*(q[i]-q_old[i]);
-            if (y[i] != 0 && indices.find(i) == indices.end()) {
+            if (y[i] != 0 && indices.find(i) == indices.end() && dsinv[i] != 0) {
                 indices[i] = 0;
             }
         }
