@@ -139,7 +139,7 @@ For examples with visualization see the Jupyter notebook [bioinformatics example
 
 ## Scalable graph analytics on your laptop
 
-For examples using reasonably large graphs (100 - 200 million edges) on a 16GB RAM laptop please see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples_scalable_graph_analytics.ipynb).
+For examples using reasonably large graphs (100 million edges) on a 16GB RAM laptop please see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples_scalable_graph_analytics.ipynb).
 
 ## Advanced examples
 
