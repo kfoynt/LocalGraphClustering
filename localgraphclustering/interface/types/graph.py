@@ -96,12 +96,6 @@ class Graph(metaclass=abc.ABCMeta):
         self.edges = None
 
     @abc.abstractmethod
-    def import_text(self, filename, separator):
-        """
-        Reads text from filename.
-        """
-
-    @abc.abstractmethod
     def read_graph(self, filename, file_type='edgelist', separator='\t'):
         """
         Reads the graph from an edgelist, gml or graphml file and initializes the class attribute adjacency_matrix.
