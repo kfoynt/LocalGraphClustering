@@ -156,15 +156,15 @@ class GraphLocal(Graph):
             else:
                 raise Exception('graph_class_local.read_graph: edges.shape[0] not in (2, 3)')
             
-            self.adjacency_matrix = source, target, weights
+            #self.adjacency_matrix = source, target, weights
             
             self.adjacency_matrix = sp.csr_matrix((weights, (source, target)), shape=(self._num_vertices, self._num_vertices))
-            is_symmetric = (self.adjacency_matrix != self.adjacency_matrix.T).sum() == 0
-            if not is_symmetric:
-                # Symmetrize matrix, choosing larger weight
-                sel = self.adjacency_matrix.T > self.adjacency_matrix
-                self.adjacency_matrix = self.adjacency_matrix - self.adjacency_matrix.multiply(sel) + self.adjacency_matrix.T.multiply(sel)
-                assert (self.adjacency_matrix != self.adjacency_matrix.T).sum() == 0
+            #is_symmetric = (self.adjacency_matrix != self.adjacency_matrix.T).sum() == 0
+            #if not is_symmetric:
+            #    # Symmetrize matrix, choosing larger weight
+            #    sel = self.adjacency_matrix.T > self.adjacency_matrix
+            #    self.adjacency_matrix = self.adjacency_matrix - self.adjacency_matrix.multiply(sel) + self.adjacency_matrix.T.multiply(sel)
+            #    assert (self.adjacency_matrix != self.adjacency_matrix.T).sum() == 0
                 
             self._num_edges = self.adjacency_matrix.nnz
             
