@@ -1,1 +1,2 @@
-PYTHONPATH="."  python3 -m pytest localgraphclustering/tests/
+#!/bin/bash
+PYTHONPATH="."  python3 -m pytest localgraphclustering/tests/ "$@"

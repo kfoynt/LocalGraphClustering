@@ -395,7 +395,7 @@ vtype graph<vtype,itype>::SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double
     set_stats = get_stats(S,S.size());
     alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), ai[n] - get<0>(set_stats));
     //cout << "after first step: " << alpha << endl;
-    vtype actual_length;
+    vtype actual_length=0;
     while (alpha < alph0) {
         actual_length = S.size();
         vtype pos = 0;
@@ -417,7 +417,6 @@ vtype graph<vtype,itype>::SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double
         else {
             alpha = numeric_limits<double>::max();
         }
-        
     }
     
     //cout << alpha << min(get<0>(set_stats), ai[n] - get<0>(set_stats)) << endl;
