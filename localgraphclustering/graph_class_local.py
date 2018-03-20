@@ -306,6 +306,37 @@ class GraphLocal(Graph):
         cond_R = cut_R/min(vol_R,self.vol_G - vol_R)
         
         return cond_R
+        
+    def set_scores(self,R):
+        """
+        Return various metrics of a set of vertices.
+        """
+        
+        voltrue = sum(self.d[R])     
+        v_ones_R = np.zeros(self._num_vertices)
+        v_ones_R[R] = 1
+        cut = voltrue - np.dot(v_ones_R,self.adjacency_matrix.dot(v_ones_R.T))
+
+        voleff = min(voltrue,self.vol_G - voltrue)
+        
+        sizetrue = len(R)
+        sizeeff = sizetrue
+        if voleff < voltrue:
+            sizeeff = self._num_vertices - sizetrue
+            
+        # remove the stuff we don't want returned...
+        del R
+        del self
+        del v_ones_R
+
+        edgestrue = voltrue - cut
+        edgeseff = voleff - cut
+        
+        cond = cut / voleff if voleff != 0 else 1
+        isop = cut / sizeeff
+        
+        # make a dictionary out of local variables
+        return locals()
 
     def largest_component(self):
         self.connected_components()
