@@ -375,10 +375,21 @@ void clear_map(unordered_map<vtype,itype>& M)
 }
 
 template<typename vtype, typename itype>
+void copy_results(unordered_map<vtype,vtype>& S, vtype* ret_set, vtype* actual_length)
+{
+	*actual_length = S.size();
+	vtype pos = 0;
+    for (auto iter = S.begin(); iter != S.end(); ++ iter) {
+         ret_set[pos++] = iter->first;
+    }
+}
+
+template<typename vtype, typename itype>
 vtype graph<vtype,itype>::SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double delta)
 {
     unordered_map<vtype,vtype> fullyvisited, S;
     unordered_map<vtype,vtype> R_map;
+    vtype actual_length;
     init_fullyvisited_R(fullyvisited, R_map, nR, R);
     pair<itype, itype> set_stats = get_stats(fullyvisited,fullyvisited.size());
     double alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), ai[n] - get<0>(set_stats));
@@ -390,18 +401,21 @@ vtype graph<vtype,itype>::SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double
     clear_map<vtype,vtype>(S);
     STAGEFLOW(delta, alpha, beta, fullyvisited, R_map, S);
 
-    //cout << "here" << endl;
+    if (S.size() == 0) {
+    	copy_results<vtype,itype>(R_map,ret_set,&actual_length);
+    	return actual_length;
+    }
 
     set_stats = get_stats(S,S.size());
     alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), ai[n] - get<0>(set_stats));
     //cout << "after first step: " << alpha << endl;
-    vtype actual_length;
+    
+    if (alpha >= alph0) {
+        copy_results<vtype,itype>(R_map,ret_set,&actual_length);
+        return actual_length;
+    }
     while (alpha < alph0) {
-        actual_length = S.size();
-        vtype pos = 0;
-        for (auto iter = S.begin(); iter != S.end(); ++ iter) {
-             ret_set[pos++] = iter->first;
-        }
+        copy_results<vtype,itype>(S,ret_set,&actual_length);
         alph0 = alpha;
         beta = alpha * (fR + delta);
         clear_map<vtype,vtype>(fullyvisited);
@@ -421,7 +435,6 @@ vtype graph<vtype,itype>::SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double
     }
     
     //cout << alpha << min(get<0>(set_stats), ai[n] - get<0>(set_stats)) << endl;
-
     return actual_length;
     //return 0;
 }

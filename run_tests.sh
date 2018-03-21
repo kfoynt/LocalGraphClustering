@@ -1,1 +1,1 @@
-PYTHONPATH="."  python3 -m pytest localgraphclustering/tests/
+PYTHONPATH="."  python3 -m pytest -s localgraphclustering/tests
