@@ -1,4 +1,3 @@
-
 from localgraphclustering import *
 import time
 
@@ -31,14 +30,18 @@ def test_algs():
 
     # Conductance before improvement
     print("Conductance before improvement:",g.compute_conductance(eig2_rounded))
+    print(eig2_rounded)
 
     # Start calling SimpleLocal
     start = time.time()
     output_SL_fast = SL_fast.produce([g],[eig2_rounded])
     end = time.time()
     print("running time:",str(end-start)+"s")
+    print(output_SL_fast)
 
     # Conductance after improvement
     print("Conductance after improvement:",g.compute_conductance(output_SL_fast[0][0]))
 
     output_SL = output_SL_fast[0][0]
+
+test_algs()
