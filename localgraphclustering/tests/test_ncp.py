@@ -35,4 +35,32 @@ def test_ncp_l1reg():
     G = load_example_graph()
     df = localgraphclustering.ncp.Ncp().produce(G,"l1reg",ratio=1)    
     print(df)
-    
+
+def test_ncp_crd():
+    G = graph_class_local.GraphLocal()
+    G.read_graph("../../notebooks/datasets/neuro-fmri-01.edges","edgelist", " ")
+    ncp_instance = ncp.Ncp()
+    df = ncp_instance.produce(G,method="crd",ratio=0.5,w=10,U=10,h=1000,do_largest_component=True)
+    ncp_plots = ncpplots.NCPPlots(df)
+    #plot conductance vs size
+    ncp_plots.cond_by_size()
+    #plot conductance vs volume
+    ncp_plots.cond_by_vol()
+    #plot isoperimetry vs size
+    ncp_plots.isop_by_size()
+
+def test_ncp_l1reg():
+    G = graph_class_local.GraphLocal()
+    G.read_graph("../../notebooks/datasets/neuro-fmri-01.edges","edgelist", " ")
+    ncp_instance = ncp.Ncp()
+    df = ncp_instance.produce(G,method="l1reg",ratio=0.5,do_largest_component=True)
+    ncp_plots = ncpplots.NCPPlots(df)
+    #plot conductance vs size
+    ncp_plots.cond_by_size()
+    #plot conductance vs volume
+    ncp_plots.cond_by_vol()
+    #plot isoperimetry vs size
+    ncp_plots.isop_by_size()
+
+def read_minnesota():
+    g = graph_class_local.GraphLocal('../../notebooks/datasets/minnesota.edgelist','edgelist',' ')
