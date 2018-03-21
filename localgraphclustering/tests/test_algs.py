@@ -30,7 +30,7 @@ def test_algs():
 
     # Conductance before improvement
     print("Conductance before improvement:",g.compute_conductance(eig2_rounded))
-    print(eig2_rounded)
+    #print(eig2_rounded)
 
     # Start calling SimpleLocal
     start = time.time()
@@ -44,4 +44,3 @@ def test_algs():
 
     output_SL = output_SL_fast[0][0]
 
-test_algs()

@@ -143,19 +143,21 @@ class GraphLocal(Graph):
         """
         if file_type == 'edgelist':
             
-            edges = np.array(pd.read_csv(filename, sep=separator, header=None))
+            dtype = {0:'int32', 1:'int32', 2:'float64'}
+            df = pd.read_csv(filename, sep=separator, header=None, dtype=dtype)
             
-            self._num_vertices = edges[:,:2].max() + 1
             
-            source  = edges[:,0]
-            target  = edges[:,1]
-            if edges.shape[1] == 2:
+            source = df[0].values
+            target = df[1].values
+            if df.shape[1] == 2:
                 weights = np.ones(edges.shape[0])
-            elif edges.shape[1] == 3:
-                weights = edges[:,2]
+            elif df.shape[1] == 3:
+                weights = df[2].values
             else:
-                raise Exception('graph_class_local.read_graph: edges.shape[0] not in (2, 3)')
+                raise Exception('graph_class_local.read_graph: df.shape[1] not in (2, 3)')
             
+            
+            self._num_vertices = max(source.max() + 1, target.max()+1)
             #self.adjacency_matrix = source, target, weights
             
             self.adjacency_matrix = sp.csr_matrix((weights, (source, target)), shape=(self._num_vertices, self._num_vertices))

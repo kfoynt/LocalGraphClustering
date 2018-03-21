@@ -1,4 +1,5 @@
 import localgraphclustering
+import pytest
 
 def load_example_graph():
     return localgraphclustering.graph_class_local.GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ")
@@ -25,18 +26,21 @@ def test_ncp_mqi():
     
 def test_ncp_crd():
     G = load_example_graph()
-    df = localgraphclustering.ncp.Ncp().produce(G,"crd",ratio=1)    
+    df = localgraphclustering.ncp.Ncp().produce(G,method="crd",ratio=1)    
 
 def test_ncp_apr():
     G = load_example_graph()
-    df = localgraphclustering.ncp.Ncp().produce(G,"approxPageRank",ratio=1)    
+    df = localgraphclustering.ncp.Ncp().produce(G,method="approxPageRank",ratio=1)    
     
 def test_ncp_l1reg():
     G = load_example_graph()
-    df = localgraphclustering.ncp.Ncp().produce(G,"l1reg",ratio=1)    
+    df = localgraphclustering.ncp.Ncp().produce(G,method="l1reg",ratio=1)    
     print(df)
 
-def test_ncp_crd():
+
+
+@pytest.mark.long_tests
+def test_ncp_crd_big():
     G = localgraphclustering.graph_class_local.GraphLocal()
     G.read_graph("notebooks/datasets/neuro-fmri-01.edges","edgelist", " ")
     ncp_instance = localgraphclustering.ncp.Ncp()
@@ -49,18 +53,14 @@ def test_ncp_crd():
     #plot isoperimetry vs size
     ncp_plots.isop_by_size()
 
-def test_ncp_l1reg():
+@pytest.mark.long_tests
+def test_ncp_l1reg_big():
     G = localgraphclustering.graph_class_local.GraphLocal()
     G.read_graph("notebooks/datasets/neuro-fmri-01.edges","edgelist", " ")
+    Glcc = G.largest_component()
+    print(Glcc.adjacency_matrix.data)
     ncp_instance = localgraphclustering.ncp.Ncp()
     df = ncp_instance.produce(G,method="l1reg",ratio=0.5,do_largest_component=True)
-    ncp_plots = localgraphclustering.ncpplots.NCPPlots(df)
-    #plot conductance vs size
-    ncp_plots.cond_by_size()
-    #plot conductance vs volume
-    ncp_plots.cond_by_vol()
-    #plot isoperimetry vs size
-    ncp_plots.isop_by_size()
 
 def read_minnesota():
     g = localgraphclustering.graph_class_local.GraphLocal('notebooks/datasets/minnesota.edgelist','edgelist',' ')

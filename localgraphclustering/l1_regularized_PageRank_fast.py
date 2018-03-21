@@ -104,6 +104,13 @@ class L1_regularized_PageRank_fast(GraphBase[Input, Output]):
         
         else:
             if ys == None:
-                return [proxl1PRaccel(np.uint32(inputs[i].adjacency_matrix.indptr) , np.uint32(inputs[i].adjacency_matrix.indices), inputs[i].adjacency_matrix.data, ref_nodes[i], inputs[i].d, inputs[i].d_sqrt, inputs[i].dn_sqrt, inputs[i].lib, alpha = alpha, rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2] for i in range(len(inputs))]                
+                return [proxl1PRaccel(
+                            np.uint32(inputs[i].adjacency_matrix.indptr) , 
+                            np.uint32(inputs[i].adjacency_matrix.indices), 
+                            inputs[i].adjacency_matrix.data, 
+                            ref_nodes[i], 
+                            inputs[i].d, 
+                            inputs[i].d_sqrt, 
+                            inputs[i].dn_sqrt, inputs[i].lib, alpha = alpha, rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2] for i in range(len(inputs))]                
             else:
                 return [proxl1PRaccel(np.uint32(inputs[i].adjacency_matrix.indptr) , np.uint32(inputs[i].adjacency_matrix.indices), inputs[i].adjacency_matrix.data, ref_nodes[i], inputs[i].d, inputs[i].d_sqrt, inputs[i].dn_sqrt, ys[i], inputs[i].lib, alpha = alpha, rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2] for i in range(len(inputs))]

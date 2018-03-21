@@ -316,7 +316,7 @@ class Ncp(GraphBase[Input, Output]):
         ncp = NCPData(G,do_largest_component=do_largest_component)
         
         if method == "crd":
-            func = lambda G,R: simple_crd(G,R,w=w, U=U, h=h, iterations=iterations)
+            func = lambda G,R: simple_crd(G,R,w=w, U=U, h=h)
             ncp.add_random_neighborhood_samples(method=func,methodname="crd",
                 ratio=ratio,nthreads=nthreads,timeout=timeout/2)
             ncp.add_random_node_samples(method=func,methodname="crd",

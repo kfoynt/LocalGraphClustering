@@ -14,17 +14,8 @@ def find_path():
     else:
         print("Unknown system type!")
         return (True,0,0)
-    cwd = os.getcwd()
-    try:
-        #try to load system-wide package first
-        path = sys.path
-        while ("" in path) or (cwd in path):
-            if "" in path: path.remove("") 
-            if cwd in path: path.remove(cwd)
-        path_lgc = imp.find_module('localgraphclustering',path)[1]
-    except ImportError:
-        #if package is not installed, try to import from current directory
-        path_lgc = imp.find_module('localgraphclustering')[1]
+    
+    path_lgc = imp.find_module('localgraphclustering')[1]
     return path_lgc+"/src/lib/graph_lib_test/libgraph"+extension
 
 def load_library():

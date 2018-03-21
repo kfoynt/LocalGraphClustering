@@ -29,7 +29,7 @@ def simple_l1_diffusion(G,R,alpha,rho,epsilon=1.0e-1,iterations=1000):
     l1reg_fast = l1_regularized_PageRank_fast.L1_regularized_PageRank_fast()
     sc_fast = sweepCut_fast.SweepCut_fast()
     output_l1reg_fast = l1reg_fast.produce([G],R,alpha=alpha,rho=rho,epsilon=epsilon,iterations=iterations)
-    return sc_fast.produce([G],p=output_l1reg_fast[0])[0][0].tolist()
+    return sc_fast.produce([G],p=output_l1reg_fast[0])[0][0]
 
 def simple_approx_pagerank(G,R,alpha,rho,iterations=10000):
     pr_clustering = approximate_PageRank_Clustering.Approximate_PageRank_Clustering()

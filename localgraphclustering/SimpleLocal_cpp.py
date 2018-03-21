@@ -43,7 +43,7 @@ def SimpleLocal_cpp(n,ai,aj,nR,R,delta,lib):
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
                   float_type]
     actual_length=fun(n,nR,ai,aj,0,R,ret_set,delta)
-    print(actual_length)
+    #print(actual_length)
     actual_set=np.empty(actual_length,dtype=vtype)
     actual_set[:]=[ret_set[i] for i in range(actual_length)]
     
