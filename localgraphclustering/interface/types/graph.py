@@ -59,7 +59,7 @@ class Graph(metaclass=abc.ABCMeta):
         Core number for each vertex
     """
 
-    def __init__(self, filename = None, file_type='edgelist', separator='\t'):
+    def __init__(self, filename = None, file_type='edgelist', separator='\t',remove_whitespace=False):
         """
         Initializes the graph from a gml or a edgelist file and initializes the attributes of the class.
 
@@ -75,6 +75,10 @@ class Graph(metaclass=abc.ABCMeta):
         separator : string
             used if file_type = 'edgelist'
             Default = '\t'
+
+        remove_whitespace : bool
+            set it to be True when there is more than one kinds of separators in the file
+            Default = False
         """
 
         self.adjacency_matrix = None
@@ -96,7 +100,7 @@ class Graph(metaclass=abc.ABCMeta):
         self.edges = None
 
     @abc.abstractmethod
-    def read_graph(self, filename, file_type='edgelist', separator='\t'):
+    def read_graph(self, filename, file_type='edgelist', separator='\t', remove_whitespace=False):
         """
         Reads the graph from an edgelist, gml or graphml file and initializes the class attribute adjacency_matrix.
 
@@ -112,6 +116,10 @@ class Graph(metaclass=abc.ABCMeta):
         separator : string
             used if file_type = 'edgelist'
             Default = '\t'
+
+        remove_whitespace : bool
+            set it to be True when there is more than one kinds of separators in the file
+            Default = False
         """
 
     @abc.abstractmethod
