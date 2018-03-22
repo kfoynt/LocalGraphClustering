@@ -92,7 +92,7 @@ class GraphLocal(Graph):
     neighbors(vertex)
         Returns a list with the neighbors of the given vertex
     """
-    def __init__(self, filename = None, file_type='edgelist', separator='\t'):
+    def __init__(self, filename = None, file_type='edgelist', separator='\t',remove_whitespace=False):
         """
         Initializes the graph from a gml or a edgelist file and initializes the attributes of the class.
 
@@ -109,11 +109,15 @@ class GraphLocal(Graph):
         separator : string
             used if file_type = 'edgelist'
             Default = '\t'
+
+        remove_whitespace : bool
+            set it to be True when there is more than one kinds of separators in the file
+            Default = False
         """
-        super().__init__(filename,file_type,separator)
+        super().__init__(filename,file_type,separator,remove_whitespace)
 
         if filename != None:
-            self.read_graph(filename, file_type, separator)
+            self.read_graph(filename, file_type, separator, remove_whitespace)
         
         self.load_library()
 
@@ -124,7 +128,7 @@ class GraphLocal(Graph):
     def reload_library(self):
         self.lib = reload_library(self.lib)
         
-    def read_graph(self, filename, file_type='edgelist', separator='\t'):
+    def read_graph(self, filename, file_type='edgelist', separator='\t', remove_whitespace=False):
         """
         Reads the graph from an edgelist, gml or graphml file and initializes the class attribute adjacency_matrix.
 
@@ -140,11 +144,18 @@ class GraphLocal(Graph):
         separator : string
             used if file_type = 'edgelist'
             Default = '\t'
+
+        remove_whitespace : bool
+            set it to be True when there is more than one kinds of separators in the file
+            Default = False
         """
         if file_type == 'edgelist':
             
             dtype = {0:'int32', 1:'int32', 2:'float64'}
-            df = pd.read_csv(filename, sep=separator, header=None, dtype=dtype)
+            if remove_whitespace:
+                df = pd.read_csv(filename, header=None, dtype=dtype, delim_whitespace=True)
+            else:
+                df = pd.read_csv(filename, sep=separator, header=None, dtype=dtype)
             
             
             source = df[0].values
