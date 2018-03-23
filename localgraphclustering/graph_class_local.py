@@ -161,7 +161,7 @@ class GraphLocal(Graph):
             source = df[0].values
             target = df[1].values
             if df.shape[1] == 2:
-                weights = np.ones(edges.shape[0])
+                weights = np.ones(source.shape[0])
             elif df.shape[1] == 3:
                 weights = df[2].values
             else:
