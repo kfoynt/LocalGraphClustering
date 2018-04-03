@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+import localgraphclustering.ncp
    
 def _ncp_min(grp, feature):
     if len(grp[feature]) > 0: 
@@ -25,8 +26,15 @@ def ncp_min_feature_by_group_binned(df, feature, group, nbins=50, log=False):
     return df.groupby(buckets).apply(lambda x: _ncp_min(x, feature))
 
 class NCPPlots:
-    def __init__(self, df):
-        self.df = df
+    def __init__(self, var):
+        if type(var) is localgraphclustering.ncp.NCPData:
+            self.df = var.as_data_frame()
+        elif type(var) is pd.DataFrame:
+            self.df = var
+        else:
+            raise ArgumentError(
+                "Invalid argument to NCPPlots, need NCPData or DataFrame not %s"%(
+                type(var).__name__))
         
     def feature_by_group(self, feature, group):
         ax = self.df.plot.scatter(x=group, y=feature)

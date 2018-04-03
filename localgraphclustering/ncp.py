@@ -160,7 +160,8 @@ class NCPData:
             if name is None:
                 # need to figure out a name, let's use something boring.
                 self.method_names[method] = "method-%i"%(len(self.method_names))
-            self.method_names[method] = name
+            else:
+                self.method_names[method] = name
             
         return method
         
@@ -342,8 +343,6 @@ class Ncp(GraphBase[Input, Output]):
                     ratio=ratio,nthreads=nthreads,timeout=timeout/len(funcs))  
         else:
             raise(ValueError("Must specify a method (crd, mqi or l1reg)."))
-            
-        df = ncp.as_data_frame()
         
-        return df
+        return ncp
         
