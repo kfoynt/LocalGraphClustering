@@ -35,5 +35,5 @@ def eig2nL_subgraph(g, ref_nodes, tol_eigs = 1.0e-6):
     if 2 >= A_sub.shape[0]-1:
         return [], [1]
     else:
-        emb_eig_val, emb_eig = sp.linalg.eigs(L_sub, which='SM', k=2, tol=tol_eigs)
+        emb_eig_val, emb_eig = sp.linalg.eigs(L_sub, which='SM', k=1, tol=tol_eigs)
         return np.real(emb_eig[:,1])
