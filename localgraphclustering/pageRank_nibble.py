@@ -1,3 +1,4 @@
+from typing import *
 import numpy as np
 from localgraphclustering.approximate_PageRank import approximate_PageRank
 
@@ -95,7 +96,7 @@ def PageRank_nibble(g,ref_nodes,
 
     rho = (1/(2**b))*(1/(48*B))
 
-    p = approximate_PageRank(G, ref_nodes, timeout = timeout, iterations = iterations, alpha = alpha,
+    p = approximate_PageRank(g, ref_nodes, timeout = timeout, iterations = iterations, alpha = alpha,
                              rho = rho, epsilon = epsilon, ys = ys, cpp = cpp, method = method)
 
 

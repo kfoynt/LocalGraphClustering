@@ -11,3 +11,6 @@ from localgraphclustering.ncpplots import NCPPlots
 from localgraphclustering.densest_subgraph import densest_subgraph
 from localgraphclustering.multiclass_label_prediction import multiclass_label_prediction
 from localgraphclustering.SimpleLocal import SimpleLocal
+from localgraphclustering.MQI import MQI
+from localgraphclustering.PageRank_nibble import PageRank_nibble
+from localgraphclustering.capacity_releasing_diffusion import capacity_releasing_diffusion
