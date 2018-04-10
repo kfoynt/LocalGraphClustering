@@ -1,95 +1,114 @@
 from typing import *
 import numpy as np
 from scipy import sparse as sp
-from .interface.graph import GraphBase
-from .interface.types.graph import Graph
-from localgraphclustering.fista_dinput_dense import fista_dinput_dense
-from localgraphclustering.proxl1PRaccel import proxl1PRaccel
-from localgraphclustering.multiclass_label_prediction_algo import multiclass_label_prediction_algo
+from localgraphclustering.algorithms.fista_dinput_dense import fista_dinput_dense
+from localgraphclustering.cpp.proxl1PRaccel import proxl1PRaccel
+from localgraphclustering.graph_class_local import graph_class_local
 
-Input = TypeVar('Input', bound=Graph)
-Output = TypeVar('Output',bound=np.ndarray)
+def multiclass_label_prediction(g: graph_class_local,
+                                timeout: float = 100, 
+                                iterations: int = 1000,
+                                labels: np.ndarray = [],
+                                alpha: float = 0.15,
+                                rho: float = 1.0e-6,
+                                epsilon: float = 1.0e-2,
+                                cpp: bool = True):
+    """
+    This function predicts labels for unlabelled nodes. For details refer to:
+    D. Gleich and M. Mahoney. Variational 
+    Using Local Spectral Methods to Robustify Graph-Based Learning Algorithms. SIGKDD 2015.
+    https://www.stat.berkeley.edu/~mmahoney/pubs/robustifying-kdd15.pdf
 
-
-class Multiclass_label_prediction(GraphBase[Input, Output]):
-
-    def __init__(self) -> None:
-        """
-        Initialize the Multiclass_label_prediction class.
-        """
-
-        super().__init__()
-
-    def produce(self, 
-                inputs: Sequence[Input], 
-                timeout: float = 100, 
-                iterations: int = 1000,
-                labels: np.ndarray = [],
-                alpha: float = 0.15,
-                rho: float = 1.0e-6,
-                epsilon: float = 1.0e-2,
-                cpp: bool = True) -> Sequence[Output]:
-        """
-        This function predicts labels for unlabelled nodes. For details refer to:
-        D. Gleich and M. Mahoney. Variational 
-        Using Local Spectral Methods to Robustify Graph-Based Learning Algorithms. SIGKDD 2015.
-        https://www.stat.berkeley.edu/~mmahoney/pubs/robustifying-kdd15.pdf
-
-        Parameters (mandatory)
-        ----------------------
+    Parameters (mandatory)
+    ----------------------
         
-        inputs: Sequence[Graph]
+    inputs: Sequence[Graph]
 
-        labels: list of lists
-            Each list of this list corresponds to indices of nodes that are assumed to belong in
-            a certain class. For example, list[i] is a list of indices of nodes that are assumed to 
-            belong in class i.
+    labels: list of lists
+        Each list of this list corresponds to indices of nodes that are assumed to belong in
+        a certain class. For example, list[i] is a list of indices of nodes that are assumed to 
+        belong in class i.
 
-        Parameters (optional)
-        ---------------------
+    Parameters (optional)
+    ---------------------
 
-        alpha: float, double
-            Default == 0.15
-            Teleportation parameter of the personalized PageRank linear system.
-            The smaller the more global the personalized PageRank vector is.
+    alpha: float, double
+        Default == 0.15
+        Teleportation parameter of the personalized PageRank linear system.
+        The smaller the more global the personalized PageRank vector is.
 
-        rho: float, double
-            Defaul == 1.0e-10
-            Regularization parameter for the l1-norm of the model.
+    rho: float, double
+        Defaul == 1.0e-10
+        Regularization parameter for the l1-norm of the model.
 
-        epsilon: float, double
-            Default == 1.0e-2
-            Tolerance for FISTA for solving the l1-regularized personalized PageRank problem.
+    epsilon: float, double
+        Default == 1.0e-2
+        Tolerance for FISTA for solving the l1-regularized personalized PageRank problem.
 
-        iterations: int
-            Default = 100000
-            Maximum number of iterations of FISTA algorithm.
+    iterations: int
+        Default = 100000
+        Maximum number of iterations of FISTA algorithm.
                      
-        timeout: float
-            Default = 100
-            Maximum time in seconds.
+    timeout: float
+        Default = 100
+        Maximum time in seconds.
 
-        cpp: bool
-            default = True
-            Use the faster C++ version of FISTA or not.
+    cpp: bool
+        default = True
+        Use the faster C++ version of FISTA or not.
 
-           Returns
-           -------
-           
-           For each graph in inputs it returns in a list of length 3 the following:
+    Returns
+    -------
 
-           output 0: list of indices that holds the class for each node.
-               For example classes[i] is the class of node i.
+    output 0: list of indices that holds the class for each node.
+        For example classes[i] is the class of node i.
 
-           output 1: list of lists. Each componenent of the list is a list that holds the rank
-               of the nodes for each class. For details see [1].
+    output 1: list of lists. Each componenent of the list is a list that holds the rank
+        of the nodes for each class. For details see [1].
 
-           output 2: a list of numpy arrays. Each array in this list corresponds to the diffusion vector
-               returned by personalized PageRank for each rank. For details see [1].
+    output 2: a list of numpy arrays. Each array in this list corresponds to the diffusion vector
+        returned by personalized PageRank for each rank. For details see [1].
 
-           [1] D. Gleich and M. Mahoney. Variational 
-           Using Local Spectral Methods to Robustify Graph-Based Learning Algorithms. SIGKDD 2015.
-           https://www.stat.berkeley.edu/~mmahoney/pubs/robustifying-kdd15.pdf
-        """   
+    [1] D. Gleich and M. Mahoney. Variational 
+    Using Local Spectral Methods to Robustify Graph-Based Learning Algorithms. SIGKDD 2015.
+    https://www.stat.berkeley.edu/~mmahoney/pubs/robustifying-kdd15.pdf
+    """  
+    n = g.adjacency_matrix.shape[0]
+    
+    output = [[],[],[]]
 
-        return [multiclass_label_prediction_algo(labels=labels, g=input, alpha=alpha, rho=rho, epsilon=epsilon, max_iter=iterations, max_time=timeout, cpp=True) for input in inputs]
+    for labels_i in labels: 
+        
+        if not cpp:
+            output_fista = fista_dinput_dense(labels_i, g, alpha = alpha, rho = rho, epsilon = epsilon, iterations = iterations, timeout = timeout)
+        else: 
+            uint_indptr = np.uint32(g.adjacency_matrix.indptr) 
+            uint_indices = np.uint32(g.adjacency_matrix.indices)
+        
+            (not_converged,grad,output_fista) = proxl1PRaccel(uint_indptr, uint_indices, g.adjacency_matrix.data, labels_i, g.d, g.d_sqrt, g.dn_sqrt, g.lib, alpha = alpha, rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)
+        
+        p = np.zeros(n)
+        for i in range(n):
+            p[i] = output_fista[i]
+        
+        output[0].append(p)
+        
+        index = (-p).argsort(axis=0)
+        rank = np.empty(n, int)
+        rank[index] = np.arange(n)
+        
+        output[1].append(rank)
+        
+    l_labels = len(labels)
+    
+    for i in range(n):
+        min_rank = n+1
+        class_ = l_labels + 1
+        for j in range(l_labels):
+            rank = output[1][j][i]
+            if rank < min_rank:
+                min_rank = rank
+                class_ = j
+        output[2].append(class_)
+        
+    return output

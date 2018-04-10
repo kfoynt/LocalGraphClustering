@@ -177,7 +177,7 @@ vtype graph<vtype,itype>::pprgrow_weighted(double alpha, double eps, vtype* seed
     }
     vtype map_size = x_map.size();
     //cout << "size " << map_size << endl;
-    pair <vtype, double>* possible_nodes = new pair <vtype, double>[map_size];
+    pair <vtype, double> possible_nodes[map_size];
     int i = 0;
     for(x_iter = x_map.begin(); x_iter != x_map.end(); ++x_iter){
         possible_nodes[i].first = x_iter->first;
@@ -187,14 +187,12 @@ vtype graph<vtype,itype>::pprgrow_weighted(double alpha, double eps, vtype* seed
     sort(possible_nodes, possible_nodes + map_size, myobject<vtype>);
 //    vtype actual_length = sweep_cut(possible_nodes, map_size, xids, xlength, rows, values);
     if(map_size > xlength){
-        map_size = xlength;
+        return map_size;
     }
     for(j = 0; j < map_size; j ++){
         xids[j] = possible_nodes[j].first + offset;
         values[j] = possible_nodes[j].second;
     }
-    
-    delete [] possible_nodes;
 
     return map_size;
 }
