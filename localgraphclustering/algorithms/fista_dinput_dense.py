@@ -104,8 +104,8 @@ def mat_vec_with_Q(g,alpha,x):
     return y
     
 def diff(a, b):
-        b = set(b)
-        return np.asarray([aa for aa in a if aa not in b], dtype = 'int64')
+    b = set(b)
+    return np.asarray([aa for aa in a if aa not in b], dtype = 'int64')
     
     
     

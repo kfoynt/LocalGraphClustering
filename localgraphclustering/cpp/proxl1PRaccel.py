@@ -9,6 +9,8 @@
  *     ds        - the square root of d
  *     dsinv     - 1/ds
  *     maxiter   - max number of iterations
+ *     y         - Initial solutions for l1-regularized PageRank algorithm.
+ *                 If not provided then it is initialized to zero.
  *
  * OUTPUT:
  *     p              - PageRank vector as a row vector

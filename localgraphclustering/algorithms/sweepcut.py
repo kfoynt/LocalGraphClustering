@@ -1,9 +1,8 @@
 import numpy as np
 
-def sweep_normalized(p,g):
+def sweepcut(p,g):
     """
     Computes a cluster using sweep cut and conductance as a criterion. 
-    Each component of the input vector p is divided with the corresponding degree of the node. 
 
     Parameters 
     ----------
@@ -37,28 +36,19 @@ def sweep_normalized(p,g):
     """    
     n = g.adjacency_matrix.shape[0]
 
-    nnz_idx = p.nonzero()[0]
-    nnz_ct = nnz_idx.shape[0]
-
-    sc_p = np.zeros(nnz_ct)
-    for i in range(nnz_ct):
-        degree = g.d[nnz_idx[i]]
-        sc_p[i] = (-p[nnz_idx[i]]/degree)
-
-    srt_idx = np.argsort(sc_p,axis=0)
-
-    size_loop = nnz_ct
+    srt_idx = np.argsort(-1*p,axis=0)
+        
+    size_loop = np.count_nonzero(p)
     if size_loop == n:
-        size_loop = n - 1
+        size_loop = n-1
 
     A_temp_prev = np.zeros((n,1))
     vol_sum = 0
     quad_prev = 0
     
-    output = [[],[],[],[]]
+    output = [[],[],[]]
 
     output[2] = [np.zeros(size_loop),[[] for jj in range(size_loop)]]
-    output[3] = [[],[]]
         
     output[1] = 2
         
@@ -89,4 +79,3 @@ def sweep_normalized(p,g):
             output[0] = current_support
             
     return output
-

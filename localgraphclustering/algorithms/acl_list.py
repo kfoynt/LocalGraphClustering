@@ -10,8 +10,11 @@ def acl_list(ref_node, g, alpha = 0.15, rho = 1.0e-5, max_iter = 100000, max_tim
     
     nodes = []
     
-    nodes.append(ref_node)
-    r[ref_node] = 1
+    for i in ref_node:
+        r[i] = 1
+        thresh = rho*g.d[i]
+        if r[i] > thresh:
+            nodes.append(i)
     
     iter = 0        
     
@@ -36,7 +39,7 @@ def acl_list(ref_node, g, alpha = 0.15, rho = 1.0e-5, max_iter = 100000, max_tim
             update = ((1-alpha)/2)*(direction/g.d[idx])*g.adjacency_matrix.data[u]
             r_new = r[j] + update
             thresh = rho*g.d[j]
-            if r[j] < thresh and r_new >= thresh:
+            if r[j] <= thresh and r_new > thresh:
                 nodes.append(j)  
             r[j] = r_new
             
