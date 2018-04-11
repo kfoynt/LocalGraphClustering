@@ -11,7 +11,7 @@ def load_example_graph():
 
 def test_ncpplots():
     G = localgraphclustering.graph_class_local("localgraphclustering/tests/data/dolphins.edges",separator=" ")
-    ncp = localgraphclustering.NCPData(G)
+    ncp = localgraphclustering.NCPData(G).mqi()
     plots = localgraphclustering.NCPPlots(ncp)
     plots.mqi_input_output_cond_plot()
     plots.cond_by_vol()
