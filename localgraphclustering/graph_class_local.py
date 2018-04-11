@@ -1,4 +1,3 @@
-from .interface.types.graph import Graph
 import networkx as nx
 import csv
 from scipy import sparse as sp
@@ -15,7 +14,7 @@ import bz2
 import lzma
 
 
-class GraphLocal(Graph):
+class graph_class_local:
     """
     This class implements graph loading from an edgelist, gml or graphml and provides methods that operate on the graph.
 
@@ -29,14 +28,8 @@ class GraphLocal(Graph):
     _num_edges : int
         Number of edges
 
-    _directed : boolean
-        Declares if it is a directed graph or not
-
     _weighted : boolean
         Declares if it is a weighted graph or not
-
-    _dangling_nodes : int numpy array
-        Nodes with zero edges
 
     d : float64 numpy vector
         Degrees vector
@@ -114,7 +107,6 @@ class GraphLocal(Graph):
             set it to be True when there is more than one kinds of separators in the file
             Default = False
         """
-        super().__init__(filename,file_type,separator,remove_whitespace)
 
         if filename != None:
             self.read_graph(filename, file_type, separator, remove_whitespace)
@@ -167,38 +159,36 @@ class GraphLocal(Graph):
             else:
                 raise Exception('graph_class_local.read_graph: df.shape[1] not in (2, 3)')
             
-            
             self._num_vertices = max(source.max() + 1, target.max()+1)
             #self.adjacency_matrix = source, target, weights
             
             self.adjacency_matrix = sp.csr_matrix((weights, (source, target)), shape=(self._num_vertices, self._num_vertices))
-            is_symmetric = (self.adjacency_matrix != self.adjacency_matrix.T).sum() == 0
-            if not is_symmetric:
-                # Symmetrize matrix, choosing larger weight
-                sel = self.adjacency_matrix.T > self.adjacency_matrix
-                self.adjacency_matrix = self.adjacency_matrix - self.adjacency_matrix.multiply(sel) + self.adjacency_matrix.T.multiply(sel)
-                assert (self.adjacency_matrix != self.adjacency_matrix.T).sum() == 0
-                
-            self._num_edges = self.adjacency_matrix.nnz
             
         elif file_type == 'gml':
             warnings.warn("Loading a gml is not efficient, we suggest using an edgelist format for this API.")
             G = nx.read_gml(filename).to_undirected()
             self.adjacency_matrix = nx.adjacency_matrix(G).astype(np.float64)
-            self._num_edges = nx.number_of_edges(G)
             self._num_vertices = nx.number_of_nodes(G)
             
         elif file_type == 'graphml':
             warnings.warn("Loading a graphml is not efficient, we suggest using an edgelist format for this API.")
             G = nx.read_graphml(filename).to_undirected()
             self.adjacency_matrix = nx.adjacency_matrix(G).astype(np.float64)
-            self._num_edges = nx.number_of_edges(G)
             self._num_vertices = nx.number_of_nodes(G)
             
         else:
             print('This file type is not supported')
             return
         
+        self._weighted = (sum(i != 1 for i in self.adjacency_matrix.data) != 0)
+        is_symmetric = (self.adjacency_matrix != self.adjacency_matrix.T).sum() == 0
+        if not is_symmetric:
+            # Symmetrize matrix, choosing larger weight
+            sel = self.adjacency_matrix.T > self.adjacency_matrix
+            self.adjacency_matrix = self.adjacency_matrix - self.adjacency_matrix.multiply(sel) + self.adjacency_matrix.T.multiply(sel)
+            assert (self.adjacency_matrix != self.adjacency_matrix.T).sum() == 0
+                
+        self._num_edges = self.adjacency_matrix.nnz
         self.compute_statistics()
         
     def discard_weights(self):
@@ -206,6 +196,7 @@ class GraphLocal(Graph):
         This sets all the weights associated with each edge to 1.0, 
         which is our "no weight" case."""
         self.adjacency_matrix.data.fill(1.0)
+        self._weighted = False
         self.compute_statistics()
 
     def compute_statistics(self):
@@ -372,8 +363,9 @@ class GraphLocal(Graph):
             warnings.warn("The graph has multiple (%i) components, using the largest with %i / %i nodes"%(
                      self.number_of_components, len(maxccnodes), self._num_vertices))  
             
-            g_copy = GraphLocal()
+            g_copy = graph_class_local()
             g_copy.adjacency_matrix = self.adjacency_matrix[maxccnodes,:].tocsc()[:,maxccnodes].tocsr()
             g_copy._num_vertices = len(maxccnodes) # AHH!
-            g_copy.compute_statistics()   
+            g_copy.compute_statistics()  
+            g_copy._weighted = self._weighted 
             return g_copy
