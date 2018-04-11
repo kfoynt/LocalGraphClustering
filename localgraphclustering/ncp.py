@@ -233,7 +233,7 @@ class NCPData:
                     for rho in rholist}
         for func in funcs.keys():
             self.add_random_node_samples(method=func,methodname=funcs[func],ratio=ratio,nthreads=nthreads,timeout=timeout/len(funcs))
-
+        return self
 
     def l1reg(self,
               gamma: float = 0.01/0.99,

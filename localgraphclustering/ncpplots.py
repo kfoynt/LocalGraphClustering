@@ -27,6 +27,7 @@ def ncp_min_feature_by_group_binned(df, feature, group, nbins=50, log=False):
 
 class NCPPlots:
     def __init__(self, var):
+        print(type(var))
         if type(var) is localgraphclustering.ncp.NCPData:
             self.df = var.as_data_frame()
         elif type(var) is pd.DataFrame:
@@ -42,11 +43,7 @@ class NCPPlots:
                 x=group, y=feature, ax=ax)
         plt.show()
         return ax
-        
-    #plot conductance vs size
-    def cond_by_size(self):
-        return self.feature_by_group("output_cond", "output_sizeeff")
-    
+  
         
     def mqi_input_output_cond_plot(self, nbins=50):
         ncpdata = self.df
@@ -101,6 +98,16 @@ class NCPPlots:
         ax.set_xlabel("effective volume")
         ax.set_ylabel("conductance")
         return fig, ax
+        
+      
+    #plot conductance vs size
+    def cond_by_size(self, **kwargs):
+        fig, ax = self.feature_by_group_histogram_and_min_line(
+            "output_cond", "output_sizeeff", **kwargs)
+        ax.set_xlabel("effective size")
+        ax.set_ylabel("conductance")
+        return fig, ax
+            
         
     def isop_by_size(self, nbins=50, nbinsx=100):
         ncpdata = self.df
