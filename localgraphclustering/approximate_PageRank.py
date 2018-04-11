@@ -106,7 +106,7 @@ def approximate_PageRank(G,
         warnings.warn("The weights of the graph will be discarded. Use approximate_PageRank_weighted instead if you want to keep the edge weights.")
 
     if method == "acl":
-        print("Uses the Andersen Chung and Lang (ACL) Algorithm.")
+        #print("Uses the Andersen Chung and Lang (ACL) Algorithm.")
         if ys != None:
             warnings.warn("\"acl\" doesn't support initial solutions, please use \"l1reg\" instead.")
         if cpp:
@@ -119,7 +119,7 @@ def approximate_PageRank(G,
         else:
             return acl_list(ref_nodes, G, alpha = alpha, rho = rho, max_iter = iterations, max_time = timeout)
     elif method == "l1reg":
-        print("Uses the Fast Iterative Soft Thresholding Algorithm (FISTA).")
+        #print("Uses the Fast Iterative Soft Thresholding Algorithm (FISTA).")
         if cpp:
             if ys == None:
                 return proxl1PRaccel(np.uint32(G.adjacency_matrix.indptr), np.uint32(G.adjacency_matrix.indices), 
