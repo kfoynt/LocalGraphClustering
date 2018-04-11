@@ -80,19 +80,26 @@ class NCPPlots:
             ax.hexbin(ncpdata[group], ncpdata[feature], 
               gridsize=50, cmap="magma",  mincnt=1)
         return fig, ax
-    
-    #plot conductance vs volume
-    def cond_by_vol(self, nbins=50, nbinsx=100):
+        
+    def feature_by_group_histogram_and_min_line(self, feature, group, 
+                                    nbins=50, nbinsx=100, log=True):
         ncpdata = self.df
         fig, ax = self.feature_by_group_histogram(
-            "output_cond", "output_voleff", nbins=nbins, log=True)
+            feature, group, nbins=nbins, log=True)
         dfmin = ncp_min_feature_by_group_binned(ncpdata, "output_cond", "output_voleff",
-            nbins=nbinsx).dropna(axis=0)
-        y = dfmin["output_cond"]
-        x = dfmin["output_voleff"]
+            nbins=nbinsx, log=log).dropna(axis=0)
+        y = dfmin[feature]
+        x = dfmin[group]
+        ax.plot(x, y)
+        return fig, ax
+        
+    
+    #plot conductance vs volume
+    def cond_by_vol(self, **kwargs):
+        fig, ax = self.feature_by_group_histogram_and_min_line(
+            "output_cond", "output_voleff", **kwargs)
         ax.set_xlabel("effective volume")
         ax.set_ylabel("conductance")
-        ax.plot(x, y)
         return fig, ax
         
     def isop_by_size(self, nbins=50, nbinsx=100):
