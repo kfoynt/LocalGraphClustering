@@ -83,7 +83,7 @@ class NCPPlots:
         ncpdata = self.df
         fig, ax = self.feature_by_group_histogram(
             feature, group, nbins=nbins, log=True)
-        dfmin = ncp_min_feature_by_group_binned(ncpdata, "output_cond", "output_voleff",
+        dfmin = ncp_min_feature_by_group_binned(ncpdata, feature, group,
             nbins=nbinsx, log=log).dropna(axis=0)
         y = dfmin[feature]
         x = dfmin[group]
