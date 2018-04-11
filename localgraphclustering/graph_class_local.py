@@ -179,8 +179,11 @@ class graph_class_local:
         else:
             print('This file type is not supported')
             return
-        
-        self._weighted = (sum(i != 1 for i in self.adjacency_matrix.data) != 0)
+        self._weighted = False
+        for i in self.adjacency_matrix.data:
+            if i != 1:
+                self._weighted = True
+                break
         is_symmetric = (self.adjacency_matrix != self.adjacency_matrix.T).sum() == 0
         if not is_symmetric:
             # Symmetrize matrix, choosing larger weight
