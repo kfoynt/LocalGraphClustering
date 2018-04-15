@@ -26,17 +26,24 @@ def ncp_min_feature_by_group_binned(df, feature, group, nbins=50, log=False):
     return df.groupby(buckets).apply(lambda x: _ncp_min(x, feature))
 
 class NCPPlots:
-    def __init__(self, var):
+    def __init__(self, var, method_name="", selected_rows=[]):
         print(type(var))
         if type(var) is localgraphclustering.ncp.NCPData:
             self.df = var.as_data_frame()
         elif type(var) is pd.DataFrame:
             self.df = var
         else:
-            raise ArgumentError(
+            raise Exception(
                 "Invalid argument to NCPPlots, need NCPData or DataFrame not %s"%(
                 type(var).__name__))
-        
+        if selected_rows != []:
+            self.df = self.df.iloc[selected_rows,:]
+        if method_name != "":
+            available_methods = list(set(self.df["method"]))
+            if np.sum([method_name in i for i in available_methods]) == 0:
+                raise Exception("Method name is not available. Options are %s"%"".join(i+" " for i in list(available_methods)))
+            self.df = self.df[self.df["method"].str.contains(method_name)]
+
     def feature_by_group(self, feature, group):
         ax = self.df.plot.scatter(x=group, y=feature)
         ncp_min_feature_by_group(self.df, feature, group).plot.line(
@@ -87,6 +94,10 @@ class NCPPlots:
             nbins=nbinsx, log=log).dropna(axis=0)
         y = dfmin[feature]
         x = dfmin[group]
+        tmp = list(zip(x,y))
+        tmp.sort(key = lambda x: x[0])
+        x = [i[0] for i in tmp]
+        y = [i[1] for i in tmp]
         ax.plot(x, y)
         return fig, ax
         
