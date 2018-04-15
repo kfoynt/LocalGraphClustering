@@ -38,7 +38,7 @@ def ncp_experiment(ncpdata,R,func,method_stats):
         return [] # nothing to return
     
 
-def ncp_node_worker(ncpdata,sets,func,timeout_ncp):
+def ncp_node_worker(ncpdata,sets,func,timeout_ncp,results_id):
     start = time.time()
     setno = 0
     for R in sets:
@@ -46,14 +46,14 @@ def ncp_node_worker(ncpdata,sets,func,timeout_ncp):
         setno += 1
         
         method_stats = {'input_set_type': 'node', 'input_set_params':R[0]}
-        ncpdata.results.extend(ncp_experiment(ncpdata, R, func, method_stats))
+        ncpdata.results[results_id].extend(ncp_experiment(ncpdata, R, func, method_stats))
         
         end = time.time()
         if end - start > timeout_ncp:
             break
 
 # todo avoid code duplication 
-def ncp_neighborhood_worker(ncpdata,sets,func,timeout_ncp):
+def ncp_neighborhood_worker(ncpdata,sets,func,timeout_ncp,results_id):
     start = time.time()
     setno = 0
     for R in sets:
@@ -65,14 +65,14 @@ def ncp_neighborhood_worker(ncpdata,sets,func,timeout_ncp):
         R.extend(ncpdata.graph.neighbors(R[0]))
         method_stats = {'input_set_type': 'neighborhood', 'input_set_params':node}
         
-        ncpdata.results.extend(ncp_experiment(ncpdata, R, func, method_stats))
+        ncpdata.results[results_id].extend(ncp_experiment(ncpdata, R, func, method_stats))
         
         end = time.time()
         if end - start > timeout_ncp:
             break          
             
 # todo avoid code duplication 
-def ncp_set_worker(ncpdata,setnos,func,timeout_ncp):
+def ncp_set_worker(ncpdata,setnos,func,timeout_ncp,results_id):
     start = time.time()
     setno = 0
     for id in setnos:
@@ -82,7 +82,7 @@ def ncp_set_worker(ncpdata,setnos,func,timeout_ncp):
         #R = R.copy() # duplicate so we don't keep extra weird data around
         method_stats = {'input_set_type': 'set', 'input_set_params':id}
         
-        ncpdata.results.extend(ncp_experiment(ncpdata, R, func, method_stats))
+        ncpdata.results[results_id].extend(ncp_experiment(ncpdata, R, func, method_stats))
         
         end = time.time()
         if end - start > timeout_ncp:
@@ -107,12 +107,12 @@ class NCPData:
         result_fields.extend(["output_" + str(field) for field in standard_fields.keys()])
         result_fields.extend(["methodfunc", "input_set_type", "input_set_params", "time"])
         self.record = namedtuple("NCPDataRecord", field_names=result_fields)
-        self.reset_records("")
+        self.reset_records()
 
-    def reset_records(self,name):
+    def reset_records(self):
         self.results = []
         self.sets = []
-        self.method_name = name # This stores human readable and usable names for methods
+        self.method_names = []
         
     def random_nodes(self, ratio):
         n = self.graph._num_vertices
@@ -176,9 +176,13 @@ class NCPData:
         threads = []
         threadnodes = np.array_split(nodes, nthreads)
         
+        results_id = len(self.results)
+        self.results.append([])
+        self.method_names.append(methodname)
+        
         for i in range(nthreads):
             sets = [ [j] for j in threadnodes[i] ] # make a set of sets
-            t = threading.Thread(target=ncp_node_worker,args=(self, sets, method, timeout))
+            t = threading.Thread(target=ncp_node_worker,args=(self, sets, method, timeout, results_id))
             threads.append(t)
             t.start()
         for t in threads:
@@ -190,10 +194,14 @@ class NCPData:
         
         threads = []
         threadnodes = np.array_split(nodes, nthreads)
+
+        results_id = len(self.results)
+        self.results.append([])
+        self.method_names.append(methodname)
         
         for i in range(nthreads):
             sets = [ [j] for j in threadnodes[i] ] # make a set of sets
-            t = threading.Thread(target=ncp_neighborhood_worker,args=(self, sets, method, timeout))
+            t = threading.Thread(target=ncp_neighborhood_worker,args=(self, sets, method, timeout, results_id))
             threads.append(t)
             t.start()
         for t in threads:
@@ -207,19 +215,26 @@ class NCPData:
         endset = len(self.sets)
         
         setnos = np.array_split(range(startset,endset), nthreads) # set numbers
+
+        results_id = len(self.results)
+        self.results.append([])
+        self.method_names.append(methodname)
         
         for i in range(nthreads):
-            t = threading.Thread(target=ncp_set_worker,args=(self, setnos[i], method, timeout))
+            t = threading.Thread(target=ncp_set_worker,args=(self, setnos[i], method, timeout, results_id))
             threads.append(t)
             t.start()
         for t in threads:
             t.join()
         
     def as_data_frame(self):
-        df = pd.DataFrame.from_records(self.results, columns=self.record._fields)
-        df.rename(columns={'method':'methodfunc'}, inplace=True)
-        df["method"] = self.method_name
-        return df
+        DF = pd.DataFrame.from_records([], columns=self.record._fields)
+        for i in range(len(self.results)):
+            df = pd.DataFrame.from_records(self.results[i], columns=self.record._fields)
+            df.rename(columns={'method':'methodfunc'}, inplace=True)
+            df["method"] = self.method_names[i]
+            DF = DF.append(df,ignore_index=True)
+        return DF
 
     def approxPageRank(self,
                        gamma: float = 0.01/0.99,
@@ -227,13 +242,12 @@ class NCPData:
                        ratio: float = 0.3,
                        nthreads: int = 4,
                        timeout: float = 1000):
-        self.reset_records("approxPageRank")
+        #self.reset_records("approxPageRank")
         alpha = 1.0-1.0/(1.0+gamma)
-        funcs = {lambda G,R: spectral_clustering(G,R,alpha=alpha,rho=rho,method="acl")[0]:'approxPageRank;rho=%.0e'%(rho) 
+        funcs = {lambda G,R: spectral_clustering(G,R,alpha=alpha,rho=rho,method="acl")[0]:'acl;rho=%.0e'%(rho) 
                     for rho in rholist}
         for func in funcs.keys():
             self.add_random_node_samples(method=func,methodname=funcs[func],ratio=ratio,nthreads=nthreads,timeout=timeout/len(funcs))
-        return self
 
     def l1reg(self,
               gamma: float = 0.01/0.99,
@@ -241,13 +255,12 @@ class NCPData:
               ratio: float = 0.3,
               nthreads: int = 4,
               timeout: float = 1000):
-        self.reset_records("l1reg")
+        #self.reset_records("l1reg")
         alpha = 1.0-1.0/(1.0+gamma)
-        funcs = {lambda G,R: spectral_clustering(G,R,alpha=alpha,rho=rho,method="l1reg")[0]:'approxPageRank;rho=%.0e'%(rho) 
+        funcs = {lambda G,R: spectral_clustering(G,R,alpha=alpha,rho=rho,method="l1reg")[0]:'l1reg;rho=%.0e'%(rho) 
                     for rho in rholist}
         for func in funcs.keys():
             self.add_random_node_samples(method=func,methodname=funcs[func],ratio=ratio,nthreads=nthreads,timeout=timeout/len(funcs))
-        return self
 
     def crd(self,
             U: int = 3,
@@ -256,7 +269,7 @@ class NCPData:
             ratio: float = 0.3,
             nthreads: int = 4,
             timeout: float = 1000):
-        self.reset_records("crd")
+        #self.reset_records("crd")
         func = lambda G,R: flow_clustering(G,R,w=w, U=U, h=h,method="crd")[0]
         self.add_random_neighborhood_samples(method=func,methodname="crd",
                 ratio=ratio,nthreads=nthreads,timeout=timeout/2)
@@ -268,9 +281,8 @@ class NCPData:
             ratio: float = 0.3,
             nthreads: int = 4,
             timeout: float = 1000):
-        self.reset_records("mqi")
+        #self.reset_records("mqi")
         func = lambda G,R: flow_clustering(G,R,method="mqi")[0]
         self.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout,
                 method=func,methodname="mqi")
-        return self
         
