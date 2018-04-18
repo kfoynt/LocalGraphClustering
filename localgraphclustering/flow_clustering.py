@@ -1,9 +1,9 @@
 from typing import *
 import numpy as np
-from localgraphclustering.MQI import MQI
-from localgraphclustering.SimpleLocal import SimpleLocal
-from localgraphclustering.capacity_releasing_diffusion import capacity_releasing_diffusion
-from localgraphclustering.graph_class_local import graph_class_local
+from .MQI import MQI
+from .SimpleLocal import SimpleLocal
+from .capacity_releasing_diffusion import capacity_releasing_diffusion
+from .GraphLocal import GraphLocal
 import warnings
 
 def flow_clustering(G, ref_nodes, 
@@ -19,7 +19,7 @@ def flow_clustering(G, ref_nodes,
     Parameters
     ----------------------
 
-    G: graph_class_local      
+    G: GraphLocal      
 
     ref_nodes: Sequence[int]
         A sequence of reference nodes, i.e., nodes of interest around which

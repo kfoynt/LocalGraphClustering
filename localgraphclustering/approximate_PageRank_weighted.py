@@ -1,6 +1,6 @@
 from typing import *
 import numpy as np
-from localgraphclustering.cpp.aclpagerank_weighted_cpp import aclpagerank_weighted_cpp
+from .cpp import aclpagerank_weighted_cpp
 
 def approximate_PageRank_weighted(G,
                                   ref_nodes,
@@ -17,7 +17,7 @@ def approximate_PageRank_weighted(G,
     Parameters
     ----------
 
-    G: graph_class_local
+    G: GraphLocal
 
     ref_nodes: Sequence[int]
         A sequence of reference nodes, i.e., nodes of interest around which

@@ -1,6 +1,6 @@
 from typing import *
 import numpy as np
-from localgraphclustering.cpp.MQI_cpp import MQI_cpp
+from .cpp import MQI_cpp
 
 def MQI(G, ref_nodes):
     """
@@ -12,7 +12,7 @@ def MQI(G, ref_nodes):
     Parameters
     ----------------------
 
-    G: graph_class_local      
+    G: GraphLocal      
 
     ref_nodes: Sequence[int]
         A sequence of reference nodes, i.e., nodes of interest around which

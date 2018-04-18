@@ -8,9 +8,9 @@ import threading
 import math
 import warnings
 
-from localgraphclustering.spectral_clustering import spectral_clustering
-from localgraphclustering.flow_clustering import flow_clustering
-from localgraphclustering.graph_class_local import graph_class_local
+from .spectral_clustering import spectral_clustering
+from .flow_clustering import flow_clustering
+from .GraphLocal import GraphLocal
 
 def ncp_experiment(ncpdata,R,func,method_stats):
     if ncpdata.input_stats:
@@ -38,7 +38,7 @@ def ncp_experiment(ncpdata,R,func,method_stats):
         return [] # nothing to return
     
 
-def ncp_node_worker(ncpdata,sets,func,timeout_ncp,results_id):
+def ncp_node_worker(ncpdata,sets,func,timeout_ncp,methodname):
     start = time.time()
     setno = 0
     for R in sets:
@@ -46,14 +46,14 @@ def ncp_node_worker(ncpdata,sets,func,timeout_ncp,results_id):
         setno += 1
         
         method_stats = {'input_set_type': 'node', 'input_set_params':R[0]}
-        ncpdata.results[results_id].extend(ncp_experiment(ncpdata, R, func, method_stats))
+        ncpdata.results[methodname].extend(ncp_experiment(ncpdata, R, func, method_stats))
         
         end = time.time()
         if end - start > timeout_ncp:
             break
 
 # todo avoid code duplication 
-def ncp_neighborhood_worker(ncpdata,sets,func,timeout_ncp,results_id):
+def ncp_neighborhood_worker(ncpdata,sets,func,timeout_ncp,methodname):
     start = time.time()
     setno = 0
     for R in sets:
@@ -65,14 +65,14 @@ def ncp_neighborhood_worker(ncpdata,sets,func,timeout_ncp,results_id):
         R.extend(ncpdata.graph.neighbors(R[0]))
         method_stats = {'input_set_type': 'neighborhood', 'input_set_params':node}
         
-        ncpdata.results[results_id].extend(ncp_experiment(ncpdata, R, func, method_stats))
+        ncpdata.results[methodname].extend(ncp_experiment(ncpdata, R, func, method_stats))
         
         end = time.time()
         if end - start > timeout_ncp:
             break          
             
 # todo avoid code duplication 
-def ncp_set_worker(ncpdata,setnos,func,timeout_ncp,results_id):
+def ncp_set_worker(ncpdata,setnos,func,timeout_ncp,methodname):
     start = time.time()
     setno = 0
     for id in setnos:
@@ -82,7 +82,7 @@ def ncp_set_worker(ncpdata,setnos,func,timeout_ncp,results_id):
         #R = R.copy() # duplicate so we don't keep extra weird data around
         method_stats = {'input_set_type': 'set', 'input_set_params':id}
         
-        ncpdata.results[results_id].extend(ncp_experiment(ncpdata, R, func, method_stats))
+        ncpdata.results[methodname].extend(ncp_experiment(ncpdata, R, func, method_stats))
         
         end = time.time()
         if end - start > timeout_ncp:
@@ -110,9 +110,9 @@ class NCPData:
         self.reset_records()
 
     def reset_records(self):
-        self.results = []
+        self.results = {}
         self.sets = []
-        self.method_names = []
+        #self.method_names = []
         
     def random_nodes(self, ratio):
         n = self.graph._num_vertices
@@ -127,8 +127,8 @@ class NCPData:
         return np.random.choice(np.arange(0,n), size=n_nodes, replace=False)
         
     """ Decode and return the input set to a particular experiment. """
-    def input_set(self, j): 
-        result = self.results[j] # todo check for validity
+    def input_set(self, methodname, j): 
+        result = self.results[methodname][j] # todo check for validity
         if result.input_set_type=="node":
             return [result.input_set_params]
         elif result.input_set_type=="neighborhood":
@@ -139,14 +139,15 @@ class NCPData:
             return self.sets[result.input_set_params].copy()
         else: 
             raise(ValueError("the input_set_type is unrecognized"))
-        
-    def output_set(self, j):
-        result = self.results[j] # todo check for validity
+    
+    def output_set(self, methodname, j):
+        result = self.results[methodname][j] # todo check for validity
         func = result.methodfunc
         R = self.input_set(j)
         return func(self.graph, R)
-    
+
     """
+    
     def _check_method(self, method, name):
         if method == None:
             method = self.default_method
@@ -176,13 +177,17 @@ class NCPData:
         threads = []
         threadnodes = np.array_split(nodes, nthreads)
         
+        """
         results_id = len(self.results)
         self.results.append([])
         self.method_names.append(methodname)
+        """
+
+        self.results[methodname] = []
         
         for i in range(nthreads):
             sets = [ [j] for j in threadnodes[i] ] # make a set of sets
-            t = threading.Thread(target=ncp_node_worker,args=(self, sets, method, timeout, results_id))
+            t = threading.Thread(target=ncp_node_worker,args=(self, sets, method, timeout, methodname))
             threads.append(t)
             t.start()
         for t in threads:
@@ -194,14 +199,18 @@ class NCPData:
         
         threads = []
         threadnodes = np.array_split(nodes, nthreads)
-
+        
+        """
         results_id = len(self.results)
         self.results.append([])
         self.method_names.append(methodname)
+        """
+
+        self.results[methodname] = []
         
         for i in range(nthreads):
             sets = [ [j] for j in threadnodes[i] ] # make a set of sets
-            t = threading.Thread(target=ncp_neighborhood_worker,args=(self, sets, method, timeout, results_id))
+            t = threading.Thread(target=ncp_neighborhood_worker,args=(self, sets, method, timeout, methodname))
             threads.append(t)
             t.start()
         for t in threads:
@@ -215,13 +224,17 @@ class NCPData:
         endset = len(self.sets)
         
         setnos = np.array_split(range(startset,endset), nthreads) # set numbers
-
+        
+        """
         results_id = len(self.results)
         self.results.append([])
         self.method_names.append(methodname)
+        """
+
+        self.results[methodname] = []
         
         for i in range(nthreads):
-            t = threading.Thread(target=ncp_set_worker,args=(self, setnos[i], method, timeout, results_id))
+            t = threading.Thread(target=ncp_set_worker,args=(self, setnos[i], method, timeout, methodname))
             threads.append(t)
             t.start()
         for t in threads:
@@ -229,10 +242,10 @@ class NCPData:
         
     def as_data_frame(self):
         DF = pd.DataFrame.from_records([], columns=self.record._fields)
-        for i in range(len(self.results)):
-            df = pd.DataFrame.from_records(self.results[i], columns=self.record._fields)
+        for methodname in self.results.keys():
+            df = pd.DataFrame.from_records(self.results[methodname], columns=self.record._fields)
             df.rename(columns={'method':'methodfunc'}, inplace=True)
-            df["method"] = self.method_names[i]
+            df["method"] = methodname
             DF = DF.append(df,ignore_index=True)
         return DF
 

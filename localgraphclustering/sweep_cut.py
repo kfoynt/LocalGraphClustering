@@ -1,10 +1,10 @@
 from typing import *
 import numpy as np
-from localgraphclustering.cpp.sweepcut_cpp import sweepcut_cpp
-from localgraphclustering.graph_class_local import graph_class_local
-from localgraphclustering.algorithms.sweepcut import sweepcut
+from .cpp import sweepcut_cpp
+from .GraphLocal import GraphLocal
+from .algorithms import sweepcut
 
-def sweep_cut(G: graph_class_local, 
+def sweep_cut(G: GraphLocal, 
               p: Sequence[float],
               do_sort: bool = True,
               normalized: bool = True,
@@ -15,7 +15,7 @@ def sweep_cut(G: graph_class_local,
     Parameters
     ----------
 
-    G: graph_class_local
+    G: GraphLocal
 
     p: Sequence[float]
         A vector that is used to perform rounding.

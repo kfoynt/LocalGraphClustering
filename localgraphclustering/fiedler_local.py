@@ -1,6 +1,6 @@
 from typing import *
 import numpy as np
-from localgraphclustering.algorithms.eig2nL_subgraph import eig2nL_subgraph
+from .algorithms import eig2nL_subgraph
 
 def fiedler_local(G, ref_nodes,
                   timeout: float = 100,

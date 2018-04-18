@@ -1,7 +1,7 @@
 from typing import *
 import numpy as np
-from localgraphclustering.cpp.capacity_releasing_diffusion_cpp import capacity_releasing_diffusion_cpp
-from localgraphclustering.graph_class_local import graph_class_local
+from .cpp import capacity_releasing_diffusion_cpp
+from .GraphLocal import GraphLocal
 
 def capacity_releasing_diffusion(G,ref_nodes,
                                  U: int = 3,
@@ -23,7 +23,7 @@ def capacity_releasing_diffusion(G,ref_nodes,
     Parameters (mandatory)
     ----------------------
 
-    G: graph_class_local      
+    G: GraphLocal      
 
     ref_nodes: Sequence[int]
         A sequence of reference nodes, i.e., nodes of interest around which
