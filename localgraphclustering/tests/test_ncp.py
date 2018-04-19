@@ -61,4 +61,4 @@ def test_ncp_l1reg_big():
     df = ncp_instance.l1reg(ratio=0.5)
 
 def read_minnesota():
-    g = localgraphclustering..GraphLocal('notebooks/datasets/minnesota.edgelist','edgelist',' ')
+    g = localgraphclustering.GraphLocal('notebooks/datasets/minnesota.edgelist','edgelist',' ')
