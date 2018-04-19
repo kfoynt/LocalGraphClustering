@@ -17,6 +17,7 @@ def ncp_min_feature_by_group(df, feature, group):
 def ncp_min_feature_by_group_binned(df, feature, group, nbins=50, log=False): 
     xs = df[group].as_matrix().copy()
     xs.sort()
+    xs = xs.astype(np.float64)
     if log is True:
         xs = np.log10(xs)
         edges = np.power(10.0,np.histogram(xs, bins=nbins)[1]) # second output

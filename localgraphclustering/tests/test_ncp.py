@@ -2,7 +2,7 @@ import localgraphclustering
 import pytest
 
 def load_example_graph():
-    return localgraphclustering.graph_class_local("localgraphclustering/tests/data/dolphins.edges",separator=" ")
+    return localgraphclustering.GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ")
 
 def test_ncp():
     G = load_example_graph()
@@ -39,7 +39,7 @@ def test_ncp_l1reg():
 
 @pytest.mark.long_tests
 def test_ncp_crd_big():
-    G = localgraphclustering.graph_class_local()
+    G = localgraphclustering.GraphLocal()
     G.read_graph("notebooks/datasets/neuro-fmri-01.edges","edgelist", " ")
     ncp_instance = localgraphclustering.NCPData(G)
     df = ncp_instance.crd(ratio=0.5,w=10,U=10,h=1000)
@@ -53,7 +53,7 @@ def test_ncp_crd_big():
 
 @pytest.mark.long_tests
 def test_ncp_l1reg_big():
-    G = localgraphclustering.graph_class_local.GraphLocal()
+    G = localgraphclustering.GraphLocal()
     G.read_graph("notebooks/datasets/neuro-fmri-01.edges","edgelist", " ")
     Glcc = G.largest_component()
     print(Glcc.adjacency_matrix.data)
@@ -61,4 +61,4 @@ def test_ncp_l1reg_big():
     df = ncp_instance.l1reg(ratio=0.5)
 
 def read_minnesota():
-    g = localgraphclustering.graph_class_local('notebooks/datasets/minnesota.edgelist','edgelist',' ')
+    g = localgraphclustering..GraphLocal('notebooks/datasets/minnesota.edgelist','edgelist',' ')

@@ -1,6 +1,6 @@
 from typing import *
 import numpy as np
-from localgraphclustering.approximate_PageRank import approximate_PageRank
+from .approximate_PageRank import approximate_PageRank
 
 def PageRank_nibble(g,ref_nodes,
                     vol: float = 100,

@@ -1,7 +1,7 @@
 from typing import *
 import numpy as np
-from localgraphclustering.cpp.SimpleLocal_cpp import SimpleLocal_cpp
-from localgraphclustering.graph_class_local import graph_class_local
+from .cpp import SimpleLocal_cpp
+from .GraphLocal import GraphLocal
 
 def SimpleLocal(G, ref_nodes,
                 delta: float = 0.3):

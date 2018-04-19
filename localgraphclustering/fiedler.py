@@ -1,9 +1,9 @@
 from typing import *
 import numpy as np
-from localgraphclustering.graph_class_local import graph_class_local
-from localgraphclustering.algorithms.eig2_nL import eig2_nL
+from .GraphLocal import GraphLocal
+from .algorithms import eig2_nL
 
-def fiedler(G: graph_class_local, epsilon: float = 1.0e-6):
+def fiedler(G: GraphLocal, epsilon: float = 1.0e-6):
         """
         Computes the eigenvector that corresponds to the second smallest eigenvalue 
         of the normalized Laplacian matrix.
@@ -11,7 +11,7 @@ def fiedler(G: graph_class_local, epsilon: float = 1.0e-6):
         Parameters (mandatory)
         ----------------------
 
-        G: graph_class_local
+        G: GraphLocal
 
         Parameters (optional)
         ---------------------

@@ -1,10 +1,10 @@
 from typing import *
 import numpy as np
-from localgraphclustering.fiedler import fiedler
-from localgraphclustering.fiedler_local import fiedler_local
-from localgraphclustering.sweep_cut import sweep_cut
-from localgraphclustering.approximate_PageRank import approximate_PageRank
-from localgraphclustering.graph_class_local import graph_class_local
+from .fiedler import fiedler
+from .fiedler_local import fiedler_local 
+from .sweep_cut import sweep_cut 
+from .approximate_PageRank import approximate_PageRank 
+from .GraphLocal import GraphLocal
 import warnings
 
 def spectral_clustering(G, ref_nodes, 
@@ -23,7 +23,7 @@ def spectral_clustering(G, ref_nodes,
     Parameters
     ----------------------
 
-    G: graph_class_local      
+    G: GraphLocal      
 
     ref_nodes: Sequence[int]
         A sequence of reference nodes, i.e., nodes of interest around which

@@ -7,14 +7,14 @@ import numpy as np
 import pandas as pd
 import warnings
 import collections as cole
-from localgraphclustering.find_library import *
+from .find_library import *
 
 import gzip
 import bz2
 import lzma
 
 
-class graph_class_local:
+class GraphLocal:
     """
     This class implements graph loading from an edgelist, gml or graphml and provides methods that operate on the graph.
 
@@ -157,7 +157,7 @@ class graph_class_local:
             elif df.shape[1] == 3:
                 weights = df[2].values
             else:
-                raise Exception('graph_class_local.read_graph: df.shape[1] not in (2, 3)')
+                raise Exception('GraphLocal.read_graph: df.shape[1] not in (2, 3)')
             
             self._num_vertices = max(source.max() + 1, target.max()+1)
             #self.adjacency_matrix = source, target, weights
@@ -366,7 +366,7 @@ class graph_class_local:
             warnings.warn("The graph has multiple (%i) components, using the largest with %i / %i nodes"%(
                      self.number_of_components, len(maxccnodes), self._num_vertices))  
             
-            g_copy = graph_class_local()
+            g_copy = GraphLocal()
             g_copy.adjacency_matrix = self.adjacency_matrix[maxccnodes,:].tocsc()[:,maxccnodes].tocsr()
             g_copy._num_vertices = len(maxccnodes) # AHH!
             g_copy.compute_statistics()  

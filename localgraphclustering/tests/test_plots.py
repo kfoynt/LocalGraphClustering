@@ -7,7 +7,7 @@ import localgraphclustering
 import matplotlib.pyplot as plt
 
 def load_example_graph():
-    return localgraphclustering.graph_class_local("localgraphclustering/tests/data/dolphins.edges",separator=" ")
+    return localgraphclustering..GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ")
 
 def test_ncpplots():
     G = localgraphclustering.graph_class_local("localgraphclustering/tests/data/dolphins.edges",separator=" ")

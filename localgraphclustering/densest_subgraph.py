@@ -1,7 +1,7 @@
 from typing import *
 import numpy as np
-from localgraphclustering.cpp.densest_subgraph_cpp import densest_subgraph_cpp
-from localgraphclustering.graph_class_local import graph_class_local
+from .cpp import densest_subgraph_cpp
+from .GraphLocal import GraphLocal
 
 def densest_subgraph(G):
     """
@@ -12,7 +12,7 @@ def densest_subgraph(G):
         Parameters
         ----------
 
-        G: graph_class_local
+        G: GraphLocal
             
         Returns
         -------

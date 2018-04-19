@@ -1,11 +1,11 @@
 from typing import *
 import numpy as np
 from scipy import sparse as sp
-from localgraphclustering.algorithms.fista_dinput_dense import fista_dinput_dense
-from localgraphclustering.cpp.proxl1PRaccel import proxl1PRaccel
-from localgraphclustering.graph_class_local import graph_class_local
+from .algorithms import fista_dinput_dense
+from .cpp import proxl1PRaccel
+from .GraphLocal import GraphLocal
 
-def multiclass_label_prediction(g: graph_class_local,
+def multiclass_label_prediction(g: GraphLocal,
                                 timeout: float = 100, 
                                 iterations: int = 1000,
                                 labels: np.ndarray = [],

@@ -4,7 +4,7 @@ import time
 def test_algs():
 
     # Read graph. This also supports gml and graphml format.
-    g = graph_class_local("localgraphclustering/tests/data/dolphins.edges",separator=" ")
+    g = GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ")
 
     # Call the global spectral partitioning algorithm.
     output_sp = fiedler(g)

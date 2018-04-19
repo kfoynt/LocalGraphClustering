@@ -1,9 +1,9 @@
 from typing import *
 import numpy as np
-from localgraphclustering.algorithms.acl_list import acl_list
-from localgraphclustering.algorithms.fista_dinput_dense import fista_dinput_dense
-from localgraphclustering.cpp.aclpagerank_cpp import aclpagerank_cpp
-from localgraphclustering.cpp.proxl1PRaccel import proxl1PRaccel
+from .algorithms import acl_list
+from .algorithms import fista_dinput_dense
+from .cpp import aclpagerank_cpp
+from .cpp import proxl1PRaccel
 import warnings
 
 def approximate_PageRank(G,
@@ -47,7 +47,7 @@ def approximate_PageRank(G,
     Parameters
     ----------
 
-    G: graph_class_local
+    G: GraphLocal
 
     ref_nodes: Sequence[int]
         A sequence of reference nodes, i.e., nodes of interest around which
