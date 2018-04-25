@@ -130,6 +130,6 @@ class NCPPlots:
         y = dfmin["output_isop"]
         x = dfmin["output_sizeeff"]
         ax.set_xlabel("effective size")
-        ax.set_ylabel("isoperimetry")
+        ax.set_ylabel("expansion")
         ax.plot(x, y)
         return fig, ax
