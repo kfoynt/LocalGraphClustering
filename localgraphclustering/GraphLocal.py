@@ -85,7 +85,7 @@ class GraphLocal:
     neighbors(vertex)
         Returns a list with the neighbors of the given vertex
     """
-    def __init__(self, filename = None, file_type='edgelist', separator='\t',remove_whitespace=False):
+    def __init__(self, filename = None, file_type='edgelist', separator='\t',remove_whitespace=False, header=None):
         """
         Initializes the graph from a gml or a edgelist file and initializes the attributes of the class.
 
@@ -95,10 +95,6 @@ class GraphLocal:
             Name of the file, for example 'JohnsHopkins.edgelist' or 'JohnsHopkins.gml'.
             Default = 'None'
 
-        dtype : string
-            Type of file. Currently only 'edgelist' and 'gml' are supported.
-            Default = 'edgelist'
-
         separator : string
             used if file_type = 'edgelist'
             Default = '\t'
@@ -106,10 +102,14 @@ class GraphLocal:
         remove_whitespace : bool
             set it to be True when there is more than one kinds of separators in the file
             Default = False
+
+        header : int
+            Use which row as column names.
+            Default = None
         """
 
         if filename != None:
-            self.read_graph(filename, file_type, separator, remove_whitespace)
+            self.read_graph(filename, file_type = file_type, separator = separator, remove_whitespace = remove_whitespace, header = header)
         
         self.load_library()
 
@@ -120,7 +120,7 @@ class GraphLocal:
     def reload_library(self):
         self.lib = reload_library(self.lib)
         
-    def read_graph(self, filename, file_type='edgelist', separator='\t', remove_whitespace=False):
+    def read_graph(self, filename, file_type='edgelist', separator='\t', remove_whitespace=False, header=None):
         """
         Reads the graph from an edgelist, gml or graphml file and initializes the class attribute adjacency_matrix.
 
@@ -129,7 +129,7 @@ class GraphLocal:
         filename : string
             Name of the file, for example 'JohnsHopkins.edgelist', 'JohnsHopkins.gml', 'JohnsHopkins.graphml'.
 
-        dtype : string
+        file_type : string
             Type of file. Currently only 'edgelist', 'gml' and 'graphml' are supported.
             Default = 'edgelist'
 
@@ -140,29 +140,33 @@ class GraphLocal:
         remove_whitespace : bool
             set it to be True when there is more than one kinds of separators in the file
             Default = False
+
+        header : int
+            Use which row as column names.
+            Default = None
         """
         if file_type == 'edgelist':
             
-            dtype = {0:'int32', 1:'int32', 2:'float64'}
+            #dtype = {0:'int32', 1:'int32', 2:'float64'}
             if remove_whitespace:
-                df = pd.read_csv(filename, header=None, dtype=dtype, delim_whitespace=True)
+                df = pd.read_csv(filename, header=header, delim_whitespace=remove_whitespace)
             else:
-                df = pd.read_csv(filename, sep=separator, header=None, dtype=dtype)
-            
-            
-            source = df[0].values
-            target = df[1].values
+                df = pd.read_csv(filename, sep=separator, header=header, delim_whitespace=remove_whitespace)
+            cols = [0,1,2]
+            if header != None:
+                cols = list(df.columns)
+            source = df[cols[0]].values
+            target = df[cols[1]].values
             if df.shape[1] == 2:
                 weights = np.ones(source.shape[0])
             elif df.shape[1] == 3:
-                weights = df[2].values
+                weights = df[cols[2]].values
             else:
                 raise Exception('GraphLocal.read_graph: df.shape[1] not in (2, 3)')
-            
             self._num_vertices = max(source.max() + 1, target.max()+1)
             #self.adjacency_matrix = source, target, weights
             
-            self.adjacency_matrix = sp.csr_matrix((weights, (source, target)), shape=(self._num_vertices, self._num_vertices))
+            self.adjacency_matrix = sp.csr_matrix((weights.astype(np.float64), (source, target)), shape=(self._num_vertices, self._num_vertices))
             
         elif file_type == 'gml':
             warnings.warn("Loading a gml is not efficient, we suggest using an edgelist format for this API.")
