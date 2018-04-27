@@ -42,7 +42,7 @@ class NCPPlots:
         if method_name != "":
             available_methods = list(set(self.df["method"]))
             if np.sum([method_name in i for i in available_methods]) == 0:
-                raise Exception("Method name is not available. Options are %s"%"".join(i+"\n" for i in list(available_methods)))
+                raise Exception("Method name is not available. Options are %s"%"\n".join(i+"\n" for i in list(available_methods)))
             self.df = self.df[self.df["method"].str.contains(method_name)]
 
     def feature_by_group(self, feature, group):
