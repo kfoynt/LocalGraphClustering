@@ -46,7 +46,7 @@ def ncp_node_worker(ncpdata,sets,func,timeout_ncp,methodname):
         setno += 1
         
         method_stats = {'input_set_type': 'node', 'input_set_params':R[0]}
-        ncpdata.results[methodname].extend(ncp_experiment(ncpdata, R, func, method_stats))
+        ncpdata.results.extend(ncp_experiment(ncpdata, R, func, method_stats))
         
         end = time.time()
         if end - start > timeout_ncp:
@@ -65,7 +65,7 @@ def ncp_neighborhood_worker(ncpdata,sets,func,timeout_ncp,methodname):
         R.extend(ncpdata.graph.neighbors(R[0]))
         method_stats = {'input_set_type': 'neighborhood', 'input_set_params':node}
         
-        ncpdata.results[methodname].extend(ncp_experiment(ncpdata, R, func, method_stats))
+        ncpdata.results.extend(ncp_experiment(ncpdata, R, func, method_stats))
         
         end = time.time()
         if end - start > timeout_ncp:
@@ -82,7 +82,7 @@ def ncp_set_worker(ncpdata,setnos,func,timeout_ncp,methodname):
         #R = R.copy() # duplicate so we don't keep extra weird data around
         method_stats = {'input_set_type': 'set', 'input_set_params':id}
         
-        ncpdata.results[methodname].extend(ncp_experiment(ncpdata, R, func, method_stats))
+        ncpdata.results.extend(ncp_experiment(ncpdata, R, func, method_stats))
         
         end = time.time()
         if end - start > timeout_ncp:
@@ -108,11 +108,13 @@ class NCPData:
         result_fields.extend(["methodfunc", "input_set_type", "input_set_params", "time"])
         self.record = namedtuple("NCPDataRecord", field_names=result_fields)
         self.reset_records()
+        self.default_method = None
+        self.method_names = {} # This stores human readable and usable names for methods
 
     def reset_records(self):
-        self.results = {}
+        self.results = []
         self.sets = []
-        #self.method_names = []
+        self.method_names = {}
         
     def random_nodes(self, ratio):
         n = self.graph._num_vertices
@@ -127,8 +129,8 @@ class NCPData:
         return np.random.choice(np.arange(0,n), size=n_nodes, replace=False)
         
     """ Decode and return the input set to a particular experiment. """
-    def input_set(self, methodname, j): 
-        result = self.results[methodname][j] # todo check for validity
+    def input_set(self, j): 
+        result = self.results[j] # todo check for validity
         if result.input_set_type=="node":
             return [result.input_set_params]
         elif result.input_set_type=="neighborhood":
@@ -140,13 +142,11 @@ class NCPData:
         else: 
             raise(ValueError("the input_set_type is unrecognized"))
     
-    def output_set(self, methodname, j):
-        result = self.results[methodname][j] # todo check for validity
+    def output_set(self, j):
+        result = self.results[j] # todo check for validity
         func = result.methodfunc
         R = self.input_set(j)
         return func(self.graph, R)
-
-    """
     
     def _check_method(self, method, name):
         if method == None:
@@ -168,10 +168,9 @@ class NCPData:
                 self.method_names[method] = name
             
         return method
-    """
         
     def add_random_node_samples(self, ratio=0.3, timeout=1000, nthreads=4, method=None, methodname=None):
-        #method = self._check_method(method, methodname)
+        method = self._check_method(method, methodname)
         nodes = self.random_nodes(ratio)
         
         threads = []
@@ -183,7 +182,7 @@ class NCPData:
         self.method_names.append(methodname)
         """
 
-        self.results[methodname] = []
+        #self.results[methodname] = []
         
         for i in range(nthreads):
             sets = [ [j] for j in threadnodes[i] ] # make a set of sets
@@ -194,7 +193,7 @@ class NCPData:
             t.join()
             
     def add_random_neighborhood_samples(self, ratio=0.3, timeout=1000, nthreads=4, method=None, methodname=None):
-        #method = self._check_method(method, methodname)
+        method = self._check_method(method, methodname)
         nodes = self.random_nodes(ratio)
         
         threads = []
@@ -206,7 +205,7 @@ class NCPData:
         self.method_names.append(methodname)
         """
 
-        self.results[methodname] = []
+        #self.results[methodname] = []
         
         for i in range(nthreads):
             sets = [ [j] for j in threadnodes[i] ] # make a set of sets
@@ -217,7 +216,7 @@ class NCPData:
             t.join()
             
     def add_set_samples(self, sets, nthreads=4, method=None, methodname=None, timeout=1000):
-        #method = self._check_method(method, methodname)
+        method = self._check_method(method, methodname)
         threads = []
         startset = len(self.sets)
         self.sets.extend(sets)
@@ -231,7 +230,7 @@ class NCPData:
         self.method_names.append(methodname)
         """
 
-        self.results[methodname] = []
+        #self.results[methodname] = []
         
         for i in range(nthreads):
             t = threading.Thread(target=ncp_set_worker,args=(self, setnos[i], method, timeout, methodname))
@@ -241,6 +240,7 @@ class NCPData:
             t.join()
         
     def as_data_frame(self):
+        """
         DF = pd.DataFrame.from_records([], columns=self.record._fields)
         for methodname in self.results.keys():
             df = pd.DataFrame.from_records(self.results[methodname], columns=self.record._fields)
@@ -248,6 +248,11 @@ class NCPData:
             df["method"] = methodname
             DF = DF.append(df,ignore_index=True)
         return DF
+        """
+        df = pd.DataFrame.from_records(self.results, columns=self.record._fields)
+        df.rename(columns={'method':'methodfunc'}, inplace=True)
+        df["method"] = df["methodfunc"].map(self.method_names)
+        return df
 
     def approxPageRank(self,
                        gamma: float = 0.01/0.99,
