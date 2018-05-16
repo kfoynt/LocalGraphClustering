@@ -17,61 +17,25 @@ The current version is 0.4.2 and it is appropriate for experts and intermediates
 - [David Gleich](https://www.cs.purdue.edu/homes/dgleich/), email: dgleich at purdue dot edu
 - [Michael Mahoney](https://www.stat.berkeley.edu/~mmahoney/), email: mmahoney at stat dot berkeley dot edu
 
-## Demonstration: social networks
+## List of applications and methods
 
-<img src="images/JHopkins.png" width="440" height="250"> <img src="images/Hopkins_global.png" width="440" height="250">
-<img src="images/Hopkins_local_1.png" width="440" height="250"> <img src="images/Hopkins_local_2.png" width="440" height="250">
+- [Approximate PageRank](https://dl.acm.org/citation.cfm?id=1170528)
+- [L1-regularized PageRank](https://link.springer.com/article/10.1007/s10107-017-1214-8) (solved using accelerated proximal gradient descent)
+- [PageRank Nibble](https://dl.acm.org/citation.cfm?id=1170528)
+- [Rounding methods for spectral embeddings](https://dl.acm.org/citation.cfm?id=1170528)
+- [MQI](https://link.springer.com/chapter/10.1007/978-3-540-25960-2_25)
+- [FlowImprove](https://dl.acm.org/citation.cfm?id=1347154)
+- [SimpleLocal](https://dl.acm.org/citation.cfm?id=3045595)
+- [Capacity Releasing Diffusion](http://proceedings.mlr.press/v70/wang17b.html)
+- Multiclass label prediction
+- [Network Community Profiles](http://www.tandfonline.com/doi/abs/10.1080/15427951.2009.10129177)
+- Global spectral partitioning
+- Densest subgraph
 
-## Demonstration: bioinformatics networks
+## Pipelines
 
-<img src="images/pss.png" width="440" height="250"> <img src="images/pss_local.png" width="440" height="250">
-<img src="images/ppi.png" width="440" height="250"> <img src="images/ppi_local.png" width="440" height="250">
-<img src="images/blasted.png" width="440" height="250"> <img src="images/blasted_local.png" width="440" height="250">
-
-## Presentation
-
-[![](http://img.youtube.com/vi/mf9h1-jhyos/0.jpg)](https://www.youtube.com/watch?v=mf9h1-jhyos)
-
-
-## Installation
-
-```
-Clone the repo
-```
-```
-Enter the folder using the termimal
-```
-```
-Type in the terminal `python setup.py install`
-```
-Note that this package runs only with Python 3.
-
-It can also be installed through pip:
-
-```
-pip3 install localgraphclustering
-```
-
-## Import from Julia
-
-1. In Julia, add the PyCall package: 
-   
-   `Pkg.add(PyCall)`
-2. Update which version of Python that PyCall defaults to:
-
-    `ENV["PYTHON"] = (path to python3 executable) `
-
-    `Pkg.build("PyCall")`
-
-    (You can get the path to the python3 executable by just running "which python3" in the terminal.)
-3. Make sure the PyPlot package is added in Julia. 
-4. Import *localgraphclustering* by using:
-
-   `using PyPlot`
-
-   `@pyimport localgraphclustering`
-
-You can now use any routine in *localgraphluserting* from Julia.
+- [Network Community Profiles](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/NCPs.ipynb)
+- [Multiclass label prediction](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/multiclasslabelprediction.ipynb)
 
 ## Examples
 
@@ -132,20 +96,21 @@ For examples using reasonably large graphs (100 million edges) on a 16GB RAM lap
 
 For advanced examples see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples.ipynb).
 
-## List of applications and methods
 
--  [Approximate PageRank](https://dl.acm.org/citation.cfm?id=1170528)
-- [L1-regularized PageRank](https://link.springer.com/article/10.1007/s10107-017-1214-8) (solved using accelerated proximal gradient descent)
-- [PageRank Nibble](https://dl.acm.org/citation.cfm?id=1170528)
-- [Rounding methods for spectral embeddings](https://dl.acm.org/citation.cfm?id=1170528)
-- [MQI](https://link.springer.com/chapter/10.1007/978-3-540-25960-2_25)
-- [FlowImprove](https://dl.acm.org/citation.cfm?id=1347154)
-- [SimpleLocal](https://dl.acm.org/citation.cfm?id=3045595)
-- [Capacity Releasing Diffusion](http://proceedings.mlr.press/v70/wang17b.html)
-- Multiclass label prediction
-- [Network Community Profiles](http://www.tandfonline.com/doi/abs/10.1080/15427951.2009.10129177)
-- Global spectral partitioning
-- Densest subgraph
+## Demonstration: social networks
+
+<img src="images/JHopkins.png" width="440" height="250"> <img src="images/Hopkins_global.png" width="440" height="250">
+<img src="images/Hopkins_local_1.png" width="440" height="250"> <img src="images/Hopkins_local_2.png" width="440" height="250">
+
+## Demonstration: bioinformatics networks
+
+<img src="images/pss.png" width="440" height="250"> <img src="images/pss_local.png" width="440" height="250">
+<img src="images/ppi.png" width="440" height="250"> <img src="images/ppi_local.png" width="440" height="250">
+<img src="images/blasted.png" width="440" height="250"> <img src="images/blasted_local.png" width="440" height="250">
+
+## Presentation
+
+[![](http://img.youtube.com/vi/mf9h1-jhyos/0.jpg)](https://www.youtube.com/watch?v=mf9h1-jhyos)
 
 ## When local graph clustering methods do not perform well?
 
@@ -153,6 +118,47 @@ In theory and in practice we have observed that the performance of local graph c
 depends on the magnitute of the conductance of the target cluster as well as the magnitute of the minimum conductance
 in the induced subgraph of the target cluster. Simply put, if the "internal connectivity" of the target cluster (the minimum conductance
 in the induced subgraph of the target cluster) is not stronger than the "external connectivity" (the conductance of the target cluster) then local graph clustering methods have poor performance in terms of finding the target cluster. For theoretical details please see Section 3 in the [Capacity Releasing Diffusion for Speed and Locality](http://proceedings.mlr.press/v70/wang17b.html) paper. For extensive numerical experiments that demonstrate properties of challenging target clusters please see Section 4 in [Capacity Releasing Diffusion for Speed and Locality](http://proceedings.mlr.press/v70/wang17b.html) as well as the supplementary material in the same link.
+
+
+## Installation
+
+```
+Clone the repo
+```
+```
+Enter the folder using the termimal
+```
+```
+Type in the terminal `python setup.py install`
+```
+Note that this package runs only with Python 3.
+
+It can also be installed through pip:
+
+```
+pip3 install localgraphclustering
+```
+
+## Import from Julia
+
+1. In Julia, add the PyCall package: 
+   
+   `Pkg.add(PyCall)`
+2. Update which version of Python that PyCall defaults to:
+
+    `ENV["PYTHON"] = (path to python3 executable) `
+
+    `Pkg.build("PyCall")`
+
+    (You can get the path to the python3 executable by just running "which python3" in the terminal.)
+3. Make sure the PyPlot package is added in Julia. 
+4. Import *localgraphclustering* by using:
+
+   `using PyPlot`
+
+   `@pyimport localgraphclustering`
+
+You can now use any routine in *localgraphluserting* from Julia.
 
 ## License
 
