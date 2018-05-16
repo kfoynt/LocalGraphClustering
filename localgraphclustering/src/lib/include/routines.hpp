@@ -142,6 +142,9 @@ public:
     void unit_flow(unordered_map<vtype,double>& Delta, vtype U, vtype h, vtype w, unordered_map<vtype,double>& f_v, 
         unordered_map<vtype,double>& ex, unordered_map<vtype,vtype>& l);
     void round_unit_flow(unordered_map<vtype,vtype>& l, unordered_map<vtype,double>& cond,unordered_map<vtype,vector<vtype>>& labels);
+
+    //functions in triangleclusters.cpp
+    void triangleclusters(double* cond, double* cut, double* vol, double* cc, double* t);
 };
 
 template<typename vtype, typename itype>

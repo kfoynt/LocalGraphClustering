@@ -6,3 +6,4 @@ from .MQI_cpp import MQI_cpp
 from .proxl1PRaccel import proxl1PRaccel
 from .SimpleLocal_cpp import SimpleLocal_cpp
 from .sweepcut_cpp import sweepcut_cpp
+from .triangleclusters_cpp import triangleclusters_cpp
