@@ -37,6 +37,7 @@ The current version is 0.4.2 and it is appropriate for experts and intermediates
 
 - [Network Community Profiles](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/NCPs.ipynb)
 - [Multiclass label prediction](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/multiclasslabelprediction.ipynb)
+- [Triangle clusters and vertex neighborhood metrics](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/TriangleClustersAndVertexNeighborhoodMetrics.ipynb)
 
 ## Examples
 
