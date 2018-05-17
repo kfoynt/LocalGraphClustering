@@ -33,3 +33,7 @@ def test_algs():
     # Conductance after improvement
     print("Conductance after improvement:",g.compute_conductance(output_SL[0]))
 
+    # Compute triangle clusters and cluster metrics
+    cond,cut,vol,cc,t = triangleclusters(g)
+    minverts, minvals = neighborhoodmin(g,cond,True)
+    print("vertices with minimum conductance neighborhood:",minverts)

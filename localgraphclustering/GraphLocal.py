@@ -313,8 +313,8 @@ class GraphLocal:
         vol_R = sum(self.d[R])     
 
         cut_R = vol_R - np.dot(v_ones_R,self.adjacency_matrix.dot(v_ones_R.T))
-
-        cond_R = cut_R/(1.0*min(vol_R,self.vol_G - vol_R))
+        vol = (1.0*min(vol_R,self.vol_G - vol_R))
+        cond_R = cut_R/vol if vol != 0 else 0
         
         return cond_R
         
