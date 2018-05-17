@@ -27,7 +27,7 @@ The current version is 0.4.2 and it is appropriate for experts and intermediates
 - [FlowImprove](https://dl.acm.org/citation.cfm?id=1347154)
 - [SimpleLocal](https://dl.acm.org/citation.cfm?id=3045595)
 - [Capacity Releasing Diffusion](http://proceedings.mlr.press/v70/wang17b.html)
-- Multiclass label prediction
+- [Multiclass label prediction](https://dl.acm.org/citation.cfm?id=2783376)
 - [Network Community Profiles](http://www.tandfonline.com/doi/abs/10.1080/15427951.2009.10129177)
 - Global spectral partitioning
 - Densest subgraph
