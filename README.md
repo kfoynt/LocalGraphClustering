@@ -31,6 +31,7 @@ The current version is 0.4.2 and it is appropriate for experts and intermediates
 - [Network Community Profiles](http://www.tandfonline.com/doi/abs/10.1080/15427951.2009.10129177)
 - Global spectral partitioning
 - Densest subgraph
+- [Triangle clusters and vertex neighborhood metrics](https://arxiv.org/pdf/1112.0031.pdf)
 
 ## Pipelines
 
