@@ -112,7 +112,7 @@ For advanced examples see the Jupyter notebook [here](https://github.com/kfoynt/
 
 ## Presentation
 
-[![](http://img.youtube.com/vi/mf9h1-jhyos/0.jpg)](https://www.youtube.com/watch?v=mf9h1-jhyos)
+[![](http://img.youtube.com/vi/mf9h1-jhyos/0.jpg)](https://youtu.be/mf9h1-jhyos)
 
 ## When local graph clustering methods do not perform well?
 
