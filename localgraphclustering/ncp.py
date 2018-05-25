@@ -11,6 +11,7 @@ import warnings
 from .spectral_clustering import spectral_clustering
 from .flow_clustering import flow_clustering
 from .GraphLocal import GraphLocal
+from .triangleclusters import triangleclusters
 
 def ncp_experiment(ncpdata,R,func,method_stats):
     if ncpdata.input_stats:
@@ -107,6 +108,7 @@ class NCPData:
         result_fields.extend(["output_" + str(field) for field in standard_fields.keys()])
         result_fields.extend(["methodfunc", "input_set_type", "input_set_params", "time"])
         self.record = namedtuple("NCPDataRecord", field_names=result_fields)
+        self.neighborhood_cond = None
         self.reset_records()
         self.default_method = None
         self.method_names = {} # This stores human readable and usable names for methods
@@ -115,6 +117,50 @@ class NCPData:
         self.results = []
         self.sets = []
         self.method_names = {}
+        
+    """ Generate nodes at random from the set of locally minimal seeds according
+    to a vertex-based feature. By default, that feature is neighborhood conductance,
+    following 
+    
+        Vertex neighborhoods, low conductance cuts, and good seeds for local community methods
+        DF Gleich and C Seshahdri, KDD 2012.
+        
+    But, by providing any vector of data for each node in the graph, 
+    this code can be extended. Note that the conductance of each vertex
+    neighborhood in the graph is calculated the first time and cached, 
+    which could cause a long initialization.
+    
+    @param ratio The number of nodes to pick (if > 1.0) or the fraction
+    of total nodes to pick (if <= 1.0) (no default)
+    
+    @param mindegree the minimum degree of a node to pick (default 5)
+    
+    @param feature The vector of data to use to produce the locally
+    minimial seeds(default None, which means to use neighborhood conductance)
+    
+    @param strict (default True) if we use a strict minimum in the definition
+    of a local minimum. 
+    """
+    def random_localmin_nodes(self, ratio, mindegree=5, feature=None, strict=True):
+        if feature is None:
+            # then we use conductance
+            if self.neighborhood_cond is None:
+                self.neighborhood_cond = triangleclusters(self.graph)[0]
+            feature = self.neighborhood_cond
+        # find the set of minimal verts
+        minverts = self.graph.local_extrema(feature, strict)[0]
+        # filter by mindegree
+        minverts = [v for v in minverts if self.graph.d[v] >= mindegree]
+        
+        if 0 < ratio <= 1: 
+            n_nodes = min(np.ceil(ratio*len(minverts)),len(minverts))
+            n_nodes = int(n_nodes)
+        elif ratio > 1.0: # this is a number of nodes
+            n_nodes = min(int(ratio), len(minverts)) 
+        else:
+            raise(ValueError("the ratio parameter must be positive"))
+        
+        return np.random.choice(minverts, size=n_nodes, replace=False)
         
     def random_nodes(self, ratio):
         n = self.graph._num_vertices
@@ -175,15 +221,7 @@ class NCPData:
         
         threads = []
         threadnodes = np.array_split(nodes, nthreads)
-        
-        """
-        results_id = len(self.results)
-        self.results.append([])
-        self.method_names.append(methodname)
-        """
-
-        #self.results[methodname] = []
-        
+ 
         for i in range(nthreads):
             sets = [ [j] for j in threadnodes[i] ] # make a set of sets
             t = threading.Thread(target=ncp_node_worker,args=(self, sets, method, timeout, methodname))
@@ -199,13 +237,62 @@ class NCPData:
         threads = []
         threadnodes = np.array_split(nodes, nthreads)
         
-        """
-        results_id = len(self.results)
-        self.results.append([])
-        self.method_names.append(methodname)
-        """
-
-        #self.results[methodname] = []
+        for i in range(nthreads):
+            sets = [ [j] for j in threadnodes[i] ] # make a set of sets
+            t = threading.Thread(target=ncp_neighborhood_worker,args=(self, sets, method, timeout, methodname))
+            threads.append(t)
+            t.start()
+        for t in threads:
+            t.join()
+            
+    """ Add expansions of all the locally minimal seeds.
+    
+    This routine follows ideas from: 
+    
+        Vertex neighborhoods, low conductance cuts, and good seeds for local community methods
+        DF Gleich and C Seshahdri, KDD 2012.
+        
+    which grow sets of out locally minimal seed vertices. These are
+    vertices whose neighborhood conductance (in that paper) were better than all
+    of the other neighbors. By default, this routine will use the same
+    type of expansion.
+    
+    
+    @param feature (default None, which means to use neighborhood conductance)
+    @param strict, ratio, mindegree (see random_localmin_nodes)
+    @param neighborhods this determinds if we seed based on the vertex (False)
+    or the vertex neighborhood (True) (default True, following Gleich & Seshadhri)
+    @param timeout, nthreads, method, methodname (see add_random_node samples)
+    """
+    def add_localmin_samples(self, 
+            feature=None, strict=True, ratio=1.0, mindegree=5, # localmin parameters
+            neighborhoods=True, # use neighborhood expansion
+            timeout=1000, nthreads=4, method=None, methodname=None):
+                
+        method = self._check_method(method, methodname)
+        nodes = self.random_localmin_nodes(ratio, 
+            feature=feature, strict=strict, mindegree=mindegree)
+        
+        threads = []
+        threadnodes = np.array_split(nodes, nthreads)
+ 
+        for i in range(nthreads):
+            sets = [ [j] for j in threadnodes[i] ] # make a set of sets
+            if neighborhoods:
+                t = threading.Thread(target=ncp_neighborhood_worker,args=(self, sets, method, timeout, methodname))
+            else:
+                t = threading.Thread(target=ncp_node_worker,args=(self, sets, method, timeout, methodname))
+            threads.append(t)
+            t.start()
+        for t in threads:
+            t.join()
+            
+    def add_random_neighborhood_samples(self, ratio=0.3, timeout=1000, nthreads=4, method=None, methodname=None):
+        method = self._check_method(method, methodname)
+        nodes = self.random_nodes(ratio)
+        
+        threads = []
+        threadnodes = np.array_split(nodes, nthreads)
         
         for i in range(nthreads):
             sets = [ [j] for j in threadnodes[i] ] # make a set of sets

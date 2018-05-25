@@ -35,6 +35,13 @@ def test_ncp_l1reg():
     df = localgraphclustering.NCPData(G).l1reg(ratio=1)    
     print(df)
 
+def test_ncp_localmin():
+    G = load_example_graph()
+    ncp = localgraphclustering.NCPData(G)
+    func = lambda G, R: list(spectral_clustering(G,R,alpha=0.01,rho=1.0e-4,method="acl")[0])
+    ncp.default_method = func
+    ncp.add_localmin_samples(ratio=1)    
+    print(ncp.as_data_frame())
 
 
 @pytest.mark.long_tests

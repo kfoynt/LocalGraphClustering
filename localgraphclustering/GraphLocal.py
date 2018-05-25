@@ -208,7 +208,8 @@ class GraphLocal:
 
     def compute_statistics(self):
         """
-        Computes statistics for the graph. It updates the class attributes. The user needs to read the graph first before calling
+        Computes statistics for the graph. It updates the class attributes. 
+        The user needs to read the graph first before calling
         this method by calling the read_graph method from this class.
         """
         self.d = np.ravel(self.adjacency_matrix.sum(axis=1))
@@ -376,3 +377,70 @@ class GraphLocal:
             g_copy.compute_statistics()  
             g_copy._weighted = self._weighted 
             return g_copy
+            
+    
+    def local_extrema(self,vals,strict=False,reverse=False):
+        """
+        Find extrema in a graph based on a set of values.
+
+        Parameters
+        ----------
+
+        G: GraphLocal
+
+        vals: Sequence[float]
+            a feature value per node used to find the ex against each other, i.e. conductance
+
+        strict: bool
+            If True, find a set of vertices where vals(i) < vals(j) for all neighbors N(j)
+            i.e. local minima in the space of the graph
+            If False, find a set of vertices where vals(i) <= vals(j) for all neighbors N(j)
+            i.e. local minima in the space of the graph
+            
+        reverse: bool
+            if True, then find local maxima, if False then find local minima 
+            (by default, this is false, so we find local minima) 
+
+        Returns
+        -------
+
+        minverts: Sequence[int]
+            the set of vertices
+
+        minvals: Sequence[float]
+            the set of min values
+        """
+        n = self.adjacency_matrix.shape[0]
+        minverts = []
+        ai = np.uint64(self.adjacency_matrix.indptr)
+        aj = np.uint32(self.adjacency_matrix.indices)
+        factor = 1.0
+        if reverse: 
+            factor = -1.0
+        for i in range(n):
+            vali = factor*vals[i]
+            lmin = True
+            for nzi in range(ai[i],ai[i+1]):
+                v = aj[nzi]
+                if v == i: 
+                    continue # skip self-loops
+                if strict:
+                    if vali < factor*vals[v]:
+                        continue
+                    else:
+                        lmin = False
+                else:
+                    if vali <= factor*vals[v]:
+                        continue
+                    else:
+                        lmin = False
+                
+                if lmin == False:
+                    break # break out of the loop
+            
+            if lmin:
+                minverts.append(i)
+                    
+        minvals = vals[minverts]
+
+        return minverts, minvals

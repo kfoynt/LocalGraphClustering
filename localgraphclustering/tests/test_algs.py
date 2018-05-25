@@ -35,5 +35,5 @@ def test_algs():
 
     # Compute triangle clusters and cluster metrics
     cond,cut,vol,cc,t = triangleclusters(g)
-    minverts, minvals = neighborhoodmin(g,cond,True)
+    minverts, minvals = g.local_extrema(cond,True)
     print("vertices with minimum conductance neighborhood:",minverts)
