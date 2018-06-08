@@ -12,6 +12,9 @@ from .spectral_clustering import spectral_clustering
 from .flow_clustering import flow_clustering
 from .GraphLocal import GraphLocal
 from .triangleclusters import triangleclusters
+from .cpp import *
+
+threadLock = threading.Lock()
 
 def ncp_experiment(ncpdata,R,func,method_stats):
     if ncpdata.input_stats:
@@ -47,7 +50,10 @@ def ncp_node_worker(ncpdata,sets,func,timeout_ncp,methodname):
         setno += 1
         
         method_stats = {'input_set_type': 'node', 'input_set_params':R[0]}
-        ncpdata.results.extend(ncp_experiment(ncpdata, R, func, method_stats))
+        result = ncp_experiment(ncpdata, R, func, method_stats)
+        threadLock.acquire()
+        ncpdata.results.extend(result)
+        threadLock.release()
         
         end = time.time()
         if end - start > timeout_ncp:
@@ -66,7 +72,11 @@ def ncp_neighborhood_worker(ncpdata,sets,func,timeout_ncp,methodname):
         R.extend(ncpdata.graph.neighbors(R[0]))
         method_stats = {'input_set_type': 'neighborhood', 'input_set_params':node}
         
-        ncpdata.results.extend(ncp_experiment(ncpdata, R, func, method_stats))
+        result = ncp_experiment(ncpdata, R, func, method_stats)
+        threadLock.acquire()
+        ncpdata.results.extend(result)
+        threadLock.release()
+
         
         end = time.time()
         if end - start > timeout_ncp:
@@ -83,7 +93,11 @@ def ncp_set_worker(ncpdata,setnos,func,timeout_ncp,methodname):
         #R = R.copy() # duplicate so we don't keep extra weird data around
         method_stats = {'input_set_type': 'set', 'input_set_params':id}
         
-        ncpdata.results.extend(ncp_experiment(ncpdata, R, func, method_stats))
+        result = ncp_experiment(ncpdata, R, func, method_stats)
+        
+        threadLock.acquire()
+        ncpdata.results.extend(result)
+        threadLock.release()
         
         end = time.time()
         if end - start > timeout_ncp:
@@ -349,7 +363,9 @@ class NCPData:
                        timeout: float = 1000):
         #self.reset_records("approxPageRank")
         alpha = 1.0-1.0/(1.0+gamma)
-        funcs = {lambda G,R: spectral_clustering(G,R,alpha=alpha,rho=rho,method="acl")[0]:'acl;rho=%.0e'%(rho) 
+        vfunc = aclpagerank_cpp(self.graph.ai,self.graph.aj,self.graph.lib)
+        scfunc = sweepcut_cpp(self.graph.ai,self.graph.aj,self.graph.lib,0)
+        funcs = {lambda G,R: spectral_clustering(G,R,alpha=alpha,rho=rho,method="acl",vfun=vfunc,scfun=scfunc)[0]:'acl;rho=%.0e'%(rho) 
                     for rho in rholist}
         for func in funcs.keys():
             self.add_random_node_samples(method=func,methodname=funcs[func],ratio=ratio,nthreads=nthreads,timeout=timeout/len(funcs))
@@ -362,7 +378,9 @@ class NCPData:
               timeout: float = 1000):
         #self.reset_records("l1reg")
         alpha = 1.0-1.0/(1.0+gamma)
-        funcs = {lambda G,R: spectral_clustering(G,R,alpha=alpha,rho=rho,method="l1reg")[0]:'l1reg;rho=%.0e'%(rho) 
+        vfun = proxl1PRaccel(self.graph.ai,self.graph.aj,self.graph.lib)
+        scfun = sweepcut_cpp(self.graph.ai,self.graph.aj,self.graph.lib,0)
+        funcs = {lambda G,R: spectral_clustering(G,R,alpha=alpha,rho=rho,method="l1reg",vfun=vfun,scfun=scfun)[0]:'l1reg;rho=%.0e'%(rho) 
                     for rho in rholist}
         for func in funcs.keys():
             self.add_random_node_samples(method=func,methodname=funcs[func],ratio=ratio,nthreads=nthreads,timeout=timeout/len(funcs))
@@ -375,7 +393,8 @@ class NCPData:
             nthreads: int = 4,
             timeout: float = 1000):
         #self.reset_records("crd")
-        func = lambda G,R: flow_clustering(G,R,w=w, U=U, h=h,method="crd")[0]
+        fun = capacity_releasing_diffusion_cpp(self.graph.ai,self.graph.aj,self.graph.lib)
+        func = lambda G,R: flow_clustering(G,R,w=w, U=U, h=h,method="crd",fun=fun)[0]
         self.add_random_neighborhood_samples(method=func,methodname="crd",
                 ratio=ratio,nthreads=nthreads,timeout=timeout/2)
         self.add_random_node_samples(method=func,methodname="crd",
@@ -387,7 +406,8 @@ class NCPData:
             nthreads: int = 4,
             timeout: float = 1000):
         #self.reset_records("mqi")
-        func = lambda G,R: flow_clustering(G,R,method="mqi")[0]
+        fun = MQI_cpp(self.graph.ai,self.graph.aj,self.graph.lib)
+        func = lambda G,R: flow_clustering(G,R,method="mqi",fun=fun)[0]
         self.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout,
                 method=func,methodname="mqi")
         

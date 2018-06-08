@@ -17,3 +17,4 @@ from .spectral_clustering import spectral_clustering
 from .flow_clustering import flow_clustering
 
 from .triangleclusters import triangleclusters
+from .neighborhoodmin import neighborhoodmin

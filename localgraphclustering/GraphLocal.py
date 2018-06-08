@@ -22,6 +22,12 @@ class GraphLocal:
     ----------
     adjacency_matrix : scipy csr matrix
 
+    ai : numpy vector
+        CSC format index pointer array, its data type is determined by "itype" during initialization
+
+    aj : numpy vector
+        CSC format index array, its data type is determined by "vtype" during initialization
+
     _num_vertices : int
         Number of vertices
 
@@ -85,7 +91,7 @@ class GraphLocal:
     neighbors(vertex)
         Returns a list with the neighbors of the given vertex
     """
-    def __init__(self, filename = None, file_type='edgelist', separator='\t',remove_whitespace=False, header=None):
+    def __init__(self, filename = None, file_type='edgelist', separator='\t',remove_whitespace=False,header=None,vtype=np.uint32,itype=np.uint32):
         """
         Initializes the graph from a gml or a edgelist file and initializes the attributes of the class.
 
@@ -106,10 +112,18 @@ class GraphLocal:
         header : int
             Use which row as column names.
             Default = None
+        
+        vtype
+            numpy integer type of CSC format index array 
+            Default = np.uint32
+
+        itype
+            numpy integer type of CSC format index pointer array 
+            Default = np.uint32
         """
 
         if filename != None:
-            self.read_graph(filename, file_type = file_type, separator = separator, remove_whitespace = remove_whitespace, header = header)
+            self.read_graph(filename, file_type = file_type, separator = separator, remove_whitespace = remove_whitespace, header = header, vtype=vtype, itype=itype)
         
         self.load_library()
 
@@ -120,7 +134,7 @@ class GraphLocal:
     def reload_library(self):
         self.lib = reload_library(self.lib)
         
-    def read_graph(self, filename, file_type='edgelist', separator='\t', remove_whitespace=False, header=None):
+    def read_graph(self, filename, file_type='edgelist', separator='\t', remove_whitespace=False, header=None, vtype=np.uint32, itype=np.uint32):
         """
         Reads the graph from an edgelist, gml or graphml file and initializes the class attribute adjacency_matrix.
 
@@ -144,6 +158,14 @@ class GraphLocal:
         header : int
             Use which row as column names.
             Default = None
+
+        vtype
+            numpy integer type of CSC format index array 
+            Default = np.uint32
+
+        itype
+            numpy integer type of CSC format index pointer array 
+            Default = np.uint32
         """
         if file_type == 'edgelist':
             
@@ -197,6 +219,8 @@ class GraphLocal:
                 
         self._num_edges = self.adjacency_matrix.nnz
         self.compute_statistics()
+        self.ai = itype(self.adjacency_matrix.indptr)
+        self.aj = vtype(self.adjacency_matrix.indices)
         
     def discard_weights(self):
         """ Discard any weights that were loaded from the data file.
@@ -376,6 +400,12 @@ class GraphLocal:
             g_copy._num_vertices = len(maxccnodes) # AHH!
             g_copy.compute_statistics()  
             g_copy._weighted = self._weighted 
+            dt = np.dtype(self.ai[0])
+            itype = np.int64 if dt.name == 'int64' else np.uint32
+            dt = np.dtype(self.aj[0])
+            vtype = np.int64 if dt.name == 'int64' else np.uint32
+            g_copy.ai = itype(g_copy.adjacency_matrix.indptr)
+            g_copy.aj = vtype(g_copy.adjacency_matrix.indices)
             return g_copy
             
     

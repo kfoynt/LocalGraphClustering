@@ -70,7 +70,7 @@ double graph<vtype,itype>::densest_subgraph(vtype *ret_set, vtype *actual_length
     size_t iter = 0;
 
     adj = new vector<Edge<vtype,itype>>[nverts];
-    level = new vtype[nverts];
+    level = new int[nverts];
     vector<bool> cut (nverts);
     /*Andrew Goldberg's algorithm*/
     while(n * (n - 1) * (U - L) >= 1){

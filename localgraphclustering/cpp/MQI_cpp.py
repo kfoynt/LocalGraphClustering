@@ -10,17 +10,13 @@ from operator import itemgetter
 import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
+from .utility import determine_types
 #from localgraphclustering.find_library import load_library
 
 
-def MQI_cpp(n,ai,aj,nR,R,lib):
+def MQI_cpp(ai,aj,lib):
     
-    float_type = ctypes.c_double
-    
-    dt = np.dtype(ai[0])
-    (itype, ctypes_itype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
-    dt = np.dtype(aj[0])
-    (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
     
     #lib = load_library()
 
@@ -32,8 +28,6 @@ def MQI_cpp(n,ai,aj,nR,R,lib):
         fun = lib.MQI32
 
     #call C function
-    R=np.array(R,dtype=vtype)
-    ret_set=np.zeros(nR,dtype=vtype)
     fun.restype=ctypes_vtype
     fun.argtypes=[ctypes_vtype,ctypes_vtype,
                   ndpointer(ctypes_itype, flags="C_CONTIGUOUS"),
@@ -41,6 +35,12 @@ def MQI_cpp(n,ai,aj,nR,R,lib):
                   ctypes_vtype,
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS")]
+    return fun
+
+def MQI_run(fun,n,ai,aj,nR,R):
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
+    R=np.array(R,dtype=vtype)
+    ret_set=np.zeros(nR,dtype=vtype)
     actual_length=fun(n,nR,ai,aj,0,R,ret_set)
     actual_set=np.empty(actual_length,dtype=vtype)
     actual_set[:]=[ret_set[i] for i in range(actual_length)]

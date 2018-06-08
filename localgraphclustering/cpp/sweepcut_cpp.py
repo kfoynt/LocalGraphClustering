@@ -14,6 +14,7 @@ from operator import itemgetter
 import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
+from .utility import determine_types
 #from localgraphclustering.find_library import load_library
 
 def wrapped_ndptr(*args, **kwargs):
@@ -24,12 +25,8 @@ def wrapped_ndptr(*args, **kwargs):
         return base.from_param(obj)
     return type(base.__name__, (base,), {'from_param': classmethod(from_param)})
 
-def sweepcut_cpp(n,ai,aj,a,ids,num,values,flag,lib,degrees = None):
-    float_type = ctypes.c_double
-    dt = np.dtype(ai[0])
-    (itype, ctypes_itype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
-    dt = np.dtype(aj[0])
-    (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
+def sweepcut_cpp(ai,aj,lib,flag):
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
 
     #lib = load_library()
     
@@ -41,13 +38,8 @@ def sweepcut_cpp(n,ai,aj,a,ids,num,values,flag,lib,degrees = None):
         fun = lib.sweepcut_with_sorting32 if flag == 0 else lib.sweepcut_without_sorting32
 
     #call C function
-    ids=np.array(ids,dtype=vtype)
-    values=np.array(values,dtype=float_type)
-    results=np.zeros(num,dtype=vtype)
     fun.restype=ctypes_vtype
-    min_cond = np.array([0.0],dtype=float_type)
-    if degrees is not None:
-        degrees = np.array(degrees,dtype=float_type)
+    
     if flag == 0:
         fun.argtypes=[ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
                       ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
@@ -58,9 +50,10 @@ def sweepcut_cpp(n,ai,aj,a,ids,num,values,flag,lib,degrees = None):
                       ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
                       ctypes_vtype,
                       ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                      wrapped_ndptr(dtype=ctypes.c_double,ndim=1,flags="C_CONTIGUOUS")
+                      ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
+                      ctypes.c_int
+                      #wrapped_ndptr(dtype=ctypes.c_double,ndim=1,flags="C_CONTIGUOUS")
                       ]
-        actual_length=fun(values,ids,results,num,n,ai,aj,a,0,min_cond,degrees)
     else:
         fun.argtypes=[ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
                       ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
@@ -70,12 +63,28 @@ def sweepcut_cpp(n,ai,aj,a,ids,num,values,flag,lib,degrees = None):
                       ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
                       ctypes_vtype,
                       ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                      wrapped_ndptr(dtype=ctypes.c_double,ndim=1,flags="C_CONTIGUOUS")
+                      ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
+                      ctypes.c_int
+                      #wrapped_ndptr(dtype=ctypes.c_double,ndim=1,flags="C_CONTIGUOUS")
                       ]
-        actual_length=fun(ids,results,num,n,ai,aj,a,0,min_cond,degrees)
+    return fun
+
+def sweepcut_run(fun,n,ai,aj,a,ids,num,values,flag,degrees = []):
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
+    
+    ids=np.array(ids,dtype=vtype)
+    values=np.array(values,dtype=float_type)
+    results=np.zeros(num,dtype=vtype)
+    min_cond = np.array([0.0],dtype=float_type)
+    degrees = np.array(degrees,dtype=float_type)
+
+    if flag == 0:
+        actual_length=fun(values,ids,results,num,n,ai,aj,a,0,min_cond,degrees,len(degrees)!=0)
+    else:
+        actual_length=fun(ids,results,num,n,ai,aj,a,0,min_cond,degrees,len(degrees)!=0)
 
     actual_results=np.empty(actual_length,dtype=vtype)
     actual_results[:]=[results[i] for i in range(actual_length)]
     min_cond = min_cond[0]
-
     return (actual_length,actual_results,min_cond)
+

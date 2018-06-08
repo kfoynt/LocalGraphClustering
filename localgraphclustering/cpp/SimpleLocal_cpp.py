@@ -10,17 +10,13 @@ from operator import itemgetter
 import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
+from .utility import determine_types
 #from localgraphclustering.find_library import load_library
 
 
-def SimpleLocal_cpp(n,ai,aj,nR,R,delta,lib):
+def SimpleLocal_cpp(ai,aj,lib):
     
-    float_type = ctypes.c_double
-    
-    dt = np.dtype(ai[0])
-    (itype, ctypes_itype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
-    dt = np.dtype(aj[0])
-    (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
     
     #lib = load_library()
 
@@ -32,8 +28,6 @@ def SimpleLocal_cpp(n,ai,aj,nR,R,delta,lib):
         fun = lib.SimpleLocal32
 
     #call C function
-    R=np.array(R,dtype=vtype)
-    ret_set=np.zeros(n,dtype=vtype)
     fun.restype=ctypes_vtype
     fun.argtypes=[ctypes_vtype,ctypes_vtype,
                   ndpointer(ctypes_itype, flags="C_CONTIGUOUS"),
@@ -42,6 +36,12 @@ def SimpleLocal_cpp(n,ai,aj,nR,R,delta,lib):
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
                   float_type]
+    return fun
+
+def SimpleLocal_run(fun,n,ai,aj,nR,R,delta):
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
+    R=np.array(R,dtype=vtype)
+    ret_set=np.zeros(n,dtype=vtype)
     actual_length=fun(n,nR,ai,aj,0,R,ret_set,delta)
     #print(actual_length)
     actual_set=np.empty(actual_length,dtype=vtype)

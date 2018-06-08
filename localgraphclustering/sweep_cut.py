@@ -1,6 +1,6 @@
 from typing import *
 import numpy as np
-from .cpp import sweepcut_cpp
+from .cpp import *
 from .GraphLocal import GraphLocal
 from .algorithms import sweepcut
 
@@ -8,7 +8,8 @@ def sweep_cut(G: GraphLocal,
               p: Sequence[float],
               do_sort: bool = True,
               normalized: bool = True,
-              cpp: bool = True):
+              cpp: bool = True,
+              fun = None):
     """
     It implements a sweep cut rounding procedure for local graph clustering. 
 
@@ -32,6 +33,9 @@ def sweep_cut(G: GraphLocal,
     cpp: bool
         default = True
         Use the faster C++ version or not.
+
+    fun: PyObject
+        A python wrapper of the foreign C function.
             
     Returns
     -------
@@ -67,10 +71,8 @@ def sweep_cut(G: GraphLocal,
             sc_p[i] = p[nnz_idx[i]]   
     
     if cpp:
-        (length,clus,cond) = sweepcut_cpp(n, np.uint32(G.adjacency_matrix.indptr), 
-                                          np.uint32(G.adjacency_matrix.indices), 
-                                          G.adjacency_matrix.data, nnz_idx, nnz_ct, 
-                                          sc_p, 1 - do_sort,G.lib)
+        if fun == None: fun = sweepcut_cpp(G.ai, G.aj, G.lib, 1 - do_sort)
+        (length,clus,cond) = sweepcut_run(fun, n, G.ai, G.aj, G.adjacency_matrix.data, nnz_idx, nnz_ct, sc_p, 1 - do_sort)
         return [clus,cond]
     else:
         output = sweepcut(p,G)

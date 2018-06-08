@@ -1,9 +1,9 @@
 from typing import *
 import numpy as np
-from .cpp import triangleclusters_cpp
+from .cpp import *
 import warnings
 
-def triangleclusters(G):
+def triangleclusters(G, fun=None):
     """
     TRIANGLECLUSTERS Clustering metrics for clusters of vertex neighborhoods.
     This function studies clusters which are given by vertex neighborhoods.
@@ -15,6 +15,9 @@ def triangleclusters(G):
     ----------
 
     G: GraphLocal
+
+    fun: PyObject
+        A python wrapper of the foreign C function.
 
     Returns
     -------
@@ -38,4 +41,5 @@ def triangleclusters(G):
         warnings.warn("The weights of the graph will be discarded.")
 
     n = G.adjacency_matrix.shape[0]
-    return triangleclusters_cpp(n, np.uint32(G.adjacency_matrix.indptr), np.uint32(G.adjacency_matrix.indices), G.lib)
+    if fun == None: fun = triangleclusters_cpp(G.ai,G.aj,G.lib)
+    return triangleclusters_run(fun,n,G.ai,G.aj)
