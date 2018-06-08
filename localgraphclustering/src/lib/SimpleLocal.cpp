@@ -228,7 +228,7 @@ void graph<vtype,itype>::assemble_graph(vector<bool>& mincut, vtype nverts, ityp
 }
 
 template<typename vtype, typename itype>
-void free_space(vtype* level, vector< Edge<vtype,itype> > *adj)
+void free_space(int* level, vector< Edge<vtype,itype> > *adj)
 {
     delete[] adj;
     delete[] level;
@@ -256,6 +256,7 @@ template<typename vtype, typename itype>
 void graph<vtype,itype>::STAGEFLOW(double delta, double alpha, double beta, unordered_map<vtype,vtype>& fullyvisited,
                                    unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& S)
 {
+    //cout << "begin STAGEFLOW" << endl;
     unordered_map<vtype,vtype> VL;
     unordered_map<vtype,vtype> VL_rev;
     vector<tuple<vtype,vtype,double>> EL;
@@ -276,7 +277,7 @@ void graph<vtype,itype>::STAGEFLOW(double delta, double alpha, double beta, unor
     */
     
     adj = new vector<Edge<vtype,itype>>[nverts];
-    level = new vtype[nverts];
+    level = new int[nverts];
     vector<bool> mincut;
     assemble_graph(mincut,nverts,nedges,EL);
     itype sum = 0;
@@ -321,7 +322,7 @@ void graph<vtype,itype>::STAGEFLOW(double delta, double alpha, double beta, unor
         nedges = EL.size();
         //free_space<vtype,itype>(level, adj);
         adj = new vector<Edge<vtype,itype>>[nverts];
-        level = new vtype[nverts];
+        level = new int[nverts];
         assemble_graph(mincut,nverts,nedges,EL);
         sum = 0;
         for (vtype i = 0; i < nverts; i ++) {
@@ -390,6 +391,7 @@ vtype graph<vtype,itype>::SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double
     unordered_map<vtype,vtype> fullyvisited, S;
     unordered_map<vtype,vtype> R_map;
     vtype actual_length;
+    //cout << "start" << endl;
     init_fullyvisited_R(fullyvisited, R_map, nR, R);
     pair<itype, itype> set_stats = get_stats(fullyvisited,fullyvisited.size());
     double alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), ai[n] - get<0>(set_stats));
@@ -414,6 +416,7 @@ vtype graph<vtype,itype>::SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double
         return actual_length;
     }
     while (alpha < alph0) {
+        cout << alpha << endl;
         copy_results<vtype,itype>(S,ret_set,&actual_length);
         alph0 = alpha;
         beta = alpha * (fR + delta);

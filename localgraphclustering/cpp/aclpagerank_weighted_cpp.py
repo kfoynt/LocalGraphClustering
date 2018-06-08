@@ -13,17 +13,13 @@ from operator import itemgetter
 import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
+from .utility import determine_types
 #from localgraphclustering.find_library import load_library
 
 
-def aclpagerank_weighted_cpp(n,ai,aj,a,alpha,eps,seedids,nseedids,maxsteps,lib,xlength=10**6,flag=0):
+def aclpagerank_weighted_cpp(ai,aj,lib):
 
-    float_type = ctypes.c_double
-
-    dt = np.dtype(ai[0])
-    (itype, ctypes_itype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
-    dt = np.dtype(aj[0])
-    (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
 
     #lib = load_library()
     
@@ -35,10 +31,6 @@ def aclpagerank_weighted_cpp(n,ai,aj,a,alpha,eps,seedids,nseedids,maxsteps,lib,x
         fun = lib.aclpagerank_weighted32
 
     #call C function
-    seedids=np.array(seedids,dtype=vtype)
-    xids=np.zeros(xlength,dtype=vtype)
-    values=np.zeros(xlength,dtype=float_type)
-    a=np.array(a,dtype=float_type)
     fun.restype=ctypes_vtype
     fun.argtypes=[ctypes_vtype,ndpointer(ctypes_itype, flags="C_CONTIGUOUS"),
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
@@ -48,6 +40,14 @@ def aclpagerank_weighted_cpp(n,ai,aj,a,alpha,eps,seedids,nseedids,maxsteps,lib,x
                   ctypes_vtype,ctypes_vtype,
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
                   ctypes_vtype,ndpointer(ctypes.c_double, flags="C_CONTIGUOUS")]
+    return fun
+
+def aclpagerank_weighted_run(fun,n,ai,aj,a,alpha,eps,seedids,nseedids,maxsteps,xlength=10**6,flag=0):
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
+    seedids=np.array(seedids,dtype=vtype)
+    xids=np.zeros(xlength,dtype=vtype)
+    values=np.zeros(xlength,dtype=float_type)
+    a=np.array(a,dtype=float_type)
     actual_length=fun(n,ai,aj,a,flag,alpha,eps,seedids,nseedids,maxsteps,xids,xlength,values)
     if actual_length > xlength:
         xlength = actual_length

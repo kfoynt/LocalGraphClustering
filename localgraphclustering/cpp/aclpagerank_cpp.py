@@ -13,17 +13,13 @@ from operator import itemgetter
 import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
+from .utility import determine_types
 #from localgraphclustering.find_library import load_library
 
 
-def aclpagerank_cpp(n,ai,aj,alpha,eps,seedids,maxsteps,lib,xlength=10**6):
+def aclpagerank_cpp(ai,aj,lib):
 
-    float_type = ctypes.c_double
-
-    dt = np.dtype(ai[0])
-    (itype, ctypes_itype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
-    dt = np.dtype(aj[0])
-    (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
     
     #lib = load_library()
 
@@ -35,12 +31,6 @@ def aclpagerank_cpp(n,ai,aj,alpha,eps,seedids,maxsteps,lib,xlength=10**6):
         fun = lib.aclpagerank32
 
     #call C function
-    nseedids = len(seedids)
-    seedids = np.array(seedids,dtype=vtype)
-    xids = np.zeros(xlength,dtype=vtype)
-    values = np.zeros(xlength,dtype=float_type)
-    # flag is only for the use of julia, where list index starts from 1 instead of 0
-    flag=0
     fun.restype=ctypes_vtype
     fun.argtypes=[ctypes_vtype,ndpointer(ctypes_itype, flags="C_CONTIGUOUS"),
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
@@ -49,6 +39,16 @@ def aclpagerank_cpp(n,ai,aj,alpha,eps,seedids,maxsteps,lib,xlength=10**6):
                   ctypes_vtype,ctypes_vtype,
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
                   ctypes_vtype,ndpointer(ctypes.c_double, flags="C_CONTIGUOUS")]
+    return fun
+
+def aclpagerank_run(fun,n,ai,aj,alpha,eps,seedids,maxsteps,xlength=10**6):
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
+    nseedids = len(seedids)
+    seedids = np.array(seedids,dtype=vtype)
+    xids = np.zeros(xlength,dtype=vtype)
+    values = np.zeros(xlength,dtype=float_type)
+    # flag is only for the use of julia, where list index starts from 1 instead of 0
+    flag=0
     actual_length=fun(n,ai,aj,flag,alpha,eps,seedids,nseedids,maxsteps,xids,xlength,values)
     if actual_length > xlength:
         xlength = actual_length

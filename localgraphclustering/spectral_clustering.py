@@ -16,7 +16,9 @@ def spectral_clustering(G, ref_nodes,
                         ys: Sequence[float] = None,
                         vol: float = 100,
                         phi: float = 0.5,
-                        method: str = "acl"):
+                        method: str = "acl",
+                        vfun = None,
+                        scfun = None):
     """
     Provide a simple interface to do spectral based clustering.
 
@@ -32,6 +34,12 @@ def spectral_clustering(G, ref_nodes,
     method: str
         Which method to use for the nodes embedding.
         Options: "acl", "l1reg", "nibble", "fiedler", "fiedler_local"
+
+    vfun: PyObject
+        A python wrapper of the foreign C function used to calculate the vector.
+
+    scfun: PyObject
+        A python wrapper of the foreign C function used to sweep cut the vector.
 
     Extra parameters for "acl" and "l1reg" (optional)
     -------------------------------------------------
@@ -93,9 +101,9 @@ def spectral_clustering(G, ref_nodes,
     
     if method == "acl" or method == "l1reg":
         p = approximate_PageRank(G,ref_nodes,timeout = timeout, iterations = iterations, alpha = alpha, 
-            rho = rho, epsilon = epsilon, method = method, ys = ys)
+            rho = rho, epsilon = epsilon, method = method, ys = ys, fun = vfun)
     elif method == "nibble":
-        p = PageRank_nibble(G,ref_nodes,vol = vol,phi = phi,epsilon = epsilon,iterations = iterations,timeout = timeout)
+        p = PageRank_nibble(G,ref_nodes,vol = vol,phi = phi,epsilon = epsilon,iterations = iterations,timeout = timeout, fun = vfun)
     elif method == "fiedler":
         warnings.warn("ref_nodes will be disgarded since we are computing a global fiedler vector.")
         p = fiedler(G)
@@ -104,7 +112,7 @@ def spectral_clustering(G, ref_nodes,
     else:
         raise Exception("Unknown method, available methods are \"acl\", \"l1reg\", \"nibble\", \"fiedler\", \"fiedler_local\".")
 
-    output = sweep_cut(G,p)
+    output = sweep_cut(G,p,fun=scfun)
 
     return output
 

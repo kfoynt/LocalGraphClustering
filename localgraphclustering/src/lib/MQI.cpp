@@ -119,7 +119,7 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
     for (int i = 0; i < nverts; i ++) {
         adj[i].clear();
     }
-    level = new vtype[nverts];
+    level = new int[nverts];
     vector<bool> mincut (nverts);
     build_list(R_map,degree_map,nR,nR+1,curvol,curcutsize);
     pair<double, vtype> retData = DinicMaxflow(nR, nR+1, nverts, mincut);
@@ -156,7 +156,7 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
             for (int i = 0; i < nverts; i ++) {
                 adj[i].clear();
             }
-            level = new vtype[nverts];
+            level = new int[nverts];
             //vector<bool> mincut (nverts);
             build_list(R_map,degree_map,nRnew,nRnew+1,curvol,curcutsize);
             retData = DinicMaxflow(nRnew, nRnew + 1, nverts, mincut);

@@ -2,8 +2,7 @@ from typing import *
 import numpy as np
 from .algorithms import acl_list
 from .algorithms import fista_dinput_dense
-from .cpp import aclpagerank_cpp
-from .cpp import proxl1PRaccel
+from .cpp import *
 import warnings
 
 def approximate_PageRank(G,
@@ -15,7 +14,8 @@ def approximate_PageRank(G,
                          epsilon: float = 1.0e-2,
                          ys: Sequence[float] = None,
                          cpp: bool = True,
-                         method: str = "acl"):
+                         method: str = "acl",
+                         fun = None):
     """
     Computes PageRank vector locally.
     --------------------------------
@@ -82,6 +82,9 @@ def approximate_PageRank(G,
         default = True
         Use the faster C++ version or not.
 
+    fun: PyObject
+        A python wrapper of the foreign C function.
+
     Extra parameters for "l1reg" (optional)
     -------------------------------------------
             
@@ -104,15 +107,14 @@ def approximate_PageRank(G,
 
     if G._weighted:
         warnings.warn("The weights of the graph will be discarded. Use approximate_PageRank_weighted instead if you want to keep the edge weights.")
-
     if method == "acl":
         #print("Uses the Andersen Chung and Lang (ACL) Algorithm.")
         if ys != None:
             warnings.warn("\"acl\" doesn't support initial solutions, please use \"l1reg\" instead.")
         if cpp:
             n = G.adjacency_matrix.shape[0]
-            (length,xids,values) = aclpagerank_cpp(n,np.uint32(G.adjacency_matrix.indptr),np.uint32(G.adjacency_matrix.indices),
-                                               alpha,rho,ref_nodes,iterations,G.lib)
+            if fun == None: fun = aclpagerank_cpp(G.ai,G.aj,G.lib)
+            (length,xids,values) = aclpagerank_run(fun,n,G.ai,G.aj,alpha,rho,ref_nodes,iterations)
             p = np.zeros(n)
             p[xids] = values
             return p
@@ -121,13 +123,12 @@ def approximate_PageRank(G,
     elif method == "l1reg":
         #print("Uses the Fast Iterative Soft Thresholding Algorithm (FISTA).")
         if cpp:
+            if fun == None: fun = proxl1PRaccel(G.ai,G.aj,G.lib)
             if ys == None:
-                return proxl1PRaccel(np.uint32(G.adjacency_matrix.indptr), np.uint32(G.adjacency_matrix.indices), 
-                                     G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, G.lib, alpha = alpha, 
+                return proxl1PRaccel_run(fun, G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, alpha = alpha, 
                                      rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2]            
             else:
-                return proxl1PRaccel(np.uint32(G.adjacency_matrix.indptr) , np.uint32(G.adjacency_matrix.indices), 
-                                     G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, ys, G.lib, alpha = alpha, 
+                return proxl1PRaccel_run(fun, G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, ys, alpha = alpha, 
                                      rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2]
         else:
             return fista_dinput_dense(ref_nodes, G, alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout)

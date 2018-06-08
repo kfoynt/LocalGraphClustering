@@ -69,7 +69,7 @@ public:
     void find_cut(vtype u, vector<bool>& mincut, vtype& length);
 
     //common data
-    vtype* level;
+    int* level;
     vector< Edge<vtype,itype> > *adj;
     
     //declare routines

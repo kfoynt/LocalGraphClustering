@@ -10,17 +10,13 @@ from operator import itemgetter
 import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
+from .utility import determine_types
 #from localgraphclustering.find_library import load_library
 
 
-def densest_subgraph_cpp(n,ai,aj,a,lib):
+def densest_subgraph_cpp(ai,aj,lib):
     
-    float_type = ctypes.c_double
-    
-    dt = np.dtype(ai[0])
-    (itype, ctypes_itype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
-    dt = np.dtype(aj[0])
-    (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if dt.name == 'int64' else (np.uint32, ctypes.c_uint32)
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
     
     #lib = load_library()
 
@@ -32,8 +28,6 @@ def densest_subgraph_cpp(n,ai,aj,a,lib):
         fun = lib.densest_subgraph32
 
     #call C function
-    ret_set=np.zeros(n,dtype=vtype)
-    actual_length=np.zeros(1,dtype=vtype)
     fun.restype=float_type
     fun.argtypes=[ctypes_vtype,
                   ndpointer(ctypes_itype, flags="C_CONTIGUOUS"),
@@ -42,9 +36,16 @@ def densest_subgraph_cpp(n,ai,aj,a,lib):
                   ctypes_vtype,
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS")]
+    return fun
+
+def densest_subgraph_run(fun,n,ai,aj,a):
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
+    ret_set=np.zeros(n,dtype=vtype)
+    actual_length=np.zeros(1,dtype=vtype)
     density=fun(n,ai,aj,a,0,ret_set,actual_length)
     actual_length=actual_length[0]
     actual_set=np.empty(actual_length,dtype=vtype)
     actual_set[:]=[ret_set[i] for i in range(actual_length)]
     
     return (density,actual_set)
+

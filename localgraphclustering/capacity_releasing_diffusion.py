@@ -1,13 +1,14 @@
 from typing import *
 import numpy as np
-from .cpp import capacity_releasing_diffusion_cpp
+from .cpp import *
 from .GraphLocal import GraphLocal
 
 def capacity_releasing_diffusion(G,ref_nodes,
                                  U: int = 3,
                                  h: int = 10,
                                  w: int = 2,
-                                 iterations: int = 20):
+                                 iterations: int = 20,
+                                 fun = None):
 
     """
     Description
@@ -48,6 +49,9 @@ def capacity_releasing_diffusion(G,ref_nodes,
         default = 20
         Maximum number of iterations of Capacity Releasing Diffusion Algorithm.
 
+    fun: PyObject
+        A python wrapper of the foreign C function.
+
        
     Returns
     -------
@@ -73,9 +77,8 @@ def capacity_releasing_diffusion(G,ref_nodes,
     """
 
     n = G.adjacency_matrix.shape[0]
-    
-    actual_xids = capacity_releasing_diffusion_cpp(n,np.uint32(G.adjacency_matrix.indptr),
-                np.uint32(G.adjacency_matrix.indices),np.float64(G.adjacency_matrix.data),
-                U,h,w,iterations,ref_nodes,G.lib)
+    if fun == None: fun = capacity_releasing_diffusion_cpp(G.ai,G.aj,G.lib)
+    actual_xids = capacity_releasing_diffusion_run(fun,n,G.ai,G.aj,np.float64(G.adjacency_matrix.data),
+                U,h,w,iterations,ref_nodes)
 
     return [actual_xids, G.compute_conductance(actual_xids)]
