@@ -148,7 +148,7 @@ class NCPPlots:
             y = self.df.iloc[sample_indices][feature],
             mode = 'markers+text',
             marker = dict(
-                opacity=0.2,
+                opacity=alpha,
                 size= 10,
                 line = dict(
                     width = 1)
