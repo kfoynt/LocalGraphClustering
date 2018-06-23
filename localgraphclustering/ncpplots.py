@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
+import plotly.plotly as py
+import plotly.graph_objs as go
+import plotly.tools as tls
 
 import localgraphclustering.ncp
    
@@ -28,7 +32,7 @@ def ncp_min_feature_by_group_binned(df, feature, group, nbins=50, log=False):
 
 class NCPPlots:
     def __init__(self, var, method_name="", selected_rows=[]):
-        print(type(var))
+        init_notebook_mode(connected=True)
         if type(var) is localgraphclustering.ncp.NCPData:
             self.df = var.as_data_frame()
         elif type(var) is pd.DataFrame:
@@ -95,41 +99,121 @@ class NCPPlots:
             nbins=nbinsx, log=log).dropna(axis=0)
         y = dfmin[feature]
         x = dfmin[group]
+        pos = dfmin["best"]
         tmp = list(zip(x,y))
         tmp.sort(key = lambda x: x[0])
         x = [i[0] for i in tmp]
         y = [i[1] for i in tmp]
         ax.plot(x, y)
-        return fig, ax
+        return fig, ax, list(zip(x,y,pos))
         
     
     #plot conductance vs volume
     def cond_by_vol(self, **kwargs):
-        fig, ax = self.feature_by_group_histogram_and_min_line(
+        fig, ax, min_tuples = self.feature_by_group_histogram_and_min_line(
             "output_cond", "output_voleff", **kwargs)
         ax.set_xlabel("effective volume")
         ax.set_ylabel("conductance")
-        return fig, ax
+        return fig, ax, min_tuples
         
       
     #plot conductance vs size
     def cond_by_size(self, **kwargs):
-        fig, ax = self.feature_by_group_histogram_and_min_line(
+        fig, ax, min_tuples = self.feature_by_group_histogram_and_min_line(
             "output_cond", "output_sizeeff", **kwargs)
         ax.set_xlabel("effective size")
         ax.set_ylabel("conductance")
-        return fig, ax
+        return fig, ax, min_tuples
             
         
-    def isop_by_size(self, nbins=50, nbinsx=100):
+    def isop_by_size(self, nbins=50, nbinsx=100, log=True):
         ncpdata = self.df
         fig, ax = self.feature_by_group_histogram(
-            "output_isop", "output_sizeeff", nbins=nbins, log=True)
+            "output_isop", "output_sizeeff", nbins=nbins, log=log)
         dfmin = ncp_min_feature_by_group_binned(ncpdata, "output_isop", "output_sizeeff",
             nbins=nbinsx).dropna(axis=0)
         y = dfmin["output_isop"]
         x = dfmin["output_sizeeff"]
+        pos = dfmin["best"]
         ax.set_xlabel("effective size")
         ax.set_ylabel("expansion")
         ax.plot(x, y)
-        return fig, ax
+        return fig, ax, list(zip(x,y,pos))
+    
+    def interactive(self,feature, group, min_tuples, alpha=0.3, ratio=1.0, log=True, filename=""):
+        sample_size = np.int(self.df.shape[0]*ratio)
+        sample_indices = np.random.choice(self.df.index.values, sample_size, replace=False)
+        trace1 = go.Scattergl(
+            x = self.df.iloc[sample_indices][group],
+            y = self.df.iloc[sample_indices][feature],
+            mode = 'markers+text',
+            marker = dict(
+                opacity=alpha,
+                size= 10,
+                line = dict(
+                    width = 1)
+                ),
+            name = "Points",
+            text = list(map(lambda z: 'index: {}'.format(int(z)), sample_indices))
+        )
+
+        trace2 = go.Scattergl(
+            x = [i[0] for i in min_tuples],
+            y = [i[1] for i in min_tuples],
+            mode = 'line+text',
+            name = "Line",
+            text = list(map(lambda z: 'index: {}'.format(int(z)), [i[2] for i in min_tuples]))
+        )
+
+        layout = go.Layout(
+            xaxis=dict(
+                type='log' if log else 'line',
+                autorange=True,
+                title = group
+            ),
+            yaxis=dict(
+                type='log' if log else 'line',
+                autorange=True,
+                title = feature
+            ),
+            showlegend=False
+        )
+
+        data = [trace1, trace2]
+
+        # Plot and embed in ipython notebook!
+        fig = go.Figure(data=data, layout=layout)
+        if filename == "":
+            iplot(fig)
+        else:
+            plot(fig,filename=filename)
+
+        return fig
+
+    def cond_by_vol_itrv(self, nbinsx=100, **kwargs):
+        dfmin = ncp_min_feature_by_group_binned(self.df, "output_cond", "output_voleff",
+            nbins=nbinsx).dropna(axis=0)
+        y = dfmin["output_cond"]
+        x = dfmin["output_voleff"]
+        pos = dfmin["best"]
+        min_tuples = list(zip(x,y,pos))
+        return self.interactive("output_cond", "output_voleff", min_tuples, **kwargs)
+
+    def cond_by_size_itrv(self, nbinsx=100, **kwargs):
+        dfmin = ncp_min_feature_by_group_binned(self.df, "output_cond", "output_sizeeff",
+            nbins=nbinsx).dropna(axis=0)
+        y = dfmin["output_cond"]
+        x = dfmin["output_sizeeff"]
+        pos = dfmin["best"]
+        min_tuples = list(zip(x,y,pos))
+        return self.interactive("output_cond", "output_sizeeff", min_tuples, **kwargs)
+
+    def isop_by_size_itrv(self, nbinsx=100, **kwargs):
+        dfmin = ncp_min_feature_by_group_binned(self.df, "output_isop", "output_sizeeff",
+            nbins=nbinsx).dropna(axis=0)
+        y = dfmin["output_isop"]
+        x = dfmin["output_sizeeff"]
+        pos = dfmin["best"]
+        min_tuples = list(zip(x,y,pos))
+        return self.interactive("output_isop", "output_sizeeff", min_tuples, **kwargs)
+
