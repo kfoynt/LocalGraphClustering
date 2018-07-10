@@ -122,7 +122,7 @@ def approximate_PageRank(G,
             return acl_list(ref_nodes, G, alpha = alpha, rho = rho, max_iter = iterations, max_time = timeout)
     elif method == "acl_weighted":
         if ys != None:
-            warnings.warn("\"acl\" doesn't support initial solutions, please use \"l1reg\" instead.")
+            warnings.warn("\"acl_weighted\" doesn't support initial solutions, please use \"l1reg\" instead.")
         if cpp:
             n = G.adjacency_matrix.shape[0]
             if fun == None: fun = aclpagerank_weighted_cpp(G.ai,G.aj,G.lib)
@@ -146,4 +146,4 @@ def approximate_PageRank(G,
         else:
             return fista_dinput_dense(ref_nodes, G, alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout)
     else:
-        raise Exception("Unknown method, available methods are \"acl\" or \"l1reg\".")
+        raise Exception("Unknown method, available methods are \"acl\" or \"acl_weighted\" or \"l1reg\".")
