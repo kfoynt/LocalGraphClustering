@@ -4,7 +4,7 @@ from .cpp import *
 
 def approximate_PageRank_weighted(G,
                                   ref_nodes,
-                                  iterations: int = 1000,
+                                  iterations: int = 100000,
                                   alpha: float = 0.15,
                                   rho: float = 1.0e-6,
                                   fun = None):
@@ -53,7 +53,7 @@ def approximate_PageRank_weighted(G,
     print("Uses the weighted Andersen Chung and Lang (ACL) Algorithm.")
     n = G.adjacency_matrix.shape[0]
     if fun == None: fun = aclpagerank_weighted_cpp(G.ai,G.aj,G.lib)
-    (length,xids,values) = aclpagerank_weighted_run(fun,n,G.ai,G.aj,np.uint32(G.adjacency_matrix.data),alpha,rho,
+    (length,xids,values) = aclpagerank_weighted_run(fun,n,G.ai,G.aj,G.adjacency_matrix.data,alpha,rho,
                 ref_nodes,1,iterations)
     p = np.zeros(n)
     p[xids] = values
