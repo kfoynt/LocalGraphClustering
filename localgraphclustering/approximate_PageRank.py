@@ -120,6 +120,19 @@ def approximate_PageRank(G,
             return p
         else:
             return acl_list(ref_nodes, G, alpha = alpha, rho = rho, max_iter = iterations, max_time = timeout)
+    elif method == "acl_weighted":
+        if ys != None:
+            warnings.warn("\"acl\" doesn't support initial solutions, please use \"l1reg\" instead.")
+        if cpp:
+            n = G.adjacency_matrix.shape[0]
+            if fun == None: fun = aclpagerank_weighted_cpp(G.ai,G.aj,G.lib)
+            (length,xids,values) = aclpagerank_weighted_run(fun,n,G.ai,G.aj,G.adjacency_matrix.data,alpha,rho,
+                ref_nodes,1,iterations)
+            p = np.zeros(n)
+            p[xids] = values
+            return p
+        else:
+            raise Exception("There is only C++ version for acl weighted.")
     elif method == "l1reg":
         #print("Uses the Fast Iterative Soft Thresholding Algorithm (FISTA).")
         if cpp:
