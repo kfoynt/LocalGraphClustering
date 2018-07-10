@@ -99,7 +99,7 @@ def spectral_clustering(G, ref_nodes,
     if G._weighted:
         warnings.warn("The weights of the graph will be discarded. Use approximate_PageRank_weighted instead if you want to keep the edge weights.")
     
-    if method == "acl" or method == "l1reg":
+    if method == "acl" or method == "acl_weighted" or method == "l1reg":
         p = approximate_PageRank(G,ref_nodes,timeout = timeout, iterations = iterations, alpha = alpha, 
             rho = rho, epsilon = epsilon, method = method, ys = ys, fun = vfun)
     elif method == "nibble":
@@ -110,7 +110,7 @@ def spectral_clustering(G, ref_nodes,
     elif method == "fiedler_local":
         p = fiedler(G,ref_nodes)
     else:
-        raise Exception("Unknown method, available methods are \"acl\", \"l1reg\", \"nibble\", \"fiedler\", \"fiedler_local\".")
+        raise Exception("Unknown method, available methods are \"acl\", \"acl_weighted\", \"l1reg\", \"nibble\", \"fiedler\", \"fiedler_local\".")
 
     output = sweep_cut(G,p,fun=scfun)
 

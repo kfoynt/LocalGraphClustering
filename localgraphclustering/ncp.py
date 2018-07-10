@@ -363,10 +363,16 @@ class NCPData:
                        timeout: float = 1000):
         #self.reset_records("approxPageRank")
         alpha = 1.0-1.0/(1.0+gamma)
-        vfunc = aclpagerank_cpp(self.graph.ai,self.graph.aj,self.graph.lib)
-        scfunc = sweepcut_cpp(self.graph.ai,self.graph.aj,self.graph.lib,0)
-        funcs = {lambda G,R: spectral_clustering(G,R,alpha=alpha,rho=rho,method="acl",vfun=vfunc,scfun=scfunc)[0]:'acl;rho=%.0e'%(rho) 
-                    for rho in rholist}
+        if self.graph._weighted:
+            vfunc = aclpagerank_weighted_cpp(self.graph.ai,self.graph.aj,self.graph.lib)
+            scfunc = sweepcut_cpp(self.graph.ai,self.graph.aj,self.graph.lib,0)
+            funcs = {lambda G,R: spectral_clustering(G,R,alpha=alpha,rho=rho,method="acl_weighted",vfun=vfunc,scfun=scfunc)[0]:'acl_weighted;rho=%.0e'%(rho) 
+                        for rho in rholist}
+        else:
+            vfunc = aclpagerank_cpp(self.graph.ai,self.graph.aj,self.graph.lib)
+            scfunc = sweepcut_cpp(self.graph.ai,self.graph.aj,self.graph.lib,0)
+            funcs = {lambda G,R: spectral_clustering(G,R,alpha=alpha,rho=rho,method="acl",vfun=vfunc,scfun=scfunc)[0]:'acl;rho=%.0e'%(rho) 
+                        for rho in rholist}
         for func in funcs.keys():
             self.add_random_node_samples(method=func,methodname=funcs[func],ratio=ratio,nthreads=nthreads,timeout=timeout/len(funcs))
 
