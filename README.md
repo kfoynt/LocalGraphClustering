@@ -145,7 +145,7 @@ pip3 install localgraphclustering
 
 1. In Julia, add the PyCall package: 
    
-   `Pkg.add(PyCall)`
+   `Pkg.add("PyCall")`
 2. Update which version of Python that PyCall defaults to:
 
     `ENV["PYTHON"] = (path to python3 executable) `
@@ -157,6 +157,8 @@ pip3 install localgraphclustering
 4. Import *localgraphclustering* by using:
 
    `using PyPlot`
+   
+   `using PyCall`
 
    `@pyimport localgraphclustering`
 
