@@ -232,10 +232,10 @@ class GraphLocal:
         Parameters
         ----------
         source
-            A list of sources for the edges
+            A numpy array of sources for the edges
 
         target
-            A list of targets for the edges
+            A numpy array of targets for the edges
 
         vtype
             numpy integer type of CSC format index array 
