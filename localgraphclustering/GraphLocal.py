@@ -225,7 +225,7 @@ class GraphLocal:
         self.ai = itype(self.adjacency_matrix.indptr)
         self.aj = vtype(self.adjacency_matrix.indices)
 
-    def list_to_gl(self,source,target,vtype=np.uint32, itype=np.uint32):
+    def list_to_gl(self,source,target,weights,vtype=np.uint32, itype=np.uint32):
         """
         Create a GraphLocal object from edge list.
 
@@ -236,6 +236,9 @@ class GraphLocal:
 
         target
             A numpy array of targets for the edges
+
+        weights
+            A numpy array of weights for the edges
 
         vtype
             numpy integer type of CSC format index array 
