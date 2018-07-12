@@ -90,6 +90,9 @@ class GraphLocal:
         
     neighbors(vertex)
         Returns a list with the neighbors of the given vertex
+
+    list_to_gl(source,target)
+        Create a GraphLocal object from edge list
     """
     def __init__(self, filename = None, file_type='edgelist', separator='\t',remove_whitespace=False,header=None,vtype=np.uint32,itype=np.uint32):
         """
@@ -205,6 +208,49 @@ class GraphLocal:
         else:
             print('This file type is not supported')
             return
+        self._weighted = False
+        for i in self.adjacency_matrix.data:
+            if i != 1:
+                self._weighted = True
+                break
+        is_symmetric = (self.adjacency_matrix != self.adjacency_matrix.T).sum() == 0
+        if not is_symmetric:
+            # Symmetrize matrix, choosing larger weight
+            sel = self.adjacency_matrix.T > self.adjacency_matrix
+            self.adjacency_matrix = self.adjacency_matrix - self.adjacency_matrix.multiply(sel) + self.adjacency_matrix.T.multiply(sel)
+            assert (self.adjacency_matrix != self.adjacency_matrix.T).sum() == 0
+                
+        self._num_edges = self.adjacency_matrix.nnz
+        self.compute_statistics()
+        self.ai = itype(self.adjacency_matrix.indptr)
+        self.aj = vtype(self.adjacency_matrix.indices)
+
+    def list_to_gl(self,source,target,weights,vtype=np.uint32, itype=np.uint32):
+        """
+        Create a GraphLocal object from edge list.
+
+        Parameters
+        ----------
+        source
+            A numpy array of sources for the edges
+
+        target
+            A numpy array of targets for the edges
+
+        weights
+            A numpy array of weights for the edges
+
+        vtype
+            numpy integer type of CSC format index array 
+            Default = np.uint32
+
+        itype
+            numpy integer type of CSC format index pointer array 
+            Default = np.uint32
+        """
+        self._num_edges = len(source)
+        self._num_vertices = max(source.max() + 1, target.max()+1)
+        self.adjacency_matrix = sp.csr_matrix((weights.astype(np.float64), (source, target)), shape=(self._num_vertices, self._num_vertices))
         self._weighted = False
         for i in self.adjacency_matrix.data:
             if i != 1:

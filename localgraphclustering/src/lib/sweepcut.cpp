@@ -208,6 +208,7 @@ vtype graph<vtype,itype>::sweep_cut(vtype* ids, vtype* results, vtype num, doubl
     double curcutsize = 0;
     double curvolume = 0;
     double min_cond = -1;
+    //cout << num << endl;
     for(vtype i = 0; i < num; i ++){
         vtype v = ids[i] - offset;
         if(degrees == NULL){

@@ -3,5 +3,4 @@ recursive-include localgraphclustering/src *
 recursive-include localgraphclustering/src/lib/graph_lib_test *.dylib
 recursive-include localgraphclustering/src/lib/graph_lib_test *
 recursive-include localgraphclustering/src/lib/graph_lib_test Makefile
-include localgraphclustering/cpp *.py
-include localgraphclustering/algorithms *.py
+recursive-include localgraphclustering *.py
