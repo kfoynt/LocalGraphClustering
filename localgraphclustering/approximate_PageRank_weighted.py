@@ -50,7 +50,7 @@ def approximate_PageRank_weighted(G,
 
     """ 
             
-    print("Uses the weighted Andersen Chung and Lang (ACL) Algorithm.")
+    #print("Uses the weighted Andersen Chung and Lang (ACL) Algorithm.")
     n = G.adjacency_matrix.shape[0]
     if fun == None: fun = aclpagerank_weighted_cpp(G.ai,G.aj,G.lib)
     (length,xids,values) = aclpagerank_weighted_run(fun,n,G.ai,G.aj,G.adjacency_matrix.data,alpha,rho,
