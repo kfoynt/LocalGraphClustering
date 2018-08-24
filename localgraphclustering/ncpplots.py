@@ -146,7 +146,7 @@ class NCPPlots:
         trace1 = go.Scattergl(
             x = self.df.iloc[sample_indices][group],
             y = self.df.iloc[sample_indices][feature],
-            mode = 'markers+text',
+            mode = 'markers',
             marker = dict(
                 opacity=alpha,
                 size= 10,
@@ -160,7 +160,7 @@ class NCPPlots:
         trace2 = go.Scattergl(
             x = [i[0] for i in min_tuples],
             y = [i[1] for i in min_tuples],
-            mode = 'line+text',
+            mode = 'lines',
             name = "Line",
             text = list(map(lambda z: 'index: {}'.format(int(z)), [i[2] for i in min_tuples]))
         )
