@@ -14,14 +14,11 @@ import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
 from .utility import determine_types
-#from localgraphclustering.find_library import load_library
 
 
 def aclpagerank_cpp(ai,aj,lib):
 
     float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
-    
-    #lib = load_library()
 
     if (vtype, itype) == (np.int64, np.int64):
         fun = lib.aclpagerank64
@@ -57,5 +54,5 @@ def aclpagerank_run(fun,n,ai,aj,alpha,eps,seedids,maxsteps,xlength=10**6):
         actual_length=fun(n,ai,aj,flag,alpha,eps,seedids,nseedids,maxsteps,xids,xlength,values)
     actual_values=values[0:actual_length]
     actual_xids=xids[0:actual_length]
-    
+
     return (actual_length,actual_xids,actual_values)
