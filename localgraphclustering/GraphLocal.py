@@ -109,7 +109,8 @@ class GraphLocal:
         """
 
         if filename != None:
-            self.read_graph(filename, file_type = file_type, separator = separator, remove_whitespace = remove_whitespace, header = header, vtype=vtype, itype=itype)
+            self.read_graph(filename, file_type = file_type, separator = separator, remove_whitespace = remove_whitespace,
+                header = header, headerrow = headerrow, vtype=vtype, itype=itype)
 
         self.load_library()
 
