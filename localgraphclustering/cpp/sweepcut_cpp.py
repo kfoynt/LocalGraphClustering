@@ -65,74 +65,6 @@ _graphlib_funs_sweepcut_with_sorting32_64 = _setup_sweepcut_args(
 _graphlib_funs_sweepcut_without_sorting32_64 = _setup_sweepcut_args(
     'uint32', 'int64', _graphlib.sweepcut_without_sorting32_64, sort=False)
 
-#_graphlib_funs_sweepcut_with_sorting32 = _graphliblib.sweepcut_with_sorting32, sort=
-#_graphlib_funs_sweepcut_without_sorting32 = _graphliblib.sweepcut_without_sorting32
-#_graphlib_funs_sweepcut_with_sorting32_64 = _graphliblib.sweepcut_with_sorting32_64
-#_graphlib_funs_sweepcut_without_sorting32_64 = _graphliblib.sweepcut_without_sorting32_64
-
-def sweepcut_cpp(ai,aj,lib,flag):
-    float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
-
-    #lib = load_library()
-
-    if (vtype, itype) == (np.int64, np.int64):
-        fun = lib.sweepcut_with_sorting64 if flag == 0 else lib.sweepcut_without_sorting64
-    elif (vtype, itype) == (np.uint32, np.int64):
-        fun = lib.sweepcut_with_sorting32_64 if flag == 0 else lib.sweepcut_without_sorting32_64
-    else:
-        fun = lib.sweepcut_with_sorting32 if flag == 0 else lib.sweepcut_without_sorting32
-
-    #call C function
-    fun.restype=ctypes_vtype
-
-    if flag == 0:
-        fun.argtypes=[ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                      ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
-                      ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
-                      ctypes_vtype,ctypes_vtype,
-                      ndpointer(ctypes_itype, flags="C_CONTIGUOUS"),
-                      ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
-                      ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                      ctypes_vtype,
-                      ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                      ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                      ctypes.c_int
-                      #wrapped_ndptr(dtype=ctypes.c_double,ndim=1,flags="C_CONTIGUOUS")
-                      ]
-    else:
-        fun.argtypes=[ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
-                      ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
-                      ctypes_vtype,ctypes_vtype,
-                      ndpointer(ctypes_itype, flags="C_CONTIGUOUS"),
-                      ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
-                      ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                      ctypes_vtype,
-                      ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                      ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                      ctypes.c_int
-                      #wrapped_ndptr(dtype=ctypes.c_double,ndim=1,flags="C_CONTIGUOUS")
-                      ]
-    return fun
-
-def sweepcut_run(fun,n,ai,aj,a,ids,num,values,flag,degrees = []):
-    float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
-
-    ids=np.array(ids,dtype=vtype)
-    values=np.array(values,dtype=float_type)
-    results=np.zeros(num,dtype=vtype)
-    min_cond = np.array([0.0],dtype=float_type)
-    degrees = np.array(degrees,dtype=float_type)
-
-    if flag == 0:
-        actual_length=fun(values,ids,results,num,n,ai,aj,a,0,min_cond,degrees,len(degrees)!=0)
-    else:
-        actual_length=fun(ids,results,num,n,ai,aj,a,0,min_cond,degrees,len(degrees)!=0)
-
-    actual_results=np.empty(actual_length,dtype=vtype)
-    actual_results[:]=[results[i] for i in range(actual_length)]
-    min_cond = min_cond[0]
-    return (actual_length,actual_results,min_cond)
-
 def _get_sweepcut_cpp_types_fun(ai,aj,skip_sort):
     float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
     if (vtype, itype) == (np.int64, np.int64):
@@ -143,7 +75,7 @@ def _get_sweepcut_cpp_types_fun(ai,aj,skip_sort):
         fun = _graphlib_funs_sweepcut_with_sorting32 if skip_sort == 0 else _graphlib_funs_sweepcut_without_sorting32
     return float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun
 
-def sweepcut_simple(n,ai,aj,a,ids,num,values,skip_sort,degrees = []):
+def sweepcut_cpp(n,ai,aj,a,ids,num,values,skip_sort,degrees = []):
     float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun = _get_sweepcut_cpp_types_fun(ai,aj,skip_sort)
     ids=np.array(ids,dtype=vtype)
     values=np.array(values,dtype=float_type)

@@ -72,7 +72,7 @@ def sweep_cut(G: GraphLocal,
 
     if cpp:
         #if fun == None: fun = sweepcut_cpp(G.ai, G.aj, G.lib, 1 - do_sort)
-        (length,clus,cond) = sweepcut_simple(n, G.ai, G.aj, G.adjacency_matrix.data, nnz_idx, nnz_ct, sc_p, 1 - do_sort)
+        (length,clus,cond) = sweepcut_cpp(n, G.ai, G.aj, G.adjacency_matrix.data, nnz_idx, nnz_ct, sc_p, 1 - do_sort)
         return [clus,cond]
     else:
         output = sweepcut(p,G)

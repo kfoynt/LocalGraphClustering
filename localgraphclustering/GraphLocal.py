@@ -69,7 +69,7 @@ class GraphLocal:
 
     Methods
     -------
-    
+
     read_graph(filename, file_type='edgelist', separator='\t')
         Reads the graph from a file
 
@@ -87,47 +87,30 @@ class GraphLocal:
 
     core_number()
         Returns the core number for each vertex
-        
+
     neighbors(vertex)
         Returns a list with the neighbors of the given vertex
 
     list_to_gl(source,target)
         Create a GraphLocal object from edge list
     """
-    def __init__(self, filename = None, file_type='edgelist', separator='\t',remove_whitespace=False,header=None,vtype=np.uint32,itype=np.uint32):
+    def __init__(self,
+        filename = None,
+        file_type='edgelist',
+        separator='\t',
+        remove_whitespace=False,header=False, headerrow=None,
+        vtype=np.uint32,itype=np.uint32):
         """
         Initializes the graph from a gml or a edgelist file and initializes the attributes of the class.
 
         Parameters
         ----------
-        filename : string
-            Name of the file, for example 'JohnsHopkins.edgelist' or 'JohnsHopkins.gml'.
-            Default = 'None'
-
-        separator : string
-            used if file_type = 'edgelist'
-            Default = '\t'
-
-        remove_whitespace : bool
-            set it to be True when there is more than one kinds of separators in the file
-            Default = False
-
-        header : int
-            Use which row as column names.
-            Default = None
-        
-        vtype
-            numpy integer type of CSC format index array 
-            Default = np.uint32
-
-        itype
-            numpy integer type of CSC format index pointer array 
-            Default = np.uint32
+        See read_graph for a description of the parameters.
         """
 
         if filename != None:
             self.read_graph(filename, file_type = file_type, separator = separator, remove_whitespace = remove_whitespace, header = header, vtype=vtype, itype=itype)
-        
+
         self.load_library()
 
     def load_library(self):
@@ -136,8 +119,8 @@ class GraphLocal:
 
     def reload_library(self):
         self.lib = reload_library(self.lib)
-        
-    def read_graph(self, filename, file_type='edgelist', separator='\t', remove_whitespace=False, header=None, vtype=np.uint32, itype=np.uint32):
+
+    def read_graph(self, filename, file_type='edgelist', separator='\t', remove_whitespace=False, header=False, headerrow=None, vtype=np.uint32, itype=np.uint32):
         """
         Reads the graph from an edgelist, gml or graphml file and initializes the class attribute adjacency_matrix.
 
@@ -158,25 +141,34 @@ class GraphLocal:
             set it to be True when there is more than one kinds of separators in the file
             Default = False
 
-        header : int
-            Use which row as column names.
+        header : bool
+            This lets the first line of the file contain a set of heade
+            information that should be ignore_index
+            Default = False
+
+        headerrow : int
+            Use which row as column names. This argument takes precidence over
+            the header=True using headerrow = 0
             Default = None
 
         vtype
-            numpy integer type of CSC format index array 
+            numpy integer type of CSC format index array
             Default = np.uint32
 
         itype
-            numpy integer type of CSC format index pointer array 
+            numpy integer type of CSC format index pointer array
             Default = np.uint32
         """
         if file_type == 'edgelist':
-            
+
             #dtype = {0:'int32', 1:'int32', 2:'float64'}
+            if header and headerrow is None:
+                headerrow = 0
+
             if remove_whitespace:
-                df = pd.read_csv(filename, header=header, delim_whitespace=remove_whitespace)
+                df = pd.read_csv(filename, header=headerrow, delim_whitespace=remove_whitespace)
             else:
-                df = pd.read_csv(filename, sep=separator, header=header, delim_whitespace=remove_whitespace)
+                df = pd.read_csv(filename, sep=separator, header=headerrow, delim_whitespace=remove_whitespace)
             cols = [0,1,2]
             if header != None:
                 cols = list(df.columns)
@@ -190,21 +182,21 @@ class GraphLocal:
                 raise Exception('GraphLocal.read_graph: df.shape[1] not in (2, 3)')
             self._num_vertices = max(source.max() + 1, target.max()+1)
             #self.adjacency_matrix = source, target, weights
-            
+
             self.adjacency_matrix = sp.csr_matrix((weights.astype(np.float64), (source, target)), shape=(self._num_vertices, self._num_vertices))
-            
+
         elif file_type == 'gml':
             warnings.warn("Loading a gml is not efficient, we suggest using an edgelist format for this API.")
             G = nx.read_gml(filename).to_undirected()
             self.adjacency_matrix = nx.adjacency_matrix(G).astype(np.float64)
             self._num_vertices = nx.number_of_nodes(G)
-            
+
         elif file_type == 'graphml':
             warnings.warn("Loading a graphml is not efficient, we suggest using an edgelist format for this API.")
             G = nx.read_graphml(filename).to_undirected()
             self.adjacency_matrix = nx.adjacency_matrix(G).astype(np.float64)
             self._num_vertices = nx.number_of_nodes(G)
-            
+
         else:
             print('This file type is not supported')
             return
@@ -219,7 +211,7 @@ class GraphLocal:
             sel = self.adjacency_matrix.T > self.adjacency_matrix
             self.adjacency_matrix = self.adjacency_matrix - self.adjacency_matrix.multiply(sel) + self.adjacency_matrix.T.multiply(sel)
             assert (self.adjacency_matrix != self.adjacency_matrix.T).sum() == 0
-                
+
         self._num_edges = self.adjacency_matrix.nnz
         self.compute_statistics()
         self.ai = itype(self.adjacency_matrix.indptr)
@@ -241,11 +233,11 @@ class GraphLocal:
             A numpy array of weights for the edges
 
         vtype
-            numpy integer type of CSC format index array 
+            numpy integer type of CSC format index array
             Default = np.uint32
 
         itype
-            numpy integer type of CSC format index pointer array 
+            numpy integer type of CSC format index pointer array
             Default = np.uint32
         """
         self._num_edges = len(source)
@@ -262,15 +254,15 @@ class GraphLocal:
             sel = self.adjacency_matrix.T > self.adjacency_matrix
             self.adjacency_matrix = self.adjacency_matrix - self.adjacency_matrix.multiply(sel) + self.adjacency_matrix.T.multiply(sel)
             assert (self.adjacency_matrix != self.adjacency_matrix.T).sum() == 0
-                
+
         self._num_edges = self.adjacency_matrix.nnz
         self.compute_statistics()
         self.ai = itype(self.adjacency_matrix.indptr)
         self.aj = vtype(self.adjacency_matrix.indices)
-        
+
     def discard_weights(self):
         """ Discard any weights that were loaded from the data file.
-        This sets all the weights associated with each edge to 1.0, 
+        This sets all the weights associated with each edge to 1.0,
         which is our "no weight" case."""
         self.adjacency_matrix.data.fill(1.0)
         self._weighted = False
@@ -278,7 +270,7 @@ class GraphLocal:
 
     def compute_statistics(self):
         """
-        Computes statistics for the graph. It updates the class attributes. 
+        Computes statistics for the graph. It updates the class attributes.
         The user needs to read the graph first before calling
         this method by calling the read_graph method from this class.
         """
@@ -297,17 +289,17 @@ class GraphLocal:
         """
 
         output = csgraph.connected_components(self.adjacency_matrix,directed=False)
-        
+
         self.components = output[1]
         self.number_of_components = output[0]
-        
+
         #warnings.warn("Warning, connected_components is not efficiently implemented.")
-        
+
         #g_nx = nx.from_scipy_sparse_matrix(self.adjacency_matrix)
         #self.components = list(nx.connected_components(g_nx))
         #self.number_of_components = nx.number_connected_components(g_nx)
-        
-        print('There are ', self.number_of_components, ' connected components in the graph') 
+
+        print('There are ', self.number_of_components, ' connected components in the graph')
 
     def is_disconnected(self):
         """
@@ -329,13 +321,13 @@ class GraphLocal:
         if self.d == []:
             print('The graph has to be read first.')
             return
-        
+
         self.connected_components()
-        
+
         if self.number_of_components > 1:
             print('The graph is a disconnected graph.')
             return True
-        else: 
+        else:
             print('The graph is not a disconnected graph.')
             return False
 
@@ -346,11 +338,11 @@ class GraphLocal:
         function by calling the read_graph function from this class. This function calls Networkx.
         """
         warnings.warn("Warning, biconnected_components is not efficiently implemented.")
-        
+
         g_nx = nx.from_scipy_sparse_matrix(self.adjacency_matrix)
 
         self.bicomponents = list(nx.biconnected_components(g_nx))
-        
+
         self.number_of_bicomponents = len(self.bicomponents)
 
     def core_number(self):
@@ -363,7 +355,7 @@ class GraphLocal:
         calls this function. It stores the results in class attribute core_numbers.
         """
         warnings.warn("Warning, core_number is not efficiently implemented.")
-        
+
         g_nx = nx.from_scipy_sparse_matrix(self.adjacency_matrix)
 
         self.core_numbers = nx.core_number(g_nx)
@@ -381,31 +373,31 @@ class GraphLocal:
         v_ones_R = np.zeros(self._num_vertices)
         v_ones_R[R] = 1
 
-        vol_R = sum(self.d[R])     
+        vol_R = sum(self.d[R])
 
         cut_R = vol_R - np.dot(v_ones_R,self.adjacency_matrix.dot(v_ones_R.T))
         vol = (1.0*min(vol_R,self.vol_G - vol_R))
         cond_R = cut_R/vol if vol != 0 else 0
-        
+
         return cond_R
-        
+
     def set_scores(self,R):
         """
         Return various metrics of a set of vertices.
         """
-        
-        voltrue = sum(self.d[R])     
+
+        voltrue = sum(self.d[R])
         v_ones_R = np.zeros(self._num_vertices)
         v_ones_R[R] = 1
         cut = voltrue - np.dot(v_ones_R,self.adjacency_matrix.dot(v_ones_R.T))
 
         voleff = min(voltrue,self.vol_G - voltrue)
-        
+
         sizetrue = len(R)
         sizeeff = sizetrue
         if voleff < voltrue:
             sizeeff = self._num_vertices - sizetrue
-            
+
         # remove the stuff we don't want returned...
         del R
         del self
@@ -413,10 +405,10 @@ class GraphLocal:
 
         edgestrue = voltrue - cut
         edgeseff = voleff - cut
-        
+
         cond = cut / voleff if voleff != 0 else 1
         isop = cut / sizeeff
-        
+
         # make a dictionary out of local variables
         return locals()
 
@@ -432,20 +424,20 @@ class GraphLocal:
             what_key = counter.most_common(1)[0][0]
             for i in range(self._num_vertices):
                 if what_key == self.components[i]:
-                    maxccnodes.append(i)        
-            
+                    maxccnodes.append(i)
+
             # biggest component by len of it's list of nodes
-            #maxccnodes = max(self.components, key=len)            
+            #maxccnodes = max(self.components, key=len)
             #maxccnodes = list(maxccnodes)
-            
+
             warnings.warn("The graph has multiple (%i) components, using the largest with %i / %i nodes"%(
-                     self.number_of_components, len(maxccnodes), self._num_vertices))  
-            
+                     self.number_of_components, len(maxccnodes), self._num_vertices))
+
             g_copy = GraphLocal()
             g_copy.adjacency_matrix = self.adjacency_matrix[maxccnodes,:].tocsc()[:,maxccnodes].tocsr()
             g_copy._num_vertices = len(maxccnodes) # AHH!
-            g_copy.compute_statistics()  
-            g_copy._weighted = self._weighted 
+            g_copy.compute_statistics()
+            g_copy._weighted = self._weighted
             dt = np.dtype(self.ai[0])
             itype = np.int64 if dt.name == 'int64' else np.uint32
             dt = np.dtype(self.aj[0])
@@ -453,8 +445,8 @@ class GraphLocal:
             g_copy.ai = itype(g_copy.adjacency_matrix.indptr)
             g_copy.aj = vtype(g_copy.adjacency_matrix.indices)
             return g_copy
-            
-    
+
+
     def local_extrema(self,vals,strict=False,reverse=False):
         """
         Find extrema in a graph based on a set of values.
@@ -472,10 +464,10 @@ class GraphLocal:
             i.e. local minima in the space of the graph
             If False, find a set of vertices where vals(i) <= vals(j) for all neighbors N(j)
             i.e. local minima in the space of the graph
-            
+
         reverse: bool
-            if True, then find local maxima, if False then find local minima 
-            (by default, this is false, so we find local minima) 
+            if True, then find local maxima, if False then find local minima
+            (by default, this is false, so we find local minima)
 
         Returns
         -------
@@ -491,14 +483,14 @@ class GraphLocal:
         ai = np.uint64(self.adjacency_matrix.indptr)
         aj = np.uint32(self.adjacency_matrix.indices)
         factor = 1.0
-        if reverse: 
+        if reverse:
             factor = -1.0
         for i in range(n):
             vali = factor*vals[i]
             lmin = True
             for nzi in range(ai[i],ai[i+1]):
                 v = aj[nzi]
-                if v == i: 
+                if v == i:
                     continue # skip self-loops
                 if strict:
                     if vali < factor*vals[v]:
@@ -510,13 +502,13 @@ class GraphLocal:
                         continue
                     else:
                         lmin = False
-                
+
                 if lmin == False:
                     break # break out of the loop
-            
+
             if lmin:
                 minverts.append(i)
-                    
+
         minvals = vals[minverts]
 
         return minverts, minvals

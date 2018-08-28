@@ -3,7 +3,7 @@ import numpy as np
 from .cpp import *
 import warnings
 
-def triangleclusters(G, fun=None):
+def triangleclusters(G):
     """
     TRIANGLECLUSTERS Clustering metrics for clusters of vertex neighborhoods.
     This function studies clusters which are given by vertex neighborhoods.
@@ -16,23 +16,20 @@ def triangleclusters(G, fun=None):
 
     G: GraphLocal
 
-    fun: PyObject
-        A python wrapper of the foreign C function.
-
     Returns
     -------
-   
-    cond: Sequence[float] 
+
+    cond: Sequence[float]
         conductance of each cluster of a vertex neighborhood
 
-    cut: Sequence[float]  
+    cut: Sequence[float]
         cut of each cluster
 
-    vol: Sequence[float] 
+    vol: Sequence[float]
         volume of each cluster
 
     cc: Sequence[float]
-        clustering coefficient of each vertex 
+        clustering coefficient of each vertex
 
     t: Sequence[float]
         number of triangles centered at each vertex
@@ -41,5 +38,4 @@ def triangleclusters(G, fun=None):
         warnings.warn("The weights of the graph will be discarded.")
 
     n = G.adjacency_matrix.shape[0]
-    if fun == None: fun = triangleclusters_cpp(G.ai,G.aj,G.lib)
-    return triangleclusters_run(fun,n,G.ai,G.aj)
+    return triangleclusters_cpp(n,G.ai,G.aj)
