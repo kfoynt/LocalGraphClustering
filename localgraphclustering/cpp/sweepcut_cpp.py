@@ -145,7 +145,6 @@ def _get_sweepcut_cpp_types_fun(ai,aj,skip_sort):
 
 def sweepcut_simple(n,ai,aj,a,ids,num,values,skip_sort,degrees = []):
     float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun = _get_sweepcut_cpp_types_fun(ai,aj,skip_sort)
-    print(float_type, vtype, itype, ctypes_vtype, ctypes_itype,fun)
     ids=np.array(ids,dtype=vtype)
     values=np.array(values,dtype=float_type)
     results=np.zeros(num,dtype=vtype)
