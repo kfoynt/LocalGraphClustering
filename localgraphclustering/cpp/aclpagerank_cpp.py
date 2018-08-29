@@ -13,21 +13,14 @@ from operator import itemgetter
 import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
-from .utility import determine_types
+from .utility import determine_types, standard_types
+from . import _graphlib
 
 
-def aclpagerank_cpp(ai,aj,lib):
+# Load the functions
+def _setup_aclpagerank_args(vtypestr, itypestr, fun):
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype = standard_types(vtypestr,itypestr)
 
-    float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
-
-    if (vtype, itype) == (np.int64, np.int64):
-        fun = lib.aclpagerank64
-    elif (vtype, itype) == (np.uint32, np.int64):
-        fun = lib.aclpagerank32_64
-    else:
-        fun = lib.aclpagerank32
-
-    #call C function
     fun.restype=ctypes_vtype
     fun.argtypes=[ctypes_vtype,ndpointer(ctypes_itype, flags="C_CONTIGUOUS"),
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
@@ -36,10 +29,30 @@ def aclpagerank_cpp(ai,aj,lib):
                   ctypes_vtype,ctypes_vtype,
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
                   ctypes_vtype,ndpointer(ctypes.c_double, flags="C_CONTIGUOUS")]
+
     return fun
 
-def aclpagerank_run(fun,n,ai,aj,alpha,eps,seedids,maxsteps,xlength=10**6):
+
+_graphlib_funs_aclpagerank64 = _setup_aclpagerank_args(
+    'int64','int64', _graphlib.aclpagerank64)
+_graphlib_funs_aclpagerank32 = _setup_aclpagerank_args(
+    'uint32','uint32', _graphlib.aclpagerank32)
+_graphlib_funs_aclpagerank32_64 = _setup_aclpagerank_args(
+    'uint32','int64', _graphlib.aclpagerank32_64)
+
+
+def _get_aclpagerank_cpp_types_fun(ai,aj):
     float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
+    if (vtype, itype) == (np.int64, np.int64):
+        fun = _graphlib_funs_aclpagerank64
+    elif (vtype, itype) == (np.uint32, np.int64):
+        fun = _graphlib_funs_aclpagerank32_64
+    else:
+        fun = _graphlib_funs_aclpagerank32
+    return float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun
+
+def aclpagerank_cpp(n,ai,aj,alpha,eps,seedids,maxsteps,xlength=10**6):
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun = _get_aclpagerank_cpp_types_fun(ai,aj)
     nseedids = len(seedids)
     seedids = np.array(seedids,dtype=vtype)
     xids = np.zeros(xlength,dtype=vtype)

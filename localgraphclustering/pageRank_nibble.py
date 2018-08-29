@@ -10,8 +10,7 @@ def PageRank_nibble(g,ref_nodes,
                     iterations: int = 10000,
                     timeout: int = 100,
                     ys: Sequence[float] = None, 
-                    cpp: bool = True,
-                    fun = None):
+                    cpp: bool = True):
     """
     Page Rank Nibble Algorithm. For details please refer to: 
     R. Andersen, F. Chung and K. Lang. Local Graph Partitioning using PageRank Vectors
@@ -56,9 +55,6 @@ def PageRank_nibble(g,ref_nodes,
         default = True
         Use the faster C++ version or not.
 
-    fun: PyObject
-        A python wrapper of the foreign C function.
-
     Extra parameters for "l1reg" (optional)
     -------------------------------------------
             
@@ -101,7 +97,7 @@ def PageRank_nibble(g,ref_nodes,
     rho = (1/(2**b))*(1/(48*B))
 
     p = approximate_PageRank(g, ref_nodes, timeout = timeout, iterations = iterations, alpha = alpha,
-                             rho = rho, epsilon = epsilon, ys = ys, cpp = cpp, method = method, fun = fun)
+                             rho = rho, epsilon = epsilon, ys = ys, cpp = cpp, method = method)
 
 
     return p
