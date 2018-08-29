@@ -7,19 +7,19 @@ import plotly.graph_objs as go
 import plotly.tools as tls
 
 import localgraphclustering.ncp
-   
+
 def _ncp_min(grp, feature):
-    if len(grp[feature]) > 0: 
+    if len(grp[feature]) > 0:
         minj = grp[feature].idxmin()
         result = grp.loc[minj]
         result["best"] = minj
         return result
-        
+
 def ncp_min_feature_by_group(df, feature, group):
     return df.groupby(group).apply(lambda x: _ncp_min(x, feature))
-    
-def ncp_min_feature_by_group_binned(df, feature, group, nbins=50, log=False): 
-    xs = df[group].as_matrix().copy()
+
+def ncp_min_feature_by_group_binned(df, feature, group, nbins=50, log=False):
+    xs = df[group].values().copy()
     xs.sort()
     xs = xs.astype(np.float64)
     if log is True:
@@ -55,12 +55,12 @@ class NCPPlots:
                 x=group, y=feature, ax=ax)
         plt.show()
         return ax
-  
-        
+
+
     def mqi_input_output_cond_plot(self, nbins=50):
         ncpdata = self.df
         fig, ax = plt.subplots()
-        ax.hexbin(ncpdata["input_cond"], ncpdata["output_cond"], 
+        ax.hexbin(ncpdata["input_cond"], ncpdata["output_cond"],
                       gridsize=nbins, cmap="magma", bins='log', mincnt=1)
         ax.set_xlabel("input conductance")
         ax.set_ylabel("output conductance")
@@ -70,7 +70,7 @@ class NCPPlots:
         #axins = inset_axes(ax, width="40%", height="40%", loc=2)
         axins = fig.add_axes([0.3,0.6,0.2,0.2], xscale='log', yscale='log')
         axins.hist(ncpdata["output_cond"]/ncpdata["input_cond"])
-        axins.yaxis.set_ticks_position('none') 
+        axins.yaxis.set_ticks_position('none')
         axins.spines['right'].set_visible(False)
         axins.spines['top'].set_visible(False)
         axins.spines['left'].set_visible(False)
@@ -78,19 +78,19 @@ class NCPPlots:
         axins.set_xticks([0.1, 0.3, 1.0])
         axins.set_yticks([])
         return fig, ax, axins
-        
+
     def feature_by_group_histogram(self, feature, group, nbins=50, log=True):
         ncpdata = self.df
         fig,ax = plt.subplots()
         if log:
-            ax.hexbin(ncpdata[group], ncpdata[feature], 
+            ax.hexbin(ncpdata[group], ncpdata[feature],
               gridsize=50, cmap="magma", bins='log', mincnt=1, xscale='log', yscale='log')
         else:
-            ax.hexbin(ncpdata[group], ncpdata[feature], 
+            ax.hexbin(ncpdata[group], ncpdata[feature],
               gridsize=50, cmap="magma",  mincnt=1)
         return fig, ax
-        
-    def feature_by_group_histogram_and_min_line(self, feature, group, 
+
+    def feature_by_group_histogram_and_min_line(self, feature, group,
                                     nbins=50, nbinsx=100, log=True):
         ncpdata = self.df
         fig, ax = self.feature_by_group_histogram(
@@ -106,8 +106,8 @@ class NCPPlots:
         y = [i[1] for i in tmp]
         ax.plot(x, y)
         return fig, ax, list(zip(x,y,pos))
-        
-    
+
+
     #plot conductance vs volume
     def cond_by_vol(self, **kwargs):
         fig, ax, min_tuples = self.feature_by_group_histogram_and_min_line(
@@ -115,8 +115,8 @@ class NCPPlots:
         ax.set_xlabel("effective volume")
         ax.set_ylabel("conductance")
         return fig, ax, min_tuples
-        
-      
+
+
     #plot conductance vs size
     def cond_by_size(self, **kwargs):
         fig, ax, min_tuples = self.feature_by_group_histogram_and_min_line(
@@ -124,8 +124,8 @@ class NCPPlots:
         ax.set_xlabel("effective size")
         ax.set_ylabel("conductance")
         return fig, ax, min_tuples
-            
-        
+
+
     def isop_by_size(self, nbins=50, nbinsx=100, log=True):
         ncpdata = self.df
         fig, ax = self.feature_by_group_histogram(
@@ -139,7 +139,7 @@ class NCPPlots:
         ax.set_ylabel("expansion")
         ax.plot(x, y)
         return fig, ax, list(zip(x,y,pos))
-    
+
     def interactive(self,feature, group, min_tuples, alpha=0.3, ratio=1.0, log=True, filename=""):
         sample_size = np.int(self.df.shape[0]*ratio)
         sample_indices = np.random.choice(self.df.index.values, sample_size, replace=False)
@@ -216,4 +216,3 @@ class NCPPlots:
         pos = dfmin["best"]
         min_tuples = list(zip(x,y,pos))
         return self.interactive("output_isop", "output_sizeeff", min_tuples, **kwargs)
-
