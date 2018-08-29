@@ -4,8 +4,7 @@ from .cpp import *
 from .GraphLocal import GraphLocal
 
 def SimpleLocal(G, ref_nodes,
-                delta: float = 0.3,
-                fun = None):
+                delta: float = 0.3):
     """
     A Simple and Strongly-Local Flow-Based Method for Cut Improvement.
     For details please refer to: Veldt, Gleich and Mahoney (2016).
@@ -22,9 +21,6 @@ def SimpleLocal(G, ref_nodes,
 
     delta: float
         locality parameter
-
-    fun: PyObject
-        A python wrapper of the foreign C function.
             
     Returns
     -------
@@ -39,7 +35,6 @@ def SimpleLocal(G, ref_nodes,
 
     """ 
     n = G.adjacency_matrix.shape[0]
-    if fun == None: fun = SimpleLocal_cpp(G.ai,G.aj,G.lib)
-    (actual_length,actual_xids) = SimpleLocal_run(fun,n,G.ai,G.aj,len(ref_nodes),ref_nodes,delta)
+    (actual_length,actual_xids) = SimpleLocal_cpp(n,G.ai,G.aj,len(ref_nodes),ref_nodes,delta)
 
     return [actual_xids, G.compute_conductance(actual_xids)]

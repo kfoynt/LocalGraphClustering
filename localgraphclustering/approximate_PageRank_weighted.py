@@ -6,8 +6,7 @@ def approximate_PageRank_weighted(G,
                                   ref_nodes,
                                   iterations: int = 100000,
                                   alpha: float = 0.15,
-                                  rho: float = 1.0e-6,
-                                  fun = None):
+                                  rho: float = 1.0e-6):
     """
     Computes an approximate PageRank vector on a weighted graph. Uses the modified Andersen Chung and Lang (ACL) Algorithm. 
     Now, the diffusion from one node to its neighbors is proportional to the edge weight.
@@ -39,9 +38,6 @@ def approximate_PageRank_weighted(G,
     iterations: int
         Default = 1000
         Maximum number of iterations of ACL algorithm.
-
-    fun: PyObject
-        A python wrapper of the foreign C function.
             
     Returns
     -------
@@ -52,8 +48,7 @@ def approximate_PageRank_weighted(G,
             
     #print("Uses the weighted Andersen Chung and Lang (ACL) Algorithm.")
     n = G.adjacency_matrix.shape[0]
-    if fun == None: fun = aclpagerank_weighted_cpp(G.ai,G.aj,G.lib)
-    (length,xids,values) = aclpagerank_weighted_run(fun,n,G.ai,G.aj,G.adjacency_matrix.data,alpha,rho,
+    (length,xids,values) = aclpagerank_weighted_cpp(n,G.ai,G.aj,G.adjacency_matrix.data,alpha,rho,
                 ref_nodes,1,iterations)
     p = np.zeros(n)
     p[xids] = values

@@ -23,9 +23,39 @@ from operator import itemgetter
 import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
-from .utility import determine_types
-#from localgraphclustering.find_library import load_library
+from .utility import determine_types, standard_types
+from . import _graphlib
 
+
+# Load the functions
+def _setup_proxl1PRaccel_args(vtypestr, itypestr, fun):
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype = standard_types(vtypestr,itypestr)
+
+    fun.restype=ctypes_vtype
+    fun.argtypes=[ctypes_vtype,ndpointer(ctypes_itype, flags="C_CONTIGUOUS"),
+                  ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
+                  ndpointer(float_type, flags="C_CONTIGUOUS"),
+                  float_type,float_type,
+                  ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),ctypes_vtype,
+                  ndpointer(float_type, flags="C_CONTIGUOUS"),
+                  ndpointer(float_type, flags="C_CONTIGUOUS"),
+                  ndpointer(float_type, flags="C_CONTIGUOUS"),float_type,
+                  ndpointer(float_type, flags="C_CONTIGUOUS"),
+                  ndpointer(float_type, flags="C_CONTIGUOUS"),
+                  ndpointer(float_type, flags="C_CONTIGUOUS"),ctypes_vtype,ctypes_vtype,
+                  float_type]
+
+    return fun
+
+
+_graphlib_funs_proxl1PRaccel64 = _setup_proxl1PRaccel_args(
+    'int64','int64', _graphlib.proxl1PRaccel64)
+_graphlib_funs_proxl1PRaccel32 = _setup_proxl1PRaccel_args(
+    'uint32','uint32', _graphlib.proxl1PRaccel32)
+_graphlib_funs_proxl1PRaccel32_64 = _setup_proxl1PRaccel_args(
+    'uint32','int64', _graphlib.proxl1PRaccel32_64)
+
+"""
 def proxl1PRaccel(ai,aj,lib):
     float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
 
@@ -54,10 +84,20 @@ def proxl1PRaccel(ai,aj,lib):
                   ndpointer(float_type, flags="C_CONTIGUOUS"),ctypes_vtype,ctypes_vtype,
                   float_type]
     return fun
+"""
 
-
-def proxl1PRaccel_run(fun,ai,aj,a,ref_node,d,ds,dsinv,y=[],alpha = 0.15,rho = 1.0e-5,epsilon = 1.0e-4,maxiter = 10000,max_time = 100):
+def _get_proxl1PRaccel_cpp_types_fun(ai,aj):
     float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
+    if (vtype, itype) == (np.int64, np.int64):
+        fun = _graphlib_funs_proxl1PRaccel64
+    elif (vtype, itype) == (np.uint32, np.int64):
+        fun = _graphlib_funs_proxl1PRaccel32_64
+    else:
+        fun = _graphlib_funs_proxl1PRaccel32
+    return float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun
+
+def proxl1PRaccel_cpp(ai,aj,a,ref_node,d,ds,dsinv,y=[],alpha = 0.15,rho = 1.0e-5,epsilon = 1.0e-4,maxiter = 10000,max_time = 100):
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun = _get_proxl1PRaccel_cpp_types_fun(ai,aj)
     n = len(ai) - 1
     if type(ref_node) is not list:
         ref_node = np.array([ref_node],dtype = ctypes_vtype)

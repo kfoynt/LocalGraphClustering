@@ -12,8 +12,7 @@ def multiclass_label_prediction(g: GraphLocal,
                                 alpha: float = 0.15,
                                 rho: float = 1.0e-6,
                                 epsilon: float = 1.0e-2,
-                                cpp: bool = True,
-                                fun = None):
+                                cpp: bool = True):
     """
     This function predicts labels for unlabelled nodes. For details refer to:
     D. Gleich and M. Mahoney. Variational 
@@ -58,9 +57,6 @@ def multiclass_label_prediction(g: GraphLocal,
         default = True
         Use the faster C++ version of FISTA or not.
 
-    fun: PyObject
-        A python wrapper of the foreign C function.
-
     Returns
     -------
 
@@ -86,8 +82,7 @@ def multiclass_label_prediction(g: GraphLocal,
         if not cpp:
             output_fista = fista_dinput_dense(labels_i, g, alpha = alpha, rho = rho, epsilon = epsilon, iterations = iterations, timeout = timeout)
         else: 
-            if fun  == None: fun = proxl1PRaccel(g.ai, g.aj, g.lib)
-            (not_converged,grad,output_fista) = proxl1PRaccel_run(fun, g.ai, g.aj, g.adjacency_matrix.data, labels_i, g.d, g.d_sqrt, g.dn_sqrt, alpha = alpha, rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)
+            (not_converged,grad,output_fista) = proxl1PRaccel_cpp(g.ai, g.aj, g.adjacency_matrix.data, labels_i, g.d, g.d_sqrt, g.dn_sqrt, alpha = alpha, rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)
         
         p = np.zeros(n)
         for i in range(n):

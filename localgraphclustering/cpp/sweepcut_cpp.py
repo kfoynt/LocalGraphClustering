@@ -14,14 +14,12 @@ from operator import itemgetter
 import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
-from .utility import determine_types
+from .utility import determine_types, standard_types
 from . import _graphlib
 
 # Load the functions
 def _setup_sweepcut_args(vtypestr, itypestr, fun, sort=False):
-    float_type = ctypes.c_double
-    (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if vtypestr == 'int64' else (np.uint32, ctypes.c_uint32)
-    (itype, ctypes_itype) = (np.int64, ctypes.c_int64) if itypestr == 'int64' else (np.uint32, ctypes.c_uint32)
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype = standard_types(vtypestr,itypestr)
 
     fun.restype = ctypes_vtype
 

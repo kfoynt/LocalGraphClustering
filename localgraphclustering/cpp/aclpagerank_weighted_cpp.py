@@ -14,9 +14,44 @@ import numpy as np
 from numpy.ctypeslib import ndpointer
 import ctypes
 from .utility import determine_types
-#from localgraphclustering.find_library import load_library
+from . import _graphlib
 
+# Load the functions
+def _setup_aclpagerank_weighted_args(vtypestr, itypestr, fun):
+    float_type = ctypes.c_double
+    (vtype, ctypes_vtype) = (np.int64, ctypes.c_int64) if vtypestr == 'int64' else (np.uint32, ctypes.c_uint32)
+    (itype, ctypes_itype) = (np.int64, ctypes.c_int64) if itypestr == 'int64' else (np.uint32, ctypes.c_uint32)
 
+    fun.restype=ctypes_vtype
+    fun.argtypes=[ctypes_vtype,ndpointer(ctypes_itype, flags="C_CONTIGUOUS"),
+                  ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
+                  ndpointer(float_type, flags="C_CONTIGUOUS"),
+                  ctypes_vtype,ctypes.c_double,ctypes.c_double,
+                  ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
+                  ctypes_vtype,ctypes_vtype,
+                  ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
+                  ctypes_vtype,ndpointer(ctypes.c_double, flags="C_CONTIGUOUS")]
+
+    return fun
+
+_graphlib_funs_aclpagerank_weighted64 = _setup_aclpagerank_weighted_args(
+    'int64','int64', _graphlib.aclpagerank_weighted64)
+_graphlib_funs_aclpagerank_weighted32 = _setup_aclpagerank_weighted_args(
+    'uint32','uint32', _graphlib.aclpagerank_weighted32)
+_graphlib_funs_aclpagerank_weighted32_64 = _setup_aclpagerank_weighted_args(
+    'uint32','int64', _graphlib.aclpagerank_weighted32_64)
+
+def _get_aclpagerank_weighted_cpp_types_fun(ai,aj):
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
+    if (vtype, itype) == (np.int64, np.int64):
+        fun = _graphlib_funs_aclpagerank_weighted64
+    elif (vtype, itype) == (np.uint32, np.int64):
+        fun = _graphlib_funs_aclpagerank_weighted32_64
+    else:
+        fun = _graphlib_funs_aclpagerank_weighted32
+    return float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun
+
+"""
 def aclpagerank_weighted_cpp(ai,aj,lib):
 
     float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
@@ -41,9 +76,10 @@ def aclpagerank_weighted_cpp(ai,aj,lib):
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
                   ctypes_vtype,ndpointer(ctypes.c_double, flags="C_CONTIGUOUS")]
     return fun
+"""
 
-def aclpagerank_weighted_run(fun,n,ai,aj,a,alpha,eps,seedids,nseedids,maxsteps,xlength=10**6,flag=0):
-    float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
+def aclpagerank_weighted_cpp(n,ai,aj,a,alpha,eps,seedids,nseedids,maxsteps,xlength=10**6,flag=0):
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun = _get_aclpagerank_weighted_cpp_types_fun(ai,aj)
     seedids=np.array(seedids,dtype=vtype)
     xids=np.zeros(xlength,dtype=vtype)
     values=np.zeros(xlength,dtype=float_type)

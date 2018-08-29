@@ -12,8 +12,7 @@ def flow_clustering(G, ref_nodes,
                     w: int = 2,
                     iterations: int = 20,
                     delta: float = 0.3,
-                    method: str = "mqi",
-                    fun = None):
+                    method: str = "mqi"):
     """
     Provide a simple interface to do spectral based clustering.
 
@@ -25,9 +24,6 @@ def flow_clustering(G, ref_nodes,
     ref_nodes: Sequence[int]
         A sequence of reference nodes, i.e., nodes of interest around which
         we are looking for a target cluster.
-
-    fun: PyObject
-        A python wrapper of the foreign C function.
 
     method: str
         Which method to use for the nodes embedding.
@@ -48,13 +44,13 @@ def flow_clustering(G, ref_nodes,
     if method == "mqi":
         if G._weighted:
             warnings.warn("The weights of the graph will be discarded. Use \"crd\" if you want to keep them.")
-        return MQI(G,ref_nodes,fun=fun)
+        return MQI(G,ref_nodes)
     elif method == "crd":
-        return capacity_releasing_diffusion(G,ref_nodes,U=U,h=h,w=w,iterations=iterations,fun=fun)
+        return capacity_releasing_diffusion(G,ref_nodes,U=U,h=h,w=w,iterations=iterations)
     elif method == "sl":
         if G._weighted:
             warnings.warn("The weights of the graph will be discarded. Use \"crd\" if you want to keep them.")
-        return SimpleLocal(G,ref_nodes,delta=delta,fun=fun)
+        return SimpleLocal(G,ref_nodes,delta=delta)
     else:
         raise Exception("Unknown method, available methods are \"mqi\", \"crd\", \"sl\".")
 

@@ -2,7 +2,7 @@ from typing import *
 import numpy as np
 from .cpp import *
 
-def MQI(G, ref_nodes, fun=None):
+def MQI(G, ref_nodes):
     """
     Max Flow Quotient Cut Improvement (MQI) for improving either the expansion or the 
     conductance of cuts of weighted or unweighted graphs.
@@ -17,9 +17,6 @@ def MQI(G, ref_nodes, fun=None):
     ref_nodes: Sequence[int]
         A sequence of reference nodes, i.e., nodes of interest around which
         we are looking for a target cluster.
-
-    fun: PyObject
-        A python wrapper of the foreign C function.
             
     Returns
     -------
@@ -39,8 +36,6 @@ def MQI(G, ref_nodes, fun=None):
 
     nR = len(R)
 
-    if fun == None: fun = MQI_cpp(G.ai,G.aj,G.lib)
-
-    (actual_length,actual_xids) = MQI_run(fun,n,G.ai,G.aj,nR,R)
+    (actual_length,actual_xids) = MQI_cpp(n,G.ai,G.aj,nR,R)
 
     return [actual_xids, G.compute_conductance(actual_xids)]

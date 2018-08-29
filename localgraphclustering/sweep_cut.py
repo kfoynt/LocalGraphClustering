@@ -8,8 +8,7 @@ def sweep_cut(G: GraphLocal,
               p: Sequence[float],
               do_sort: bool = True,
               normalized: bool = True,
-              cpp: bool = True,
-              fun = None):
+              cpp: bool = True):
     """
     It implements a sweep cut rounding procedure for local graph clustering.
 
@@ -33,9 +32,6 @@ def sweep_cut(G: GraphLocal,
     cpp: bool
         default = True
         Use the faster C++ version or not.
-
-    fun: PyObject
-        A python wrapper of the foreign C function.
 
     Returns
     -------
