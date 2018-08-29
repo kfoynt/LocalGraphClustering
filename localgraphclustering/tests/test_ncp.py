@@ -49,14 +49,14 @@ def test_ncp_crd_big():
     G = localgraphclustering.GraphLocal()
     G.read_graph("notebooks/datasets/neuro-fmri-01.edges","edgelist", " ", header=True)
     ncp_instance = localgraphclustering.NCPData(G)
-    df = ncp_instance.crd(ratio=0.5,w=10,U=10,h=1000)
+    df = ncp_instance.crd(ratio=0.5,w=10,U=10,h=1000,nthreads=1000)
     ncp_plots = localgraphclustering.ncpplots.NCPPlots(df)
     #plot conductance vs size
-    ncp_plots.cond_by_size()
+    #ncp_plots.cond_by_size()
     #plot conductance vs volume
-    ncp_plots.cond_by_vol()
+    #ncp_plots.cond_by_vol()
     #plot isoperimetry vs size
-    ncp_plots.isop_by_size()
+    #ncp_plots.isop_by_size()
 
 @pytest.mark.long_tests
 def test_ncp_l1reg_big():
@@ -65,7 +65,7 @@ def test_ncp_l1reg_big():
     Glcc = G.largest_component()
     print(Glcc.adjacency_matrix.data)
     ncp_instance = localgraphclustering.NCPData(G)
-    df = ncp_instance.l1reg(ratio=0.5)
+    df = ncp_instance.l1reg(ratio=0.5,nthreads=1000)
 
 def read_minnesota():
     g = localgraphclustering.GraphLocal('notebooks/datasets/minnesota.edgelist','edgelist',' ')
