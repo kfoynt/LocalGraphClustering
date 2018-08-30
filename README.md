@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/MengLiuPurdue/LocalGraphClustering.svg?branch=master)](https://travis-ci.org/MengLiuPurdue/LocalGraphClustering)
 # Local Graph Clustering
 
 Local Graph Clustering provides
