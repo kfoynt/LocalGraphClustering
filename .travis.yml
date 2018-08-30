@@ -7,3 +7,7 @@ install:
   - bash bin/createGraphLibFile.sh
 # command to run tests
 script: pytest localgraphclustering/tests/
+before_install:
+  - pip install --user codecov
+after_success:
+  - codecov --file coverage/lcov.info --disable search
