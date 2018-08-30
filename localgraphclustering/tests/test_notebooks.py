@@ -13,5 +13,7 @@ def _exec_notebook(path):
 
 def test():
 	os.system('cp notebooks/examples.ipynb .')
+	os.system('cp -R notebooks/datasets .')
 	_exec_notebook('examples.ipynb')
 	os.system('rm examples.ipynb')
+	os.system('rm -rf datasets')
