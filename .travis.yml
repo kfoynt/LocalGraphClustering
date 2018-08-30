@@ -3,7 +3,7 @@ python:
   - "3.6"
 # command to install dependencies
 install:
-  - pip install --user -r requirements.txt
+  - pip install -r requirements.txt
   - pip install .
 # command to run tests
 script: pytest localgraphclustering/tests/
