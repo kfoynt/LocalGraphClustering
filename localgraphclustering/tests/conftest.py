@@ -2,7 +2,7 @@ import pytest
 def pytest_addoption(parser):
     parser.addoption("--test-plots", action="store_true",
                      default=False, help="run test of plotting routines")
-                     
+
     parser.addoption("--long-tests", action="store_true",
                      default=False, help="run longer tests")
 

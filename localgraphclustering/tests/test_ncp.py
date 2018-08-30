@@ -15,6 +15,7 @@ def test_ncp():
     func = lambda G,R: localgraphclustering.flow_clustering(G,R,method="mqi")[0]
     ncp = localgraphclustering.NCPData(G)
     ncp.add_set_samples([[1]],nthreads=1,method=func,methodname="mqi")
+    ncp.add_random_neighborhood_samples(ratio=2,nthreads=1,method=func,methodname="mqi")
 
 
 

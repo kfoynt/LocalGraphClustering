@@ -301,21 +301,6 @@ class NCPData:
         for t in threads:
             t.join()
 
-    def add_random_neighborhood_samples(self, ratio=0.3, timeout=1000, nthreads=4, method=None, methodname=None):
-        method = self._check_method(method, methodname)
-        nodes = self.random_nodes(ratio)
-
-        threads = []
-        threadnodes = np.array_split(nodes, nthreads)
-
-        for i in range(nthreads):
-            sets = [ [j] for j in threadnodes[i] ] # make a set of sets
-            t = threading.Thread(target=ncp_neighborhood_worker,args=(self, sets, method, timeout, methodname))
-            threads.append(t)
-            t.start()
-        for t in threads:
-            t.join()
-
     def add_set_samples(self, sets, nthreads=4, method=None, methodname=None, timeout=1000):
         method = self._check_method(method, methodname)
         threads = []
@@ -324,14 +309,6 @@ class NCPData:
         endset = len(self.sets)
 
         setnos = np.array_split(range(startset,endset), nthreads) # set numbers
-
-        """
-        results_id = len(self.results)
-        self.results.append([])
-        self.method_names.append(methodname)
-        """
-
-        #self.results[methodname] = []
 
         for i in range(nthreads):
             t = threading.Thread(target=ncp_set_worker,args=(self, setnos[i], method, timeout, methodname))
