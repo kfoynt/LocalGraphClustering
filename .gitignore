@@ -4,4 +4,4 @@
 .pytest_cache
 build/
 localgraphclustering/graph_lib/
-*.egg_info/
+*.egg-info/
