@@ -1,5 +1,6 @@
 import subprocess
 import tempfile
+import os
 
 
 def _exec_notebook(path):
@@ -11,4 +12,5 @@ def _exec_notebook(path):
 
 
 def test():
+	os.chdir("/home/travis/build/MengLiuPurdue/LocalGraphClustering")
     _exec_notebook('notebooks/examples.ipynb')
