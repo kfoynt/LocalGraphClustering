@@ -3,6 +3,5 @@ scipy >= 0.18.1
 networkx >= 1.11
 matplotlib >= 2.0.0
 typing
-matplotlib
 pandas
 plotly
