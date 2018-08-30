@@ -42,3 +42,7 @@ def test_fiedler():
     g = GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ")
     output_sp = fiedler(g)
     output_sp2 = fiedler_local(g,[1,2,3,4,5,6,7,8,9,10])
+
+def test_sweep_cut():
+    g = GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ")
+    sweep_cut(g,([1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9]))

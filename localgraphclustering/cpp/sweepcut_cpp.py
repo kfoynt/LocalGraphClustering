@@ -75,11 +75,11 @@ def _get_sweepcut_cpp_types_fun(ai,aj,skip_sort):
 
 def sweepcut_cpp(n,ai,aj,a,ids,num,values,skip_sort,degrees = []):
     float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun = _get_sweepcut_cpp_types_fun(ai,aj,skip_sort)
-    ids=np.array(ids,dtype=vtype)
-    values=np.array(values,dtype=float_type)
+    ids=np.array(ids,dtype=vtype,copy=False)
+    values=np.array(values,dtype=float_type,copy=False)
     results=np.zeros(num,dtype=vtype)
     min_cond = np.array([0.0],dtype=float_type)
-    degrees = np.array(degrees,dtype=float_type)
+    degrees = np.array(degrees,dtype=float_type,copy=False)
 
     if skip_sort == 0:
         actual_length=fun(values,ids,results,num,n,ai,aj,a,0,min_cond,degrees,len(degrees)!=0)
