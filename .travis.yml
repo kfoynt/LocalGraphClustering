@@ -4,6 +4,6 @@ python:
 # command to install dependencies
 install:
   - pip install -r requirements.txt
-  - pip install . --verbose
+  - bash bin/createGraphLibFile.sh
 # command to run tests
 script: pytest localgraphclustering/tests/
