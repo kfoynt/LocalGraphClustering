@@ -1,6 +1,5 @@
 from .GraphLocal import GraphLocal
-from .fiedler import fiedler
-from .fiedler_local import fiedler_local
+from .fiedler import fiedler, fiedler_local
 from .approximate_PageRank import approximate_PageRank
 from .approximate_PageRank_weighted import approximate_PageRank_weighted
 from .sweep_cut import sweep_cut

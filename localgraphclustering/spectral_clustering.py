@@ -1,14 +1,13 @@
 from typing import *
 import numpy as np
 from .fiedler import fiedler
-from .fiedler_local import fiedler_local 
-from .sweep_cut import sweep_cut 
-from .approximate_PageRank import approximate_PageRank 
+from .sweep_cut import sweep_cut
+from .approximate_PageRank import approximate_PageRank
 from .GraphLocal import GraphLocal
 import warnings
 
-def spectral_clustering(G, ref_nodes, 
-                        timeout: float = 100, 
+def spectral_clustering(G, ref_nodes,
+                        timeout: float = 100,
                         iterations: int = 100000,
                         alpha: float = 0.15,
                         rho: float = 1.0e-6,
@@ -23,7 +22,7 @@ def spectral_clustering(G, ref_nodes,
     Parameters
     ----------------------
 
-    G: GraphLocal      
+    G: GraphLocal
 
     ref_nodes: Sequence[int]
         A sequence of reference nodes, i.e., nodes of interest around which
@@ -40,22 +39,22 @@ def spectral_clustering(G, ref_nodes,
         Default == 0.15
         Teleportation parameter of the personalized PageRank linear system.
         The smaller the more global the personalized PageRank vector is.
-            
+
     rho: float
         Defaul == 1.0e-6
         Regularization parameter for the l1-norm of the model.
-            
+
     iterations: int
         Default = 100000
         Maximum number of iterations of ACL algorithm.
-                     
+
     timeout: float
         Default = 100
-        Maximum time in seconds   
+        Maximum time in seconds
 
     Extra parameters for "l1reg" (optional)
     ----------------------------------------
-            
+
     epsilon: float
         Default == 1.0e-2
         Tolerance for FISTA for solving the l1-regularized personalized PageRank problem.
@@ -80,19 +79,19 @@ def spectral_clustering(G, ref_nodes,
     -------
 
     It returns in a list of length 2 with the following:
-        
+
     output 0: list
         Stores indices of the best clusters found by the last called rounding procedure.
-           
+
     output 1: float
         Stores the value of the best conductance found by the last called rounding procedure.
     """
 
     if G._weighted:
         warnings.warn("The weights of the graph will be discarded. Use approximate_PageRank_weighted instead if you want to keep the edge weights.")
-    
+
     if method == "acl" or method == "acl_weighted" or method == "l1reg":
-        p = approximate_PageRank(G,ref_nodes,timeout = timeout, iterations = iterations, alpha = alpha, 
+        p = approximate_PageRank(G,ref_nodes,timeout = timeout, iterations = iterations, alpha = alpha,
             rho = rho, epsilon = epsilon, method = method, ys = ys)
     elif method == "nibble":
         p = PageRank_nibble(G,ref_nodes,vol = vol,phi = phi,epsilon = epsilon,iterations = iterations,timeout = timeout)
@@ -107,5 +106,3 @@ def spectral_clustering(G, ref_nodes,
     output = sweep_cut(G,p)
 
     return output
-
-

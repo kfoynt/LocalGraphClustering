@@ -9,7 +9,7 @@ def test_algs():
     # Call the global spectral partitioning algorithm.
     output_sp = fiedler(g)
 
-    # Only one input graph is given, i.e., [g]. 
+    # Only one input graph is given, i.e., [g].
     # Extract the array from position 0 and store it.
     eig2 = output_sp
 
@@ -37,3 +37,8 @@ def test_algs():
     cond,cut,vol,cc,t = triangleclusters(g)
     minverts, minvals = g.local_extrema(cond,True)
     print("vertices with minimum conductance neighborhood:",minverts)
+
+def test_fiedler():
+    g = GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ")
+    output_sp = fiedler(g)
+    output_sp2 = fiedler_local(g,[1,2,3,4,5,6,7,8,9,10])
