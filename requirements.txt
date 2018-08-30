@@ -7,3 +7,4 @@ pandas
 plotly
 coverage
 python-coveralls
+jupyter
