@@ -8,7 +8,7 @@ def _exec_notebook(path):
         args = ["python3","-m","jupyter", "nbconvert", "--to", "notebook", "--execute",
                 "--ExecutePreprocessor.timeout=1000", "--ExecutePreprocessor.kernel_name=python3",
                 "--output", fout.name, path]
-        subprocess.check_call(args,cwd="/homes/liu1740/Research/LocalGraphClustering")
+        subprocess.check_call(args)
 
 
 def test():
