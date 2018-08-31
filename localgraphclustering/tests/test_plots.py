@@ -17,10 +17,7 @@ def test_ncpplots():
     plots.cond_by_vol()
     plots.cond_by_size()
     plots.isop_by_size()
-    
+
     df = localgraphclustering.NCPData(G).approxPageRank().as_data_frame()
     plots = localgraphclustering.NCPPlots(df)
     plots.cond_by_vol()
-
-    
-
