@@ -19,7 +19,7 @@ def ncp_min_feature_by_group(df, feature, group):
     return df.groupby(group).apply(lambda x: _ncp_min(x, feature))
 
 def ncp_min_feature_by_group_binned(df, feature, group, nbins=50, log=False):
-    xs = df[group].values().copy()
+    xs = df[group].values.copy()
     xs.sort()
     xs = xs.astype(np.float64)
     if log is True:
