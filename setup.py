@@ -46,7 +46,7 @@ setup(
       
       # Author details
       author= 'Kimon Fountoulakis, Meng Liu, David Gleich, Michael W. Mahoney',
-      author_email='kfount@berkeley.edu',
+      author_email='kimon.fountoulakis@uwaterloo.ca',
       
       # Choose your license
       license='GPL',
