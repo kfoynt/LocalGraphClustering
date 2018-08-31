@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/MengLiuPurdue/LocalGraphClustering.svg?branch=master)](https://travis-ci.org/MengLiuPurdue/LocalGraphClustering)
+[![Coverage Status](https://coveralls.io/repos/github/MengLiuPurdue/LocalGraphClustering/badge.svg?branch=master)](https://coveralls.io/github/MengLiuPurdue/LocalGraphClustering?branch=master)
 # Local Graph Clustering
 
 Local Graph Clustering provides

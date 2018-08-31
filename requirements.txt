@@ -1,0 +1,10 @@
+numpy >= 1.12.0
+scipy >= 0.18.1
+networkx >= 1.11
+matplotlib >= 2.0.0
+typing
+pandas
+plotly
+coverage
+python-coveralls
+jupyter

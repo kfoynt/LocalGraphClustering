@@ -137,7 +137,7 @@ def approximate_PageRank(G,
     elif method == "l1reg":
         #print("Uses the Fast Iterative Soft Thresholding Algorithm (FISTA).")
         # TODO fix the following warning
-        warning.warn("The normalization of this routine hasn't been adjusted to the new system yet")
+        warnings.warn("The normalization of this routine hasn't been adjusted to the new system yet")
         if cpp:
             if ys == None:
                 return proxl1PRaccel_cpp(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, alpha = alpha,
