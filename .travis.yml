@@ -3,8 +3,7 @@ python:
   - "3.6"
 # command to install dependencies
 install:
-  - pip install -r requirements.txt
-  - bash bin/createGraphLibFile.sh
+  - pip install . 
   # - sudo apt-get update
   # # We do this conditionally because it saves us some downloading if the
   # # version is the same.
