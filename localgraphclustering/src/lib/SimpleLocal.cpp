@@ -70,15 +70,15 @@ void graph<vtype,itype>::init_EL(vector<tuple<vtype,vtype,double>>& EL, unordere
             }
         }
     }
-    
+
     //cout << " ARR " << ARR << " ABR " << ABR << endl;
-    
+
     for (auto iter = B_map.begin(); iter != B_map.end(); ++iter){
         vtype v = iter->first;
         EL.push_back(make_tuple(VL[v],t,get_degree_unweighted(v)*beta));
         EL.push_back(make_tuple(t,VL[v],get_degree_unweighted(v)*beta));
     }
-    
+
     /*
     for (vtype i = 0; i < nR; i ++) {
         vtype u = R[i]+2;
@@ -134,13 +134,13 @@ void graph<vtype,itype>::update_EL(vector<tuple<vtype,vtype,double>>& EL, unorde
     if (!EL.empty() && EL.size() > 0) {
         EL.clear();
     }
-    
+
     unordered_map<vtype,vtype> B_map;
     unordered_map<vtype,vtype> WnR_map;
     vtype ARR  = 0;
     vtype ABR  = 0;
-    
-    
+
+
     //Build ARR, AWR, AW
     for (auto iter = W_map.begin(); iter != W_map.end(); ++iter){
         vtype u = iter->first;
@@ -151,7 +151,7 @@ void graph<vtype,itype>::update_EL(vector<tuple<vtype,vtype,double>>& EL, unorde
             }
         }
     }
-    
+
     //Build WnR, B, ABR, ABW
     for (auto iter = W_map.begin(); iter != W_map.end(); ++iter){
         vtype u = iter->first;
@@ -167,7 +167,7 @@ void graph<vtype,itype>::update_EL(vector<tuple<vtype,vtype,double>>& EL, unorde
             }
         }
     }
-    
+
     //Build sR, ARR
     //cout << "for now: " << EL.size() << endl;
     for (auto iter = R_map.begin(); iter != R_map.end(); ++iter){
@@ -175,27 +175,27 @@ void graph<vtype,itype>::update_EL(vector<tuple<vtype,vtype,double>>& EL, unorde
         EL.push_back(make_tuple(s,VL[u],get_degree_unweighted(u)*alpha));
         EL.push_back(make_tuple(VL[u],s,get_degree_unweighted(u)*alpha));
     }
-    
+
     //cout << "ARR " << ARR << " ABR " << ABR << endl;
-    
+
     //Build tB
     for (auto iter = B_map.begin(); iter != B_map.end(); ++iter){
         vtype v = iter->first;
         EL.push_back(make_tuple(VL[v],t,get_degree_unweighted(v)*beta));
         EL.push_back(make_tuple(t,VL[v],get_degree_unweighted(v)*beta));
     }
-    
+
     //Build tWnR
     for (auto iter = WnR_map.begin(); iter != WnR_map.end(); ++iter){
         vtype v = iter->first;
         EL.push_back(make_tuple(VL[v],t,get_degree_unweighted(v)*beta));
         EL.push_back(make_tuple(t,VL[v],get_degree_unweighted(v)*beta));
     }
-    
+
 }
 
 template<typename vtype, typename itype>
-void graph<vtype,itype>::assemble_graph(vector<bool>& mincut, vtype nverts, itype nedges, 
+void graph<vtype,itype>::assemble_graph(vector<bool>& mincut, vtype nverts, itype nedges,
                                         vector<tuple<vtype,vtype,double>>& EL)
 {
     vtype u,v;
@@ -265,17 +265,17 @@ void graph<vtype,itype>::STAGEFLOW(double delta, double alpha, double beta, unor
     vtype t = VL.size()+1;
     init_EL(EL,R_map,VL,s,t,alpha,beta);
     //cout << "EL size " << EL.size() << endl;
-    
+
     //double F = 0;
     vtype nverts = VL.size()+2;
     itype nedges = EL.size();
 
-    
+
     /*
     vtype *mincut = NULL, *Q = NULL, *fin = NULL, *pro = NULL, *another_pro = NULL, *dist = NULL, *next = NULL, *to = NULL;
     double *flow = NULL, *cap = NULL;
     */
-    
+
     adj = new vector<Edge<vtype,itype>>[nverts];
     level = new int[nverts];
     vector<bool> mincut;
@@ -284,7 +284,7 @@ void graph<vtype,itype>::STAGEFLOW(double delta, double alpha, double beta, unor
     for (vtype i = 0; i < nverts; i ++) {
         sum += adj[i].size();
     }
-    //cout << "here sum: " << sum << endl; 
+    //cout << "here sum: " << sum << endl;
 
 
     /*
@@ -297,7 +297,7 @@ void graph<vtype,itype>::STAGEFLOW(double delta, double alpha, double beta, unor
 
     //cout << "ok " << get<0>(retData) << " " << get<1>(retData) << endl;
     //vtype* source_set = (vtype*)malloc(sizeof(vtype) * get<1>(retData));
-    
+
 
     //TODO
     vector<vtype> E;
@@ -333,10 +333,10 @@ void graph<vtype,itype>::STAGEFLOW(double delta, double alpha, double beta, unor
             save_EL<vtype,itype>(EL);
         }
         */
-        
-        //cout << "here sum: " << sum << " " << adj[0][10].C << " " << adj[0][10].v << endl; 
+
+        //cout << "here sum: " << sum << " " << adj[0][10].C << " " << adj[0][10].v << endl;
         //cout << "nverts: " << nverts << " mincut size: " << mincut.size() << endl;
-        
+
 
 
         //retData = max_flow_SL<vtype,itype>(s,t,Q,fin,pro,dist,next,to,mincut,another_pro,flow,cap,nverts);
@@ -416,7 +416,7 @@ vtype graph<vtype,itype>::SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double
         return actual_length;
     }
     while (alpha < alph0) {
-        cout << alpha << endl;
+        //cout << alpha << endl;
         copy_results<vtype,itype>(S,ret_set,&actual_length);
         alph0 = alpha;
         beta = alpha * (fR + delta);
@@ -434,7 +434,7 @@ vtype graph<vtype,itype>::SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double
             alpha = numeric_limits<double>::max();
         }
     }
-    
+
     //cout << alpha << min(get<0>(set_stats), ai[n] - get<0>(set_stats)) << endl;
     return actual_length;
     //return 0;
