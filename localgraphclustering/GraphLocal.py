@@ -201,6 +201,8 @@ class GraphLocal:
         else:
             print('This file type is not supported')
             return
+            
+        
         self._weighted = False
         for i in self.adjacency_matrix.data:
             if i != 1:
@@ -217,6 +219,43 @@ class GraphLocal:
         self.compute_statistics()
         self.ai = itype(self.adjacency_matrix.indptr)
         self.aj = vtype(self.adjacency_matrix.indices)
+        
+    def from_networkx(self,G):
+        """
+        Create a GraphLocal object from a networkx graph.
+        
+        Paramters
+        ---------
+        G
+            The networkx graph. 
+        """
+        G = G.to_undirected()
+        self.adjacency_matrix = nx.adjacency_matrix(G).astype(np.float64)
+        self._num_vertices = nx.number_of_nodes(G)
+        
+        # TODO, use this in the read_graph
+        
+        self._weighted = False
+        for i in self.adjacency_matrix.data:
+            if i != 1:
+                self._weighted = True
+                break
+                
+        # automatically determine sizes 
+        if G.number_of_nodes() < 4294967295:
+            vtype = np.uint32
+        else:
+            vtype = np.int64
+        if 2*G.number_of_edges() < 4294967295:
+            itype = np.uint32
+        else:
+            itype = np.int64
+            
+        self._num_edges = self.adjacency_matrix.nnz
+        self.compute_statistics()
+        self.ai = itype(self.adjacency_matrix.indptr)
+        self.aj = vtype(self.adjacency_matrix.indices)
+        return self
 
     def list_to_gl(self,source,target,weights,vtype=np.uint32, itype=np.uint32):
         """
@@ -241,6 +280,9 @@ class GraphLocal:
             numpy integer type of CSC format index pointer array
             Default = np.uint32
         """
+        
+        # TODO, fix this up to avoid duplicating code with read...
+        
         self._num_edges = len(source)
         self._num_vertices = max(source.max() + 1, target.max()+1)
         self.adjacency_matrix = sp.csr_matrix((weights.astype(np.float64), (source, target)), shape=(self._num_vertices, self._num_vertices))
@@ -293,12 +335,6 @@ class GraphLocal:
 
         self.components = output[1]
         self.number_of_components = output[0]
-
-        #warnings.warn("Warning, connected_components is not efficiently implemented.")
-
-        #g_nx = nx.from_scipy_sparse_matrix(self.adjacency_matrix)
-        #self.components = list(nx.connected_components(g_nx))
-        #self.number_of_components = nx.number_connected_components(g_nx)
 
         print('There are ', self.number_of_components, ' connected components in the graph')
 
