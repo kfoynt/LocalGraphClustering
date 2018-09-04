@@ -34,7 +34,7 @@ def lgc_data(name):
                 lgc_path, "datasets", "find_V.graphml"), 'graphml')
     elif name=="ppi-homo":
         return lgc.GraphLocal(os.path.join(
-                lgc_path, "datasets", "ppi-homo.edgelist"), 'edgelist', ' ')
+                lgc_path, "datasets", "ppi-homo.edgelist"), 'edgelist', ' ', header=True)
     elif name=="neuro-fmri-01":
         return lgc.GraphLocal(os.path.join(
                 lgc_path, "datasets", "neuro-fmri-01.edges"), 'edgelist', ' ')
