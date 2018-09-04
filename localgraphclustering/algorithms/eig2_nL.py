@@ -50,17 +50,12 @@ Random walks and local cuts in graphs, Chung, LAA 2007
 We just form the sub-matrix of the Laplacian and use the eigenvector there.
 """
 def eig2nL_subgraph(g, ref_nodes, tol_eigs = 1.0e-6, normalize: bool = True):
-
-    # TODO, optimize this routine to avoid creating the full L
-    n = g.adjacency_matrix.shape[0]
-    D_sqrt_neg = sp.sparse.spdiags(g.dn_sqrt.transpose(), 0, n, n)
-
-    L = sp.sparse.identity(n) - D_sqrt_neg.dot((g.adjacency_matrix.dot(D_sqrt_neg)))
-
-    L_sub = g.adjacency_matrix.tocsr()[ref_nodes, :].tocsc()[:, ref_nodes]
-
+    A_sub = g.adjacency_matrix.tocsr()[ref_nodes, :].tocsc()[:, ref_nodes]
+    nref = len(ref_nodes)
+    D_sqrt_neg = sp.sparse.spdiags(g.dn_sqrt[ref_nodes].transpose(), 0, nref, nref)
+    L_sub = sp.sparse.identity(nref) - D_sqrt_neg.dot((A_sub.dot(D_sqrt_neg)))
     emb_eig_val, emb_eig = splinalg.eigsh(L_sub, which='SM', k=1, tol=tol_eigs)
-    f = np.real(emb_eig[:,0])
+    f = emb_eig[:,0]
     if normalize:
         f *= g.dn_sqrt[ref_nodes]
     return ((ref_nodes,f), emb_eig_val)

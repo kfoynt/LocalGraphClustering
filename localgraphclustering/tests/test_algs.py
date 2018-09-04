@@ -39,9 +39,13 @@ def test_algs():
     print("vertices with minimum conductance neighborhood:",minverts)
 
 def test_fiedler():
+    import numpy as np
     g = GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ")
     output_sp = fiedler(g)
-    output_sp2 = fiedler_local(g,[1,2,3,4,5,6,7,8,9,10])
+    R = [1]
+    R.extend(g.neighbors(R[0]))
+    output_sp2 = fiedler_local(g,R)
+    assert(np.all(output_sp2[0][1] >= -1.0e-6)) # make sure everything is almost positive. 
 
 def test_sweep_cut():
     g = GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ")
