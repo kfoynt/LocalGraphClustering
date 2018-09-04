@@ -20,3 +20,4 @@ v0.4.0, 11/16/2017 -- Added more examples with visualization and more algorithms
 v0.4.1, 12/22/2017 -- Added new Readme, new NCP interface, new examples and new methods.
 v0.4.2, 12/22/2017 -- Major update on methods and memory efficiency
 v0.4.3, 05/17/2018 -- A lot of new notebooks and methods added
+v0.4.4, 08/31/2018 -- new interface, travis and fixed bugs
