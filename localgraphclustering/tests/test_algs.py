@@ -46,7 +46,33 @@ def test_fiedler():
     R.extend(g.neighbors(R[0]))
     output_sp2 = fiedler_local(g,R)
     assert(np.all(output_sp2[0][1] >= -1.0e-6)) # make sure everything is almost positive. 
+    
+def test_fiedler_local():    
+    g = GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ")
+    R = [1]
+    R.extend(g.neighbors(R[0]))
+    phi0 = g.set_scores(R)["cond"]
+    sparse_vec = fiedler_local(g,R)[0]
+    S = sweep_cut(g,sparse_vec)[0]
+    phi1 = g.set_scores(S)["cond"]
+    assert(phi1 <= phi0)
+    
+    S = spectral_clustering(g, R, method="fiedler_local")[0]
+    phi1 = g.set_scores(S)["cond"]
+    assert(phi1 <= phi0)
+    
+    
 
 def test_sweep_cut():
     g = GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ")
     sweep_cut(g,([1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9]))
+
+def test_spectral_clustering():
+    g = GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ")
+    output_sp = fiedler(g)
+    R = [1]
+    R.extend(g.neighbors(R[0]))
+    insize = len(R)
+    output_sp2 = spectral_clustering(g,R,method="fiedler_local")[0]
+    Z = set(R).union(output_sp2)
+    assert(len(Z) == insize)

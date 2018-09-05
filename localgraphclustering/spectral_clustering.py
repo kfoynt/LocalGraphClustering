@@ -1,6 +1,6 @@
 from typing import *
 import numpy as np
-from .fiedler import fiedler
+from .fiedler import fiedler, fiedler_local
 from .sweep_cut import sweep_cut
 from .approximate_PageRank import approximate_PageRank
 from .GraphLocal import GraphLocal
@@ -97,9 +97,9 @@ def spectral_clustering(G, ref_nodes,
         p = PageRank_nibble(G,ref_nodes,vol = vol,phi = phi,epsilon = epsilon,iterations = iterations,timeout = timeout)
     elif method == "fiedler":
         warnings.warn("ref_nodes will be disgarded since we are computing a global fiedler vector.")
-        p = fiedler(G)
+        p = fiedler(G)[0]
     elif method == "fiedler_local":
-        p = fiedler(G,ref_nodes)
+        p = fiedler_local(G,ref_nodes)[0]
     else:
         raise Exception("Unknown method, available methods are \"acl\", \"acl_weighted\", \"l1reg\", \"nibble\", \"fiedler\", \"fiedler_local\".")
 
