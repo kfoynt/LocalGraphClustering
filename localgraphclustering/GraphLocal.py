@@ -8,6 +8,7 @@ import pandas as pd
 import warnings
 import collections as cole
 from .find_library import *
+from .cpp import *
 
 import gzip
 import bz2
@@ -403,30 +404,37 @@ class GraphLocal:
         """
         return self.adjacency_matrix[:,vertex].nonzero()[0].tolist()
 
-    def compute_conductance(self,R):
+    def compute_conductance(self,R,cpp=True):
         """
         Returns the conductance corresponding to set R.
         """
-        v_ones_R = np.zeros(self._num_vertices)
-        v_ones_R[R] = 1
+        if cpp:
+            vol_R, cut_R = set_scores_cpp(self._num_vertices,self.ai,self.aj,self.adjacency_matrix.data,self.d,R,self._weighted)
+        else:
+            v_ones_R = np.zeros(self._num_vertices)
+            v_ones_R[R] = 1
 
-        vol_R = sum(self.d[R])
+            vol_R = sum(self.d[R])
 
-        cut_R = vol_R - np.dot(v_ones_R,self.adjacency_matrix.dot(v_ones_R.T))
+            cut_R = vol_R - np.dot(v_ones_R,self.adjacency_matrix.dot(v_ones_R.T))
+
         vol = (1.0*min(vol_R,self.vol_G - vol_R))
         cond_R = cut_R/vol if vol != 0 else 0
 
         return cond_R
 
-    def set_scores(self,R):
+    def set_scores(self,R,cpp=True):
         """
         Return various metrics of a set of vertices.
         """
-
-        voltrue = sum(self.d[R])
-        v_ones_R = np.zeros(self._num_vertices)
-        v_ones_R[R] = 1
-        cut = voltrue - np.dot(v_ones_R,self.adjacency_matrix.dot(v_ones_R.T))
+        voltrue,cut = 0,0
+        if cpp:
+            voltrue, cut = set_scores_cpp(self._num_vertices,self.ai,self.aj,self.adjacency_matrix.data,self.d,R,self._weighted)
+        else:
+            voltrue = sum(self.d[R])
+            v_ones_R = np.zeros(self._num_vertices)
+            v_ones_R[R] = 1
+            cut = voltrue - np.dot(v_ones_R,self.adjacency_matrix.dot(v_ones_R.T))
 
         voleff = min(voltrue,self.vol_G - voltrue)
 
@@ -438,7 +446,9 @@ class GraphLocal:
         # remove the stuff we don't want returned...
         del R
         del self
-        del v_ones_R
+        if not cpp:
+            del v_ones_R
+        del cpp
 
         edgestrue = voltrue - cut
         edgeseff = voleff - cut
