@@ -410,22 +410,12 @@ class GraphLocal:
 
     def compute_conductance(self,R,cpp=True):
         """
-        Returns the conductance corresponding to set R.
+        Return conductance of a set of vertices.
         """
-        if cpp:
-            vol_R, cut_R = set_scores_cpp(self._num_vertices,self.ai,self.aj,self.adjacency_matrix.data,self.d,R,self._weighted)
-        else:
-            v_ones_R = np.zeros(self._num_vertices)
-            v_ones_R[R] = 1
 
-            vol_R = sum(self.d[R])
+        records = self.set_scores(R,cpp=cpp)
 
-            cut_R = vol_R - np.dot(v_ones_R,self.adjacency_matrix.dot(v_ones_R.T))
-
-        vol = (1.0*min(vol_R,self.vol_G - vol_R))
-        cond_R = cut_R/vol if vol != 0 else 0
-
-        return cond_R
+        return records["cond"]
 
     def set_scores(self,R,cpp=True):
         """

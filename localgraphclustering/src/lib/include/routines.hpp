@@ -8,7 +8,6 @@
 #include "sparserank.hpp" // include our sorted-list functions
 #include "sparsevec.hpp" // include our sparse hashtable functions
 #include <tuple>
-#include <iostream>
 
 using namespace std;
 
