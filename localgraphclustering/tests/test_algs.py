@@ -1,5 +1,6 @@
 from localgraphclustering import *
 import time
+import numpy as np
 
 def test_algs():
 
@@ -33,10 +34,34 @@ def test_algs():
     # Conductance after improvement
     print("Conductance after improvement:",g.compute_conductance(output_SL[0]))
 
+    assert(g.compute_conductance(output_SL[0]) == g.compute_conductance(output_SL[0],cpp=False))
+    assert(g.set_scores(output_SL[0]) == g.set_scores(output_SL[0],cpp=False))
+
+    g.largest_component()
+    g.biconnected_components()
+    g.core_number()
+    ei,ej,e = [],[],[]
+    for i in range(g._num_vertices):
+        for j in range(g.ai[i],g.ai[i+1]):
+            ei.append(i)
+            ej.append(g.aj[j])
+            e.append(g.adjacency_matrix.data[j])
+    g1 = GraphLocal()
+    g1.list_to_gl(ei,ej,e)
+
+    assert(np.array_equal(g1.ai,g.ai))
+    assert(np.array_equal(g1.aj,g.aj))
+    assert(np.array_equal(g1.adjacency_matrix.data,g.adjacency_matrix.data))
+
+    g1.discard_weights()
+
     # Compute triangle clusters and cluster metrics
     cond,cut,vol,cc,t = triangleclusters(g)
     minverts, minvals = g.local_extrema(cond,True)
     print("vertices with minimum conductance neighborhood:",minverts)
+
+    # Test graph with more than one components
+    G = GraphLocal("notebooks/datasets/neuro-fmri-01.edges",file_type = "edgelist", separator = " ", header = True)
 
 def test_fiedler():
     import numpy as np
@@ -65,7 +90,9 @@ def test_fiedler_local():
 
 def test_sweep_cut():
     g = GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ")
-    sweep_cut(g,([1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9]))
+    tmp1 = sweep_cut(g,([1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9]))
+    tmp2 = sweep_cut(g,([1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9]),cpp=False)
+    assert(tmp1[1]==tmp2[1])
 
 def test_spectral_clustering():
     g = GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ")

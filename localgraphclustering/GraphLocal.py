@@ -284,6 +284,10 @@ class GraphLocal:
         
         # TODO, fix this up to avoid duplicating code with read...
         
+        source = np.array(source,dtype=vtype)
+        target = np.array(target,dtype=vtype)
+        weights = np.array(weights,dtype=np.double)
+
         self._num_edges = len(source)
         self._num_vertices = max(source.max() + 1, target.max()+1)
         self.adjacency_matrix = sp.csr_matrix((weights.astype(np.float64), (source, target)), shape=(self._num_vertices, self._num_vertices))

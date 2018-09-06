@@ -3,6 +3,7 @@ import numpy as np
 from .cpp import *
 from .GraphLocal import GraphLocal
 from .algorithms import sweepcut
+import warnings
 
 def sweep_cut(G: GraphLocal,
               p: Union[Sequence[float],Tuple[Sequence[int],Sequence[float]]],
@@ -75,5 +76,9 @@ def sweep_cut(G: GraphLocal,
         (length,clus,cond) = sweepcut_cpp(n, G.ai, G.aj, G.adjacency_matrix.data, nnz_idx, nnz_ct, nnz_val, 1 - do_sort)
         return [clus,cond]
     else:
-        output = sweepcut(p,G)
+        if sparsevec:
+            warnings.warn("Input will be converted to a dense vector, set \"cpp\" to be True for better performance")
+        tmp = np.zeros(n)
+        tmp[nnz_idx] = nnz_val
+        output = sweepcut(tmp,G)
         return [output[0],output[1]]
