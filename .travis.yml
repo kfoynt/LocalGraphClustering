@@ -25,6 +25,6 @@ install:
   # - conda env create -n test-environment python=$TRAVIS_PYTHON_VERSION -f environment.yml
   # - source activate test-environment
 # command to run tests
-script: travis_wait 60 coverage run --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest localgraphclustering/tests/ --notebook-tests
+script: travis_wait 60 coverage run --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest localgraphclustering/tests/ --notebook-tests --test-plots
 after_success:
   coveralls

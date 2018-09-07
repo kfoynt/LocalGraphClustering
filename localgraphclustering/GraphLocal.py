@@ -7,7 +7,6 @@ import numpy as np
 import pandas as pd
 import warnings
 import collections as cole
-from .find_library import *
 from .cpp import *
 
 import gzip
@@ -112,15 +111,6 @@ class GraphLocal:
         if filename != None:
             self.read_graph(filename, file_type = file_type, separator = separator, remove_whitespace = remove_whitespace,
                 header = header, headerrow = headerrow, vtype=vtype, itype=itype)
-
-        self.load_library()
-
-    def load_library(self):
-        self.lib = load_library()
-        return is_loaded(self.lib._name)
-
-    def reload_library(self):
-        self.lib = reload_library(self.lib)
 
     def read_graph(self, filename, file_type='edgelist', separator='\t', remove_whitespace=False, header=False, headerrow=None, vtype=np.uint32, itype=np.uint32):
         """

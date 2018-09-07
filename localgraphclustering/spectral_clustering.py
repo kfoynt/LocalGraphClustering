@@ -4,6 +4,7 @@ from .fiedler import fiedler, fiedler_local
 from .sweep_cut import sweep_cut
 from .approximate_PageRank import approximate_PageRank
 from .GraphLocal import GraphLocal
+from .pageRank_nibble import PageRank_nibble
 import warnings
 
 def spectral_clustering(G, ref_nodes,

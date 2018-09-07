@@ -1,3 +1,6 @@
+import matplotlib 
+matplotlib.use('Agg')
+
 import pytest
 def pytest_addoption(parser):
     parser.addoption("--test-plots", action="store_true",

@@ -55,6 +55,7 @@ def eig2nL_subgraph(g, ref_nodes, tol_eigs = 1.0e-6, normalize: bool = True):
     D_sqrt_neg = sp.sparse.spdiags(g.dn_sqrt[ref_nodes].transpose(), 0, nref, nref)
     L_sub = sp.sparse.identity(nref) - D_sqrt_neg.dot((A_sub.dot(D_sqrt_neg)))
     emb_eig_val, emb_eig = splinalg.eigsh(L_sub, which='SM', k=1, tol=tol_eigs)
+    emb_eig *= -1 if max(emb_eig) < 0 else 1
     f = emb_eig[:,0]
     if normalize:
         f *= g.dn_sqrt[ref_nodes]
