@@ -23,14 +23,15 @@ def load_library():
     #load library
     lib=ctypes.cdll.LoadLibrary(find_path())
     return lib
-
+"""
 def is_loaded(lib):
     libp = os.path.abspath(lib._name)
     ret = os.system("lsof -p %d | grep %s > /dev/null" % (os.getpid(), libp))
     return (ret == 0)
+"""
 
 _graphlib = load_library()
-assert(is_loaded(_graphlib))
+#assert(is_loaded(_graphlib))
 
 
 from .aclpagerank_cpp import *
