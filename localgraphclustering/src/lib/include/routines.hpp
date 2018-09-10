@@ -62,6 +62,7 @@ public:
     double get_degree_weighted(vtype id);
     vtype get_degree_unweighted(vtype id);
     pair<itype, itype> get_stats(unordered_map<vtype, vtype>& R_map, vtype nR);
+    pair<double, double> get_stats_weighted(unordered_map<vtype, vtype>& R_map, vtype nR);
     void addEdge(vtype u, vtype v, double C);
     bool BFS(vtype s, vtype t, vtype V);
     double sendFlow(vtype u, double flow, vtype t, vtype start[]);
@@ -213,6 +214,26 @@ pair<itype, itype> graph<vtype,itype>::get_stats(unordered_map<vtype, vtype>& R_
     }
     
     pair<itype, itype> set_stats (curvol, curcutsize);
+    return set_stats;
+}
+
+template<typename vtype, typename itype>
+pair<double, double> graph<vtype,itype>::get_stats_weighted(unordered_map<vtype, vtype>& R_map, vtype nR)
+{
+    double curvol = 0;
+    double curcutsize = 0;
+    for(auto R_iter = R_map.begin(); R_iter != R_map.end(); ++ R_iter){
+        vtype v = R_iter->first;
+        double deg = degrees[v];
+        curvol += deg;
+        for(itype j = ai[v] - offset; j < ai[v + 1] - offset; j ++){
+            if(R_map.count(aj[j] - offset) == 0){
+                curcutsize += a[j];
+            }
+        }
+    }
+    
+    pair<double, double> set_stats (curvol, curcutsize);
     return set_stats;
 }
 

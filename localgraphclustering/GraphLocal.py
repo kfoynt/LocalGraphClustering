@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import warnings
 import collections as cole
-from .find_library import *
+from .cpp import *
 
 import gzip
 import bz2
@@ -111,15 +111,6 @@ class GraphLocal:
         if filename != None:
             self.read_graph(filename, file_type = file_type, separator = separator, remove_whitespace = remove_whitespace,
                 header = header, headerrow = headerrow, vtype=vtype, itype=itype)
-
-        self.load_library()
-
-    def load_library(self):
-        self.lib = load_library()
-        return is_loaded(self.lib._name)
-
-    def reload_library(self):
-        self.lib = reload_library(self.lib)
 
     def read_graph(self, filename, file_type='edgelist', separator='\t', remove_whitespace=False, header=False, headerrow=None, vtype=np.uint32, itype=np.uint32):
         """
@@ -283,6 +274,10 @@ class GraphLocal:
         
         # TODO, fix this up to avoid duplicating code with read...
         
+        source = np.array(source,dtype=vtype)
+        target = np.array(target,dtype=vtype)
+        weights = np.array(weights,dtype=np.double)
+
         self._num_edges = len(source)
         self._num_vertices = max(source.max() + 1, target.max()+1)
         self.adjacency_matrix = sp.csr_matrix((weights.astype(np.float64), (source, target)), shape=(self._num_vertices, self._num_vertices))
@@ -403,30 +398,27 @@ class GraphLocal:
         """
         return self.adjacency_matrix[:,vertex].nonzero()[0].tolist()
 
-    def compute_conductance(self,R):
+    def compute_conductance(self,R,cpp=True):
         """
-        Returns the conductance corresponding to set R.
+        Return conductance of a set of vertices.
         """
-        v_ones_R = np.zeros(self._num_vertices)
-        v_ones_R[R] = 1
 
-        vol_R = sum(self.d[R])
+        records = self.set_scores(R,cpp=cpp)
 
-        cut_R = vol_R - np.dot(v_ones_R,self.adjacency_matrix.dot(v_ones_R.T))
-        vol = (1.0*min(vol_R,self.vol_G - vol_R))
-        cond_R = cut_R/vol if vol != 0 else 0
+        return records["cond"]
 
-        return cond_R
-
-    def set_scores(self,R):
+    def set_scores(self,R,cpp=True):
         """
         Return various metrics of a set of vertices.
         """
-
-        voltrue = sum(self.d[R])
-        v_ones_R = np.zeros(self._num_vertices)
-        v_ones_R[R] = 1
-        cut = voltrue - np.dot(v_ones_R,self.adjacency_matrix.dot(v_ones_R.T))
+        voltrue,cut = 0,0
+        if cpp:
+            voltrue, cut = set_scores_cpp(self._num_vertices,self.ai,self.aj,self.adjacency_matrix.data,self.d,R,self._weighted)
+        else:
+            voltrue = sum(self.d[R])
+            v_ones_R = np.zeros(self._num_vertices)
+            v_ones_R[R] = 1
+            cut = voltrue - np.dot(v_ones_R,self.adjacency_matrix.dot(v_ones_R.T))
 
         voleff = min(voltrue,self.vol_G - voltrue)
 
@@ -438,7 +430,9 @@ class GraphLocal:
         # remove the stuff we don't want returned...
         del R
         del self
-        del v_ones_R
+        if not cpp:
+            del v_ones_R
+        del cpp
 
         edgestrue = voltrue - cut
         edgeseff = voleff - cut
