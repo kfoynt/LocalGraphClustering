@@ -1,4 +1,4 @@
-import matplotlib 
+import matplotlib
 matplotlib.use('Agg')
 
 import pytest

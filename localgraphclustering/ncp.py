@@ -7,14 +7,15 @@ from collections import namedtuple
 import threading
 import math
 import warnings
+import copy
+import multiprocessing as mp
+import functools
 
 from .spectral_clustering import spectral_clustering
 from .flow_clustering import flow_clustering
 from .GraphLocal import GraphLocal
 from .triangleclusters import triangleclusters
 from .cpp import *
-
-threadLock = threading.Lock()
 
 def ncp_experiment(ncpdata,R,func,method_stats):
     if ncpdata.input_stats:
@@ -26,7 +27,7 @@ def ncp_experiment(ncpdata,R,func,method_stats):
         input_stats = {}
 
     start = time.time()
-    S = func(ncpdata.graph, R)
+    S = func(ncpdata.graph, R)[0]
     dt = time.time() - start
 
     if len(S) > 0:
@@ -37,71 +38,67 @@ def ncp_experiment(ncpdata,R,func,method_stats):
 
         method_stats['methodfunc']  = func
         method_stats['time'] = dt
-        return [ncpdata.record(**input_stats, **output_stats, **method_stats)]
+        return [ncpdata.record(**input_stats, **output_stats, **method_stats)._asdict()]
     else:
         return [] # nothing to return
 
 
-def ncp_node_worker(ncpdata,sets,func,timeout_ncp,methodname):
+""" This is how worker's get the graph data and the NCP setup information. """
+# we are now using stuff from here
+# https://research.wmz.ninja/articles/2018/03/on-sharing-large-arrays-when-using-pythons-multiprocessing.html
+workvars = {}
+def _ncp_worker_setup(ncpdata):
+    ncp = copy.copy(ncpdata)
+    ncp.graph = None # remove the graph
+    ncp.results = []
+    # TODO - Figure out some efficient way of copying over sets...
+    svardata = {}
+    svardata["ncpdata"] = ncp
+    svardata["g"] = ncpdata.graph.to_shared()
+    return svardata
+
+def _ncp_worker_init(svardata):
+    workvars["ncpdata"] = svardata["ncpdata"]
+    workvars["ncpdata"].graph = GraphLocal.from_shared(svardata["g"])
+
+def _ncp_node_worker(setids,func,timeout):
+    return ncp_worker("node", workvars["ncpdata"], setids, func, timeout)
+
+def _ncp_neighborhood_worker(setids,func,timeout):
+    return ncp_worker("neighborhood", workvars["ncpdata"], setids, func, timeout)
+
+def _ncp_set_worker(setids,func,timeout):
+    return ncp_worker("set", workvars["ncpdata"], setids, func, timeout)
+
+def ncp_worker(runtype, ncpdata, setids, func, timeout):
     start = time.time()
     setno = 0
-    for R in sets:
-        #print("setno = %i"%(setno))
+    for Rid in setids:
         setno += 1
-
-        method_stats = {'input_set_type': 'node', 'input_set_params':R[0]}
-        result = ncp_experiment(ncpdata, R, func, method_stats)
-        threadLock.acquire()
-        ncpdata.results.extend(result)
-        threadLock.release()
+        if runtype == 'node':
+            method_stats = {'input_set_type': runtype, 'input_set_params':Rid[0]}
+            result = ncp_experiment(ncpdata, Rid, func, method_stats)
+            ncpdata.results.extend(result)
+        elif runtype == 'neighborhood':
+            R = Rid.copy() # duplicate so we don't keep extra weird data around
+            node = R[0]
+            R.extend(ncpdata.graph.neighbors(R[0]))
+            method_stats = {'input_set_type': runtype, 'input_set_params':node}
+            result = ncp_experiment(ncpdata, R, func, method_stats)
+            ncpdata.results.extend(result)
+        elif runtype == 'set':
+            R = ncpdata.sets[Rid]
+            method_stats = {'input_set_type': runtype, 'input_set_params':Rid}
+            result = ncp_experiment(ncpdata, R, func, method_stats)
+            ncpdata.results.extend(result)
+        else:
+            raise(ValueError("the runtype must be 'node','neighborhood', or 'set'"))
 
         end = time.time()
-        if end - start > timeout_ncp:
+        if end - start > timeout:
             break
 
-# todo avoid code duplication
-def ncp_neighborhood_worker(ncpdata,sets,func,timeout_ncp,methodname):
-    start = time.time()
-    setno = 0
-    for R in sets:
-        #print("setno = %i"%(setno))
-        setno += 1
-
-        R = R.copy() # duplicate so we don't keep extra weird data around
-        node = R[0]
-        R.extend(ncpdata.graph.neighbors(R[0]))
-        method_stats = {'input_set_type': 'neighborhood', 'input_set_params':node}
-
-        result = ncp_experiment(ncpdata, R, func, method_stats)
-        threadLock.acquire()
-        ncpdata.results.extend(result)
-        threadLock.release()
-
-
-        end = time.time()
-        if end - start > timeout_ncp:
-            break
-
-# todo avoid code duplication
-def ncp_set_worker(ncpdata,setnos,func,timeout_ncp,methodname):
-    start = time.time()
-    setno = 0
-    for id in setnos:
-        #print("setno = %i"%(setno))
-        setno += 1
-        R = ncpdata.sets[id]
-        #R = R.copy() # duplicate so we don't keep extra weird data around
-        method_stats = {'input_set_type': 'set', 'input_set_params':id}
-
-        result = ncp_experiment(ncpdata, R, func, method_stats)
-
-        threadLock.acquire()
-        ncpdata.results.extend(result)
-        threadLock.release()
-
-        end = time.time()
-        if end - start > timeout_ncp:
-            break
+    return ncpdata.results
 
 class NCPData:
     def __init__(self, graph, setfuncs=[], input_stats=True, do_largest_component=True):
@@ -113,6 +110,7 @@ class NCPData:
         # Todo - have "largest_component" return a graph for the largest component
         self.input_stats = input_stats
         self.set_funcs = setfuncs
+        self.nruns = 0
 
         standard_fields = self.graph.set_scores([0])
         for F in self.set_funcs: # build the list of keys for set_funcs
@@ -191,20 +189,20 @@ class NCPData:
     """ Decode and return the input set to a particular experiment. """
     def input_set(self, j):
         result = self.results[j] # todo check for validity
-        if result.input_set_type=="node":
-            return [result.input_set_params]
-        elif result.input_set_type=="neighborhood":
-            R = self.graph.neighbors(result.input_set_params)
+        if result["input_set_type"]=="node":
+            return [result["input_set_params"]]
+        elif result["input_set_type"]=="neighborhood":
+            R = self.graph.neighbors(result["input_set_params"])
             R.append(result.input_set_params)
             return R
-        elif result.input_set_type=="set":
-            return self.sets[result.input_set_params].copy()
+        elif result["input_set_type"]=="set":
+            return self.sets[result["input_set_params"]].copy()
         else:
             raise(ValueError("the input_set_type is unrecognized"))
 
     def output_set(self, j):
         result = self.results[j] # todo check for validity
-        func = result.methodfunc
+        func = result["methodfunc"]
         R = self.input_set(j)
         return func(self.graph, R)
 
@@ -226,38 +224,36 @@ class NCPData:
                 self.method_names[method] = "method-%i"%(len(self.method_names))
             else:
                 self.method_names[method] = name
-
         return method
+
+    def _run_samples(self, target, list_of_sets, method, timeout, nprocs):
+        # TODO, figure out how we can avoid doing this everytime...
+        svardata = _ncp_worker_setup(self)
+        ntotalruns = sum(len(run) for run in list_of_sets)
+        nstartruns = len(self.results)
+        with mp.Pool(processes=nprocs, initializer=_ncp_worker_init, initargs=(svardata,)) as pool:
+            rvals = pool.starmap(target, [ (setids, method, timeout) for setids in list_of_sets ])
+            nruns = sum(len(rval) for rval in rvals)
+            assert(nruns <= ntotalruns)
+            for rval in rvals:
+                self.results.extend(rval)
+            pool.close()
+
+
 
     def add_random_node_samples(self, ratio=0.3, timeout=1000, nthreads=4, method=None, methodname=None):
         method = self._check_method(method, methodname)
         nodes = self.random_nodes(ratio)
 
-        threads = []
-        threadnodes = np.array_split(nodes, nthreads)
-
-        for i in range(nthreads):
-            sets = [ [j] for j in threadnodes[i] ] # make a set of sets
-            t = threading.Thread(target=ncp_node_worker,args=(self, sets, method, timeout, methodname))
-            threads.append(t)
-            t.start()
-        for t in threads:
-            t.join()
+        list_of_sets = [ [ [j] for j in cursplit] for cursplit in np.array_split(nodes, nthreads) ] # make a list of sets
+        self._run_samples(_ncp_node_worker, list_of_sets, method, timeout, nthreads)
 
     def add_random_neighborhood_samples(self, ratio=0.3, timeout=1000, nthreads=4, method=None, methodname=None):
         method = self._check_method(method, methodname)
         nodes = self.random_nodes(ratio)
 
-        threads = []
-        threadnodes = np.array_split(nodes, nthreads)
-
-        for i in range(nthreads):
-            sets = [ [j] for j in threadnodes[i] ] # make a set of sets
-            t = threading.Thread(target=ncp_neighborhood_worker,args=(self, sets, method, timeout, methodname))
-            threads.append(t)
-            t.start()
-        for t in threads:
-            t.join()
+        list_of_sets = [ [ [j] for j in cursplit] for cursplit in np.array_split(nodes, nthreads) ] # make a list of sets
+        self._run_samples(_ncp_neighborhood_worker, list_of_sets, method, timeout, nthreads)
 
     """ Add expansions of all the locally minimal seeds.
 
@@ -287,19 +283,12 @@ class NCPData:
         nodes = self.random_localmin_nodes(ratio,
             feature=feature, strict=strict, mindegree=mindegree)
 
-        threads = []
-        threadnodes = np.array_split(nodes, nthreads)
+        list_of_sets = [ [ [j] for j in cursplit] for cursplit in np.array_split(nodes, nthreads) ] # make a list of sets
+        if neighborhoods:
+            self._run_samples(_ncp_neighborhood_worker, list_of_sets, method, timeout, nthreads)
+        else:
+            self._run_samples(_ncp_node_worker, list_of_sets, method, timeout, nthreads)
 
-        for i in range(nthreads):
-            sets = [ [j] for j in threadnodes[i] ] # make a set of sets
-            if neighborhoods:
-                t = threading.Thread(target=ncp_neighborhood_worker,args=(self, sets, method, timeout, methodname))
-            else:
-                t = threading.Thread(target=ncp_node_worker,args=(self, sets, method, timeout, methodname))
-            threads.append(t)
-            t.start()
-        for t in threads:
-            t.join()
 
     def add_set_samples(self, sets, nthreads=4, method=None, methodname=None, timeout=1000):
         method = self._check_method(method, methodname)
@@ -309,13 +298,7 @@ class NCPData:
         endset = len(self.sets)
 
         setnos = np.array_split(range(startset,endset), nthreads) # set numbers
-
-        for i in range(nthreads):
-            t = threading.Thread(target=ncp_set_worker,args=(self, setnos[i], method, timeout, methodname))
-            threads.append(t)
-            t.start()
-        for t in threads:
-            t.join()
+        self._run_samples(_ncp_set_worker, setnos, method, timeout, nthreads)
 
     def as_data_frame(self):
         """
@@ -328,8 +311,17 @@ class NCPData:
         return DF
         """
         df = pd.DataFrame.from_records(self.results, columns=self.record._fields)
-        df.rename(columns={'method':'methodfunc'}, inplace=True)
-        df["method"] = df["methodfunc"].map(self.method_names)
+
+        ## convert methods to human readable names.
+        # ideally we'd do this
+        # df["method"] = df["methodfunc"].map(self.method_names)
+        # but that doesn't work with partial's because of
+        # https://stackoverflow.com/questions/32786078/how-to-compare-wrapped-functions-with-functools-partial
+        # so instead, we'll compare as strings
+
+        mnames = { str(key):val for (key,val) in self.method_names.items() }
+        df["method"] = df["methodfunc"].map(lambda x: mnames[str(x)])
+
         return df
 
     def approxPageRank(self,
@@ -343,12 +335,12 @@ class NCPData:
         if self.graph._weighted:
             #vfunc = aclpagerank_weighted_cpp(self.graph.ai,self.graph.aj,self.graph.lib)
             #scfunc = sweepcut_cpp(self.graph.ai,self.graph.aj,self.graph.lib,0)
-            funcs = {lambda G,R: spectral_clustering(G,R,alpha=alpha,rho=rho,method="acl_weighted")[0]:'acl_weighted;rho=%.0e'%(rho)
+            funcs = {functools.partial(spectral_clustering,alpha=alpha,rho=rho,method="acl_weighted"):'acl_weighted;rho=%.0e'%(rho)
                         for rho in rholist}
         else:
             #vfunc = aclpagerank_cpp(self.graph.ai,self.graph.aj,self.graph.lib)
             #scfunc = sweepcut_cpp(self.graph.ai,self.graph.aj,self.graph.lib,0)
-            funcs = {lambda G,R: spectral_clustering(G,R,alpha=alpha,rho=rho,method="acl")[0]:'acl;rho=%.0e'%(rho)
+            funcs = {functools.partial(spectral_clustering,alpha=alpha,rho=rho,method="acl"):'acl;rho=%.0e'%(rho)
                         for rho in rholist}
         for func in funcs.keys():
             self.add_random_node_samples(method=func,methodname=funcs[func],ratio=ratio,nthreads=nthreads,timeout=timeout/len(funcs))
@@ -363,7 +355,7 @@ class NCPData:
         alpha = 1.0-1.0/(1.0+gamma)
         #vfun = proxl1PRaccel(self.graph.ai,self.graph.aj,self.graph.lib)
         #scfun = sweepcut_cpp(self.graph.ai,self.graph.aj,self.graph.lib,0)
-        funcs = {lambda G,R: spectral_clustering(G,R,alpha=alpha,rho=rho,method="l1reg")[0]:'l1reg;rho=%.0e'%(rho)
+        funcs = {functools.partial(spectral_clustering, alpha=alpha,rho=rho,method="l1reg"):'l1reg;rho=%.0e'%(rho)
                     for rho in rholist}
         for func in funcs.keys():
             self.add_random_node_samples(method=func,methodname=funcs[func],ratio=ratio,nthreads=nthreads,timeout=timeout/len(funcs))
@@ -377,7 +369,7 @@ class NCPData:
             timeout: float = 1000):
         #self.reset_records("crd")
         #fun = capacity_releasing_diffusion_cpp(self.graph.ai,self.graph.aj,self.graph.lib)
-        func = lambda G,R: flow_clustering(G,R,w=w, U=U, h=h,method="crd")[0]
+        func = functools.partial(flow_clustering,w=w, U=U, h=h,method="crd")
         self.add_random_neighborhood_samples(method=func,methodname="crd",
                 ratio=ratio,nthreads=nthreads,timeout=timeout/2)
         self.add_random_node_samples(method=func,methodname="crd",
@@ -390,6 +382,6 @@ class NCPData:
             timeout: float = 1000):
         #self.reset_records("mqi")
         #fun = MQI_cpp(self.graph.ai,self.graph.aj,self.graph.lib)
-        func = lambda G,R: flow_clustering(G,R,method="mqi")[0]
+        func = functools.partial(flow_clustering,method="mqi")
         self.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout,
                 method=func,methodname="mqi")

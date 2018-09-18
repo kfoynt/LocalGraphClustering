@@ -60,7 +60,7 @@ def proxl1PRaccel(ai,aj,lib):
     float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
 
     #lib = load_library()
-    
+
     if (vtype, itype) == (np.int64, np.int64):
         fun = lib.proxl1PRaccel64
     elif (vtype, itype) == (np.int32, np.int64):
@@ -96,7 +96,7 @@ def _get_proxl1PRaccel_cpp_types_fun(ai,aj):
         fun = _graphlib_funs_proxl1PRaccel32
     return float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun
 
-def proxl1PRaccel_cpp(ai,aj,a,ref_node,d,ds,dsinv,y=[],alpha = 0.15,rho = 1.0e-5,epsilon = 1.0e-4,maxiter = 10000,max_time = 100):
+def proxl1PRaccel_cpp(ai,aj,a,ref_node,d,ds,dsinv,y=None,alpha = 0.15,rho = 1.0e-5,epsilon = 1.0e-4,maxiter = 10000,max_time = 100):
     float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun = _get_proxl1PRaccel_cpp_types_fun(ai,aj)
     n = len(ai) - 1
     if type(ref_node) is not list:
@@ -106,21 +106,15 @@ def proxl1PRaccel_cpp(ai,aj,a,ref_node,d,ds,dsinv,y=[],alpha = 0.15,rho = 1.0e-5
     grad = np.zeros(n,dtype=float_type)
     p = np.zeros(n,dtype=float_type)
 
-    if y == []:
+    if y == None:
         new_y = np.zeros(n,dtype=float_type)
     else:
         new_y = np.array(y,dtype=float_type)
-    
+
     not_converged=fun(n,ai,aj,a,alpha,rho,ref_node,len(ref_node),d,ds,dsinv,epsilon,grad,p,new_y,maxiter,0,max_time)
-    
-    if y != []:
+
+    if y != None:
         for i in range(n):
             y[i] = new_y[i]
 
     return (not_converged,grad,p)
-
-
-
-
-
-

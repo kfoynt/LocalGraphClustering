@@ -33,7 +33,7 @@
 
 using namespace std;
 
-    template<typename vtype>
+template<typename vtype>
 double find_max(double* grad, double* ds, vtype n){
     double max_num = 0;
     for(vtype i = 0; i < n; i ++){
@@ -43,7 +43,7 @@ double find_max(double* grad, double* ds, vtype n){
     return max_num;
 }
 
-    template<typename vtype, typename itype>
+template<typename vtype, typename itype>
 void update_grad(double* grad, double* y, vector<double>& c, itype* ai, vtype* aj, double* a,
                  vtype n, double alpha, double* dsinv, vtype offset, unordered_map<vtype,vtype>& indices)
 {
@@ -51,8 +51,7 @@ void update_grad(double* grad, double* y, vector<double>& c, itype* ai, vtype* a
         grad[i] = (1+alpha)/2*y[i] - c[i];
     }
     vtype temp;
-    
-    
+
     for(auto it = indices.begin() ; it != indices.end(); ++it){
         vtype i = it->first;
         for(itype j = ai[i]-offset; j < ai[i+1]-offset; j ++){
@@ -61,7 +60,7 @@ void update_grad(double* grad, double* y, vector<double>& c, itype* ai, vtype* a
             grad[temp] -= 2*(a[j]* y[i] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5);
         }
     }
-    
+
     /*
     for(vtype i = 0; i < n; i ++){
         for(itype j = ai[i]-offset; j < ai[i+1]-offset; j ++){
@@ -72,10 +71,10 @@ void update_grad(double* grad, double* y, vector<double>& c, itype* ai, vtype* a
         }
     }
     */
-    
+
 }
 
-    template<typename vtype, typename itype>
+template<typename vtype, typename itype>
 vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtype v_nums, double* d,
                                         double* ds, double* dsinv, double epsilon, double* grad, double* p,
                                         double* y, vtype maxiter,double max_time)
@@ -84,7 +83,7 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
     for(vtype i = 0; i < n; i ++){
         cout << dsinv[i] << endl;
     }
-    
+
     cout << "a" << endl;
     for(vtype i = 0; i < 8; i ++){
         cout << a[i] << endl;
@@ -104,7 +103,7 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
             indices[i] = 0;
         }
     }
-    
+
     //New Change for p_0
     update_grad(grad,y,c,ai,aj,a,n,alpha,dsinv,offset,indices);
     //cout << "max grad: " << *max_element(grad,grad+n) << " min grad: " << *min_element(grad,grad+n) << endl;
@@ -183,11 +182,11 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
             return not_converged;
         }
     }
-    
+
     if(iter >= (size_t)maxiter){
         not_converged = 1;
     }
-    
+
     for(vtype i = 0; i < n; i ++){
         p[i] = abs(q[i])*ds[i];
     }
@@ -198,7 +197,7 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
 
 uint32_t proxl1PRaccel32(uint32_t n, uint32_t* ai, uint32_t* aj, double* a, double alpha,
                          double rho, uint32_t* v, uint32_t v_nums, double* d, double* ds,
-                         double* dsinv, double epsilon, double* grad, double* p, double* y, 
+                         double* dsinv, double epsilon, double* grad, double* p, double* y,
                          uint32_t maxiter, uint32_t offset,double max_time)
 {
     graph<uint32_t,uint32_t> g(ai[n],n,ai,aj,a,offset,NULL);

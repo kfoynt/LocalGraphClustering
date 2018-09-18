@@ -13,6 +13,22 @@ import gzip
 import bz2
 import lzma
 
+import multiprocessing as mp
+
+def _load_from_shared(sabuf, dtype, shape):
+    return np.frombuffer(sabuf, dtype=dtype).reshape(shape)
+
+""" Create shared memory that can be passed to a child process,
+wrapped in a numpy array."""
+def _copy_to_shared(a):
+    # determine the numpy type of a.
+    dtype = a.dtype
+    shape = a.shape
+    sabuf = mp.RawArray(ctypes.c_uint8, a.nbytes)
+    sa = _load_from_shared(sabuf, dtype, shape)
+    np.copyto(sa, a) # make a copy
+    return sa, (sabuf, dtype, shape)
+
 
 class GraphLocal:
     """
@@ -192,8 +208,8 @@ class GraphLocal:
         else:
             print('This file type is not supported')
             return
-            
-        
+
+
         self._weighted = False
         for i in self.adjacency_matrix.data:
             if i != 1:
@@ -210,29 +226,28 @@ class GraphLocal:
         self.compute_statistics()
         self.ai = itype(self.adjacency_matrix.indptr)
         self.aj = vtype(self.adjacency_matrix.indices)
-        
+
     def from_networkx(self,G):
         """
         Create a GraphLocal object from a networkx graph.
-        
+
         Paramters
         ---------
         G
-            The networkx graph. 
+            The networkx graph.
         """
         G = G.to_undirected()
         self.adjacency_matrix = nx.adjacency_matrix(G).astype(np.float64)
         self._num_vertices = nx.number_of_nodes(G)
-        
+
         # TODO, use this in the read_graph
-        
         self._weighted = False
         for i in self.adjacency_matrix.data:
             if i != 1:
                 self._weighted = True
                 break
-                
-        # automatically determine sizes 
+
+        # automatically determine sizes
         if G.number_of_nodes() < 4294967295:
             vtype = np.uint32
         else:
@@ -241,7 +256,7 @@ class GraphLocal:
             itype = np.uint32
         else:
             itype = np.int64
-            
+
         self._num_edges = self.adjacency_matrix.nnz
         self.compute_statistics()
         self.ai = itype(self.adjacency_matrix.indptr)
@@ -271,9 +286,9 @@ class GraphLocal:
             numpy integer type of CSC format index pointer array
             Default = np.uint32
         """
-        
+
         # TODO, fix this up to avoid duplicating code with read...
-        
+
         source = np.array(source,dtype=vtype)
         target = np.array(target,dtype=vtype)
         weights = np.array(weights,dtype=np.double)
@@ -318,6 +333,60 @@ class GraphLocal:
         self.d_sqrt = np.sqrt(self.d)
         self.dn_sqrt = np.sqrt(self.dn)
         self.vol_G = np.sum(self.d)
+
+    def to_shared(self):
+        """ Re-create the graph data with multiprocessing compatible
+        shared-memory arrays that can be passed to child-processes.
+
+        This returns a dictionary that allows the graph to be
+        re-created in a child-process from that variable and
+        the method "from_shared"
+
+        At this moment, this doesn't send any data from components,
+        core_numbers, or biconnected_components
+        """
+        sgraphvars = {}
+        self.ai, sgraphvars["ai"] = _copy_to_shared(self.ai)
+        self.aj, sgraphvars["aj"] = _copy_to_shared(self.aj)
+        self.d, sgraphvars["d"] = _copy_to_shared(self.d)
+        self.dn, sgraphvars["dn"] = _copy_to_shared(self.dn)
+        self.d_sqrt, sgraphvars["d_sqrt"] = _copy_to_shared(self.d_sqrt)
+        self.dn_sqrt, sgraphvars["dn_sqrt"] = _copy_to_shared(self.dn_sqrt)
+        self.adjacency_matrix.data, sgraphvars["a"] = _copy_to_shared(self.adjacency_matrix.data)
+
+        # this will rebuild without copying
+        # so that copies should all be accessing exactly the same
+        # arrays for caching
+        self.adjacency_matrix = sp.csr_matrix(
+            (self.adjacency_matrix.data, self.aj, self.ai),
+            shape=(self._num_vertices, self._num_vertices))
+
+        # scalars
+        sgraphvars["n"] = self._num_vertices
+        sgraphvars["m"] = self._num_edges
+        sgraphvars["vol"] = self.vol_G
+        sgraphvars["weighted"] = self._weighted
+
+        return sgraphvars
+
+    @classmethod
+    def from_shared(cls, sgraphvars):
+        """ Return a graph object from the output of "to_shared". """
+        g = cls()
+        g._num_vertices = sgraphvars["n"]
+        g._num_edges = sgraphvars["m"]
+        g._weighted = sgraphvars["weighted"]
+        g.vol_G = sgraphvars["vol"]
+        g.ai = _load_from_shared(*sgraphvars["ai"])
+        g.aj = _load_from_shared(*sgraphvars["aj"])
+        g.adjacency_matrix = sp.csr_matrix(
+            (_load_from_shared(*sgraphvars["a"]), g.aj, g.ai),
+            shape=(g._num_vertices, g._num_vertices))
+        g.d = _load_from_shared(*sgraphvars["d"])
+        g.dn = _load_from_shared(*sgraphvars["dn"])
+        g.d_sqrt = _load_from_shared(*sgraphvars["d_sqrt"])
+        g.dn_sqrt = _load_from_shared(*sgraphvars["dn_sqrt"])
+        return g
 
     def connected_components(self):
         """
@@ -396,7 +465,9 @@ class GraphLocal:
         """
         Returns a list with the neighbors of the given vertex.
         """
-        return self.adjacency_matrix[:,vertex].nonzero()[0].tolist()
+        # this will be faster since we store the arrays ourselves.
+        return self.aj[self.ai[vertex]:self.ai[vertex+1]].tolist()
+        #return self.adjacency_matrix[:,vertex].nonzero()[0].tolist()
 
     def compute_conductance(self,R,cpp=True):
         """
@@ -419,7 +490,6 @@ class GraphLocal:
             v_ones_R = np.zeros(self._num_vertices)
             v_ones_R[R] = 1
             cut = voltrue - np.dot(v_ones_R,self.adjacency_matrix.dot(v_ones_R.T))
-
         voleff = min(voltrue,self.vol_G - voltrue)
 
         sizetrue = len(R)
@@ -438,7 +508,7 @@ class GraphLocal:
         edgeseff = voleff - cut
 
         cond = cut / voleff if voleff != 0 else 1
-        isop = cut / sizeeff
+        isop = cut / sizeeff if sizeeff != 0 else 1
 
         # make a dictionary out of local variables
         return locals()
@@ -475,8 +545,8 @@ class GraphLocal:
             vtype = np.int64 if dt.name == 'int64' else np.uint32
             g_copy.ai = itype(g_copy.adjacency_matrix.indptr)
             g_copy.aj = vtype(g_copy.adjacency_matrix.indices)
+            g_copy._num_edges = g_copy.adjacency_matrix.nnz
             return g_copy
-
 
     def local_extrema(self,vals,strict=False,reverse=False):
         """
@@ -511,8 +581,8 @@ class GraphLocal:
         """
         n = self.adjacency_matrix.shape[0]
         minverts = []
-        ai = np.uint64(self.adjacency_matrix.indptr)
-        aj = np.uint32(self.adjacency_matrix.indices)
+        ai = self.ai
+        aj = self.aj
         factor = 1.0
         if reverse:
             factor = -1.0
