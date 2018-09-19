@@ -230,12 +230,16 @@ class NCPData:
         # TODO, figure out how we can avoid doing this everytime...
         svardata = _ncp_worker_setup(self)
         ntotalruns = sum(len(run) for run in list_of_sets)
-        nstartruns = len(self.results)
         with mp.Pool(processes=nprocs, initializer=_ncp_worker_init, initargs=(svardata,)) as pool:
             rvals = pool.starmap(target, [ (setids, method, timeout) for setids in list_of_sets ])
             nruns = sum(len(rval) for rval in rvals)
-            assert(nruns <= ntotalruns)
+            assert nruns <= ntotalruns, "expected up to %i ntotalruns but got %i runs"%(ntotalruns, nruns)
             for rval in rvals:
+                for r in rval:
+                    # make sure that we replace with our actual methods
+                    # at the moment, this should always be true. 
+                    assert(str(r["methodfunc"]) == str(method))
+                    r["methodfunc"] = method
                 self.results.extend(rval)
             pool.close()
 
@@ -311,16 +315,8 @@ class NCPData:
         return DF
         """
         df = pd.DataFrame.from_records(self.results, columns=self.record._fields)
-
-        ## convert methods to human readable names.
-        # ideally we'd do this
-        # df["method"] = df["methodfunc"].map(self.method_names)
-        # but that doesn't work with partial's because of
-        # https://stackoverflow.com/questions/32786078/how-to-compare-wrapped-functions-with-functools-partial
-        # so instead, we'll compare as strings
-
-        mnames = { str(key):val for (key,val) in self.method_names.items() }
-        df["method"] = df["methodfunc"].map(lambda x: mnames[str(x)])
+        # convert to human readable names
+        df["method"] = df["methodfunc"].map(self.method_names)
 
         return df
 
@@ -330,16 +326,11 @@ class NCPData:
                        ratio: float = 0.3,
                        nthreads: int = 4,
                        timeout: float = 1000):
-        #self.reset_records("approxPageRank")
         alpha = 1.0-1.0/(1.0+gamma)
         if self.graph._weighted:
-            #vfunc = aclpagerank_weighted_cpp(self.graph.ai,self.graph.aj,self.graph.lib)
-            #scfunc = sweepcut_cpp(self.graph.ai,self.graph.aj,self.graph.lib,0)
             funcs = {functools.partial(spectral_clustering,alpha=alpha,rho=rho,method="acl_weighted"):'acl_weighted;rho=%.0e'%(rho)
                         for rho in rholist}
         else:
-            #vfunc = aclpagerank_cpp(self.graph.ai,self.graph.aj,self.graph.lib)
-            #scfunc = sweepcut_cpp(self.graph.ai,self.graph.aj,self.graph.lib,0)
             funcs = {functools.partial(spectral_clustering,alpha=alpha,rho=rho,method="acl"):'acl;rho=%.0e'%(rho)
                         for rho in rholist}
         for func in funcs.keys():
@@ -351,10 +342,7 @@ class NCPData:
               ratio: float = 0.3,
               nthreads: int = 4,
               timeout: float = 1000):
-        #self.reset_records("l1reg")
         alpha = 1.0-1.0/(1.0+gamma)
-        #vfun = proxl1PRaccel(self.graph.ai,self.graph.aj,self.graph.lib)
-        #scfun = sweepcut_cpp(self.graph.ai,self.graph.aj,self.graph.lib,0)
         funcs = {functools.partial(spectral_clustering, alpha=alpha,rho=rho,method="l1reg"):'l1reg;rho=%.0e'%(rho)
                     for rho in rholist}
         for func in funcs.keys():
@@ -367,8 +355,6 @@ class NCPData:
             ratio: float = 0.3,
             nthreads: int = 4,
             timeout: float = 1000):
-        #self.reset_records("crd")
-        #fun = capacity_releasing_diffusion_cpp(self.graph.ai,self.graph.aj,self.graph.lib)
         func = functools.partial(flow_clustering,w=w, U=U, h=h,method="crd")
         self.add_random_neighborhood_samples(method=func,methodname="crd",
                 ratio=ratio,nthreads=nthreads,timeout=timeout/2)
@@ -380,8 +366,6 @@ class NCPData:
             ratio: float = 0.3,
             nthreads: int = 4,
             timeout: float = 1000):
-        #self.reset_records("mqi")
-        #fun = MQI_cpp(self.graph.ai,self.graph.aj,self.graph.lib)
         func = functools.partial(flow_clustering,method="mqi")
         self.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout,
                 method=func,methodname="mqi")
