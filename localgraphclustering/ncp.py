@@ -61,44 +61,44 @@ def _ncp_worker_init(svardata):
     workvars["ncpdata"] = svardata["ncpdata"]
     workvars["ncpdata"].graph = GraphLocal.from_shared(svardata["g"])
 
-def _ncp_node_worker(setids,func,timeout):
-    return ncp_worker("node", workvars["ncpdata"], setids, func, timeout)
+def _ncp_node_worker(workid, setids,func,timeout):
+    return ncp_worker(workid, "node", workvars["ncpdata"], setids, func, timeout)
 
-def _ncp_neighborhood_worker(setids,func,timeout):
-    return ncp_worker("neighborhood", workvars["ncpdata"], setids, func, timeout)
+def _ncp_neighborhood_worker(workid, setids,func,timeout):
+    return ncp_worker(workid, "neighborhood", workvars["ncpdata"], setids, func, timeout)
 
-def _ncp_set_worker(setids,func,timeout):
-    return ncp_worker("set", workvars["ncpdata"], setids, func, timeout)
+def _ncp_set_worker(workid, setids,func,timeout):
+    return ncp_worker(workid, "set", workvars["ncpdata"], setids, func, timeout)
 
-def ncp_worker(runtype, ncpdata, setids, func, timeout):
+def ncp_worker(workid, runtype, ncpdata, setids, func, timeout):
     start = time.time()
     setno = 0
+    results = []
     for Rid in setids:
         setno += 1
         if runtype == 'node':
             method_stats = {'input_set_type': runtype, 'input_set_params':Rid[0]}
             result = ncp_experiment(ncpdata, Rid, func, method_stats)
-            ncpdata.results.extend(result)
+            results.extend(result)
         elif runtype == 'neighborhood':
             R = Rid.copy() # duplicate so we don't keep extra weird data around
             node = R[0]
             R.extend(ncpdata.graph.neighbors(R[0]))
             method_stats = {'input_set_type': runtype, 'input_set_params':node}
             result = ncp_experiment(ncpdata, R, func, method_stats)
-            ncpdata.results.extend(result)
+            results.extend(result)
         elif runtype == 'set':
             R = ncpdata.sets[Rid]
             method_stats = {'input_set_type': runtype, 'input_set_params':Rid}
             result = ncp_experiment(ncpdata, R, func, method_stats)
-            ncpdata.results.extend(result)
+            results.extend(result)
         else:
             raise(ValueError("the runtype must be 'node','neighborhood', or 'set'"))
 
         end = time.time()
         if end - start > timeout:
             break
-
-    return ncpdata.results
+    return results
 
 class NCPData:
     def __init__(self, graph, setfuncs=[], input_stats=True, do_largest_component=True):
@@ -231,13 +231,15 @@ class NCPData:
         svardata = _ncp_worker_setup(self)
         ntotalruns = sum(len(run) for run in list_of_sets)
         with mp.Pool(processes=nprocs, initializer=_ncp_worker_init, initargs=(svardata,)) as pool:
-            rvals = pool.starmap(target, [ (setids, method, timeout) for setids in list_of_sets ])
+            rvals = pool.starmap(target,
+                [ (workid, setids, method, timeout) for (workid, setids) in enumerate(list_of_sets) ])
             nruns = sum(len(rval) for rval in rvals)
             assert nruns <= ntotalruns, "expected up to %i ntotalruns but got %i runs"%(ntotalruns, nruns)
             for rval in rvals:
                 for r in rval:
                     # make sure that we replace with our actual methods
                     # at the moment, this should always be true.
+                    # this is here in case the assert fails so we can debug
                     if str(r["methodfunc"]) != str(method):
                         print(r["methodfunc"])
                         print(method)

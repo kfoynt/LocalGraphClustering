@@ -24,6 +24,15 @@ def test_ncp_mqi():
     G = load_example_graph()
     df = lgc.NCPData(G).mqi(ratio=1)
 
+def _second(G,R):
+    return R, []
+# this used to always catch some errors...    
+def test_custom_ncp():
+    G = load_example_graph()
+    ncp = lgc.NCPData(G)
+    ncp.add_random_neighborhood_samples(ratio=1.0,
+        method=_second, methodname="neighborhoods", nthreads=16)
+
 def test_ncp_crd():
     G = load_example_graph()
     df = lgc.NCPData(G).crd(ratio=1)
