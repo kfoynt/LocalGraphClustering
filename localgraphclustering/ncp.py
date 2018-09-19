@@ -237,7 +237,10 @@ class NCPData:
             for rval in rvals:
                 for r in rval:
                     # make sure that we replace with our actual methods
-                    # at the moment, this should always be true. 
+                    # at the moment, this should always be true.
+                    if str(r["methodfunc"]) != str(method):
+                        print(r["methodfunc"])
+                        print(method)
                     assert(str(r["methodfunc"]) == str(method))
                     r["methodfunc"] = method
                 self.results.extend(rval)
@@ -292,7 +295,6 @@ class NCPData:
             self._run_samples(_ncp_neighborhood_worker, list_of_sets, method, timeout, nthreads)
         else:
             self._run_samples(_ncp_node_worker, list_of_sets, method, timeout, nthreads)
-
 
     def add_set_samples(self, sets, nthreads=4, method=None, methodname=None, timeout=1000):
         method = self._check_method(method, methodname)
