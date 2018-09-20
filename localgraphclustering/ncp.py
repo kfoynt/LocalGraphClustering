@@ -17,6 +17,12 @@ from .GraphLocal import GraphLocal
 from .triangleclusters import triangleclusters
 from .cpp import *
 
+def _partial_functions_equal(func1, func2):
+    if not (isinstance(func1, partial) and isinstance(func2, partial)):
+        return False
+    are_equal = all([getattr(func1, attr) == getattr(func2, attr) for attr in ['func', 'args', 'keywords']])
+    return are_equal
+
 def ncp_experiment(ncpdata,R,func,method_stats):
     if ncpdata.input_stats:
         input_stats = ncpdata.graph.set_scores(R)
@@ -240,15 +246,11 @@ class NCPData:
                     # make sure that we replace with our actual methods
                     # at the moment, this should always be true.
                     # this is here in case the assert fails so we can debug
-                    if str(r["methodfunc"]) != str(method):
-                        print(r["methodfunc"])
-                        print(method)
-                    assert(str(r["methodfunc"]) == str(method))
+                    # https://stackoverflow.com/questions/32786078/how-to-compare-wrapped-functions-with-functools-partial
+                    assert(_partial_functions_equal(r["methodfunc"], method))
                     r["methodfunc"] = method
                 self.results.extend(rval)
             pool.close()
-
-
 
     def add_random_node_samples(self, ratio=0.3, timeout=1000, nthreads=4, method=None, methodname=None):
         method = self._check_method(method, methodname)
