@@ -18,9 +18,14 @@ from .triangleclusters import triangleclusters
 from .cpp import *
 
 def _partial_functions_equal(func1, func2):
-    if not (isinstance(func1, partial) and isinstance(func2, partial)):
+    if not (isinstance(func1, functools.partial) and isinstance(func2, functools.partial)):
         return False
     are_equal = all([getattr(func1, attr) == getattr(func2, attr) for attr in ['func', 'args', 'keywords']])
+    if are_equal == False:
+        # TODO remove this code once we are sure things are working okay
+        print(func1, "!=", func2)
+        for attr in ['func', 'args', 'keywords']:
+            print(getattr(func1, attr), getattr(func2, attr))
     return are_equal
 
 def ncp_experiment(ncpdata,R,func,method_stats):
@@ -247,7 +252,7 @@ class NCPData:
                     # at the moment, this should always be true.
                     # this is here in case the assert fails so we can debug
                     # https://stackoverflow.com/questions/32786078/how-to-compare-wrapped-functions-with-functools-partial
-                    assert(_partial_functions_equal(r["methodfunc"], method))
+                    assert r["methodfunc"]==method or _partial_functions_equal(r["methodfunc"], method)
                     r["methodfunc"] = method
                 self.results.extend(rval)
             pool.close()
