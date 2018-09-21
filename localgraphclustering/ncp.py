@@ -218,7 +218,7 @@ class NCPData:
             return [result["input_set_params"]]
         elif result["input_set_type"]=="neighborhood":
             R = self.graph.neighbors(result["input_set_params"])
-            R.append(result.input_set_params)
+            R.append(result["input_set_params"])
             return R
         elif result["input_set_type"]=="set":
             return self.sets[result["input_set_params"]].copy()

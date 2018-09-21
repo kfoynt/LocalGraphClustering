@@ -64,6 +64,14 @@ def test_ncp_localmin():
     ncp.default_method = func
     ncp.add_localmin_samples(ratio=1)
 
+def test_ncp_sets():
+    G = load_example_graph()
+    ncp = lgc.NCPData(G).approxPageRank()
+    for i in range(len(ncp.results)):
+        R = ncp.input_set(i)
+        S = ncp.output_set(i)
+
+
 @pytest.mark.long_tests
 def test_ncp_crd_big():
     G = lgc.GraphLocal()
