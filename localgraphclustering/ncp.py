@@ -28,6 +28,10 @@ def _partial_functions_equal(func1, func2):
             print(getattr(func1, attr), getattr(func2, attr))
     return are_equal
 
+""" This is helpful for some of the NCP studies to return the set we are given. """
+def _second(x,y):
+    return y, None
+
 def ncp_experiment(ncpdata,R,func,method_stats):
     if ncpdata.input_stats:
         input_stats = ncpdata.graph.set_scores(R)
@@ -172,8 +176,18 @@ class NCPData:
             feature = self.neighborhood_cond
         # find the set of minimal verts
         minverts = self.graph.local_extrema(feature, strict)[0]
+        nminverts = len(minverts)
+        if nminverts == 0:
+            warnings.warn("There are no localmin nodes")
+            return np.array([],'int64')
         # filter by mindegree
         minverts = [v for v in minverts if self.graph.d[v] >= mindegree]
+        if len(minverts) == 0:
+            warnings.warn("there are %i localmin nodes and they were filtered away by mindegree=%i"%(
+                nminverts, mindegree))
+            return np.array([],'int64')
+
+        assert(len(minverts) > 0)
 
         if 0 < ratio <= 1:
             n_nodes = min(np.ceil(ratio*len(minverts)),len(minverts))
@@ -333,19 +347,81 @@ class NCPData:
 
     def approxPageRank(self,
                        gamma: float = 0.01/0.99,
-                       rholist: List[float] = [1.0e-10,1.0e-8,1.0e-7,1.0e-6,1.0e-5,1.0e-4],
-                       ratio: float = 0.3,
-                       nthreads: int = 4,
-                       timeout: float = 1000):
+                       rholist: List[float] = [1.0e-5,1.0e-4],
+                       localmins: bool = True,
+                       localmin_ratio: float = 0.5,
+                       neighborhood_ratio: float = 0.1,
+                       neighborhoods: bool = True,
+                       timeout: float = 1000,
+                       spectral_args: Dict = {},
+                       **kwargs):
+        """ Compute the NCP via an approximate PageRank computation.
+
+        This function tries to quickly approach the NCP plots from a
+        longer computation by using a number of effective shortcuts.
+        1. It does neighborhood sampling to generate the NCP plot
+        for small sets (if neighborhoods = true)
+        2. It does localmin sampling to generate the extrema of the NCP plot
+        (if localmins = True). Because we use neighborhood seeds for these,
+        then we increase the value of rho by a factor of 10.
+        3. It runs random PPR and neighborhood seeded PPR
+        samples to generate the bulk of the NCP plot
+        for large-ish values of size. This will help fill in the bulk for
+        medium and large cluster sizes.
+
+        """
         alpha = 1.0-1.0/(1.0+gamma)
+        print(alpha)
+
+        # save the old ratio
+        myratio = None
+        if 'ratio' in kwargs:
+            myratio = kwargs['ratio']
+            del kwargs['ratio']
+
+        if neighborhoods:
+            self.add_random_neighborhood_samples(
+                method=_second,
+                methodname="neighborhoods",
+                ratio=neighborhood_ratio,timeout=timeout/10,**kwargs)
+            timeout -= timeout/10
+
+        method = "acl"
         if self.graph._weighted:
-            funcs = {functools.partial(spectral_clustering,alpha=alpha,rho=rho,method="acl_weighted"):'acl_weighted;rho=%.0e'%(rho)
-                        for rho in rholist}
-        else:
-            funcs = {functools.partial(spectral_clustering,alpha=alpha,rho=rho,method="acl"):'acl;rho=%.0e'%(rho)
-                        for rho in rholist}
-        for func in funcs.keys():
-            self.add_random_node_samples(method=func,methodname=funcs[func],ratio=ratio,nthreads=nthreads,timeout=timeout/len(funcs))
+            method="acl_weighted"
+
+        if localmins:
+            for rho in rholist:
+                self.add_localmin_samples(
+                    method=functools.partial(
+                        spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,method=method),
+                    methodname="%s_localmin:rho=%.0e"%(method, rho*10),
+                    neighborhoods=True,
+                    ratio=localmin_ratio,
+                    timeout=timeout/(3*len(rholist)),**kwargs)
+            timeout -= timeout/3 # reduce the time left...
+
+        for rho in rholist:
+            if myratio is not None:
+                kwargs['ratio'] = myratio
+            self.add_random_node_samples(
+                method=functools.partial(
+                    spectral_clustering,**spectral_args,alpha=alpha,rho=rho,method=method),
+                methodname="%s:rho=%.0e"%(method, rho),
+                timeout=timeout/(2*len(rholist)), **kwargs)
+
+        timeout -= timeout/2 # reduce the time left...
+
+        for rho in rholist:
+            if myratio is not None:
+                kwargs['ratio'] = myratio
+            self.add_random_neighborhood_samples(
+                method=functools.partial(
+                    spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,method=method),
+                methodname="%s_neighborhoods:rho=%.0e"%(method, rho*10),
+                timeout=timeout/(len(rholist)), **kwargs)
+
+        return self
 
     def l1reg(self,
               gamma: float = 0.01/0.99,
@@ -358,6 +434,7 @@ class NCPData:
                     for rho in rholist}
         for func in funcs.keys():
             self.add_random_node_samples(method=func,methodname=funcs[func],ratio=ratio,nthreads=nthreads,timeout=timeout/len(funcs))
+        return self
 
     def crd(self,
             U: int = 3,
@@ -380,3 +457,4 @@ class NCPData:
         func = functools.partial(flow_clustering,method="mqi")
         self.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout,
                 method=func,methodname="mqi")
+        return self

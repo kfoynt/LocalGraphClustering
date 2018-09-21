@@ -26,7 +26,7 @@ def test_ncp_mqi():
 
 def _second(G,R):
     return R, []
-# this used to always catch some errors...    
+# this used to always catch some errors...
 def test_custom_ncp():
     G = load_example_graph()
     ncp = lgc.NCPData(G)
@@ -55,6 +55,14 @@ def test_ncp_localmin():
     ncp.add_localmin_samples(ratio=1)
     print(ncp.as_data_frame())
 
+
+    G = lgc.GraphLocal()
+    G.list_to_gl([0,1],[1,0],[1,1])
+    ncp = lgc.NCPData(G)
+    func = partial(lgc.spectral_clustering,alpha=0.01,rho=1.0e-4,method="acl")
+
+    ncp.default_method = func
+    ncp.add_localmin_samples(ratio=1)
 
 @pytest.mark.long_tests
 def test_ncp_crd_big():
