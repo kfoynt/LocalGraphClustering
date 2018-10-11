@@ -387,11 +387,8 @@ class NCPData:
         if 'ratio' in kwargs:
             myratio = kwargs['ratio']
             del kwargs['ratio']
-            if ratio > 1: # then they are giving a number of nodes, we need to adapt to this
 
         deeptimeout = timeout # save the timeout in case we also run the deep params
-
-
 
         if neighborhoods:
             self.add_random_neighborhood_samples(
@@ -446,7 +443,6 @@ class NCPData:
             minrho = min(rholist)
             maxrho = max(rholist)
             deeprhos = [(minrho/maxrho)*rho/minratio for rho in rholist]
-            print(deeprhos)
             deepgamma = gamma/10.0
             if 'iterations' in spectral_args: # we need more iterations
                 # but not too too many
