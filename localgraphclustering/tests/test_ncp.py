@@ -71,6 +71,10 @@ def test_ncp_sets():
         R = ncp.input_set(i)
         S = ncp.output_set(i)
 
+@pytest.mark.long_tests
+def test_apr_deep():
+    G = load_example_graph()
+    df = lgc.NCPData(G).approxPageRank(ratio=1, deep=True)
 
 @pytest.mark.long_tests
 def test_ncp_crd_big():
@@ -79,12 +83,6 @@ def test_ncp_crd_big():
     ncp_instance = lgc.NCPData(G)
     df = ncp_instance.crd(ratio=0.5,w=10,U=10,h=1000,nthreads=4)
     ncp_plots = lgc.ncpplots.NCPPlots(df)
-    #plot conductance vs size
-    #ncp_plots.cond_by_size()
-    #plot conductance vs volume
-    #ncp_plots.cond_by_vol()
-    #plot isoperimetry vs size
-    #ncp_plots.isop_by_size()
 
 @pytest.mark.long_tests
 def test_ncp_l1reg_big():

@@ -300,7 +300,7 @@ class NCPData:
 
     @param feature (default None, which means to use neighborhood conductance)
     @param strict, ratio, mindegree (see random_localmin_nodes)
-    @param neighborhods this determinds if we seed based on the vertex (False)
+    @param neighborhoods this determinds if we seed based on the vertex (False)
     or the vertex neighborhood (True) (default True, following Gleich & Seshadhri)
     @param timeout, nthreads, method, methodname (see add_random_node samples)
     """
@@ -354,6 +354,7 @@ class NCPData:
                        neighborhoods: bool = True,
                        timeout: float = 1000,
                        spectral_args: Dict = {},
+                       deep: bool = False,
                        **kwargs):
         """ Compute the NCP via an approximate PageRank computation.
 
@@ -369,15 +370,28 @@ class NCPData:
         for large-ish values of size. This will help fill in the bulk for
         medium and large cluster sizes.
 
+        If the "deep" parameter is specified, we search for especially deep
+        and large partitions. This involves additional computational expense
+        in terms of smaller values of gamma and smaller values of rho.
+        The defaults here are basically to search for values of at least
+        10 times smaller than the default search, with gamma values about 100
+        times smaller. This is a good test if you expect geometric structure
+        in your data. The NCP for an information graph should be mostly
+        the same with or without deep.
+
         """
         alpha = 1.0-1.0/(1.0+gamma)
-        print(alpha)
 
         # save the old ratio
         myratio = None
         if 'ratio' in kwargs:
             myratio = kwargs['ratio']
             del kwargs['ratio']
+            if ratio > 1: # then they are giving a number of nodes, we need to adapt to this
+
+        deeptimeout = timeout # save the timeout in case we also run the deep params
+
+
 
         if neighborhoods:
             self.add_random_neighborhood_samples(
@@ -420,6 +434,32 @@ class NCPData:
                     spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,method=method),
                 methodname="%s_neighborhoods:rho=%.0e"%(method, rho*10),
                 timeout=timeout/(len(rholist)), **kwargs)
+
+        if deep:
+            timeout = deeptimeout
+            # figure out the minimum ratio between rho steps
+            rholist.sort()
+            minratio = 10.0 # if the ratio is bigger than 10, we'll just use that
+            for i in range(len(rholist)-1):
+                if rholist[i+1]/rholist[i] < minratio:
+                    minratio = rholist[i+1]/rholist[i]
+            minrho = min(rholist)
+            maxrho = max(rholist)
+            deeprhos = [(minrho/maxrho)*rho/minratio for rho in rholist]
+            print(deeprhos)
+            deepgamma = gamma/10.0
+            if 'iterations' in spectral_args: # we need more iterations
+                # but not too too many
+                spectral_args['iterations'] = min(1000*spectral_args['iterations'], 2000000000)
+            else:
+                spectral_args['iterations'] = 1000000000
+
+            # note, ratio has already been re-added to kwargs above
+            self.approxPageRank(gamma=deepgamma,rholist=deeprhos,
+                localmins=localmins, localmin_ratio=localmin_ratio,
+                neighborhoods=neighborhoods, neighborhood_ratio=neighborhood_ratio,
+                timeout = deeptimeout, spectral_args=spectral_args, deep=False,
+                **kwargs)
 
         return self
 
