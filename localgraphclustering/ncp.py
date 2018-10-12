@@ -355,6 +355,7 @@ class NCPData:
                        timeout: float = 1000,
                        spectral_args: Dict = {},
                        deep: bool = False,
+                       methodname_prefix: str = "ncpapr",
                        **kwargs):
         """ Compute the NCP via an approximate PageRank computation.
 
@@ -400,13 +401,19 @@ class NCPData:
         method = "acl"
         if self.graph._weighted:
             method="acl_weighted"
+        if len(methodname_prefix) > 0:
+            methodname = methodname_prefix + "_" + method
+            deepmethodname_prefix = "deep" + "_" + methodname_prefix
+        else:
+            methodname = method
+            deepmethodname_prefix = "deep"
 
         if localmins:
             for rho in rholist:
                 self.add_localmin_samples(
                     method=functools.partial(
                         spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,method=method),
-                    methodname="%s_localmin:rho=%.0e"%(method, rho*10),
+                    methodname="%s_localmin:rho=%.0e"%(methodname, rho*10),
                     neighborhoods=True,
                     ratio=localmin_ratio,
                     timeout=timeout/(3*len(rholist)),**kwargs)
@@ -418,7 +425,7 @@ class NCPData:
             self.add_random_node_samples(
                 method=functools.partial(
                     spectral_clustering,**spectral_args,alpha=alpha,rho=rho,method=method),
-                methodname="%s:rho=%.0e"%(method, rho),
+                methodname="%s:rho=%.0e"%(methodname, rho),
                 timeout=timeout/(2*len(rholist)), **kwargs)
 
         timeout -= timeout/2 # reduce the time left...
@@ -429,7 +436,7 @@ class NCPData:
             self.add_random_neighborhood_samples(
                 method=functools.partial(
                     spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,method=method),
-                methodname="%s_neighborhoods:rho=%.0e"%(method, rho*10),
+                methodname="%s_neighborhoods:rho=%.0e"%(methodname, rho*10),
                 timeout=timeout/(len(rholist)), **kwargs)
 
         if deep:
@@ -455,6 +462,7 @@ class NCPData:
                 localmins=localmins, localmin_ratio=localmin_ratio,
                 neighborhoods=neighborhoods, neighborhood_ratio=neighborhood_ratio,
                 timeout = deeptimeout, spectral_args=spectral_args, deep=False,
+                methodname_prefix=deepmethodname_prefix,
                 **kwargs)
 
         return self

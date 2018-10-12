@@ -40,6 +40,7 @@ def test_ncp_crd():
 def test_ncp_apr():
     G = load_example_graph()
     df = lgc.NCPData(G).approxPageRank(ratio=1)
+    df = lgc.NCPData(G).approxPageRank(ratio=2, methodname_prefix="")
 
 def test_ncp_l1reg():
     G = load_example_graph()
