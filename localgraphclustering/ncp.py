@@ -436,7 +436,7 @@ class NCPData:
 
         deeptimeout = timeout # save the timeout in case we also run the deep params
 
-        log = SimpleLogForLongComputations(10, "approxPageRank:%s"%(methodname))
+        log = SimpleLogForLongComputations(120, "approxPageRank:%s"%(methodname))
 
 
         if neighborhoods:
