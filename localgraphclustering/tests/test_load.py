@@ -1,5 +1,6 @@
 import localgraphclustering as lgc
 import networkx as nx
+import pytest
 
 def test_load():
     G = lgc.GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ")
@@ -18,7 +19,20 @@ def test_from_networkx():
     g = lgc.GraphLocal().from_networkx(G)
     assert (g.adjacency_matrix != g.adjacency_matrix.T).sum() == 0
     # On our test system, this returns true, could need to be adjusted
-    # due to the random positions. 
+    # due to the random positions.
     assert g.is_disconnected() == False
-    
-    
+
+
+
+@pytest.mark.long_tests
+def test_load_datasets():
+    import os
+    import sys
+    mypath = os.path.dirname(os.path.realpath(__file__))
+    sys.path.insert(0, os.path.join(mypath,"..","..","notebooks"))
+    import helper
+
+    for gname in helper.lgc_graphlist:
+        g = helper.lgc_data(gname)
+
+    sys.path.pop(0)

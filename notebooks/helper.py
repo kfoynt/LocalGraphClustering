@@ -23,11 +23,11 @@ def lgc_data(name):
                 lgc_path, "datasets", "ppi_mips.graphml"), 'graphml')
     elif name=="ASTRAL":
         return lgc.GraphLocal(os.path.join(
-                lgc_path, "datasets", 
+                lgc_path, "datasets",
                     "ASTRAL-small-sized-mammoth-sims-geq-2.graphml"), 'graphml')
     elif name=="sfld":
         return lgc.GraphLocal(os.path.join(
-                lgc_path, "datasets", 
+                lgc_path, "datasets",
                     "sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh.graphml"), 'graphml')
     elif name=="find_V":
         return lgc.GraphLocal(os.path.join(
@@ -38,8 +38,12 @@ def lgc_data(name):
     elif name=="neuro-fmri-01":
         return lgc.GraphLocal(os.path.join(
                 lgc_path, "datasets", "neuro-fmri-01.edges"), 'edgelist', ' ', header=True)
+    elif name=="ca-GrQc":
+        return lgc.GraphLocal(os.path.join(
+                lgc_path, "datasets", "ca-GrQc-cc.csv"), 'edgelist', ' ', header=True)
     else:
         raise Exception("Unknown graph name")
 
-lgc_graphlist = ["senate", "Erdos02", "JohnsHopkins", "Colgate88", 
-    "usroads", "ppi_mips", "ASTRAL", "sfld", "find_V", "ppi-homo", "neuro-fmri-01"]
+lgc_graphlist = ["senate", "Erdos02", "JohnsHopkins", "Colgate88",
+    "usroads", "ppi_mips", "ASTRAL", "sfld", "find_V", "ppi-homo",
+    "neuro-fmri-01", "ca-GrQc"]
