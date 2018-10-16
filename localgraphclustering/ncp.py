@@ -17,6 +17,39 @@ from .GraphLocal import GraphLocal
 from .triangleclusters import triangleclusters
 from .cpp import *
 
+class SimpleLogForLongComputations:
+    """ Implement a simple logger that will record messages and then
+    replay them if a timer exceeds a threshold."""
+    def __init__(self, mintime=120, method=""):
+        if len(method) > 0:
+            self._prefix = method + ": "
+        else:
+            self._prefix = ""
+        self._log = []
+        self._mintime = mintime
+        self._t0 = time.time()
+
+    def _print_message(self, t, m):
+        print(self._prefix,end="")
+        print("%6.1f"%(t - self._t0), end=" ")
+        print(m)
+
+    def dumplog(self):
+        """ Dump the log (i.e. print it) and clear the messages. """
+        if len(self._log) > 0:
+            for (t, m) in self._log:
+                self._print_message(t, m)
+            self._log = [] # reset the log.
+
+    def log(self, message):
+        """ Log a message, which is spooled unless the mintime is exceeded. """
+        t = time.time()
+        if t - self._t0 > self._mintime:
+            self.dumplog()
+            self._print_message(t,message)
+        else:
+            self._log.append((t, message))
+
 def _partial_functions_equal(func1, func2):
     if not (isinstance(func1, functools.partial) and isinstance(func2, functools.partial)):
         return False
@@ -381,6 +414,18 @@ class NCPData:
         the same with or without deep.
 
         """
+
+        method = "acl"
+        if self.graph._weighted:
+            method="acl_weighted"
+
+        if len(methodname_prefix) > 0:
+            methodname = methodname_prefix + "_" + method
+            deepmethodname_prefix = "deep" + "_" + methodname_prefix
+        else:
+            methodname = method
+            deepmethodname_prefix = "deep"
+
         alpha = 1.0-1.0/(1.0+gamma)
 
         # save the old ratio
@@ -391,22 +436,16 @@ class NCPData:
 
         deeptimeout = timeout # save the timeout in case we also run the deep params
 
+        log = SimpleLogForLongComputations(10, "approxPageRank:%s"%(methodname))
+
+
         if neighborhoods:
             self.add_random_neighborhood_samples(
                 method=_second,
                 methodname="neighborhoods",
                 ratio=neighborhood_ratio,timeout=timeout/10,**kwargs)
             timeout -= timeout/10
-
-        method = "acl"
-        if self.graph._weighted:
-            method="acl_weighted"
-        if len(methodname_prefix) > 0:
-            methodname = methodname_prefix + "_" + method
-            deepmethodname_prefix = "deep" + "_" + methodname_prefix
-        else:
-            methodname = method
-            deepmethodname_prefix = "deep"
+            log.log("neighborhoods")
 
         if localmins:
             for rho in rholist:
@@ -417,6 +456,7 @@ class NCPData:
                     neighborhoods=True,
                     ratio=localmin_ratio,
                     timeout=timeout/(3*len(rholist)),**kwargs)
+                log.log("localmin rho=%.1e"%(rho))
             timeout -= timeout/3 # reduce the time left...
 
         for rho in rholist:
@@ -427,6 +467,7 @@ class NCPData:
                     spectral_clustering,**spectral_args,alpha=alpha,rho=rho,method=method),
                 methodname="%s:rho=%.0e"%(methodname, rho),
                 timeout=timeout/(2*len(rholist)), **kwargs)
+            log.log("random_node rho=%.1e"%(rho))
 
         timeout -= timeout/2 # reduce the time left...
 
@@ -438,6 +479,7 @@ class NCPData:
                     spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,method=method),
                 methodname="%s_neighborhoods:rho=%.0e"%(methodname, rho*10),
                 timeout=timeout/(len(rholist)), **kwargs)
+            log.log("random_neighborhood rho=%.1e"%(rho))
 
         if deep:
             timeout = deeptimeout
@@ -460,7 +502,7 @@ class NCPData:
             # note, ratio has already been re-added to kwargs above
             self.approxPageRank(gamma=deepgamma,rholist=deeprhos,
                 localmins=localmins, localmin_ratio=localmin_ratio,
-                neighborhoods=neighborhoods, neighborhood_ratio=neighborhood_ratio,
+                neighborhoods=False, neighborhood_ratio=neighborhood_ratio,
                 timeout = deeptimeout, spectral_args=spectral_args, deep=False,
                 methodname_prefix=deepmethodname_prefix,
                 **kwargs)
