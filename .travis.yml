@@ -24,7 +24,14 @@ install:
 
   # - conda env create -n test-environment python=$TRAVIS_PYTHON_VERSION -f environment.yml
   # - source activate test-environment
-# command to run tests
-script: travis_wait 60 coverage run --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest localgraphclustering/tests/ --notebook-tests --test-plots --long-tests
+
+# see for alternatives to travis wait
+# https://github.com/travis-ci/travis-ci/issues/4190
+script:
+  # Output something every 10 minutes or Travis kills the job
+  - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
+  - coverage run --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest localgraphclustering/tests/ --notebook-tests --test-plots --long-tests
+  # Killing background sleep loop
+  - kill %1
 after_success:
   coveralls
