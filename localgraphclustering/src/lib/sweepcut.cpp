@@ -220,6 +220,9 @@ vtype graph<vtype,itype>::sweep_cut(vtype* ids, vtype* results, vtype num, doubl
         cut_change = deg;
         for(vtype j = ai[v] - offset; j < ai[v+1] - offset; j ++){
             neighbor = aj[j] - offset;
+            if (v == neighbor) {
+                cut_change -= a[j];
+            }
             if(rank.count(neighbor) > 0 && rank[neighbor] < rank[v]){
                 cut_change -= 2 * a[j];
             }
