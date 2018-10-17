@@ -65,32 +65,6 @@ def _partial_functions_equal(func1, func2):
 def _second(x,y):
     return y, None
 
-def ncp_experiment(ncpdata,R,func,method_stats):
-    if ncpdata.input_stats:
-        input_stats = ncpdata.graph.set_scores(R)
-        for F in ncpdata.set_funcs: # build the list of keys for set_funcs
-            input_stats.update(F(ncpdata.graph, R))
-        input_stats = {"input_" + str(key):value for key,value in input_stats.items() } # add input prefix
-    else:
-        input_stats = {}
-
-    start = time.time()
-    S = func(ncpdata.graph, R)[0]
-    dt = time.time() - start
-
-    if len(S) > 0:
-        output_stats = ncpdata.graph.set_scores(S)
-        for F in ncpdata.set_funcs: # build the list of keys for set_funcs
-            output_stats.update(F(ncpdata.graph, S))
-        output_stats = {"output_" + str(key):value for key,value in output_stats.items() } # add output prefix
-
-        method_stats['methodfunc']  = func
-        method_stats['time'] = dt
-        return [ncpdata.record(**input_stats, **output_stats, **method_stats)._asdict()]
-    else:
-        return [] # nothing to return
-
-
 """ This is how worker's get the graph data and the NCP setup information. """
 # we are now using stuff from here
 # https://research.wmz.ninja/articles/2018/03/on-sharing-large-arrays-when-using-pythons-multiprocessing.html
@@ -108,6 +82,10 @@ def _ncp_worker_setup(ncpdata):
 def _ncp_worker_init(svardata):
     workvars["ncpdata"] = svardata["ncpdata"]
     workvars["ncpdata"].graph = GraphLocal.from_shared(svardata["g"])
+
+def _ncp_localworker_init(ncpdata):
+    # no need to set the graph as we haven't cleared it from the local one
+    workvars["ncpdata"] = ncpdata
 
 def _ncp_node_worker(workid, setids,func,timeout):
     return ncp_worker(workid, "node", workvars["ncpdata"], setids, func, timeout)
@@ -285,24 +263,36 @@ class NCPData:
         return method
 
     def _run_samples(self, target, list_of_sets, method, timeout, nprocs):
-        # TODO, figure out how we can avoid doing this everytime...
-        svardata = _ncp_worker_setup(self)
-        ntotalruns = sum(len(run) for run in list_of_sets)
-        with mp.Pool(processes=nprocs, initializer=_ncp_worker_init, initargs=(svardata,)) as pool:
-            rvals = pool.starmap(target,
-                [ (workid, setids, method, timeout) for (workid, setids) in enumerate(list_of_sets) ])
-            nruns = sum(len(rval) for rval in rvals)
-            assert nruns <= ntotalruns, "expected up to %i ntotalruns but got %i runs"%(ntotalruns, nruns)
-            for rval in rvals:
-                for r in rval:
-                    # make sure that we replace with our actual methods
-                    # at the moment, this should always be true.
-                    # this is here in case the assert fails so we can debug
-                    # https://stackoverflow.com/questions/32786078/how-to-compare-wrapped-functions-with-functools-partial
-                    assert r["methodfunc"]==method or _partial_functions_equal(r["methodfunc"], method)
-                    r["methodfunc"] = method
+        if nprocs == 1:
+            # we special case nprocs = 1 so that we can get coverage
+            # of the code in our report.
+            _ncp_localworker_init(self)
+            ntotalruns = sum(len(run) for run in list_of_sets)
+            nruns = 0
+            for (workid, setids) in enumerate(list_of_sets):
+                rval = target(workid, setids, method, timeout)
+                nruns += len(rval)
+                assert nruns <= ntotalruns, "expected up to %i ntotalruns but got %i runs"%(ntotalruns, nruns)
                 self.results.extend(rval)
-            pool.close()
+        else:
+            # TODO, figure out how we can avoid doing this everytime...
+            svardata = _ncp_worker_setup(self)
+            ntotalruns = sum(len(run) for run in list_of_sets)
+            with mp.Pool(processes=nprocs, initializer=_ncp_worker_init, initargs=(svardata,)) as pool:
+                rvals = pool.starmap(target,
+                    [ (workid, setids, method, timeout) for (workid, setids) in enumerate(list_of_sets) ])
+                nruns = sum(len(rval) for rval in rvals)
+                assert nruns <= ntotalruns, "expected up to %i ntotalruns but got %i runs"%(ntotalruns, nruns)
+                for rval in rvals:
+                    for r in rval:
+                        # make sure that we replace with our actual methods
+                        # at the moment, this should always be true.
+                        # this is here in case the assert fails so we can debug
+                        # https://stackoverflow.com/questions/32786078/how-to-compare-wrapped-functions-with-functools-partial
+                        assert r["methodfunc"]==method or _partial_functions_equal(r["methodfunc"], method)
+                        r["methodfunc"] = method
+                    self.results.extend(rval)
+                pool.close()
 
     def add_random_node_samples(self, ratio=0.3, timeout=1000, nthreads=4, method=None, methodname=None):
         method = self._check_method(method, methodname)

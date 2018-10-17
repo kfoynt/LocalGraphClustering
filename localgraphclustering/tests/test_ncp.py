@@ -24,6 +24,10 @@ def test_ncp_mqi():
     G = load_example_graph()
     df = lgc.NCPData(G).mqi(ratio=1)
 
+def test_ncp_one_thread():
+    G = load_example_graph()
+    df = lgc.NCPData(G).mqi(ratio=2,nthreads=1)
+
 def _second(G,R):
     return R, []
 # this used to always catch some errors...
