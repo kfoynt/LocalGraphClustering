@@ -65,6 +65,32 @@ def _partial_functions_equal(func1, func2):
 def _second(x,y):
     return y, None
 
+def ncp_experiment(ncpdata,R,func,method_stats):
+    if ncpdata.input_stats:
+        input_stats = ncpdata.graph.set_scores(R)
+        for F in ncpdata.set_funcs: # build the list of keys for set_funcs
+            input_stats.update(F(ncpdata.graph, R))
+        input_stats = {"input_" + str(key):value for key,value in input_stats.items() } # add input prefix
+    else:
+        input_stats = {}
+
+    start = time.time()
+    S = func(ncpdata.graph, R)[0]
+    dt = time.time() - start
+
+    if len(S) > 0:
+        output_stats = ncpdata.graph.set_scores(S)
+        for F in ncpdata.set_funcs: # build the list of keys for set_funcs
+            output_stats.update(F(ncpdata.graph, S))
+        output_stats = {"output_" + str(key):value for key,value in output_stats.items() } # add output prefix
+
+        method_stats['methodfunc']  = func
+        method_stats['time'] = dt
+        return [ncpdata.record(**input_stats, **output_stats, **method_stats)._asdict()]
+    else:
+        return [] # nothing to return
+
+
 """ This is how worker's get the graph data and the NCP setup information. """
 # we are now using stuff from here
 # https://research.wmz.ninja/articles/2018/03/on-sharing-large-arrays-when-using-pythons-multiprocessing.html
