@@ -72,10 +72,10 @@ def test_ncp_sets():
         R = ncp.input_set(i)
         S = ncp.output_set(i)
 
-@pytest.mark.long_tests
+
 def test_apr_deep():
     G = load_example_graph()
-    df = lgc.NCPData(G).approxPageRank(ratio=1, deep=True)
+    df = lgc.NCPData(G).approxPageRank(ratio=1, gamma=0.1, rholist=[1e-2, 1e-3], deep=True)
 
 @pytest.mark.long_tests
 def test_ncp_crd_big():

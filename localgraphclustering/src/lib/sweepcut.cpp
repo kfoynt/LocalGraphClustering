@@ -1,7 +1,7 @@
 /**
- * A sweepcut procedure with C interface. It takes a set of indices and a CSR based graph as the input. 
+ * A sweepcut procedure with C interface. It takes a set of indices and a CSR based graph as the input.
  * Then it outputs the best cluster with the lowest conductance by using sweepcut algorithm. This file
- * implements two kinds of sweepcut procedure. The first one will first sort the given vertices in the 
+ * implements two kinds of sweepcut procedure. The first one will first sort the given vertices in the
  * dereasing order of the pagerank value. The second one will not.
  *
  * INPUT:
@@ -47,7 +47,7 @@ using namespace std;
 template<typename vtype>
 bool myobject (pair <vtype, double> i, pair <vtype, double> j) { return (i.second>j.second);}
 
-int64_t sweepcut_without_sorting64(int64_t* ids, int64_t* results, int64_t num, 
+int64_t sweepcut_without_sorting64(int64_t* ids, int64_t* results, int64_t num,
         int64_t n, int64_t* ai, int64_t* aj, double* a, int64_t offset, double* ret_cond, double* degrees, int use_degree)
 {
     if (use_degree) {
@@ -58,9 +58,9 @@ int64_t sweepcut_without_sorting64(int64_t* ids, int64_t* results, int64_t num,
         graph<int64_t,int64_t> g(ai[n],n,ai,aj,a,offset,NULL);
         return g.sweepcut_without_sorting(ids,results,num,ret_cond);
     }
-} 
+}
 
-uint32_t sweepcut_without_sorting32(uint32_t* ids, uint32_t* results, uint32_t num, 
+uint32_t sweepcut_without_sorting32(uint32_t* ids, uint32_t* results, uint32_t num,
         uint32_t n, uint32_t* ai, uint32_t* aj, double* a, uint32_t offset, double* ret_cond, double* degrees, int use_degree)
 {
     if (use_degree) {
@@ -71,9 +71,9 @@ uint32_t sweepcut_without_sorting32(uint32_t* ids, uint32_t* results, uint32_t n
         graph<uint32_t,uint32_t> g(ai[n],n,ai,aj,a,offset,NULL);
         return g.sweepcut_without_sorting(ids,results,num,ret_cond);
     }
-} 
+}
 
-uint32_t sweepcut_without_sorting32_64(uint32_t* ids, uint32_t* results, uint32_t num, 
+uint32_t sweepcut_without_sorting32_64(uint32_t* ids, uint32_t* results, uint32_t num,
         uint32_t n, int64_t* ai, uint32_t* aj, double* a, uint32_t offset, double* ret_cond, double* degrees, int use_degree)
 {
     if (use_degree) {
@@ -84,10 +84,10 @@ uint32_t sweepcut_without_sorting32_64(uint32_t* ids, uint32_t* results, uint32_
         graph<uint32_t,int64_t> g(ai[n],n,ai,aj,a,offset,NULL);
         return g.sweepcut_without_sorting(ids,results,num,ret_cond);
     }
-} 
+}
 
 
-int64_t sweepcut_with_sorting64(double* value, int64_t* ids, int64_t* results, int64_t num, 
+int64_t sweepcut_with_sorting64(double* value, int64_t* ids, int64_t* results, int64_t num,
         int64_t n, int64_t* ai, int64_t* aj, double* a, int64_t offset, double* ret_cond, double* degrees, int use_degree)
 {
     if (use_degree) {
@@ -98,9 +98,9 @@ int64_t sweepcut_with_sorting64(double* value, int64_t* ids, int64_t* results, i
         graph<int64_t,int64_t> g(ai[n],n,ai,aj,a,offset,NULL);
         return g.sweepcut_with_sorting(value,ids,results,num,ret_cond);
     }
-} 
+}
 
-uint32_t sweepcut_with_sorting32(double* value, uint32_t* ids, uint32_t* results, uint32_t num, 
+uint32_t sweepcut_with_sorting32(double* value, uint32_t* ids, uint32_t* results, uint32_t num,
         uint32_t n, uint32_t* ai, uint32_t* aj, double* a, uint32_t offset, double* ret_cond, double* degrees, int use_degree)
 {
     if (use_degree) {
@@ -111,9 +111,9 @@ uint32_t sweepcut_with_sorting32(double* value, uint32_t* ids, uint32_t* results
         graph<uint32_t,uint32_t> g(ai[n],n,ai,aj,a,offset,NULL);
         return g.sweepcut_with_sorting(value,ids,results,num,ret_cond);
     }
-} 
+}
 
-uint32_t sweepcut_with_sorting32_64(double* value, uint32_t* ids, uint32_t* results, uint32_t num, 
+uint32_t sweepcut_with_sorting32_64(double* value, uint32_t* ids, uint32_t* results, uint32_t num,
         uint32_t n, int64_t* ai, uint32_t* aj, double* a, uint32_t offset, double* ret_cond, double* degrees, int use_degree)
 {
     if (use_degree) {
@@ -124,10 +124,10 @@ uint32_t sweepcut_with_sorting32_64(double* value, uint32_t* ids, uint32_t* resu
         graph<uint32_t,int64_t> g(ai[n],n,ai,aj,a,offset,NULL);
         return g.sweepcut_with_sorting(value,ids,results,num,ret_cond);
     }
-} 
+}
 
 /**
- * The sweepcut procedure which will first sort the given vertices in the 
+ * The sweepcut procedure which will first sort the given vertices in the
  * dereasing order of the pagerank value.
  *
  * INPUT:
@@ -163,7 +163,7 @@ vtype graph<vtype,itype>::sweepcut_with_sorting(double* value, vtype* ids, vtype
 
 
 /**
- * The sweepcut procedure which won't sort the given vertices in the 
+ * The sweepcut procedure which won't sort the given vertices in the
  * dereasing order of the pagerank value.
  *
  * INPUT:
@@ -220,6 +220,9 @@ vtype graph<vtype,itype>::sweep_cut(vtype* ids, vtype* results, vtype num, doubl
         cut_change = deg;
         for(vtype j = ai[v] - offset; j < ai[v+1] - offset; j ++){
             neighbor = aj[j] - offset;
+            if (v == neighbor) {
+                cut_change -= a[j];
+            }
             if(rank.count(neighbor) > 0 && rank[neighbor] < rank[v]){
                 cut_change -= 2 * a[j];
             }
@@ -248,5 +251,3 @@ vtype graph<vtype,itype>::sweep_cut(vtype* ids, vtype* results, vtype num, doubl
 
     return min_id + 1;
 }
-
-
