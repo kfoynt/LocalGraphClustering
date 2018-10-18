@@ -41,6 +41,14 @@ def test_ncp_crd():
     G = load_example_graph()
     df = lgc.NCPData(G).crd(ratio=1)
 
+def test_ncp_clique():
+    import networkx as nx
+    K10 = nx.complete_graph(10)
+    G = lgc.GraphLocal().from_networkx(K10)
+    ncp = lgc.NCPData(G).approxPageRank()
+    df = ncp.as_data_frame()
+    assert(min(df["output_sizeeff"]) > 0)
+
 def test_ncp_apr():
     G = load_example_graph()
     df = lgc.NCPData(G).approxPageRank(ratio=1)

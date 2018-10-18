@@ -62,8 +62,13 @@ def _partial_functions_equal(func1, func2):
     return are_equal
 
 """ This is helpful for some of the NCP studies to return the set we are given. """
-def _second(x,y):
-    return y, None
+# THis just
+def _evaluate_set(G,N):
+    if 0 < len(N) < G._num_vertices:
+        return N, None
+    else:
+        return [], None
+
 
 def ncp_experiment(ncpdata,R,func,method_stats):
     if ncpdata.input_stats:
@@ -457,7 +462,7 @@ class NCPData:
 
         if neighborhoods:
             self.add_random_neighborhood_samples(
-                method=_second,
+                method=_evaluate_set,
                 methodname="neighborhoods",
                 ratio=neighborhood_ratio,timeout=timeout/10,**kwargs)
             timeout -= timeout/10
