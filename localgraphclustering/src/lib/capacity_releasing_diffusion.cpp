@@ -126,6 +126,7 @@ vtype graph<vtype,itype>::capacity_releasing_diffusion(vector<vtype>& ref_node,
         		value = iter->second;
         		idx = iter->first;
         	}
+            //cout << iter->first << " " << iter->second << endl;
         }
         //cout << cond_temp.size() << " " << cond_best << " " << idx << endl;
         if (cond_temp[idx] < cond_best) {
@@ -163,10 +164,12 @@ vtype graph<vtype,itype>::capacity_releasing_diffusion(vector<vtype>& ref_node,
         }
     }
     vtype length = 0;
-    vtype idx;
+    vtype idx = 0;
     double value = -1;
     vector<vtype> keys;
-    //cout << cond_best_array.size() << endl;
+    //cout << idx << endl;
+    //cout << value << endl;
+    //cout << cond_best_array[0] << " " << cond_best_array[1] << endl;
     for (auto iter = cond_best_array.begin(); iter != cond_best_array.end(); ++iter) {
         if (iter->second < value || value < 0) {	
         	value = iter->second;
@@ -174,6 +177,8 @@ vtype graph<vtype,itype>::capacity_releasing_diffusion(vector<vtype>& ref_node,
         }
         keys.push_back(iter->first);
     }
+    //cout << idx << endl;
+    //cout << value << endl;
     //cout << cond_best_array.size() << " " << idx << endl;
     sort(keys.begin(),keys.end(),greater<vtype>());
     for (auto iter = keys.begin(); iter != keys.end(); ++iter) {
@@ -240,8 +245,13 @@ void graph<vtype,itype>::round_unit_flow(unordered_map<vtype,vtype>& l,
     	vtype i = iter->first;
     	double _a = vol[i];
     	double _b = (volume - _a);
+        //cout << "i: " << i << " " << "a: " << _a << " " << "b: " << _b << endl;
     	double demominator = _a < _b ? _a : _b;
+        if (iter->second == 0) {
+            continue;
+        }
     	cond[i] = (iter->second)/demominator;
+        //cout << "iter->second: " << iter->second << endl;
         //cout << cond[i] << endl;
     }
 }
