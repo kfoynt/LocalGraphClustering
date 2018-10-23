@@ -37,6 +37,20 @@ def test_custom_ncp():
     ncp.add_random_neighborhood_samples(ratio=1.0,
         method=_second, methodname="neighborhoods", nthreads=16)
 
+def test_ncp_read_write():
+    G = load_example_graph()
+    ncp = lgc.NCPData(G).approxPageRank(ratio=2)
+    R1 = ncp.input_set(0)
+    S1 = ncp.output_set(0)
+    R2 = ncp.input_set(1)
+    S2 = ncp.output_set(1)
+    ncp.write("myncp")
+    ncp2 = lgc.NCPData.from_file("myncp.pickle", G)
+    assert(R1 == ncp.input_set(0))
+    assert(R2 == ncp.input_set(1))
+    assert(S1 == ncp.output_set(0))
+    assert(S2 == ncp.output_set(1))
+
 def test_ncp_crd():
     G = load_example_graph()
     df = lgc.NCPData(G).crd(ratio=1)
