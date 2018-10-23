@@ -97,7 +97,8 @@ def spectral_clustering(G, ref_nodes,
     elif method == "nibble":
         p = PageRank_nibble(G,ref_nodes,vol = vol,phi = phi,epsilon = epsilon,iterations = iterations,timeout = timeout)
     elif method == "fiedler":
-        warnings.warn("ref_nodes will be discarded since we are computing a global fiedler vector.")
+        if ref_nodes is not None:
+            warnings.warn("ref_nodes will be discarded since we are computing a global fiedler vector.")
         p = fiedler(G)[0]
     elif method == "fiedler_local":
         p = fiedler_local(G,ref_nodes)[0]

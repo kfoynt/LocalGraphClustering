@@ -51,6 +51,13 @@ def test_ncp_read_write():
     assert(S1 == ncp.output_set(0))
     assert(S2 == ncp.output_set(1))
 
+def test_ncp_fiedler():
+    G = load_example_graph()
+    ncp = lgc.NCPData(G)
+    ncp.add_neighborhoods()
+    ncp.add_fiedler()
+    ncp.add_fiedler_mqi()
+
 def test_ncp_crd():
     G = load_example_graph()
     df = lgc.NCPData(G).crd(ratio=1)

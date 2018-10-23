@@ -62,13 +62,11 @@ def _partial_functions_equal(func1, func2):
     return are_equal
 
 """ This is helpful for some of the NCP studies to return the set we are given. """
-# THis just
 def _evaluate_set(G,N):
     if 0 < len(N) < G._num_vertices:
         return N, None
     else:
         return [], None
-
 
 def ncp_experiment(ncpdata,R,func,method_stats):
     if ncpdata.input_stats:
@@ -179,6 +177,7 @@ class NCPData:
         result_fields.extend(["methodfunc", "input_set_type", "input_set_params", "time"])
         self.result_fields = result_fields
         self.neighborhood_cond = None
+        self.fiedler_set = None
         self.reset_records()
         self.default_method = None
         self.method_names = {} # This stores human readable and usable names for methods
@@ -591,3 +590,24 @@ class NCPData:
         self.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout,
                 method=func,methodname="mqi")
         return self
+
+    def _fiedler_set(self):
+        if self.fiedler_set is None:
+            self.fiedler_set = spectral_clustering(self.graph, None, method="fiedler")[0]
+        return self.fiedler_set
+
+    def add_fiedler(self):
+        S = self._fiedler_set()
+        # note that we use functools partial here to create a new function
+        # that we name "fiedler" even though the code is just evaluate_set
+        return self.add_set_samples(methodname="fiedler",
+            method=functools.partial(_evaluate_set), nthreads=1, sets=[S])
+
+    def add_fiedler_mqi(self):
+        S = self._fiedler_set()
+        return self.add_set_samples(methodname="fiedler-mqi",
+            method=functools.partial(flow_clustering,method="mqi"), nthreads=1, sets=[S])
+
+    def add_neighborhoods(self, **kwargs):
+        return self.add_random_neighborhood_samples(
+            method=_evaluate_set,methodname="neighborhoods",**kwargs)
