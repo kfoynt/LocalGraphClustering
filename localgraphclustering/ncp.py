@@ -3,13 +3,13 @@ import numpy as np
 import pandas as pd
 
 import time
-from collections import namedtuple
 import threading
 import math
 import warnings
 import copy
 import multiprocessing as mp
 import functools
+import pickle
 
 from .spectral_clustering import spectral_clustering
 from .flow_clustering import flow_clustering
@@ -62,13 +62,11 @@ def _partial_functions_equal(func1, func2):
     return are_equal
 
 """ This is helpful for some of the NCP studies to return the set we are given. """
-# THis just
 def _evaluate_set(G,N):
     if 0 < len(N) < G._num_vertices:
         return N, None
     else:
         return [], None
-
 
 def ncp_experiment(ncpdata,R,func,method_stats):
     if ncpdata.input_stats:
@@ -91,7 +89,7 @@ def ncp_experiment(ncpdata,R,func,method_stats):
 
         method_stats['methodfunc']  = func
         method_stats['time'] = dt
-        return [ncpdata.record(**input_stats, **output_stats, **method_stats)._asdict()]
+        return [dict(**input_stats, **output_stats, **method_stats)]
     else:
         return [] # nothing to return
 
@@ -164,7 +162,8 @@ class NCPData:
         else:
             self.graph = graph
 
-        # Todo - have "largest_component" return a graph for the largest component
+        # We need to save this for the pickle input/output
+        self.do_largest_component = do_largest_component
         self.input_stats = input_stats
         self.set_funcs = setfuncs
         self.nruns = 0
@@ -176,8 +175,9 @@ class NCPData:
             result_fields = ["input_" + field for field in standard_fields.keys()]
         result_fields.extend(["output_" + str(field) for field in standard_fields.keys()])
         result_fields.extend(["methodfunc", "input_set_type", "input_set_params", "time"])
-        self.record = namedtuple("NCPDataRecord", field_names=result_fields)
+        self.result_fields = result_fields
         self.neighborhood_cond = None
+        self.fiedler_set = None
         self.reset_records()
         self.default_method = None
         self.method_names = {} # This stores human readable and usable names for methods
@@ -268,6 +268,7 @@ class NCPData:
             raise(ValueError("the input_set_type is unrecognized"))
 
     def output_set(self, j):
+        assert(self.graph is not None)
         result = self.results[j] # todo check for validity
         func = result["methodfunc"]
         R = self.input_set(j)
@@ -384,20 +385,44 @@ class NCPData:
         self._run_samples(_ncp_set_worker, setnos, method, timeout, nthreads)
 
     def as_data_frame(self):
-        """
-        DF = pd.DataFrame.from_records([], columns=self.record._fields)
-        for methodname in self.results.keys():
-            df = pd.DataFrame.from_records(self.results[methodname], columns=self.record._fields)
-            df.rename(columns={'method':'methodfunc'}, inplace=True)
-            df["method"] = methodname
-            DF = DF.append(df,ignore_index=True)
-        return DF
-        """
-        df = pd.DataFrame.from_records(self.results, columns=self.record._fields)
+        """ Return the NCP results as a pandas dataframe """
+        df = pd.DataFrame.from_records(self.results, columns=self.result_fields)
         # convert to human readable names
         df["method"] = df["methodfunc"].map(self.method_names)
 
         return df
+
+    def write(self, filename: str, writepython: bool = True, writecsv: bool = True):
+        """ Write the NCP data to a fileself.
+
+        writepython: True if the current class should be pickled to a fileself.
+        writecsv: True if the current results should be written to a CSV file.
+
+        Note that the python output can be used in ways that the CSV output
+        cannot. For instance, we don't store the "sets" used to build
+        the data in the CSV output.
+        """
+        # We pickle ncpdata to a file
+        # temporarily remove graph, so that isn't pickled
+        if writepython:
+            mygraph = self.graph
+            self.graph = None
+            with open(filename + ".pickle", "wb") as file:
+                pickle.dump(self, file)
+            self.graph = mygraph
+        # dump a CSV file based on the DataFrame
+        if writecsv:
+            self.as_data_frame().to_csv(filename + ".csv")
+
+    @classmethod
+    def from_file(cls, filename: str, g: GraphLocal):
+        with open(filename, "rb") as file:
+            ncp = pickle.load(file)
+        if ncp.do_largest_component:
+            ncp.graph = g.largest_component()
+        else:
+            ncp.graph = g
+        return ncp
 
     def approxPageRank(self,
                        gamma: float = 0.01/0.99,
@@ -565,3 +590,24 @@ class NCPData:
         self.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout,
                 method=func,methodname="mqi")
         return self
+
+    def _fiedler_set(self):
+        if self.fiedler_set is None:
+            self.fiedler_set = spectral_clustering(self.graph, None, method="fiedler")[0]
+        return self.fiedler_set
+
+    def add_fiedler(self):
+        S = self._fiedler_set()
+        # note that we use functools partial here to create a new function
+        # that we name "fiedler" even though the code is just evaluate_set
+        return self.add_set_samples(methodname="fiedler",
+            method=functools.partial(_evaluate_set), nthreads=1, sets=[S])
+
+    def add_fiedler_mqi(self):
+        S = self._fiedler_set()
+        return self.add_set_samples(methodname="fiedler-mqi",
+            method=functools.partial(flow_clustering,method="mqi"), nthreads=1, sets=[S])
+
+    def add_neighborhoods(self, **kwargs):
+        return self.add_random_neighborhood_samples(
+            method=_evaluate_set,methodname="neighborhoods",**kwargs)
