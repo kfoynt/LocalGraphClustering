@@ -34,4 +34,4 @@ def test_ncpplots():
     ncp.l1reg()
     plots = lgc.NCPPlots(ncp, method_name="crd")
     plots = lgc.NCPPlots(ncp, method_name="l1reg")
-    plots = lgc.NCPPlots(ncp, method_name="acl")
+    plots = lgc.NCPPlots(ncp, method_name="ncpapr")

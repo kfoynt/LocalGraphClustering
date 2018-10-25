@@ -90,13 +90,12 @@ class NCPPlots:
               gridsize=50, cmap="magma",  mincnt=1)
         return fig, ax
 
-    def feature_by_group_histogram_and_min_line(self, feature, group,
-                                    nbins=50, nbinsx=100, log=True):
+    def feature_by_group_min_line(self, feature, group, label="", nbins=100, log=True, ax=None):
         ncpdata = self.df
-        fig, ax = self.feature_by_group_histogram(
-            feature, group, nbins=nbins, log=True)
+        if ax is None:
+            fig,ax = plt.subplots()
         dfmin = ncp_min_feature_by_group_binned(ncpdata, feature, group,
-            nbins=nbinsx, log=log).dropna(axis=0)
+            nbins=nbins, log=log).dropna(axis=0)
         y = dfmin[feature]
         x = dfmin[group]
         pos = dfmin["best"]
@@ -104,9 +103,17 @@ class NCPPlots:
         tmp.sort(key = lambda x: x[0])
         x = [i[0] for i in tmp]
         y = [i[1] for i in tmp]
-        ax.plot(x, y)
-        return fig, ax, list(zip(x,y,pos))
+        ax.plot(x, y, label=label)
+        return list(zip(x,y,pos))
 
+    def feature_by_group_histogram_and_min_line(self, feature, group,
+                                    nbins=50, nbinsx=100, log=True):
+        ncpdata = self.df
+        fig, ax = self.feature_by_group_histogram(
+            feature, group, nbins=nbins, log=True)
+        lineprops = self.feature_by_group_min_line(feature, group,
+            nbins=nbinsx, log=log, ax = ax)
+        return fig, ax, lineprops
 
     #plot conductance vs volume
     def cond_by_vol(self, **kwargs):
