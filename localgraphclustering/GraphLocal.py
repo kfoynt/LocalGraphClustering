@@ -227,7 +227,8 @@ class GraphLocal:
         self.ai = itype(self.adjacency_matrix.indptr)
         self.aj = vtype(self.adjacency_matrix.indices)
 
-    def from_networkx(self,G):
+    @classmethod
+    def from_networkx(cls,G):
         """
         Create a GraphLocal object from a networkx graph.
 
@@ -236,15 +237,17 @@ class GraphLocal:
         G
             The networkx graph.
         """
-        G = G.to_undirected()
-        self.adjacency_matrix = nx.adjacency_matrix(G).astype(np.float64)
-        self._num_vertices = nx.number_of_nodes(G)
+        if G.is_directed() == True:
+            raise Exception("from_networkx requires an undirected graph, use G.to_undirected()")
+        rval = cls()
+        rval.adjacency_matrix = nx.adjacency_matrix(G).astype(np.float64)
+        rval._num_vertices = nx.number_of_nodes(G)
 
         # TODO, use this in the read_graph
-        self._weighted = False
-        for i in self.adjacency_matrix.data:
+        rval._weighted = False
+        for i in rval.adjacency_matrix.data:
             if i != 1:
-                self._weighted = True
+                rval._weighted = True
                 break
 
         # automatically determine sizes
@@ -257,11 +260,11 @@ class GraphLocal:
         else:
             itype = np.int64
 
-        self._num_edges = self.adjacency_matrix.nnz
-        self.compute_statistics()
-        self.ai = itype(self.adjacency_matrix.indptr)
-        self.aj = vtype(self.adjacency_matrix.indices)
-        return self
+        rval._num_edges = rval.adjacency_matrix.nnz
+        rval.compute_statistics()
+        rval.ai = itype(rval.adjacency_matrix.indptr)
+        rval.aj = vtype(rval.adjacency_matrix.indices)
+        return rval
 
     def list_to_gl(self,source,target,weights,vtype=np.uint32, itype=np.uint32):
         """
