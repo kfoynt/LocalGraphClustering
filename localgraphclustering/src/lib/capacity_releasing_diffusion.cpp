@@ -7,17 +7,6 @@
 using namespace std;
 
 template<typename vtype, typename itype>
-void reset(unordered_map<vtype,double>& f_v, unordered_map<vtype,double>& ex, 
-    unordered_map<vtype,double>& cond_temp, unordered_map<vtype,vtype>& l, 
-    unordered_map<vtype,vector<vtype>>& labels_temp) {
-    f_v.clear();
-    ex.clear();
-    cond_temp.clear();
-    l.clear();
-    labels_temp.clear();
-}
-
-template<typename vtype, typename itype>
 void map_copy(unordered_map<vtype,double>& cond_best_array, unordered_map<vtype,double>& cond_temp)
 {
     cond_best_array.clear();
