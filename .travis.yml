@@ -34,7 +34,7 @@ jobs:
         - pip install -r requirements.txt
         - bash bin/createGraphLibFile.sh
       script:
-        - cov_call = "coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests"
+        cov_call = "coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests"
     - stage: "test loading and algorithms"
       install: skip
       script:
