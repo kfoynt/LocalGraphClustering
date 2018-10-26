@@ -36,11 +36,7 @@ jobs:
       script:
         # Output something every 10 minutes or Travis kills the job
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest localgraphclustering/tests/test_load.py
-        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest localgraphclustering/tests/test_algs.py
-        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest localgraphclustering/tests/test_crd.py
-        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest localgraphclustering/tests/test_ncp.py
-        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --test-plots localgraphclustering/tests/test_plots.py
+        coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots localgraphclustering/tests/
         # Killing background sleep loop
         - kill %1
         - coverage combine
@@ -50,9 +46,4 @@ jobs:
       script:
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
         - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --long-tests localgraphclustering/tests/test_ncp.py
-        - kill %1
-    - stage: "test notebooks"
-      script:
-        - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests localgraphclustering/tests/test_notebook.py
         - kill %1
