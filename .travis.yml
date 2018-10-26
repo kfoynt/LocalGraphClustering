@@ -28,11 +28,12 @@ python:
 # https://docs.travis-ci.com/user/build-stages/
 jobs:
   include:
-    - stage: "install and setup coverage call"
+    - stage: "install dependencies"
       # command to install dependencies
       install:
         - pip install -r requirements.txt
         - bash bin/createGraphLibFile.sh
+      script: skip
     - stage: "test loading and algorithms"
       install: skip
       script:
