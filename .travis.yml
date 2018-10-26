@@ -67,4 +67,6 @@ jobs:
         - coverage combine
       after_success:
         - aws s3 sync ~/shared s3://travis-build-stages-shared-storage-test/shared
+    - stage: "send report"
+      after_success:
         coveralls
