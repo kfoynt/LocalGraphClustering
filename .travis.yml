@@ -24,18 +24,15 @@ python:
 # see for alternatives to travis wait
 # https://github.com/travis-ci/travis-ci/issues/4190
 
+install:
+  - pip install -r requirements.txt
+  - bash bin/createGraphLibFile.sh
+
 # split tests into stages to avoid 50 mins time limit
 # https://docs.travis-ci.com/user/build-stages/
 jobs:
   include:
-    - stage: "install dependencies"
-      # command to install dependencies
-      install:
-        - pip install -r requirements.txt
-        - bash bin/createGraphLibFile.sh
-      script: skip
     - stage: "test loading and algorithms"
-      install: skip
       script:
         # Output something every 10 minutes or Travis kills the job
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
@@ -50,13 +47,11 @@ jobs:
       after_success:
         coveralls
     - stage: "ncp long tests"
-      install: skip
       script:
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
         - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --long-tests localgraphclustering/tests/test_ncp.py
         - kill %1
     - stage: "test notebooks"
-      install: skip
       script:
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
         - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests localgraphclustering/tests/test_notebook.py
