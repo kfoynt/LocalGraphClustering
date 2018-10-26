@@ -21,6 +21,12 @@ python:
   # - conda env create -n test-environment python=$TRAVIS_PYTHON_VERSION -f environment.yml
   # - source activate test-environment
 
+before_install:
+  # set up awscli packages
+  - pip install --user awscli
+  - mkdir -p ~/shared
+  - aws s3 sync s3://travis-build-stages-shared-storage-test/shared ~/shared
+
 # see for alternatives to travis wait
 # https://github.com/travis-ci/travis-ci/issues/4190
 
@@ -33,34 +39,33 @@ jobs:
       install:
         - pip install -r requirements.txt
         - bash bin/createGraphLibFile.sh
-      script:
-        cov_call = "coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests"
     - stage: "test loading and algorithms"
       install: skip
       script:
         # Output something every 10 minutes or Travis kills the job
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - $cov_call localgraphclustering/tests/test_load.py
-        - $cov_call localgraphclustering/tests/test_algs.py
-        - $cov_call localgraphclustering/tests/test_crd.py
+        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_load.py
+        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_algs.py
+        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_crd.py
         # Killing background sleep loop
         - kill %1
     - stage: "test ncp and plots"
       install: skip
       script:
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - $cov_call localgraphclustering/tests/test_ncp.py
-        - $cov_call localgraphclustering/tests/test_plots.py
+        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_ncp.py
+        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_plots.py
         - kill %1
     - stage: "test notebooks"
       install: skip
       script:
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - $cov_call localgraphclustering/tests/test_notebook.py
+        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_notebook.py
         - kill %1
     - stage: "combine test data"
       install: skip
       script:
         - coverage combine
 after_success:
+  - aws s3 sync ~/shared s3://travis-build-stages-shared-storage-test/shared
   coveralls
