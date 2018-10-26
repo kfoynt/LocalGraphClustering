@@ -33,10 +33,10 @@ install:
 jobs:
   include:
     -stage: "setup coverage call"
-    -script:
+     script:
       - cov_call = "coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests"
     -stage: "test loading and algorithms"
-    -script:
+     script:
       # Output something every 10 minutes or Travis kills the job
       - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
       - $cov_call localgraphclustering/tests/test_load.py
@@ -45,18 +45,18 @@ jobs:
       # Killing background sleep loop
       - kill %1
     -stage: "test ncp and plots"
-    -script:
+     script:
       - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
       - $cov_call localgraphclustering/tests/test_ncp.py
       - $cov_call localgraphclustering/tests/test_plots.py
       - kill %1
     -stage: "test notebooks"
-    -script:
+     script:
       - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
       - $cov_call localgraphclustering/tests/test_notebook.py
       - kill %1
     -stage: "combine test data"
-    -script:
+     script:
       - coverage combine
 after_success:
   coveralls
