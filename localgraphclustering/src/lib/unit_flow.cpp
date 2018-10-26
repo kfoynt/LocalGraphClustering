@@ -14,18 +14,26 @@ bool push(itype* ai, vtype* aj, unordered_map<vtype,double>& f,
 	unordered_map<vtype,double>& ex, vtype U, vtype n, vtype w)
 {
 	bool pushed = false;
-	vtype idx,same_dir;
+	vtype idx;
+	int same_dir;
 	if (v < u){
 		idx = v*n - v*(v+1)/2 + (n-1-(n-u))-v;
 		same_dir = 1;
 	}
 	else {
-		idx = u*n - v*(v+1)/2 + (n-1-(n-u))-v;
+		idx = u*n - u*(u+1)/2 + (n-1-(n-v))-u;
 		same_dir = -1;
 	}
 	if (f.count(idx) == 0) {
 		f[idx] = 0;
 	}
+	/*
+	if (1) {
+		cout << "f is: ";
+		print_map<vtype,double>(f);
+		cout << "idx: " << idx << endl;
+	}
+	*/
 	double r = min(l[v],U) - same_dir*f[idx];
 	if ((r > 0) && (l[v] > l[u])) {
 		if (f_v.count(u) == 0) {
@@ -35,6 +43,7 @@ bool push(itype* ai, vtype* aj, unordered_map<vtype,double>& f,
 		double tmp[] = {ex[v],r,w*degree_val-f_v[u]};
 		double psi = *min_element(tmp,tmp+3);
 		f[idx] += same_dir*psi;
+		//cout << "psi: " << psi << " f[idx]: " << f[idx] << " same_dir: " << same_dir << endl;
 		f_v[v] -= psi;
 		f_v[u] += psi;
 		pushed = true;
@@ -137,13 +146,36 @@ void graph<vtype,itype>::unit_flow(unordered_map<vtype,double>& Delta,
 			current_v[iter->first] = 0;
 		}
 	}
+	int which_iter = 0;
 	while (Q.size() > 0) {
+		//cout << "iter: " << which_iter << " " << Q.size() << endl;
+		
 		//cout << "Q size: " << Q.size() << endl;
 		vtype v = (Q.top()).second;
 		tuple<bool,bool,vtype> tmp_result = push_relabel<vtype,itype>(ai,aj,f,f_v,U,v,
 			current_v,ex,l,n,w);
 		vtype u = get<2>(tmp_result);
 		//cout << get<0>(tmp_result) << " " << get<1>(tmp_result) << " " << get<2>(tmp_result) << endl;
+		/*
+		if (which_iter <= 154) {
+		    print_map<vtype,vtype>(l);
+		    print_map<vtype,double>(f_v);
+		    print_map<vtype,double>(ex);
+		    priority_queue<pair<vtype,vtype>,vector<pair<vtype,vtype>>,my_cmp<vtype,itype>> Q1;
+	        Q1 = priority_queue<pair<vtype,vtype>,vector<pair<vtype,vtype>>,my_cmp<vtype,itype>> ();
+		    cout << "v: " << v << " u: " << u << endl;
+		    int qsize = Q.size();
+		    for (int i = 0; i < qsize; i ++) {
+		    	pair<vtype,vtype> tmp = Q.top();
+		    	cout << "(" << tmp.first << "," << tmp.second << "),";
+		    	Q.pop();
+		    	Q1.push(tmp);
+		    }
+		    cout << endl;
+		    Q = Q1;
+		    cout << Q.size() << endl;
+		}
+		*/
 		if (get<0>(tmp_result)) {
 			update_excess<vtype,itype>(ai,aj,f_v,u,ex);
 			update_excess<vtype,itype>(ai,aj,f_v,v,ex);
@@ -162,6 +194,7 @@ void graph<vtype,itype>::unit_flow(unordered_map<vtype,double>& Delta,
 				remove_from_Q<vtype,itype>(Q);
 			}
 		}
+		which_iter ++;
 	}
 }
 

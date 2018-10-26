@@ -9,6 +9,9 @@ def lgc_data(name):
     elif name=="Erdos02":
         return lgc.GraphLocal(os.path.join(
                 lgc_path, "datasets", "Erdos02-cc.edgelist"), 'edgelist',  ' ')
+    elif name=="dolphins":
+        return lgc.GraphLocal(os.path.join(
+                lgc_path, "datasets", "dolphins.smat"), 'edgelist',  ' ')
     elif name=="JohnsHopkins":
         return lgc.GraphLocal(os.path.join(
                 lgc_path, "datasets", "JohnsHopkins.edgelist"), 'edgelist',  '\t')
@@ -41,9 +44,12 @@ def lgc_data(name):
     elif name=="ca-GrQc":
         return lgc.GraphLocal(os.path.join(
                 lgc_path, "datasets", "ca-GrQc-cc.csv"), 'edgelist', ' ', header=True)
+    elif name=="disconnected":
+        return lgc.GraphLocal(os.path.join(
+                lgc_path, "datasets", "disconnected.smat"), 'edgelist',  ' ')
     else:
         raise Exception("Unknown graph name")
 
 lgc_graphlist = ["senate", "Erdos02", "JohnsHopkins", "Colgate88",
     "usroads", "ppi_mips", "ASTRAL", "sfld", "find_V", "ppi-homo",
-    "neuro-fmri-01", "ca-GrQc"]
+    "neuro-fmri-01", "ca-GrQc","dolphins","disconnected"]
