@@ -1,10 +1,6 @@
 language: python
 python:
   - "3.6"
-# command to install dependencies
-install:
-  - pip install -r requirements.txt
-  - bash bin/createGraphLibFile.sh
   # - pip install .
   # - sudo apt-get update
   # # We do this conditionally because it saves us some downloading if the
@@ -32,31 +28,39 @@ install:
 # https://docs.travis-ci.com/user/build-stages/
 jobs:
   include:
-    -stage: "setup coverage call"
-     script:
-      - cov_call = "coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests"
-    -stage: "test loading and algorithms"
-     script:
-      # Output something every 10 minutes or Travis kills the job
-      - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-      - $cov_call localgraphclustering/tests/test_load.py
-      - $cov_call localgraphclustering/tests/test_algs.py
-      - $cov_call localgraphclustering/tests/test_crd.py
-      # Killing background sleep loop
-      - kill %1
-    -stage: "test ncp and plots"
-     script:
-      - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-      - $cov_call localgraphclustering/tests/test_ncp.py
-      - $cov_call localgraphclustering/tests/test_plots.py
-      - kill %1
-    -stage: "test notebooks"
-     script:
-      - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-      - $cov_call localgraphclustering/tests/test_notebook.py
-      - kill %1
-    -stage: "combine test data"
-     script:
-      - coverage combine
+    - stage: "install and setup coverage call"
+      # command to install dependencies
+      install:
+        - pip install -r requirements.txt
+        - bash bin/createGraphLibFile.sh
+      script:
+        - cov_call = "coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests"
+    - stage: "test loading and algorithms"
+      install: skip
+      script:
+        # Output something every 10 minutes or Travis kills the job
+        - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
+        - $cov_call localgraphclustering/tests/test_load.py
+        - $cov_call localgraphclustering/tests/test_algs.py
+        - $cov_call localgraphclustering/tests/test_crd.py
+        # Killing background sleep loop
+        - kill %1
+    - stage: "test ncp and plots"
+      install: skip
+      script:
+        - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
+        - $cov_call localgraphclustering/tests/test_ncp.py
+        - $cov_call localgraphclustering/tests/test_plots.py
+        - kill %1
+    - stage: "test notebooks"
+      install: skip
+      script:
+        - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
+        - $cov_call localgraphclustering/tests/test_notebook.py
+        - kill %1
+    - stage: "combine test data"
+      install: skip
+      script:
+        - coverage combine
 after_success:
   coveralls
