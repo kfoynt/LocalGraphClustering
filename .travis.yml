@@ -32,7 +32,7 @@ jobs:
       # command to install dependencies
       before_install:
       # set up awscli packages
-        - pip install --user awscli
+        - pip install awscli
         - mkdir -p ~/shared
         - aws s3 sync s3://travis-build-stages-shared-storage-test/shared ~/shared
       install:
