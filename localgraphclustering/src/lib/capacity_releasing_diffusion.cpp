@@ -6,15 +6,6 @@
 
 using namespace std;
 
-template<typename vtype, typename itype>
-void map_copy(unordered_map<vtype,double>& cond_best_array, unordered_map<vtype,double>& cond_temp)
-{
-    cond_best_array.clear();
-    for (auto iter = cond_temp.begin(); iter != cond_temp.end(); ++iter) {
-        cond_best_array[iter->first] = iter->second;
-    }
-}
-
 /*sparse matrix vector product*/
 template<typename vtype, typename itype>
 void mat_vec_dot(itype* ai, vtype* aj, vtype n, unordered_map<vtype,double>& vec, 
@@ -70,7 +61,7 @@ void vec_vec_add(unordered_map<vtype,double>& vec1, unordered_map<vtype,double>&
     }
 }
 
-
+/*
 template<typename T1, typename T2>
 void print_map(unordered_map<T1,T2>& m)
 {
@@ -84,8 +75,21 @@ void print_map(unordered_map<T1,T2>& m)
     }
     cout << endl;
 }
+*/
 
-
+/*Find the key of the minimum value in map*/
+template<typename T1, typename T2>
+T1 min_map_key(unordered_map<T1,T2>& m) {
+    T1 idx = 0;
+    T2 value = -1;
+    for (auto iter = m.begin(); iter != m.end(); ++iter) {
+        if (iter->second < value || value < 0 || (iter->second == value && iter->first > value)) {    
+            value = iter->second;
+            idx = iter->first;
+        }
+    }
+    return idx;
+}
 
 template<typename vtype, typename itype>
 vtype graph<vtype,itype>::capacity_releasing_diffusion(vector<vtype>& ref_node,
@@ -118,19 +122,12 @@ vtype graph<vtype,itype>::capacity_releasing_diffusion(vector<vtype>& ref_node,
         //print_map<vtype,double>(ex);
         round_unit_flow(l,cond_temp,labels_temp);
 
-        vtype idx;
-        double value = -1;
-        for (auto iter = cond_temp.begin(); iter != cond_temp.end(); ++iter) {
-            if (iter->second < value || value < 0) {
-                value = iter->second;
-                idx = iter->first;
-            }
-            //cout << iter->first << " " << iter->second << endl;
-        }
-        //cout << cond_temp.size() << " " << cond_best << " " << idx << endl;
+        vtype idx = min_map_key<vtype,double>(cond_temp);
+        /*check if a new cut is found with smaller conductance*/
         if (cond_temp[idx] < cond_best) {
             cond_best = cond_temp[idx];
-            map_copy<vtype,itype>(cond_best_array, cond_temp);
+            cond_best_array.clear();
+            cond_best_array = cond_temp;
             labels = labels_temp;
         }
         double total_excess = 0;
@@ -143,9 +140,11 @@ vtype graph<vtype,itype>::capacity_releasing_diffusion(vector<vtype>& ref_node,
         }
         double degree_val = get_degree_unweighted(ref_node[0]);
         if (total_excess > (degree_val*pow(2,i)*1.0/10)) {
-            //cout << "Too much excess." << endl;
-            //cout << "iteration:" << i << endl;
-            //cout << "total_excess: " << total_excess << endl;
+            /*
+            Means that push/relabel cannot push the excess flow out of the nodes.
+            This might indicate that a cluster has been found. In this case the best
+            cluster in terms of conductance is returned.
+            */
             break;
         }
         double sum_ = 0;
@@ -156,33 +155,19 @@ vtype graph<vtype,itype>::capacity_releasing_diffusion(vector<vtype>& ref_node,
             }
         }
         if (sum_ > volume/3) {
-            // cout << "Too much flow." << endl;
-            // cout << "iteration:" << endl;
-            //cout << i << endl;
+            /*
+            Means that the algorithm has touched about a third of the whole given graph.
+            The algorithm is terminated in this case and the best cluster in terms of 
+            conductance is returned. 
+            */
             break;
         }
     }
     vtype length = 0;
-    vtype idx = 0;
-    double value = -1;
-    vector<vtype> keys;
-    //cout << idx << endl;
-    //cout << value << endl;
-    //cout << cond_best_array[0] << " " << cond_best_array[1] << endl;
+    vtype idx = min_map_key<vtype,double>(cond_best_array);
     for (auto iter = cond_best_array.begin(); iter != cond_best_array.end(); ++iter) {
-        if (iter->second < value || value < 0) {    
-            value = iter->second;
-            idx = iter->first;
-        }
-        keys.push_back(iter->first);
-    }
-    //cout << idx << endl;
-    //cout << value << endl;
-    //cout << cond_best_array.size() << " " << idx << endl;
-    //sort(keys.begin(),keys.end(),greater<vtype>());
-    for (auto iter = keys.begin(); iter != keys.end(); ++iter) {
-        if (*iter >= idx) {
-            for (auto iter1 = labels[*iter].begin(); iter1 != labels[*iter].end(); ++iter1) {
+        if (iter->first >= idx) {
+            for (auto iter1 = labels[iter->first].begin(); iter1 != labels[iter->first].end(); ++iter1) {
                 cut[length++] = *iter1;
             }
         }
@@ -190,7 +175,11 @@ vtype graph<vtype,itype>::capacity_releasing_diffusion(vector<vtype>& ref_node,
     return length;
 }
 
-
+/*This function find different cuts based on labels,
+  after storing all possible labels into key and sort them, 
+  build first cut using nodes with labels from key[0]~key[0], 
+  second cut using nodes with labels from key[0]~key[1],
+  third cut using nodes with labels from key[0]~key[2] etc.*/
 template<typename vtype, typename itype>
 void graph<vtype,itype>::round_unit_flow(unordered_map<vtype,vtype>& l,
     unordered_map<vtype,double>& cond,unordered_map<vtype,vector<vtype>>& labels)
@@ -204,6 +193,7 @@ void graph<vtype,itype>::round_unit_flow(unordered_map<vtype,vtype>& l,
             labels[iter->second].push_back(iter->first);
         }
     }
+    /*extract all possible labels in order to sort them*/
     for (auto iter = labels.begin(); iter != labels.end(); ++iter) {
         keys.push_back(iter->first);
     }
@@ -211,6 +201,8 @@ void graph<vtype,itype>::round_unit_flow(unordered_map<vtype,vtype>& l,
     unordered_map<vtype,double> cut,vol,temp_prev,A_temp_prev,temp_new,result;
     double vol_sum = 0;
     double quad_prev = 0;
+    /*sort keys and then build cuts such that first cut has nodes with labels from key[0]~key[0], 
+    second cut has nodes from key[0]~key[1] etc.*/
     sort(keys.begin(),keys.end(),greater<vtype>());
     for (auto iter = keys.begin(); iter != keys.end(); ++iter) {
         temp_new.clear();
@@ -244,14 +236,11 @@ void graph<vtype,itype>::round_unit_flow(unordered_map<vtype,vtype>& l,
         vtype i = iter->first;
         double _a = vol[i];
         double _b = (volume - _a);
-        //cout << "i: " << i << " " << "a: " << _a << " " << "b: " << _b << endl;
         double demominator = _a < _b ? _a : _b;
         if (demominator == 0) {
            continue;
         }
         cond[i] = (iter->second)/demominator;
-        //cout << "iter->second: " << iter->second << endl;
-        //cout << cond[i] << endl;
     }
 }
 

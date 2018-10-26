@@ -122,7 +122,7 @@ void shift_from_Q(vtype v, unordered_map<vtype,vtype>& l,
 	Q.push(make_pair(l[v],v));
 }
 
-
+/*This is the implementation of crd inner process*/
 template<typename vtype, typename itype>
 void graph<vtype,itype>::unit_flow(unordered_map<vtype,double>& Delta, 
 	vtype U, vtype h, vtype w, unordered_map<vtype,double>& f_v, 
@@ -146,16 +146,13 @@ void graph<vtype,itype>::unit_flow(unordered_map<vtype,double>& Delta,
 			current_v[iter->first] = 0;
 		}
 	}
-	int which_iter = 0;
 	while (Q.size() > 0) {
 		//cout << "iter: " << which_iter << " " << Q.size() << endl;
 		
-		//cout << "Q size: " << Q.size() << endl;
 		vtype v = (Q.top()).second;
 		tuple<bool,bool,vtype> tmp_result = push_relabel<vtype,itype>(ai,aj,f,f_v,U,v,
 			current_v,ex,l,n,w);
 		vtype u = get<2>(tmp_result);
-		//cout << get<0>(tmp_result) << " " << get<1>(tmp_result) << " " << get<2>(tmp_result) << endl;
 		/*
 		if (which_iter <= 154) {
 		    print_map<vtype,vtype>(l);
@@ -176,6 +173,7 @@ void graph<vtype,itype>::unit_flow(unordered_map<vtype,double>& Delta,
 		    cout << Q.size() << endl;
 		}
 		*/
+		/*if pushed*/
 		if (get<0>(tmp_result)) {
 			update_excess<vtype,itype>(ai,aj,f_v,u,ex);
 			update_excess<vtype,itype>(ai,aj,f_v,v,ex);
@@ -186,15 +184,17 @@ void graph<vtype,itype>::unit_flow(unordered_map<vtype,double>& Delta,
 				add_in_Q<vtype,itype>(u,l,Q,current_v);
 			}
 		}
+		/*if relabelled*/
 		if (get<1>(tmp_result)) {
 			if (l[v] < h) {
+				/*since the label has been changed, we need to remove and reinsert to maintain priority queue*/
 				shift_from_Q<vtype,itype>(v,l,Q);
 			}
 			else {
+				/*new label is larger than threshold, just remove it*/
 				remove_from_Q<vtype,itype>(Q);
 			}
 		}
-		which_iter ++;
 	}
 }
 

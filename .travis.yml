@@ -36,7 +36,7 @@ jobs:
       script:
         # Output something every 10 minutes or Travis kills the job
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots localgraphclustering/tests/
+        - coverage run --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots localgraphclustering/tests/
         # Killing background sleep loop
         - kill %1
         - coverage combine
@@ -45,5 +45,5 @@ jobs:
     - stage: "ncp long tests"
       script:
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --long-tests localgraphclustering/tests/test_ncp.py
+        - pytest --long-tests localgraphclustering/tests/test_ncp.py
         - kill %1

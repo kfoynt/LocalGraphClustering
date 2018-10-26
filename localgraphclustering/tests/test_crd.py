@@ -64,7 +64,7 @@ def test_crd():
                                      (100, 0.2867132867132867),
                                      (86, 0.20980533525594808),
                                      (150, 0.15830985915492957),
-                                     (0, 1),
+                                     (1, 1),
                                      (283, 0.13108108108108107),
                                      (175, 0.22342938119981107),
                                      (1035, 0.06297744053549986),
@@ -107,11 +107,11 @@ def test_crd():
         nodes = random.sample(range(n),min(n,nsamples))
         results = []
         for i in nodes:
-            print(i)
             R = [i]
             R.extend(g.neighbors(i))
             S = lgc.flow_clustering(g,R,method="crd", U = 3,h = 10, w = 2)
             results.append((len(S[0]),g.set_scores(S[0])['cond']))
+        print(results)
         correct_result = correct_output[key]
         for i in range(len(nodes)):
             assert(results[i][0] == correct_result[i][0])
