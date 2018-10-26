@@ -21,12 +21,6 @@ python:
   # - conda env create -n test-environment python=$TRAVIS_PYTHON_VERSION -f environment.yml
   # - source activate test-environment
 
-before_install:
-  # set up awscli packages
-  - pip install --user awscli
-  - mkdir -p ~/shared
-  - aws s3 sync s3://travis-build-stages-shared-storage-test/shared ~/shared
-
 # see for alternatives to travis wait
 # https://github.com/travis-ci/travis-ci/issues/4190
 
@@ -36,6 +30,11 @@ jobs:
   include:
     - stage: "install and setup coverage call"
       # command to install dependencies
+      before_install:
+      # set up awscli packages
+        - pip install --user awscli
+        - mkdir -p ~/shared
+        - aws s3 sync s3://travis-build-stages-shared-storage-test/shared ~/shared
       install:
         - pip install -r requirements.txt
         - bash bin/createGraphLibFile.sh
@@ -66,6 +65,6 @@ jobs:
       install: skip
       script:
         - coverage combine
-after_success:
-  - aws s3 sync ~/shared s3://travis-build-stages-shared-storage-test/shared
-  coveralls
+      after_success:
+        - aws s3 sync ~/shared s3://travis-build-stages-shared-storage-test/shared
+        coveralls
