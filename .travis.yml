@@ -39,7 +39,6 @@ jobs:
         - coverage run --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots localgraphclustering/tests/
         # Killing background sleep loop
         - kill %1
-        - coverage combine
       after_success:
         coveralls
     - stage: "ncp long tests"
