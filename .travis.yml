@@ -27,11 +27,36 @@ install:
 
 # see for alternatives to travis wait
 # https://github.com/travis-ci/travis-ci/issues/4190
-script:
-  # Output something every 10 minutes or Travis kills the job
-  - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-  - coverage run --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest localgraphclustering/tests/ --notebook-tests --test-plots --long-tests
-  # Killing background sleep loop
-  - kill %1
+
+# split tests into stages to avoid 50 mins time limit
+# https://docs.travis-ci.com/user/build-stages/
+jobs:
+  include:
+    -stage: "setup coverage call"
+    -script:
+      - cov_call = "coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests"
+    -stage: "test loading and algorithms"
+    -script:
+      # Output something every 10 minutes or Travis kills the job
+      - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
+      - $cov_call localgraphclustering/tests/test_load.py
+      - $cov_call localgraphclustering/tests/test_algs.py
+      - $cov_call localgraphclustering/tests/test_crd.py
+      # Killing background sleep loop
+      - kill %1
+    -stage: "test ncp and plots"
+    -script:
+      - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
+      - $cov_call localgraphclustering/tests/test_ncp.py
+      - $cov_call localgraphclustering/tests/test_plots.py
+      - kill %1
+    -stage: "test notebooks"
+    -script:
+      - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
+      - $cov_call localgraphclustering/tests/test_notebook.py
+      - kill %1
+    -stage: "combine test data"
+    -script:
+      - coverage combine
 after_success:
   coveralls
