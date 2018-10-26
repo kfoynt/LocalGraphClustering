@@ -30,11 +30,6 @@ jobs:
   include:
     - stage: "install and setup coverage call"
       # command to install dependencies
-      before_install:
-      # set up awscli packages
-        - pip install awscli
-        - mkdir -p ~/shared
-        - aws s3 sync s3://travis-build-stages-shared-storage-test/shared ~/shared
       install:
         - pip install -r requirements.txt
         - bash bin/createGraphLibFile.sh
@@ -43,30 +38,25 @@ jobs:
       script:
         # Output something every 10 minutes or Travis kills the job
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_load.py
-        - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_algs.py
-        - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_crd.py
+        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest localgraphclustering/tests/test_load.py
+        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest localgraphclustering/tests/test_algs.py
+        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest localgraphclustering/tests/test_crd.py
+        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest localgraphclustering/tests/test_ncp.py
+        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --test-plots localgraphclustering/tests/test_plots.py
         # Killing background sleep loop
         - kill %1
-    - stage: "test ncp and plots"
+        - coverage combine
+      after_success:
+        coveralls
+    - stage: "ncp long tests"
       install: skip
       script:
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_ncp.py
-        - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_plots.py
+        - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --long-tests localgraphclustering/tests/test_ncp.py
         - kill %1
     - stage: "test notebooks"
       install: skip
       script:
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_notebook.py
+        - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests localgraphclustering/tests/test_notebook.py
         - kill %1
-    - stage: "combine test data"
-      install: skip
-      script:
-        - coverage combine
-      after_success:
-        - aws s3 sync ~/shared s3://travis-build-stages-shared-storage-test/shared
-    - stage: "send report"
-      after_success:
-        coveralls
