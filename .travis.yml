@@ -44,23 +44,23 @@ jobs:
       script:
         # Output something every 10 minutes or Travis kills the job
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_load.py
-        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_algs.py
-        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_crd.py
+        - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_load.py
+        - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_algs.py
+        - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_crd.py
         # Killing background sleep loop
         - kill %1
     - stage: "test ncp and plots"
       install: skip
       script:
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_ncp.py
-        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_plots.py
+        - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_ncp.py
+        - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_plots.py
         - kill %1
     - stage: "test notebooks"
       install: skip
       script:
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - coverage run -p --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_notebook.py
+        - coverage run -a --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --test-plots --long-tests localgraphclustering/tests/test_notebook.py
         - kill %1
     - stage: "combine test data"
       install: skip
