@@ -44,5 +44,5 @@ jobs:
     - stage: "ncp long tests"
       script:
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - pytest --long-tests localgraphclustering/tests/test_ncp.py
+        - coverage run --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --long-tests localgraphclustering/tests/test_ncp.py
         - kill %1
