@@ -113,7 +113,7 @@ def test_apr_deep():
 @pytest.mark.long_tests
 def test_ncp_crd_big():
     G = lgc.GraphLocal()
-    G.read_graph("notebooks/datasets/minnesota.edgelist","edgelist", "\t", header=False)
+    G.read_graph("notebooks/datasets/minnesota.edgelist","edgelist", remove_whitespace=True)
     ncp_instance = lgc.NCPData(G)
     df = ncp_instance.crd(ratio=0.5,w=10,U=10,h=1000,nthreads=4)
     ncp_plots = lgc.ncpplots.NCPPlots(df)
