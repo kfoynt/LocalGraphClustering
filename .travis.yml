@@ -32,11 +32,6 @@ install:
 # https://docs.travis-ci.com/user/build-stages/
 jobs:
   include:
-    - stage: "deep tests on algorithms"
-      script:
-        - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - python -m pytest --deep-tests localgraphclustering/tests/test_ncp.py
-        - kill %1
     - stage: "test loading and algorithms"
       script:
         # Output something every 10 minutes or Travis kills the job
@@ -46,3 +41,8 @@ jobs:
         - kill %1
       after_success:
         coveralls
+    - stage: "deep tests on algorithms"
+      script:
+        - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
+        - python -m pytest --deep-tests localgraphclustering/tests/test_methods_deep.py
+        - kill %1
