@@ -488,7 +488,7 @@ def test_spectral_deep():
         for method in ["acl","l1reg"]:    
             for i in nodes:
                 R = [i]
-                S = lgc.flow_clustering(g,R,method=method)
+                S = lgc.spectral_clustering(g,R,method=method)
                 results[method].append((len(S[0]),g.set_scores(S[0])['cond']))
         print(results)
         correct_result = correct_output[key]
