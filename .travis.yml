@@ -1,10 +1,6 @@
 language: python
 python:
   - "3.6"
-# command to install dependencies
-install:
-  - pip install -r requirements.txt
-  - bash bin/createGraphLibFile.sh
   # - pip install .
   # - sudo apt-get update
   # # We do this conditionally because it saves us some downloading if the
@@ -27,11 +23,26 @@ install:
 
 # see for alternatives to travis wait
 # https://github.com/travis-ci/travis-ci/issues/4190
-script:
-  # Output something every 10 minutes or Travis kills the job
-  - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-  - coverage run --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest localgraphclustering/tests/ --notebook-tests --test-plots --long-tests
-  # Killing background sleep loop
-  - kill %1
-after_success:
-  coveralls
+
+install:
+  - pip install -r requirements.txt
+  - bash bin/createGraphLibFile.sh
+
+# split tests into stages to avoid 50 mins time limit
+# https://docs.travis-ci.com/user/build-stages/
+jobs:
+  include:
+    - stage: "test loading and algorithms"
+      script:
+        # Output something every 10 minutes or Travis kills the job
+        - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
+        - coverage run --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --long-tests --test-plots localgraphclustering/tests/
+        # Killing background sleep loop
+        - kill %1
+      after_success:
+        coveralls
+    - stage: "deep tests on algorithms"
+      script:
+        - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
+        - python -m pytest --deep-tests localgraphclustering/tests/test_methods_deep.py
+        - kill %1

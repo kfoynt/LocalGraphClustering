@@ -3,7 +3,7 @@ import scipy as sp
 import scipy.sparse.linalg as splinalg
 
 
-def eig2_nL(g, tol_eigs = 1.0e-6, normalize:bool = True):
+def eig2_nL(g, tol_eigs = 1.0e-6, normalize:bool = True, dim:int=1):
     """
        DESCRIPTION
        -----------
@@ -19,17 +19,27 @@ def eig2_nL(g, tol_eigs = 1.0e-6, normalize:bool = True):
        PARAMETERS (optional)
        ---------------------
 
+       dim: positive, int
+            default == 1
+            The number of eigenvectors or dimensions to compute.
+
        tol_eigs: positive float, double
                  default == 1.0e-6
                  Tolerance for computation of the eigenvector that corresponds to
                  the second smallest eigenvalue of the normalized Laplacian matrix.
 
+       normalize: bool,
+                  default == True
+                  True if we should return the eigenvectors of the generalized
+                  eigenvalue problem associated with the normalized Laplacian.
+                  This should be on unless you know what you are doing.
+
        RETURNS
        ------
 
-       p:    csr_matrix, float
-             Eigenvector that corresponds to the second smallest eigenvalue of the
-             normalized Laplacian matrix.
+       p:    Eigenvector or Eigenvector matrixthat
+             corresponds to the second smallest eigenvalue of the
+             normalized Laplacian matrix and larger eigenvectors if dim >= 0.
     """
 
     n = g.adjacency_matrix.shape[0]
@@ -38,12 +48,14 @@ def eig2_nL(g, tol_eigs = 1.0e-6, normalize:bool = True):
 
     L = sp.sparse.identity(n) - D_sqrt_neg.dot((g.adjacency_matrix.dot(D_sqrt_neg)))
 
-    emb_eig_val, p = splinalg.eigsh(L, which='SM', k=2, tol = tol_eigs)
+    emb_eig_val, p = splinalg.eigsh(L, which='SM', k=1+dim, tol = tol_eigs)
 
-    f = np.real(p[:,1])
+    F = np.real(p[:,1:])
     if normalize:
-        f *= g.dn_sqrt
-    return f, emb_eig_val
+        F *= g.dn_sqrt[:,np.newaxis]
+    return F, emb_eig_val
+
+
 
 """
 Random walks and local cuts in graphs, Chung, LAA 2007

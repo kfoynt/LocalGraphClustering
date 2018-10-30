@@ -3,13 +3,13 @@ import numpy as np
 import pandas as pd
 
 import time
-from collections import namedtuple
 import threading
 import math
 import warnings
 import copy
 import multiprocessing as mp
 import functools
+import pickle
 
 from .spectral_clustering import spectral_clustering
 from .flow_clustering import flow_clustering
@@ -62,8 +62,11 @@ def _partial_functions_equal(func1, func2):
     return are_equal
 
 """ This is helpful for some of the NCP studies to return the set we are given. """
-def _second(x,y):
-    return y, None
+def _evaluate_set(G,N):
+    if 0 < len(N) < G._num_vertices:
+        return N, None
+    else:
+        return [], None
 
 def ncp_experiment(ncpdata,R,func,method_stats):
     if ncpdata.input_stats:
@@ -86,7 +89,7 @@ def ncp_experiment(ncpdata,R,func,method_stats):
 
         method_stats['methodfunc']  = func
         method_stats['time'] = dt
-        return [ncpdata.record(**input_stats, **output_stats, **method_stats)._asdict()]
+        return [dict(**input_stats, **output_stats, **method_stats)]
     else:
         return [] # nothing to return
 
@@ -108,6 +111,10 @@ def _ncp_worker_setup(ncpdata):
 def _ncp_worker_init(svardata):
     workvars["ncpdata"] = svardata["ncpdata"]
     workvars["ncpdata"].graph = GraphLocal.from_shared(svardata["g"])
+
+def _ncp_localworker_init(ncpdata):
+    # no need to set the graph as we haven't cleared it from the local one
+    workvars["ncpdata"] = ncpdata
 
 def _ncp_node_worker(workid, setids,func,timeout):
     return ncp_worker(workid, "node", workvars["ncpdata"], setids, func, timeout)
@@ -155,7 +162,8 @@ class NCPData:
         else:
             self.graph = graph
 
-        # Todo - have "largest_component" return a graph for the largest component
+        # We need to save this for the pickle input/output
+        self.do_largest_component = do_largest_component
         self.input_stats = input_stats
         self.set_funcs = setfuncs
         self.nruns = 0
@@ -167,8 +175,9 @@ class NCPData:
             result_fields = ["input_" + field for field in standard_fields.keys()]
         result_fields.extend(["output_" + str(field) for field in standard_fields.keys()])
         result_fields.extend(["methodfunc", "input_set_type", "input_set_params", "time"])
-        self.record = namedtuple("NCPDataRecord", field_names=result_fields)
+        self.result_fields = result_fields
         self.neighborhood_cond = None
+        self.fiedler_set = None
         self.reset_records()
         self.default_method = None
         self.method_names = {} # This stores human readable and usable names for methods
@@ -259,6 +268,7 @@ class NCPData:
             raise(ValueError("the input_set_type is unrecognized"))
 
     def output_set(self, j):
+        assert(self.graph is not None)
         result = self.results[j] # todo check for validity
         func = result["methodfunc"]
         R = self.input_set(j)
@@ -285,24 +295,36 @@ class NCPData:
         return method
 
     def _run_samples(self, target, list_of_sets, method, timeout, nprocs):
-        # TODO, figure out how we can avoid doing this everytime...
-        svardata = _ncp_worker_setup(self)
-        ntotalruns = sum(len(run) for run in list_of_sets)
-        with mp.Pool(processes=nprocs, initializer=_ncp_worker_init, initargs=(svardata,)) as pool:
-            rvals = pool.starmap(target,
-                [ (workid, setids, method, timeout) for (workid, setids) in enumerate(list_of_sets) ])
-            nruns = sum(len(rval) for rval in rvals)
-            assert nruns <= ntotalruns, "expected up to %i ntotalruns but got %i runs"%(ntotalruns, nruns)
-            for rval in rvals:
-                for r in rval:
-                    # make sure that we replace with our actual methods
-                    # at the moment, this should always be true.
-                    # this is here in case the assert fails so we can debug
-                    # https://stackoverflow.com/questions/32786078/how-to-compare-wrapped-functions-with-functools-partial
-                    assert r["methodfunc"]==method or _partial_functions_equal(r["methodfunc"], method)
-                    r["methodfunc"] = method
+        if nprocs == 1:
+            # we special case nprocs = 1 so that we can get coverage
+            # of the code in our report.
+            _ncp_localworker_init(self)
+            ntotalruns = sum(len(run) for run in list_of_sets)
+            nruns = 0
+            for (workid, setids) in enumerate(list_of_sets):
+                rval = target(workid, setids, method, timeout)
+                nruns += len(rval)
+                assert nruns <= ntotalruns, "expected up to %i ntotalruns but got %i runs"%(ntotalruns, nruns)
                 self.results.extend(rval)
-            pool.close()
+        else:
+            # TODO, figure out how we can avoid doing this everytime...
+            svardata = _ncp_worker_setup(self)
+            ntotalruns = sum(len(run) for run in list_of_sets)
+            with mp.Pool(processes=nprocs, initializer=_ncp_worker_init, initargs=(svardata,)) as pool:
+                rvals = pool.starmap(target,
+                    [ (workid, setids, method, timeout) for (workid, setids) in enumerate(list_of_sets) ])
+                nruns = sum(len(rval) for rval in rvals)
+                assert nruns <= ntotalruns, "expected up to %i ntotalruns but got %i runs"%(ntotalruns, nruns)
+                for rval in rvals:
+                    for r in rval:
+                        # make sure that we replace with our actual methods
+                        # at the moment, this should always be true.
+                        # this is here in case the assert fails so we can debug
+                        # https://stackoverflow.com/questions/32786078/how-to-compare-wrapped-functions-with-functools-partial
+                        assert r["methodfunc"]==method or _partial_functions_equal(r["methodfunc"], method)
+                        r["methodfunc"] = method
+                    self.results.extend(rval)
+                pool.close()
 
     def add_random_node_samples(self, ratio=0.3, timeout=1000, nthreads=4, method=None, methodname=None):
         method = self._check_method(method, methodname)
@@ -363,20 +385,44 @@ class NCPData:
         self._run_samples(_ncp_set_worker, setnos, method, timeout, nthreads)
 
     def as_data_frame(self):
-        """
-        DF = pd.DataFrame.from_records([], columns=self.record._fields)
-        for methodname in self.results.keys():
-            df = pd.DataFrame.from_records(self.results[methodname], columns=self.record._fields)
-            df.rename(columns={'method':'methodfunc'}, inplace=True)
-            df["method"] = methodname
-            DF = DF.append(df,ignore_index=True)
-        return DF
-        """
-        df = pd.DataFrame.from_records(self.results, columns=self.record._fields)
+        """ Return the NCP results as a pandas dataframe """
+        df = pd.DataFrame.from_records(self.results, columns=self.result_fields)
         # convert to human readable names
         df["method"] = df["methodfunc"].map(self.method_names)
 
         return df
+
+    def write(self, filename: str, writepython: bool = True, writecsv: bool = True):
+        """ Write the NCP data to a fileself.
+
+        writepython: True if the current class should be pickled to a fileself.
+        writecsv: True if the current results should be written to a CSV file.
+
+        Note that the python output can be used in ways that the CSV output
+        cannot. For instance, we don't store the "sets" used to build
+        the data in the CSV output.
+        """
+        # We pickle ncpdata to a file
+        # temporarily remove graph, so that isn't pickled
+        if writepython:
+            mygraph = self.graph
+            self.graph = None
+            with open(filename + ".pickle", "wb") as file:
+                pickle.dump(self, file)
+            self.graph = mygraph
+        # dump a CSV file based on the DataFrame
+        if writecsv:
+            self.as_data_frame().to_csv(filename + ".csv")
+
+    @classmethod
+    def from_file(cls, filename: str, g: GraphLocal):
+        with open(filename, "rb") as file:
+            ncp = pickle.load(file)
+        if ncp.do_largest_component:
+            ncp.graph = g.largest_component()
+        else:
+            ncp.graph = g
+        return ncp
 
     def approxPageRank(self,
                        gamma: float = 0.01/0.99,
@@ -441,7 +487,7 @@ class NCPData:
 
         if neighborhoods:
             self.add_random_neighborhood_samples(
-                method=_second,
+                method=_evaluate_set,
                 methodname="neighborhoods",
                 ratio=neighborhood_ratio,timeout=timeout/10,**kwargs)
             timeout -= timeout/10
@@ -544,3 +590,24 @@ class NCPData:
         self.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout,
                 method=func,methodname="mqi")
         return self
+
+    def _fiedler_set(self):
+        if self.fiedler_set is None:
+            self.fiedler_set = spectral_clustering(self.graph, None, method="fiedler")[0]
+        return self.fiedler_set
+
+    def add_fiedler(self):
+        S = self._fiedler_set()
+        # note that we use functools partial here to create a new function
+        # that we name "fiedler" even though the code is just evaluate_set
+        return self.add_set_samples(methodname="fiedler",
+            method=functools.partial(_evaluate_set), nthreads=1, sets=[S])
+
+    def add_fiedler_mqi(self):
+        S = self._fiedler_set()
+        return self.add_set_samples(methodname="fiedler-mqi",
+            method=functools.partial(flow_clustering,method="mqi"), nthreads=1, sets=[S])
+
+    def add_neighborhoods(self, **kwargs):
+        return self.add_random_neighborhood_samples(
+            method=_evaluate_set,methodname="neighborhoods",**kwargs)
