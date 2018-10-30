@@ -155,7 +155,7 @@ def approximate_PageRank(G,
         for i in range(len(p)):
             if p[i] != 0:
                 idx[it] = i
-                vals[it] = p[i]*1.0 / (G.ai[i+1]-G.ai[i]) if normalize else p[i]
+                vals[it] = p[i]*1.0 * G.dn[i] if normalize else p[i]
                 it += 1
         return (idx,vals)
     else:
