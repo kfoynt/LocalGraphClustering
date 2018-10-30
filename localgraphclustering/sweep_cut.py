@@ -8,7 +8,6 @@ import warnings
 def sweep_cut(G: GraphLocal,
               p: Union[Sequence[float],Tuple[Sequence[int],Sequence[float]]],
               do_sort: bool = True,
-              normalized: bool = True,
               cpp: bool = True):
     """
     It implements a sweep cut rounding procedure for local graph clustering.

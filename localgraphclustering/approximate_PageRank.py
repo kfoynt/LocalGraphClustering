@@ -137,15 +137,26 @@ def approximate_PageRank(G,
     elif method == "l1reg":
         #print("Uses the Fast Iterative Soft Thresholding Algorithm (FISTA).")
         # TODO fix the following warning
-        warnings.warn("The normalization of this routine hasn't been adjusted to the new system yet")
+        # warnings.warn("The normalization of this routine hasn't been adjusted to the new system yet")
         if cpp:
             if ys == None:
-                return proxl1PRaccel_cpp(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, alpha = alpha,
+                p = proxl1PRaccel_cpp(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, alpha = alpha,
                                      rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2]
             else:
-                return proxl1PRaccel_cpp(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, y = ys, alpha = alpha,
+                p = proxl1PRaccel_cpp(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, y = ys, alpha = alpha,
                                      rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2]
         else:
-            return fista_dinput_dense(ref_nodes, G, alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout)
+            p = fista_dinput_dense(ref_nodes, G, alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout)
+        # convert result to a sparse vector
+        nonzeros = np.count_nonzero(p)
+        idx = np.zeros(nonzeros,dtype=np.dtype(G.aj[0]))
+        vals = np.zeros(nonzeros,dtype=np.float64)
+        it = 0
+        for i in range(len(p)):
+            if p[i] != 0:
+                idx[it] = i
+                vals[it] = p[i]*1.0 / (G.ai[i+1]-G.ai[i]) if normalize else p[i]
+                it += 1
+        return (idx,vals)
     else:
         raise Exception("Unknown method, available methods are \"acl\" or \"acl_weighted\" or \"l1reg\".")
