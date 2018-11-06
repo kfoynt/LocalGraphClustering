@@ -109,6 +109,10 @@ def test_ncp_sets():
 def test_apr_deep():
     G = load_example_graph()
     df = lgc.NCPData(G).approxPageRank(ratio=1, gamma=0.1, rholist=[1e-2, 1e-3], deep=True)
+    
+def test_apr_only_node_samples():
+    G = load_example_graph()
+    df = lgc.NCPData(G).approxPageRank(ratio=1, gamma=0.1, rholist=[1e-2, 1e-3], random_neighborhoods=False, localmins=False)    
 
 @pytest.mark.long_tests
 def test_ncp_crd_big():

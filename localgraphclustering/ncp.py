@@ -431,6 +431,7 @@ class NCPData:
                        localmin_ratio: float = 0.5,
                        neighborhood_ratio: float = 0.1,
                        neighborhoods: bool = True,
+                       random_neighborhoods: bool = True,
                        timeout: float = 1000,
                        spectral_args: Dict = {},
                        deep: bool = False,
@@ -481,9 +482,13 @@ class NCPData:
             del kwargs['ratio']
 
         deeptimeout = timeout # save the timeout in case we also run the deep params
+        nruns = 1
+        if random_neighborhoods:
+            nruns += 1
+        if localmins:
+            nruns += 1
 
         log = SimpleLogForLongComputations(120, "approxPageRank:%s"%(methodname))
-
 
         if neighborhoods:
             self.add_random_neighborhood_samples(
@@ -501,9 +506,11 @@ class NCPData:
                     methodname="%s_localmin:rho=%.0e"%(methodname, rho*10),
                     neighborhoods=True,
                     ratio=localmin_ratio,
-                    timeout=timeout/(3*len(rholist)),**kwargs)
+                    timeout=timeout/(nruns*len(rholist)),**kwargs)
                 log.log("localmin rho=%.1e"%(rho))
-            timeout -= timeout/3 # reduce the time left...
+            timeout -= timeout/nruns # reduce the time left...
+            nruns -= 1
+
 
         for rho in rholist:
             if myratio is not None:
@@ -512,10 +519,10 @@ class NCPData:
                 method=functools.partial(
                     spectral_clustering,**spectral_args,alpha=alpha,rho=rho,method=method),
                 methodname="%s:rho=%.0e"%(methodname, rho),
-                timeout=timeout/(2*len(rholist)), **kwargs)
+                timeout=timeout/(nruns*len(rholist)), **kwargs)
             log.log("random_node rho=%.1e"%(rho))
 
-        timeout -= timeout/2 # reduce the time left...
+        timeout -= timeout/nruns # reduce the time left...
 
         for rho in rholist:
             if myratio is not None:
@@ -549,6 +556,7 @@ class NCPData:
             self.approxPageRank(gamma=deepgamma,rholist=deeprhos,
                 localmins=localmins, localmin_ratio=localmin_ratio,
                 neighborhoods=False, neighborhood_ratio=neighborhood_ratio,
+                random_neighborhoods=random_neighborhoods,
                 timeout = deeptimeout, spectral_args=spectral_args, deep=False,
                 methodname_prefix=deepmethodname_prefix,
                 **kwargs)
