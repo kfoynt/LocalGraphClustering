@@ -3,7 +3,7 @@ from .fiedler import fiedler, fiedler_local
 from .approximate_PageRank import approximate_PageRank
 from .approximate_PageRank_weighted import approximate_PageRank_weighted
 from .sweep_cut import sweep_cut
-from .ncp import NCPData
+from .ncp import NCPData, partialfunc
 from .ncpplots import NCPPlots
 from .densest_subgraph import densest_subgraph
 from .multiclass_label_prediction import multiclass_label_prediction

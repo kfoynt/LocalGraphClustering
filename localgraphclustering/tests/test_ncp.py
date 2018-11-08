@@ -1,6 +1,6 @@
 import localgraphclustering as lgc
 import pytest
-from functools import partial
+#from functools import partial
 
 def load_example_graph():
     return lgc.GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ")
@@ -14,7 +14,7 @@ def test_ncp():
     df = ncp.as_data_frame()
     assert len(df) == G._num_vertices
     #func = lambda G,R: lgc.flow_clustering(G,R,method="mqi")[0]
-    func = partial(lgc.flow_clustering, method="mqi")
+    func = lgc.partialfunc(lgc.flow_clustering, method="mqi")
     ncp = lgc.NCPData(G)
     ncp.add_set_samples([[1]],nthreads=1,method=func,methodname="mqi")
     ncp.add_random_neighborhood_samples(ratio=2,nthreads=1,method=func,methodname="mqi")
@@ -83,7 +83,7 @@ def test_ncp_l1reg():
 def test_ncp_localmin():
     G = load_example_graph()
     ncp = lgc.NCPData(G)
-    func = partial(lgc.spectral_clustering,alpha=0.01,rho=1.0e-4,method="acl")
+    func = lgc.partialfunc(lgc.spectral_clustering,alpha=0.01,rho=1.0e-4,method="acl")
 
     ncp.default_method = func
     ncp.add_localmin_samples(ratio=1)
@@ -93,7 +93,7 @@ def test_ncp_localmin():
     G = lgc.GraphLocal()
     G.list_to_gl([0,1],[1,0],[1,1])
     ncp = lgc.NCPData(G)
-    func = partial(lgc.spectral_clustering,alpha=0.01,rho=1.0e-4,method="acl")
+    func = lgc.partialfunc(lgc.spectral_clustering,alpha=0.01,rho=1.0e-4,method="acl")
 
     ncp.default_method = func
     ncp.add_localmin_samples(ratio=1)
@@ -109,10 +109,16 @@ def test_ncp_sets():
 def test_apr_deep():
     G = load_example_graph()
     df = lgc.NCPData(G).approxPageRank(ratio=1, gamma=0.1, rholist=[1e-2, 1e-3], deep=True)
-    
+
 def test_apr_only_node_samples():
     G = load_example_graph()
-    df = lgc.NCPData(G).approxPageRank(ratio=1, gamma=0.1, rholist=[1e-2, 1e-3], random_neighborhoods=False, localmins=False)    
+    df = lgc.NCPData(G).approxPageRank(ratio=1, gamma=0.1, rholist=[1e-2, 1e-3], random_neighborhoods=False, localmins=False)
+
+def test_apr_refine():
+    G = load_example_graph()
+    df = lgc.NCPData(G).approxPageRank(ratio=1, gamma=0.1, rholist=[1e-2, 1e-3],
+        random_neighborhoods=False, localmins=False,
+        spectral_args={'refine': lgc.partialfunc(lgc.flow_clustering, method="mqi")})
 
 @pytest.mark.long_tests
 def test_ncp_crd_big():

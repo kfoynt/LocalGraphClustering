@@ -17,6 +17,16 @@ from .GraphLocal import GraphLocal
 from .triangleclusters import triangleclusters
 from .cpp import *
 
+class partialfunc(functools.partial):
+    @classmethod
+    def from_partial(cls, f):
+        return cls(f.func, f.args, f.keywords)
+    def __eq__(self, f2):
+        if not (isinstance(f2, partialfunc)):
+            return False
+        return all([getattr(self, attr) == getattr(f2, attr) for attr in ['func', 'args', 'keywords']])
+    __hash__ = functools.partial.__hash__
+
 class SimpleLogForLongComputations:
     """ Implement a simple logger that will record messages and then
     replay them if a timer exceeds a threshold."""
@@ -51,6 +61,7 @@ class SimpleLogForLongComputations:
             self._log.append((t, message))
 
 def _partial_functions_equal(func1, func2):
+    assert(False) # shouldn't be called now
     if not (isinstance(func1, functools.partial) and isinstance(func2, functools.partial)):
         return False
     are_equal = all([getattr(func1, attr) == getattr(func2, attr) for attr in ['func', 'args', 'keywords']])
@@ -388,7 +399,15 @@ class NCPData:
         """ Return the NCP results as a pandas dataframe """
         df = pd.DataFrame.from_records(self.results, columns=self.result_fields)
         # convert to human readable names
-        df["method"] = df["methodfunc"].map(self.method_names)
+        # It's important that this dictionary is converted into a lookup
+        # function so the pandas map function works correctly with our
+        # partial functions that may hash differently but compare as equal.
+        # Ideally, we'd call...
+        # df["method"] = df["methodfunc"].map(self.method_names)
+        df["method"] = df["methodfunc"].map(lambda x: self.method_names[x])
+        # TODO, since this is a bit hacky, it's probably worth storing
+        # the method name in the results itself. That's probably better at
+        # this point
 
         return df
 
@@ -501,7 +520,7 @@ class NCPData:
         if localmins:
             for rho in rholist:
                 self.add_localmin_samples(
-                    method=functools.partial(
+                    method=partialfunc(
                         spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,method=method),
                     methodname="%s_localmin:rho=%.0e"%(methodname, rho*10),
                     neighborhoods=True,
@@ -516,7 +535,7 @@ class NCPData:
             if myratio is not None:
                 kwargs['ratio'] = myratio
             self.add_random_node_samples(
-                method=functools.partial(
+                method=partialfunc(
                     spectral_clustering,**spectral_args,alpha=alpha,rho=rho,method=method),
                 methodname="%s:rho=%.0e"%(methodname, rho),
                 timeout=timeout/(nruns*len(rholist)), **kwargs)
@@ -528,7 +547,7 @@ class NCPData:
             if myratio is not None:
                 kwargs['ratio'] = myratio
             self.add_random_neighborhood_samples(
-                method=functools.partial(
+                method=partialfunc(
                     spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,method=method),
                 methodname="%s_neighborhoods:rho=%.0e"%(methodname, rho*10),
                 timeout=timeout/(len(rholist)), **kwargs)
@@ -570,7 +589,7 @@ class NCPData:
               nthreads: int = 4,
               timeout: float = 1000):
         alpha = 1.0-1.0/(1.0+gamma)
-        funcs = {functools.partial(spectral_clustering, alpha=alpha,rho=rho,method="l1reg"):'l1reg;rho=%.0e'%(rho)
+        funcs = {partialfunc(spectral_clustering, alpha=alpha,rho=rho,method="l1reg"):'l1reg;rho=%.0e'%(rho)
                     for rho in rholist}
         for func in funcs.keys():
             self.add_random_node_samples(method=func,methodname=funcs[func],ratio=ratio,nthreads=nthreads,timeout=timeout/len(funcs))
@@ -583,7 +602,7 @@ class NCPData:
             ratio: float = 0.3,
             nthreads: int = 4,
             timeout: float = 1000):
-        func = functools.partial(flow_clustering,w=w, U=U, h=h,method="crd")
+        func = partialfunc(flow_clustering,w=w, U=U, h=h,method="crd")
         self.add_random_neighborhood_samples(method=func,methodname="crd",
                 ratio=ratio,nthreads=nthreads,timeout=timeout/2)
         self.add_random_node_samples(method=func,methodname="crd",
@@ -594,7 +613,7 @@ class NCPData:
             ratio: float = 0.3,
             nthreads: int = 4,
             timeout: float = 1000):
-        func = functools.partial(flow_clustering,method="mqi")
+        func = partialfunc(flow_clustering,method="mqi")
         self.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout,
                 method=func,methodname="mqi")
         return self
@@ -609,12 +628,12 @@ class NCPData:
         # note that we use functools partial here to create a new function
         # that we name "fiedler" even though the code is just evaluate_set
         return self.add_set_samples(methodname="fiedler",
-            method=functools.partial(_evaluate_set), nthreads=1, sets=[S])
+            method=partialfunc(_evaluate_set), nthreads=1, sets=[S])
 
     def add_fiedler_mqi(self):
         S = self._fiedler_set()
         return self.add_set_samples(methodname="fiedler-mqi",
-            method=functools.partial(flow_clustering,method="mqi"), nthreads=1, sets=[S])
+            method=partialfunc(flow_clustering,method="mqi"), nthreads=1, sets=[S])
 
     def add_neighborhoods(self, **kwargs):
         return self.add_random_neighborhood_samples(

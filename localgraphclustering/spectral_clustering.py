@@ -16,6 +16,7 @@ def spectral_clustering(G, ref_nodes,
                         ys: Sequence[float] = None,
                         vol: float = 100,
                         phi: float = 0.5,
+                        refine = None,
                         method: str = "acl"):
     """
     Provide a simple interface to do spectral based clustering.
@@ -32,6 +33,8 @@ def spectral_clustering(G, ref_nodes,
     method: str
         Which method to use for the nodes embedding.
         Options: "acl", "l1reg", "nibble", "fiedler", "fiedler_local"
+
+    refine:
 
     Extra parameters for "acl" and "l1reg" (optional)
     -------------------------------------------------
@@ -106,5 +109,8 @@ def spectral_clustering(G, ref_nodes,
         raise Exception("Unknown method, available methods are \"acl\", \"acl_weighted\", \"l1reg\", \"nibble\", \"fiedler\", \"fiedler_local\".")
 
     output = sweep_cut(G,p)
+
+    if refine is not None:
+        output = refine(G,list(output[0]))
 
     return output
