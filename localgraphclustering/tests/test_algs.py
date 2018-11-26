@@ -66,29 +66,11 @@ def test_GraphLocal_methods():
     eig2_rounded = output_sc[0]
     ret_dict = g.draw(coords,edgealpha=0.01,nodealpha=0.5,nodeset=eig2_rounded)
 
-    N = ret_dict["nx_graph"]
-    # Change set nodes to blue
-    nx.set_node_attributes(N,{k:{'color':'b'} for k in ret_dict["setnodes"]})
-    GraphLocal.draw_nx(N,ret_dict['ax'])
-
-    # Change set edges to green
-    nx.set_edge_attributes(N,{k:{'color':'g'} for k in ret_dict["setedges"]})
-    GraphLocal.draw_nx(N,ret_dict['ax'])
-
     N = generate_random_3Dgraph(n_nodes=200, radius=0.25, seed=1)
     pos = list(nx.get_node_attributes(N,'pos').values())
     G = GraphLocal()
     G = G.from_networkx(N)
     ret_dict = G.draw(pos,edgealpha=0.01,nodealpha=0.5,nodeset=range(100,150),groups=[range(50),range(50,100)])
-
-    N = ret_dict["nx_graph"]
-    # Change set nodes to blue
-    nx.set_node_attributes(N,{k:{'color':'b'} for k in ret_dict["setnodes"]})
-    GraphLocal.draw_nx_3d(N,ret_dict['ax'])
-
-    # Change set edges to green
-    nx.set_edge_attributes(N,{k:{'color':'g'} for k in ret_dict["setedges"]})
-    GraphLocal.draw_nx_3d(N,ret_dict['ax'])
 
 
 def test_sweepcut_self_loop():

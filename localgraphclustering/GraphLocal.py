@@ -18,6 +18,9 @@ import multiprocessing as mp
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.collections import LineCollection
+from mpl_toolkits.mplot3d.art3d import Line3DCollection
+from matplotlib.colors import to_rgb,to_rgba
 
 def _load_from_shared(sabuf, dtype, shape):
     return np.frombuffer(sabuf, dtype=dtype).reshape(shape)
@@ -620,10 +623,10 @@ class GraphLocal:
         return minverts, minvals
     
     def draw(self,coords,alpha=1.0,nodesize=5,linewidth=1,
-             nodealpha=1.0,edgealpha=0.01,nodecolor='r',
-             edgecolor='k',nodemarker='o',setalpha=1.0,
-             setcolor='y',axs=None,fig=None,nodeset=None,
-             groups=None):
+         nodealpha=1.0,edgealpha=0.01,nodecolor='r',
+         edgecolor='k',nodemarker='o',setalpha=1.0,
+         setcolor='y',axs=None,fig=None,nodeset=None,
+         groups=None):
         """
         standard drawing function of GraphLocal object
 
@@ -672,11 +675,9 @@ class GraphLocal:
         -------
 
         a dictionary with: 
-        fig, ax, nodes, edges, setnodes, setedges, groupnodes, groupedges
-        these are the handles to the actual plot elements, so that you could change 
-        values after the fact. 
+        fig, ax, setnodes, groupnodes
         """
-        if axs == None:
+        if axs is None:
             fig = plt.figure()
             if len(coords[0]) == 3:
                 axs = fig.add_subplot(111, projection='3d')
@@ -691,120 +692,71 @@ class GraphLocal:
                 nodelist_in.append(i)
             else:
                 nodelist_out.append(i)
-        N = nx.Graph()
-        coo = self.adjacency_matrix.tocoo()
-        #color, coords and alpha information are stored directly in node attributes
-        N.add_nodes_from(list(zip(nodelist_out,[{'pos':coords[i],'alpha':alpha*nodealpha,'color':nodecolor} for i in nodelist_out])))
-        N.add_nodes_from(list(zip(nodelist_in,[{'pos':coords[i],'alpha':alpha*setalpha,'color':setcolor} for i in nodelist_in])))
-        edge_list = [(coo.row[i],coo.col[i]) for i in range(self._num_edges)]
-        #color information is stored directly in edge information
-        N.add_edges_from(edge_list,color=edgecolor)
-        setedges = []
-        for i in range(self._num_edges):
-            if coo.row[i] in nodeset and coo.col[i] in nodeset:
-                setedges.append((coo.row[i],coo.col[i]))
-        
+        #store color information for each node
+        node_color_list = np.empty((self._num_vertices,4))
+        node_color_list[nodelist_out] = to_rgba(nodecolor,alpha*nodealpha)
+        node_color_list[nodelist_in] = to_rgba(setcolor,alpha*setalpha)
         #reassign node colors based on partition
-        groupedges = None
         if groups is not None:
-            groupedges = [[] for i in range(len(groups))]
             number_of_colors = len(groups)
             color = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
                      for i in range(number_of_colors)]
             for i,g in enumerate(groups):
-                nx.set_node_attributes(N,{k:{'color':v} for (k,v) in zip(g,[color[i]]*len(g))})
-                sg = set(g)
-                for j in g:
-                    for k in range(self.ai[j],self.ai[j+1]):
-                        if self.aj[k] >= j and self.aj[k] in sg:
-                            groupedges[i].append((j,self.aj[k]))
-                            
+                for k in g:
+                    node_color_list[k] = to_rgba(color[i],alpha*nodealpha)               
         if len(coords[0]) == 3:
-            self.draw_nx_3d(N,axs,nodemarker,nodesize,alpha*edgealpha,linewidth)
+            self.draw_3d(coords,axs,nodemarker=nodemarker,nodesize=nodesize,edgealpha=alpha*edgealpha,
+                    linewidth=linewidth,node_color_list=node_color_list)
         else:
-            self.draw_nx(N,axs,nodemarker,nodesize,alpha*edgealpha,linewidth)
+            self.draw_2d(coords,axs,nodemarker=nodemarker,nodesize=nodesize,edgealpha=alpha*edgealpha,
+                    linewidth=linewidth,node_color_list=node_color_list)
 
-        ret_dict = {"fig":fig,"ax":axs,"nodes":list(N.nodes),"edges":list(N.edges),
-                    "setnodes":nodelist_in,"setedges":setedges,"nx_graph":N,"groupnodes":groups,
-                    "groupedges":groupedges}
+        ret_dict = {"fig":fig,"ax":axs,"setnodes":nodelist_in,"groupnodes":groups}
         return ret_dict
     
     @staticmethod
-    def draw_nx(N,axs,nodemarker='o',nodesize=5,edgealpha=0.01,linewidth=1):
-        """
-        a static method to draw a networkx instance, the plot will be based on node and edge attributes,
-        valid node attributes include "alpha", "color" and "pos". valid edge attributes include "color", 
-        designed to modify the plot returned by calling "draw" function
+    def draw_star(center,points,pos,edge_pos):
+        for i,p in enumerate(points):
+            if p >= center:
+                edge_pos.append([pos[center],pos[p]])
+                
+    def draw_2d(self,pos,axs,nodemarker='o',nodesize=5,edgealpha=0.01,linewidth=1,
+                node_color_list=None,edgecolor='k',nodecolor='r',node_list=None):
+        if node_color_list is not None:
+            node_collection = axs.scatter([p[0] for p in pos],[p[1] for p in pos],c=node_color_list,s=nodesize,marker=nodemarker)
+        else:
+            node_collection = axs.scatter([p[0] for p in pos],[p[1] for p in pos],c=nodecolor,s=nodesize,marker=nodemarker)
+        #make sure nodes are on the top
+        node_collection.set_zorder(2)
+        node_list = range(self._num_vertices) if node_list is None else node_list
+        edge_pos = []
+        for i in node_list:
+            self.draw_star(i,self.aj[self.ai[i]:self.ai[i+1]],pos,edge_pos)
+        edge_pos = np.asarray(edge_pos)
+        edge_collection = LineCollection(edge_pos,colors=to_rgba(edgecolor,edgealpha),linewidths=linewidth)
+        #make sure edges are at the bottom
+        edge_collection.set_zorder(1)
+        axs.add_collection(edge_collection)
+        axs.autoscale()
 
-        Parameters
-        ----------
-        N: networkx object
-
-        axs: matplotlib axes
-
-        nodemarker: 'o' by default
-
-        nodesize: 5 by default
-
-        edgealpha: 0.01 by default
-
-        linewidth: 1 by default
-        """
-        nnodes = nx.number_of_nodes(N)
-        node_alpha_list = [0]*nnodes
-        node_color_list = ['']*nnodes
-        for i,node in enumerate(N.nodes(data=True)):
-            node_alpha_list[i] = node[1]['alpha']
-            node_color_list[i] = node[1]['color']
-        nedges = nx.number_of_edges(N)
-        edge_color_list = ['']*nedges
-        for i,edge in enumerate(N.edges(data=True)):
-            edge_color_list[i] = edge[2]['color']
-        nx.draw_networkx_nodes(N,pos=nx.get_node_attributes(N,'pos'),node_size=nodesize,ax=axs,alpha=node_alpha_list,
-                               node_color=node_color_list,node_shape=nodemarker)
-        nx.draw_networkx_edges(N,pos=nx.get_node_attributes(N,'pos'),ax=axs,edge_color=edge_color_list,alpha=edgealpha,
-                              linewidths=linewidth)
-    
-    @staticmethod
-    def draw_nx_3d(N,axs,nodemarker='o',nodesize=5,edgealpha=0.01,linewidth=1,angle=30):
-        """
-        a static method to draw a networkx instance, the plot will be based on node and edge attributes,
-        valid node attributes include "alpha", "color" and "pos". valid edge attributes include "color", 
-        designed to modify the plot returned by calling "draw" function
-
-        Parameters
-        ----------
-        N: networkx object
-
-        axs: matplotlib axes
-
-        nodemarker: 'o' by default
-
-        nodesize: 5 by default
-
-        edgealpha: 0.01 by default
-        
-        linewidth: 1 by default
-
-        angle: view angle, 30 by default
-        """
-        pos = nx.get_node_attributes(N,'pos')
-        # Loop on the pos dictionary to extract the x,y,z coordinates of each node
-        for key, value in N.nodes(data=True):
-            coord = value['pos']
-            # Scatter plot
-            axs.scatter(coord[0],coord[1],coord[2],c=value['color'],alpha=value['alpha'],
-                       marker=nodemarker,s=nodesize)
-
-        # Loop on the list of edges to get the x,y,z, coordinates of the connected nodes
-        # Those two points are the extrema of the line to be plotted
-        for i,edge in enumerate(N.edges(data=True)):
-            x = np.array((pos[edge[0]][0], pos[edge[1]][0]))
-            y = np.array((pos[edge[0]][1], pos[edge[1]][1]))
-            z = np.array((pos[edge[0]][2], pos[edge[1]][2]))
-
-            # Plot the connecting lines
-            axs.plot(x,y,z,c=edge[2]['color'],alpha=edgealpha,linewidth=linewidth)
-        
+    def draw_3d(self,pos,axs,nodemarker='o',nodesize=5,edgealpha=0.01,linewidth=1,
+                node_color_list=None,angle=30,edgecolor='k',nodecolor='r',node_list=None):
+        if node_color_list is not None:
+            node_collection = axs.scatter([p[0] for p in pos],[p[1] for p in pos],[p[2] for p in pos],c=node_color_list,
+                                          s=nodesize,marker=nodemarker,zorder=2)
+        else:
+            node_collection = axs.scatter([p[0] for p in pos],[p[1] for p in pos],[p[2] for p in pos],c=nodecolor,
+                                          s=nodesize,marker=nodemarker,zorder=2)
+        #make sure nodes are on the top
+        node_list = range(self._num_vertices) if node_list is None else node_list
+        edge_pos = []
+        for i in node_list:
+            self.draw_star(i,self.aj[self.ai[i]:self.ai[i+1]],pos,edge_pos)
+        edge_pos = np.asarray(edge_pos)
+        edge_collection = Line3DCollection(edge_pos,colors=to_rgba(edgecolor,edgealpha),linewidths=linewidth)
+        #make sure edges are at the bottom
+        edge_collection.set_zorder(1)
+        axs.add_collection(edge_collection)
+        axs.autoscale()
         # Set the initial view
         axs.view_init(30, angle)
