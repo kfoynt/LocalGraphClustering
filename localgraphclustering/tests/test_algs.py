@@ -1,9 +1,23 @@
 from localgraphclustering import *
 import time
 import numpy as np
+import networkx as nx
 
 def load_example_graph(vtype,itype):
     return GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ",vtype=vtype,itype=itype)
+
+def generate_random_3Dgraph(n_nodes, radius, seed=None):
+
+    if seed is not None:
+        random.seed(seed)
+    
+    # Generate a dict of positions
+    pos = {i: (random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1)) for i in range(n_nodes)}
+    
+    # Create random 3D network
+    G = nx.random_geometric_graph(n_nodes, radius, pos=pos)
+
+    return G
 
 def test_GraphLocal_methods():
     g = load_example_graph(np.uint32,np.uint32)
@@ -32,6 +46,49 @@ def test_GraphLocal_methods():
 
     # Test graph with more than one components
     G = GraphLocal("notebooks/datasets/neuro-fmri-01.edges",file_type = "edgelist", separator = " ", header = True)
+
+    # Test drawing fuinctions
+    g = GraphLocal('notebooks/datasets/JohnsHopkins.graphml','graphml','\t')
+    ld_coord = np.loadtxt('notebooks/datasets/JohnHopkins_coord.xy', dtype = 'Float64')
+    idx = np.argsort(ld_coord[:,0])
+    coords = []
+    for i in range(g._num_vertices):
+        coords.append(ld_coord[idx[i],1:3])
+    coords = np.array(coords)
+    # Call the global spectral partitioning algorithm.
+    eig2 = fiedler(g)[0]
+
+    # Round the eigenvector
+    output_sc = sweep_cut(g,eig2)
+
+    # Extract the partition for g and store it.
+    eig2_rounded = output_sc[0]
+    ret_dict = g.draw(coords,edgealpha=0.01,nodealpha=0.5,nodeset=eig2_rounded)
+
+    N = ret_dict["nx_graph"]
+    # Change set nodes to blue
+    nx.set_node_attributes(N,{k:{'color':'b'} for k in ret_dict["setnodes"]})
+    GraphLocal.draw_nx(N,ret_dict['ax'])
+
+    # Change set edges to green
+    nx.set_edge_attributes(N,{k:{'color':'g'} for k in ret_dict["setedges"]})
+    GraphLocal.draw_nx(N,ret_dict['ax'])
+
+    N = generate_random_3Dgraph(n_nodes=n, radius=0.25, seed=1)
+    pos = list(nx.get_node_attributes(N,'pos').values())
+    G = GraphLocal()
+    G = G.from_networkx(N)
+    ret_dict = G.draw(pos,edgealpha=0.01,nodealpha=0.5,nodeset=range(100,150),groups=[range(50),range(50,100)])
+
+    N = ret_dict["nx_graph"]
+    # Change set nodes to blue
+    nx.set_node_attributes(N,{k:{'color':'b'} for k in ret_dict["setnodes"]})
+    GraphLocal.draw_nx_3d(N,ret_dict['ax'])
+
+    # Change set edges to green
+    nx.set_edge_attributes(N,{k:{'color':'g'} for k in ret_dict["setedges"]})
+    GraphLocal.draw_nx_3d(N,ret_dict['ax'])
+
 
 def test_sweepcut_self_loop():
     """ This is a regression test for sweep-cuts with self-loops """

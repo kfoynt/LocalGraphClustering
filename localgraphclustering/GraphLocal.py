@@ -558,8 +558,6 @@ class GraphLocal:
         Parameters
         ----------
 
-        G: GraphLocal
-
         vals: Sequence[float]
             a feature value per node used to find the ex against each other, i.e. conductance
 
@@ -616,3 +614,193 @@ class GraphLocal:
         minvals = vals[minverts]
 
         return minverts, minvals
+    
+    def draw(self,coords,alpha=1.0,nodesize=5,linewidth=1,
+             nodealpha=1.0,edgealpha=0.01,nodecolor='r',
+             edgecolor='k',nodemarker='o',setalpha=1.0,
+             setcolor='y',axs=None,fig=None,nodeset=None,
+             groups=None):
+        """
+        standard drawing function of GraphLocal object
+
+        Parameters
+        ----------
+
+        coords: a n-by-2 or n-by-3 array with coordinates for each node of the graph.
+
+        Optional parameters
+        ------------------
+
+        alpha: float (1.0 by default)
+            the overall alpha scaling of the plot, [0,1]
+
+        nodealpha: float (1.0 by default)
+            the overall node alpha scaling of the plot, [0, 1]
+
+        edgealpha: float (1.0 by default)
+            the overall edge alpha scaling of the plot, [0, 1]
+
+        setalpha: float (1.0 by default)
+            the overall set alpha scaling of the plot, [0, 1]
+
+        nodecolor: string or RGB ('r' by default)
+
+        edgecolor: string or RGB ('k' by default)
+
+        setcolor: string or RGB ('y' by default)
+
+        nodemarker: string ('o' by default)
+
+        nodesize: float (5.0 by default)
+
+        linewidth: float (1.0 by default)
+
+        nodeset: Sequence[int] (None by default)
+            a set of nodes to highlight
+
+        groups: Sequence[Sequence[int]] (None by default)
+            node partitions, different colors will be assigned to different groups
+
+        axs,fig: None,None (default) 
+            by default it will create a new figure, or this will plot in axs if not None.
+
+        Returns
+        -------
+
+        a dictionary with: 
+        fig, ax, nodes, edges, setnodes, setedges, groupnodes, groupedges
+        these are the handles to the actual plot elements, so that you could change 
+        values after the fact. 
+        """
+        if axs == None:
+            fig = plt.figure()
+            if len(coords[0]) == 3:
+                axs = fig.add_subplot(111, projection='3d')
+            else:
+                axs = fig.add_subplot(111)
+        axs.set_axis_off()
+        nodeset = set(nodeset) if nodeset != None else set()
+        nodelist_in = []
+        nodelist_out = []
+        for i in range(self._num_vertices):
+            if i in nodeset:
+                nodelist_in.append(i)
+            else:
+                nodelist_out.append(i)
+        N = nx.Graph()
+        coo = self.adjacency_matrix.tocoo()
+        #color, coords and alpha information are stored directly in node attributes
+        N.add_nodes_from(list(zip(nodelist_out,[{'pos':coords[i],'alpha':alpha*nodealpha,'color':nodecolor} for i in nodelist_out])))
+        N.add_nodes_from(list(zip(nodelist_in,[{'pos':coords[i],'alpha':alpha*setalpha,'color':setcolor} for i in nodelist_in])))
+        edge_list = [(coo.row[i],coo.col[i]) for i in range(self._num_edges)]
+        #color information is stored directly in edge information
+        N.add_edges_from(edge_list,color=edgecolor)
+        setedges = []
+        for i in range(self._num_edges):
+            if coo.row[i] in nodeset and coo.col[i] in nodeset:
+                setedges.append((coo.row[i],coo.col[i]))
+        
+        #reassign node colors based on partition
+        groupedges = None
+        if groups != None:
+            groupedges = [[] for i in range(len(groups))]
+            number_of_colors = len(groups)
+            color = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+                     for i in range(number_of_colors)]
+            for i,g in enumerate(groups):
+                nx.set_node_attributes(N,{k:{'color':v} for (k,v) in zip(g,[color[i]]*len(g))})
+                sg = set(g)
+                for j in g:
+                    for k in range(self.ai[j],self.ai[j+1]):
+                        if self.aj[k] >= j and self.aj[k] in sg:
+                            groupedges[i].append((j,self.aj[k]))
+                            
+        if len(coords[0]) == 3:
+            self.draw_nx_3d(N,axs,nodemarker,nodesize,alpha*edgealpha,linewidth)
+        else:
+            self.draw_nx(N,axs,nodemarker,nodesize,alpha*edgealpha,linewidth)
+
+        ret_dict = {"fig":fig,"ax":axs,"nodes":list(N.nodes),"edges":list(N.edges),
+                    "setnodes":nodelist_in,"setedges":setedges,"nx_graph":N,"groupnodes":groups,
+                    "groupedges":groupedges}
+        return ret_dict
+    
+    @staticmethod
+    def draw_nx(N,axs,nodemarker='o',nodesize=5,edgealpha=0.01,linewidth=1):
+        """
+        a static method to draw a networkx instance, the plot will be based on node and edge attributes,
+        valid node attributes include "alpha", "color" and "pos". valid edge attributes include "color", 
+        designed to modify the plot returned by calling "draw" function
+
+        Parameters
+        ----------
+        N: networkx object
+
+        axs: matplotlib axes
+
+        nodemarker: 'o' by default
+
+        nodesize: 5 by default
+
+        edgealpha: 0.01 by default
+
+        linewidth: 1 by default
+        """
+        nnodes = nx.number_of_nodes(N)
+        node_alpha_list = [0]*nnodes
+        node_color_list = ['']*nnodes
+        for i,node in enumerate(N.nodes(data=True)):
+            node_alpha_list[i] = node[1]['alpha']
+            node_color_list[i] = node[1]['color']
+        nedges = nx.number_of_edges(N)
+        edge_color_list = ['']*nedges
+        for i,edge in enumerate(N.edges(data=True)):
+            edge_color_list[i] = edge[2]['color']
+        nx.draw_networkx_nodes(N,pos=nx.get_node_attributes(N,'pos'),node_size=nodesize,ax=axs,alpha=node_alpha_list,
+                               node_color=node_color_list,node_shape=nodemarker)
+        nx.draw_networkx_edges(N,pos=nx.get_node_attributes(N,'pos'),ax=axs,edge_color=edge_color_list,alpha=edgealpha,
+                              linewidths=linewidth)
+    
+    @staticmethod
+    def draw_nx_3d(N,axs,nodemarker='o',nodesize=5,edgealpha=0.01,linewidth=1,angle=30):
+        """
+        a static method to draw a networkx instance, the plot will be based on node and edge attributes,
+        valid node attributes include "alpha", "color" and "pos". valid edge attributes include "color", 
+        designed to modify the plot returned by calling "draw" function
+
+        Parameters
+        ----------
+        N: networkx object
+
+        axs: matplotlib axes
+
+        nodemarker: 'o' by default
+
+        nodesize: 5 by default
+
+        edgealpha: 0.01 by default
+        
+        linewidth: 1 by default
+
+        angle: view angle, 30 by default
+        """
+        pos = nx.get_node_attributes(N,'pos')
+        # Loop on the pos dictionary to extract the x,y,z coordinates of each node
+        for key, value in N.nodes(data=True):
+            coord = value['pos']
+            # Scatter plot
+            axs.scatter(coord[0],coord[1],coord[2],c=value['color'],alpha=value['alpha'],
+                       marker=nodemarker,s=nodesize)
+
+        # Loop on the list of edges to get the x,y,z, coordinates of the connected nodes
+        # Those two points are the extrema of the line to be plotted
+        for i,edge in enumerate(N.edges(data=True)):
+            x = np.array((pos[edge[0]][0], pos[edge[1]][0]))
+            y = np.array((pos[edge[0]][1], pos[edge[1]][1]))
+            z = np.array((pos[edge[0]][2], pos[edge[1]][2]))
+
+            # Plot the connecting lines
+            axs.plot(x,y,z,c=edge[2]['color'],alpha=edgealpha,linewidth=linewidth)
+        
+        # Set the initial view
+        axs.view_init(30, angle)
