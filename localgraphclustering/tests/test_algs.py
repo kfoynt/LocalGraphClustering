@@ -2,6 +2,7 @@ from localgraphclustering import *
 import time
 import numpy as np
 import networkx as nx
+import random
 
 def load_example_graph(vtype,itype):
     return GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ",vtype=vtype,itype=itype)
@@ -74,7 +75,7 @@ def test_GraphLocal_methods():
     nx.set_edge_attributes(N,{k:{'color':'g'} for k in ret_dict["setedges"]})
     GraphLocal.draw_nx(N,ret_dict['ax'])
 
-    N = generate_random_3Dgraph(n_nodes=n, radius=0.25, seed=1)
+    N = generate_random_3Dgraph(n_nodes=200, radius=0.25, seed=1)
     pos = list(nx.get_node_attributes(N,'pos').values())
     G = GraphLocal()
     G = G.from_networkx(N)

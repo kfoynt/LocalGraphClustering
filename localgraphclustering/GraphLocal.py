@@ -8,12 +8,16 @@ import pandas as pd
 import warnings
 import collections as cole
 from .cpp import *
+import random
 
 import gzip
 import bz2
 import lzma
 
 import multiprocessing as mp
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 def _load_from_shared(sabuf, dtype, shape):
     return np.frombuffer(sabuf, dtype=dtype).reshape(shape)
@@ -679,7 +683,7 @@ class GraphLocal:
             else:
                 axs = fig.add_subplot(111)
         axs.set_axis_off()
-        nodeset = set(nodeset) if nodeset != None else set()
+        nodeset = set(nodeset) if nodeset is not None else set()
         nodelist_in = []
         nodelist_out = []
         for i in range(self._num_vertices):
@@ -702,7 +706,7 @@ class GraphLocal:
         
         #reassign node colors based on partition
         groupedges = None
-        if groups != None:
+        if groups is not None:
             groupedges = [[] for i in range(len(groups))]
             number_of_colors = len(groups)
             color = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
