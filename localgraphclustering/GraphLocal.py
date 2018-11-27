@@ -21,6 +21,8 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.collections import LineCollection
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
 from matplotlib.colors import to_rgb,to_rgba
+from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.colors import Normalize
 
 def _load_from_shared(sabuf, dtype, shape):
     return np.frombuffer(sabuf, dtype=dtype).reshape(shape)
@@ -626,7 +628,7 @@ class GraphLocal:
          nodealpha=1.0,edgealpha=0.01,nodecolor='r',
          edgecolor='k',nodemarker='o',setalpha=1.0,
          setcolor='y',axs=None,fig=None,nodeset=None,
-         groups=None):
+         groups=None,values=None,cm="Reds"):
         """
         standard drawing function of GraphLocal object
 
@@ -671,6 +673,12 @@ class GraphLocal:
         axs,fig: None,None (default) 
             by default it will create a new figure, or this will plot in axs if not None.
 
+        values: Sequence[float] (None by default)
+            used to determine node colors in a colormap, should have the same length as coords
+
+        cm: string ("Reds" by default)
+            colormap
+
         Returns
         -------
 
@@ -692,24 +700,43 @@ class GraphLocal:
                 nodelist_in.append(i)
             else:
                 nodelist_out.append(i)
-        #store color information for each node
-        node_color_list = np.empty((self._num_vertices,4))
-        node_color_list[nodelist_out] = to_rgba(nodecolor,alpha*nodealpha)
-        node_color_list[nodelist_in] = to_rgba(setcolor,alpha*setalpha)
-        #reassign node colors based on partition
-        if groups is not None:
-            number_of_colors = len(groups)
-            color = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
-                     for i in range(number_of_colors)]
-            for i,g in enumerate(groups):
-                for k in g:
-                    node_color_list[k] = to_rgba(color[i],alpha*nodealpha)               
-        if len(coords[0]) == 3:
-            self.draw_3d(coords,axs,nodemarker=nodemarker,nodesize=nodesize,edgealpha=alpha*edgealpha,
-                    linewidth=linewidth,node_color_list=node_color_list)
+        
+        if values is not None:
+            #when values are provided, use values and predefined colormap to determine colors
+            cm = plt.get_cmap(cm)
+            node_color_list = np.reshape(np.array(values),len(coords))
+            vmin = min(values)
+            vmax = max(values)
         else:
-            self.draw_2d(coords,axs,nodemarker=nodemarker,nodesize=nodesize,edgealpha=alpha*edgealpha,
-                    linewidth=linewidth,node_color_list=node_color_list)
+            #when values are not provided, use customed colormap to determine colors
+            colors = [to_rgba(nodecolor,alpha*nodealpha),to_rgba(setcolor,alpha*setalpha)]
+            if groups is not None:
+                colorset = set([to_rgb(c) for c in colors])
+                number_of_colors = len(groups)
+                for i in range(number_of_colors):
+                    new_color = to_rgb("#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]))
+                    #make sure color hasn't already existed
+                    while new_color in colorset:
+                        new_color = to_rgb("#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]))
+                    colorset.add(new_color)
+                    colors.append(to_rgba(new_color,alpha*nodealpha))
+            cm = LinearSegmentedColormap.from_list('my_cmap',colors,N=256,gamma=1.0)
+            node_color_list = np.zeros(self._num_vertices)
+            node_color_list[nodelist_in] = 1.0/(len(colors)-1)
+            if groups is not None:
+                for i,g in enumerate(groups):
+                    node_color_list[g] = (2+i)*1.0/(len(colors)-1)
+            vmin = 0.0
+            vmax = 1.0
+
+        if len(coords[0]) == 3:
+            self.draw_3d(coords,axs,cm,nodemarker=nodemarker,nodesize=nodesize,edgealpha=alpha*edgealpha,
+                    linewidth=linewidth,node_color_list=node_color_list,vmin=vmin,vmax=vmax,nodelist_in=nodelist_in,
+                    nodelist_out=nodelist_out,setalpha=alpha*setalpha,nodealpha=alpha*nodealpha,use_values=(values is not None))
+        else:
+            self.draw_2d(coords,axs,cm,nodemarker=nodemarker,nodesize=nodesize,edgealpha=alpha*edgealpha,
+                    linewidth=linewidth,node_color_list=node_color_list,vmin=vmin,vmax=vmax,nodelist_in=nodelist_in,
+                    nodelist_out=nodelist_out,setalpha=alpha*setalpha,nodealpha=alpha*nodealpha,use_values=(values is not None))
 
         ret_dict = {"fig":fig,"ax":axs,"setnodes":nodelist_in,"groupnodes":groups}
         return ret_dict
@@ -719,15 +746,21 @@ class GraphLocal:
         for i,p in enumerate(points):
             if p >= center:
                 edge_pos.append([pos[center],pos[p]])
-                
-    def draw_2d(self,pos,axs,nodemarker='o',nodesize=5,edgealpha=0.01,linewidth=1,
-                node_color_list=None,edgecolor='k',nodecolor='r',node_list=None):
-        if node_color_list is not None:
-            node_collection = axs.scatter([p[0] for p in pos],[p[1] for p in pos],c=node_color_list,s=nodesize,marker=nodemarker)
+              
+    def draw_2d(self,pos,axs,cm,nodemarker='o',nodesize=5,edgealpha=0.01,linewidth=1,
+                node_color_list=None,edgecolor='k',nodecolor='r',node_list=None,nodelist_in=None,
+                nodelist_out=None,setalpha=1.0,nodealpha=1.0,use_values=False,vmin=0.0,vmax=1.0):
+        if use_values:
+            axs.scatter([p[0] for p in pos[nodelist_in]],[p[1] for p in pos[nodelist_in]],c=node_color_list[nodelist_in],
+                s=nodesize,marker=nodemarker,cmap=cm,norm=Normalize(vmin=vmin,vmax=vmax),alpha=setalpha,zorder=2)
+            axs.scatter([p[0] for p in pos[nodelist_out]],[p[1] for p in pos[nodelist_out]],c=node_color_list[nodelist_out],
+                s=nodesize,marker=nodemarker,cmap=cm,norm=Normalize(vmin=vmin,vmax=vmax),alpha=nodealpha,zorder=2)
         else:
-            node_collection = axs.scatter([p[0] for p in pos],[p[1] for p in pos],c=nodecolor,s=nodesize,marker=nodemarker)
-        #make sure nodes are on the top
-        node_collection.set_zorder(2)
+            if node_color_list is not None:
+                axs.scatter([p[0] for p in pos],[p[1] for p in pos],c=node_color_list,s=nodesize,marker=nodemarker,
+                    cmap=cm,norm=Normalize(vmin=vmin,vmax=vmax),zorder=2)
+            else:
+                axs.scatter([p[0] for p in pos],[p[1] for p in pos],c=nodecolor,s=nodesize,marker=nodemarker,zorder=2)
         node_list = range(self._num_vertices) if node_list is None else node_list
         edge_pos = []
         for i in node_list:
@@ -738,16 +771,22 @@ class GraphLocal:
         edge_collection.set_zorder(1)
         axs.add_collection(edge_collection)
         axs.autoscale()
-
-    def draw_3d(self,pos,axs,nodemarker='o',nodesize=5,edgealpha=0.01,linewidth=1,
-                node_color_list=None,angle=30,edgecolor='k',nodecolor='r',node_list=None):
-        if node_color_list is not None:
-            node_collection = axs.scatter([p[0] for p in pos],[p[1] for p in pos],[p[2] for p in pos],c=node_color_list,
-                                          s=nodesize,marker=nodemarker,zorder=2)
+    
+    def draw_3d(self,pos,axs,cm,nodemarker='o',nodesize=5,edgealpha=0.01,linewidth=1,
+                node_color_list=None,angle=30,edgecolor='k',nodecolor='r',node_list=None,
+                nodelist_in=None,nodelist_out=None,setalpha=1.0,nodealpha=1.0,use_values=False,vmin=0.0,vmax=1.0):
+        if use_values:
+            axs.scatter([p[0] for p in pos[nodelist_in]],[p[1] for p in pos[nodelist_in]],[p[2] for p in pos[nodelist_in]],c=node_color_list[nodelist_in],
+                s=nodesize,marker=nodemarker,cmap=cm,norm=Normalize(vmin=vmin,vmax=vmax),zorder=2,alpha=setalpha)
+            axs.scatter([p[0] for p in pos[nodelist_out]],[p[1] for p in pos[nodelist_out]],[p[2] for p in pos[nodelist_out]],c=node_color_list[nodelist_out],
+                s=nodesize,marker=nodemarker,cmap=cm,norm=Normalize(vmin=vmin,vmax=vmax),zorder=2,alpha=nodealpha)
         else:
-            node_collection = axs.scatter([p[0] for p in pos],[p[1] for p in pos],[p[2] for p in pos],c=nodecolor,
-                                          s=nodesize,marker=nodemarker,zorder=2)
-        #make sure nodes are on the top
+            if node_color_list is not None:
+                axs.scatter([p[0] for p in pos],[p[1] for p in pos],[p[2] for p in pos],c=node_color_list,
+                    s=nodesize,marker=nodemarker,cmap=cm,norm=Normalize(vmin=vmin,vmax=vmax),zorder=2)
+            else:
+                axs.scatter([p[0] for p in pos],[p[1] for p in pos],[p[2] for p in pos],c=nodecolor,
+                    s=nodesize,marker=nodemarker,zorder=2)
         node_list = range(self._num_vertices) if node_list is None else node_list
         edge_pos = []
         for i in node_list:

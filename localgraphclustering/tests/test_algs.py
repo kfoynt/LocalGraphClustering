@@ -64,12 +64,15 @@ def test_GraphLocal_methods():
 
     # Extract the partition for g and store it.
     eig2_rounded = output_sc[0]
+    ret_dict = g.draw(coords,edgealpha=0.01,nodealpha=0.5,nodeset=eig2_rounded,values=eig2)
     ret_dict = g.draw(coords,edgealpha=0.01,nodealpha=0.5,nodeset=eig2_rounded)
 
     N = generate_random_3Dgraph(n_nodes=200, radius=0.25, seed=1)
-    pos = list(nx.get_node_attributes(N,'pos').values())
+    pos = np.array(list(nx.get_node_attributes(N,'pos').values()))
     G = GraphLocal()
     G = G.from_networkx(N)
+    ret_dict = G.draw(pos,edgealpha=0.01,nodealpha=0.5,nodeset=range(100,150),groups=[range(50),range(50,100)],
+                      values=[random.uniform(0, 1) for i in range(200)])
     ret_dict = G.draw(pos,edgealpha=0.01,nodealpha=0.5,nodeset=range(100,150),groups=[range(50),range(50,100)])
 
 
