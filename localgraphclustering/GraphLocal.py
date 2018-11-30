@@ -23,6 +23,11 @@ from mpl_toolkits.mplot3d.art3d import Line3DCollection
 from matplotlib.colors import to_rgb,to_rgba
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.colors import Normalize
+from matplotlib.cm import ScalarMappable
+
+from collections import defaultdict
+
+from .GraphDrawing import GraphDrawing
 
 def _load_from_shared(sabuf, dtype, shape):
     return np.frombuffer(sabuf, dtype=dtype).reshape(shape)
@@ -625,10 +630,9 @@ class GraphLocal:
         return minverts, minvals
     
     def draw(self,coords,alpha=1.0,nodesize=5,linewidth=1,
-         nodealpha=1.0,edgealpha=0.01,nodecolor='r',
-         edgecolor='k',nodemarker='o',setalpha=1.0,
-         setcolor='y',axs=None,fig=None,nodeset=None,
-         groups=None,values=None,cm="Reds"):
+         nodealpha=1.0,edgealpha=0.01,edgecolor='k',nodemarker='o',
+         setalpha=1.0,axs=None,fig=None,nodeset=None,groups=None,
+         values=None,cm=None,valuecenter=None,angle=30,figsize=None):
         """
         standard drawing function of GraphLocal object
 
@@ -685,13 +689,6 @@ class GraphLocal:
         a dictionary with: 
         fig, ax, setnodes, groupnodes
         """
-        if axs is None:
-            fig = plt.figure()
-            if len(coords[0]) == 3:
-                axs = fig.add_subplot(111, projection='3d')
-            else:
-                axs = fig.add_subplot(111)
-        axs.set_axis_off()
         nodeset = set(nodeset) if nodeset is not None else set()
         nodelist_in = []
         nodelist_out = []
@@ -702,51 +699,64 @@ class GraphLocal:
                 nodelist_out.append(i)
         
         if values is not None:
-            #when values are provided, use values and predefined colormap to determine colors
-            cm = plt.get_cmap(cm)
-            node_color_list = np.reshape(np.array(values),len(coords))
-            vmin = min(values)
-            vmax = max(values)
+            values = np.asarray(values)
+            if values.ndim == 2:
+                node_color_list = np.reshape(values,len(coords))
+            else:
+                node_color_list = values
+            vmin = min(node_color_list)
+            vmax = max(node_color_list)
+            if cm is not None:
+                cm = plt.get_cmap(cm)
+            else:
+                if valuecenter is not None:
+                    #when both values and valuecenter are provided, use PuOr colormap to determine colors
+                    cm = plt.get_cmap("PuOr")
+                    offset = max(abs(node_color_list-valuecenter))
+                    vmax = valuecenter + offset
+                    vmin = valuecenter - offset
+                else:
+                    cm = plt.get_cmap("gist_ncar")
         else:
-            #when values are not provided, use customed colormap to determine colors
-            colors = [to_rgba(nodecolor,alpha*nodealpha),to_rgba(setcolor,alpha*setalpha)]
-            if groups is not None:
-                colorset = set([to_rgb(c) for c in colors])
-                number_of_colors = len(groups)
-                for i in range(number_of_colors):
-                    new_color = to_rgb("#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]))
-                    #make sure color hasn't already existed
-                    while new_color in colorset:
-                        new_color = to_rgb("#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]))
-                    colorset.add(new_color)
-                    colors.append(to_rgba(new_color,alpha*nodealpha))
-            cm = LinearSegmentedColormap.from_list('my_cmap',colors,N=256,gamma=1.0)
+            #when values are not provided, use tab20 or gist_ncar colormap to determine colors
+            number_of_colors = 1
+            number_of_colors += (len(nodelist_in) != 0)
             node_color_list = np.zeros(self._num_vertices)
-            node_color_list[nodelist_in] = 1.0/(len(colors)-1)
             if groups is not None:
+                groups = np.asarray(groups)
+                if groups.ndim == 1:
+                    #convert 1-d group to a 2-d representation
+                    grp_dict = defaultdict(list)
+                    for idx,key in enumerate(groups):
+                        grp_dict[key].append(idx)
+                    groups = np.asarray(list(grp_dict.values()))
+                number_of_colors += len(groups)
+                #separate the color for different groups as far as we can
                 for i,g in enumerate(groups):
-                    node_color_list[g] = (2+i)*1.0/(len(colors)-1)
+                    node_color_list[g] = (2+i)*1.0/(number_of_colors-1)
+            if number_of_colors > 1:
+                node_color_list[nodelist_in] = 1.0/(number_of_colors-1)
+            if number_of_colors <= 20:
+                cm = plt.get_cmap("tab20b")
+            else:
+                cm = plt.get_cmap("gist_ncar")
             vmin = 0.0
             vmax = 1.0
-
+        drawing = GraphDrawing(self,coords,ax=axs,figsize=figsize)
+        m = ScalarMappable(norm=Normalize(vmin=vmin,vmax=vmax), cmap=cm)
+        rgba_list = m.to_rgba(node_color_list,alpha=alpha*nodealpha)
+        drawing.scatter(facecolors=rgba_list,edgecolors=rgba_list,s=nodesize,marker=nodemarker,zorder=2)
+        drawing.plot(colors=to_rgba(edgecolor,edgealpha),linewidths=linewidth)
+        drawing.nodecolor(nodelist_in,alpha=alpha*setalpha)
+        axs = drawing.ax
+        axs.autoscale()
         if len(coords[0]) == 3:
-            self.draw_3d(coords,axs,cm,nodemarker=nodemarker,nodesize=nodesize,edgealpha=alpha*edgealpha,
-                    linewidth=linewidth,node_color_list=node_color_list,vmin=vmin,vmax=vmax,nodelist_in=nodelist_in,
-                    nodelist_out=nodelist_out,setalpha=alpha*setalpha,nodealpha=alpha*nodealpha,use_values=(values is not None))
-        else:
-            self.draw_2d(coords,axs,cm,nodemarker=nodemarker,nodesize=nodesize,edgealpha=alpha*edgealpha,
-                    linewidth=linewidth,node_color_list=node_color_list,vmin=vmin,vmax=vmax,nodelist_in=nodelist_in,
-                    nodelist_out=nodelist_out,setalpha=alpha*setalpha,nodealpha=alpha*nodealpha,use_values=(values is not None))
-
-        ret_dict = {"fig":fig,"ax":axs,"setnodes":nodelist_in,"groupnodes":groups}
-        return ret_dict
+            # Set the initial view
+            axs.view_init(30, angle)
+        
+        return drawing
     
-    @staticmethod
-    def draw_star(center,points,pos,edge_pos):
-        for i,p in enumerate(points):
-            if p >= center:
-                edge_pos.append([pos[center],pos[p]])
-              
+    """     
     def draw_2d(self,pos,axs,cm,nodemarker='o',nodesize=5,edgealpha=0.01,linewidth=1,
                 node_color_list=None,edgecolor='k',nodecolor='r',node_list=None,nodelist_in=None,
                 nodelist_out=None,setalpha=1.0,nodealpha=1.0,use_values=False,vmin=0.0,vmax=1.0):
@@ -764,7 +774,7 @@ class GraphLocal:
         node_list = range(self._num_vertices) if node_list is None else node_list
         edge_pos = []
         for i in node_list:
-            self.draw_star(i,self.aj[self.ai[i]:self.ai[i+1]],pos,edge_pos)
+            self._push_edges_for_node(i,self.aj[self.ai[i]:self.ai[i+1]],pos,edge_pos)
         edge_pos = np.asarray(edge_pos)
         edge_collection = LineCollection(edge_pos,colors=to_rgba(edgecolor,edgealpha),linewidths=linewidth)
         #make sure edges are at the bottom
@@ -790,7 +800,7 @@ class GraphLocal:
         node_list = range(self._num_vertices) if node_list is None else node_list
         edge_pos = []
         for i in node_list:
-            self.draw_star(i,self.aj[self.ai[i]:self.ai[i+1]],pos,edge_pos)
+            self._push_edges_for_node(i,self.aj[self.ai[i]:self.ai[i+1]],pos,edge_pos)
         edge_pos = np.asarray(edge_pos)
         edge_collection = Line3DCollection(edge_pos,colors=to_rgba(edgecolor,edgealpha),linewidths=linewidth)
         #make sure edges are at the bottom
@@ -799,3 +809,4 @@ class GraphLocal:
         axs.autoscale()
         # Set the initial view
         axs.view_init(30, angle)
+    """

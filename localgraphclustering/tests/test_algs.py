@@ -49,13 +49,9 @@ def test_GraphLocal_methods():
     G = GraphLocal("notebooks/datasets/neuro-fmri-01.edges",file_type = "edgelist", separator = " ", header = True)
 
     # Test drawing fuinctions
-    g = GraphLocal('notebooks/datasets/JohnsHopkins.graphml','graphml','\t')
-    ld_coord = np.loadtxt('notebooks/datasets/JohnHopkins_coord.xy', dtype = 'Float64')
-    idx = np.argsort(ld_coord[:,0])
-    coords = []
-    for i in range(g._num_vertices):
-        coords.append(ld_coord[idx[i],1:3])
-    coords = np.array(coords)
+    # Read John Hopkins graph.
+    g = GraphLocal('./datasets/JohnsHopkins.graphml','graphml','\t')
+
     # Call the global spectral partitioning algorithm.
     eig2 = fiedler(g)[0]
 
@@ -64,16 +60,37 @@ def test_GraphLocal_methods():
 
     # Extract the partition for g and store it.
     eig2_rounded = output_sc[0]
-    ret_dict = g.draw(coords,edgealpha=0.01,nodealpha=0.5,nodeset=eig2_rounded,values=eig2)
-    ret_dict = g.draw(coords,edgealpha=0.01,nodealpha=0.5,nodeset=eig2_rounded)
+
+    ld_coord = np.loadtxt('./datasets/JohnHopkins_coord.xy', dtype = 'Float64')
+    idx = np.argsort(ld_coord[:,0])
+    pos = np.zeros((g._num_vertices,2))
+    for i in range(g._num_vertices):
+        pos[i] = ld_coord[idx[i],1:3]
+    drawing = g.draw(pos,nodeset=eig2_rounded,figsize=(100,50),nodesize=10**2,edgealpha=0.01)
+
+    # Find the solution of L1-regularized PageRank using localized accelerated gradient descent.
+    # This method is the fastest among other l1-regularized solvers and other approximate PageRank solvers.
+    reference_node = [2767]
+    l1_reg_vector = approximate_PageRank(g,reference_node,rho=5.0e-5,method="l1reg")
+    drawing = g.draw(pos,nodeset=l1_reg_vector[0],figsize=(100,50),nodesize=10**2,edgealpha=0.01)
+    
+    # Highlight local cluster
+    drawing.highlight(l1_reg_vector[0],otheredges=True)
+    drawing.nodesize(l1_reg_vector[0],50**2)
+    drawing.show()
+
+    # Make reference node larger and more obvious
+    drawing.nodecolor(reference_node,edgecolor='r',facecolor='b',alpha=1)
+    drawing.nodesize(l1_reg_vector[0],80**2)
+    drawing.show()
 
     N = generate_random_3Dgraph(n_nodes=200, radius=0.25, seed=1)
     pos = np.array(list(nx.get_node_attributes(N,'pos').values()))
     G = GraphLocal()
     G = G.from_networkx(N)
-    ret_dict = G.draw(pos,edgealpha=0.01,nodealpha=0.5,nodeset=range(100,150),groups=[range(50),range(50,100)],
+    drawing = G.draw(pos,edgealpha=0.01,nodealpha=0.5,nodeset=range(100,150),groups=[range(50),range(50,100)],
                       values=[random.uniform(0, 1) for i in range(200)])
-    ret_dict = G.draw(pos,edgealpha=0.01,nodealpha=0.5,nodeset=range(100,150),groups=[range(50),range(50,100)])
+    drawing = G.draw(pos,edgealpha=0.01,nodealpha=0.5,nodeset=range(100,150),groups=[range(50),range(50,100)])
 
 
 def test_sweepcut_self_loop():
