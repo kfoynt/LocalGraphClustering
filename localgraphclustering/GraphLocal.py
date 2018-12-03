@@ -629,10 +629,54 @@ class GraphLocal:
 
         return minverts, minvals
     
+    @staticmethod
+    def plotting(drawing,rgba_list,nodesize,nodemarker,edgecolor,edgealpha,linewidth,is_3d):
+        drawing.scatter(facecolors=rgba_list,edgecolors=rgba_list,s=nodesize,marker=nodemarker,zorder=2)
+        drawing.plot(colors=to_rgba(edgecolor,edgealpha),linewidths=linewidth)
+        axs = drawing.ax
+        axs.autoscale()
+        if is_3d == 3:
+            # Set the initial view
+            axs.view_init(30, angle)
+
+
     def draw(self,coords,alpha=1.0,nodesize=5,linewidth=1,
-         nodealpha=1.0,edgealpha=0.01,edgecolor='k',nodemarker='o',
-         setalpha=1.0,axs=None,fig=None,nodeset=None,groups=None,
-         values=None,cm=None,valuecenter=None,angle=30,figsize=None):
+         nodealpha=1.0,edgealpha=1.0,edgecolor='k',nodemarker='o',
+         axs=None,fig=None,values=None,cm=None,valuecenter=None,angle=30,
+         figsize=None,nodecolor='r'):
+        if values is not None:
+            values = np.asarray(values)
+            if values.ndim == 2:
+                node_color_list = np.reshape(values,len(coords))
+            else:
+                node_color_list = values
+            vmin = min(node_color_list)
+            vmax = max(node_color_list)
+            if cm is not None:
+                cm = plt.get_cmap(cm)
+            else:
+                if valuecenter is not None:
+                    #when both values and valuecenter are provided, use PuOr colormap to determine colors
+                    cm = plt.get_cmap("PuOr")
+                    offset = max(abs(node_color_list-valuecenter))
+                    vmax = valuecenter + offset
+                    vmin = valuecenter - offset
+                else:
+                    cm = plt.get_cmap("gist_ncar")
+            m = ScalarMappable(norm=Normalize(vmin=vmin,vmax=vmax), cmap=cm)
+            rgba_list = m.to_rgba(node_color_list,alpha=alpha*nodealpha)
+        else:
+            rgba_list = np.array([to_rgba(nodecolor,alpha=alpha*nodealpha) for _ in range(self._num_vertices)])
+        
+        drawing = GraphDrawing(self,coords,ax=axs,figsize=figsize)
+        self.plotting(drawing,rgba_list,nodesize,nodemarker,edgecolor,edgealpha,linewidth,len(coords[0])==3)
+
+        return drawing
+
+
+    def draw_groups(self,coords,groups,alpha=1.0,nodesize=5,linewidth=1,
+         nodealpha=1.0,edgealpha=0.01,edgecolor='k',nodemarker='o',axs=None,
+         fig=None,cm=None,angle=30,figsize=None):
         """
         standard drawing function of GraphLocal object
 
@@ -689,71 +733,33 @@ class GraphLocal:
         a dictionary with: 
         fig, ax, setnodes, groupnodes
         """
-        nodeset = set(nodeset) if nodeset is not None else set()
-        nodelist_in = []
-        nodelist_out = []
-        for i in range(self._num_vertices):
-            if i in nodeset:
-                nodelist_in.append(i)
-            else:
-                nodelist_out.append(i)
         
-        if values is not None:
-            values = np.asarray(values)
-            if values.ndim == 2:
-                node_color_list = np.reshape(values,len(coords))
-            else:
-                node_color_list = values
-            vmin = min(node_color_list)
-            vmax = max(node_color_list)
-            if cm is not None:
-                cm = plt.get_cmap(cm)
-            else:
-                if valuecenter is not None:
-                    #when both values and valuecenter are provided, use PuOr colormap to determine colors
-                    cm = plt.get_cmap("PuOr")
-                    offset = max(abs(node_color_list-valuecenter))
-                    vmax = valuecenter + offset
-                    vmin = valuecenter - offset
-                else:
-                    cm = plt.get_cmap("gist_ncar")
+        #when values are not provided, use tab20 or gist_ncar colormap to determine colors
+        number_of_colors = 1
+        node_color_list = np.zeros(self._num_vertices)
+        groups = np.asarray(groups)
+        if groups.ndim == 1:
+            #convert 1-d group to a 2-d representation
+            grp_dict = defaultdict(list)
+            for idx,key in enumerate(groups):
+                grp_dict[key].append(idx)
+            groups = np.asarray(list(grp_dict.values()))
+        number_of_colors += len(groups)
+        #separate the color for different groups as far as we can
+        for i,g in enumerate(groups):
+            node_color_list[g] = (1+i)*1.0/(number_of_colors-1)
+        if number_of_colors <= 20:
+            cm = plt.get_cmap("tab20b")
         else:
-            #when values are not provided, use tab20 or gist_ncar colormap to determine colors
-            number_of_colors = 1
-            number_of_colors += (len(nodelist_in) != 0)
-            node_color_list = np.zeros(self._num_vertices)
-            if groups is not None:
-                groups = np.asarray(groups)
-                if groups.ndim == 1:
-                    #convert 1-d group to a 2-d representation
-                    grp_dict = defaultdict(list)
-                    for idx,key in enumerate(groups):
-                        grp_dict[key].append(idx)
-                    groups = np.asarray(list(grp_dict.values()))
-                number_of_colors += len(groups)
-                #separate the color for different groups as far as we can
-                for i,g in enumerate(groups):
-                    node_color_list[g] = (2+i)*1.0/(number_of_colors-1)
-            if number_of_colors > 1:
-                node_color_list[nodelist_in] = 1.0/(number_of_colors-1)
-            if number_of_colors <= 20:
-                cm = plt.get_cmap("tab20b")
-            else:
-                cm = plt.get_cmap("gist_ncar")
-            vmin = 0.0
-            vmax = 1.0
+            cm = plt.get_cmap("gist_ncar")
+        vmin = 0.0
+        vmax = 1.0
         drawing = GraphDrawing(self,coords,ax=axs,figsize=figsize)
         m = ScalarMappable(norm=Normalize(vmin=vmin,vmax=vmax), cmap=cm)
         rgba_list = m.to_rgba(node_color_list,alpha=alpha*nodealpha)
-        drawing.scatter(facecolors=rgba_list,edgecolors=rgba_list,s=nodesize,marker=nodemarker,zorder=2)
-        drawing.plot(colors=to_rgba(edgecolor,edgealpha),linewidths=linewidth)
-        drawing.nodecolor(nodelist_in,alpha=alpha*setalpha)
-        axs = drawing.ax
-        axs.autoscale()
-        if len(coords[0]) == 3:
-            # Set the initial view
-            axs.view_init(30, angle)
         
+        self.plotting(drawing,rgba_list,nodesize,nodemarker,edgecolor,edgealpha,linewidth,len(coords[0])==3)
+
         return drawing
     
     """     

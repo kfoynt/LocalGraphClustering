@@ -107,6 +107,17 @@ class GraphDrawing:
             sizes[node] = np.reshape(nodesize,len(nodesize))
         self.nodes_collection.set_sizes(sizes)
         return sizes[node]
+
+    def nodewidth(self,node,width):
+        widths = np.asarray(self.nodes_collection.get_linewidths())
+        if len(widths) == 1:
+            widths = np.array([widths[0]]*self.G._num_vertices)
+        if isinstance(width,float) or isinstance(width,int):
+            widths[node] = width
+        else:
+            widths[node] = np.reshape(width,len(width))
+        self.nodes_collection.set_linewidths(widths)
+        return widths[node]
     
     @staticmethod
     def _update_color(container,key,c,alpha):
@@ -140,4 +151,5 @@ class GraphDrawing:
         #make sure edges are at the bottom
         self.edge_collection.set_zorder(1)
         self.ax.add_collection(self.edge_collection)
+    
 
