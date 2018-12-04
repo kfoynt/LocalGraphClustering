@@ -95,7 +95,7 @@ def test_GraphLocal_methods():
     pos = np.array(list(nx.get_node_attributes(N,'pos').values()))
     G = GraphLocal()
     G = G.from_networkx(N)
-    drawing = G.draw(pos,edgealpha=0.01,nodealpha=0.5,groups=[range(50),range(50,100)],
+    drawing = G.draw(pos,edgealpha=0.01,nodealpha=0.5,
                       values=[random.uniform(0, 1) for i in range(200)])
     drawing = G.draw_groups(pos,[range(50),range(50,100),range(100,150)],edgealpha=0.01,nodealpha=0.5)
 
