@@ -630,7 +630,7 @@ class GraphLocal:
         return minverts, minvals
     
     @staticmethod
-    def plotting(drawing,rgba_list,nodesize,nodemarker,edgecolor,edgealpha,linewidth,is_3d):
+    def _plotting(drawing,rgba_list,nodesize,nodemarker,edgecolor,edgealpha,linewidth,is_3d):
         drawing.scatter(facecolors=rgba_list,edgecolors=rgba_list,s=nodesize,marker=nodemarker,zorder=2)
         drawing.plot(colors=to_rgba(edgecolor,edgealpha),linewidths=linewidth)
         axs = drawing.ax
@@ -662,14 +662,14 @@ class GraphLocal:
                     vmax = valuecenter + offset
                     vmin = valuecenter - offset
                 else:
-                    cm = plt.get_cmap("gist_ncar")
+                    cm = plt.get_cmap("magma")
             m = ScalarMappable(norm=Normalize(vmin=vmin,vmax=vmax), cmap=cm)
             rgba_list = m.to_rgba(node_color_list,alpha=alpha*nodealpha)
         else:
             rgba_list = np.array([to_rgba(nodecolor,alpha=alpha*nodealpha) for _ in range(self._num_vertices)])
         
         drawing = GraphDrawing(self,coords,ax=axs,figsize=figsize)
-        self.plotting(drawing,rgba_list,nodesize,nodemarker,edgecolor,edgealpha,linewidth,len(coords[0])==3)
+        self._plotting(drawing,rgba_list,nodesize,nodemarker,edgecolor,edgealpha,linewidth,len(coords[0])==3)
 
         return drawing
 
@@ -751,14 +751,14 @@ class GraphLocal:
         if number_of_colors <= 20:
             cm = plt.get_cmap("tab20b")
         else:
-            cm = plt.get_cmap("gist_ncar")
+            cm = plt.get_cmap("magma")
         vmin = 0.0
         vmax = 1.0
         drawing = GraphDrawing(self,coords,ax=axs,figsize=figsize)
         m = ScalarMappable(norm=Normalize(vmin=vmin,vmax=vmax), cmap=cm)
         rgba_list = m.to_rgba(node_color_list,alpha=alpha*nodealpha)
         
-        self.plotting(drawing,rgba_list,nodesize,nodemarker,edgecolor,edgealpha,linewidth,len(coords[0])==3)
+        self._plotting(drawing,rgba_list,nodesize,nodemarker,edgecolor,edgealpha,linewidth,len(coords[0])==3)
 
         return drawing
     

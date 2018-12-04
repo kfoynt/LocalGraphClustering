@@ -13,7 +13,7 @@ class GraphDrawing:
         self.G = G
         self.coords = coords
         self.is_3d = (len(coords[0]) == 3)
-        self.edge_pos,self.edge_mapping = self._build_edgepos(G,coords)
+        self.edge_pos,self.edge_mapping = self._plotting_build_edgepos(G,coords)
         if ax is None:
             fig = plt.figure(figsize=figsize)
             if len(coords[0]) == 3:
@@ -31,18 +31,18 @@ class GraphDrawing:
 
     
     @staticmethod
-    def _push_edges_for_node(center,points,pos,edge_pos,edge_mapping):
+    def _plotting_push_edges_for_node(center,points,pos,edge_pos,edge_mapping):
         for i,p in enumerate(points):
             if p >= center:
                 edge_mapping[(center,p)] = len(edge_pos)
                 edge_pos.append([pos[center],pos[p]])
 
     @staticmethod
-    def _build_edgepos(G,pos):
+    def _plotting_build_edgepos(G,pos):
         edge_pos = []
         edge_mapping = {}
         for i in range(G._num_vertices):
-            GraphDrawing._push_edges_for_node(i,G.aj[G.ai[i]:G.ai[i+1]],pos,edge_pos,edge_mapping)
+            GraphDrawing._plotting_push_edges_for_node(i,G.aj[G.ai[i]:G.ai[i+1]],pos,edge_pos,edge_mapping)
         edge_pos = np.asarray(edge_pos)
         return edge_pos,edge_mapping
 
@@ -85,17 +85,17 @@ class GraphDrawing:
             facecolor = c
         if facecolor is not None or alpha is not None:
             colors = self.nodes_collection.get_facecolor()
-            self._update_color(colors,node,facecolor,alpha)
+            self._plotting_update_color(colors,node,facecolor,alpha)
         if edgecolor is not None or alpha is not None:
             colors = self.nodes_collection.get_edgecolor()
-            self._update_color(colors,node,edgecolor,alpha)
+            self._plotting_update_color(colors,node,edgecolor,alpha)
 
         return self.nodes_collection.get_facecolor()[node]
 
     def edgecolor(self,i,j,c=None,alpha=None):
         colors = self.edge_collection.get_edgecolor()
         idx = self.edge_mapping[(i,j)]
-        return self._update_color(colors,idx,c,alpha)
+        return self._plotting_update_color(colors,idx,c,alpha)
 
     def nodesize(self,node,nodesize):
         sizes = self.nodes_collection.get_sizes()
@@ -120,7 +120,7 @@ class GraphDrawing:
         return widths[node]
     
     @staticmethod
-    def _update_color(container,key,c,alpha):
+    def _plotting_update_color(container,key,c,alpha):
         if c is not None:
             if c == "none":
                 container[key] = c
