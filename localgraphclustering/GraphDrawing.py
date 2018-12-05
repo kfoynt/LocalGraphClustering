@@ -142,6 +142,7 @@ class GraphDrawing:
             self.nodes_collection = self.ax.scatter([p[0] for p in coords],[p[1] for p in coords],**kwargs)
         else:
             self.nodes_collection = self.ax.scatter([p[0] for p in coords],[p[1] for p in coords],[p[2] for p in coords],**kwargs)
+        self.ax._sci(self.nodes_collection)
         
     def plot(self,**kwargs):
         if len(self.coords[0]) == 2:
@@ -151,5 +152,6 @@ class GraphDrawing:
         #make sure edges are at the bottom
         self.edge_collection.set_zorder(1)
         self.ax.add_collection(self.edge_collection)
+        self.ax._sci(self.edge_collection)
     
 
