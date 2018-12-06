@@ -34,6 +34,7 @@ The current version is 0.4.4 and it is appropriate for experts and intermediates
 - Global spectral partitioning
 - Densest subgraph
 - [Triangle clusters and vertex neighborhood metrics](https://arxiv.org/pdf/1112.0031.pdf)
+- Handy network drawing methods
 
 ## Pipelines
 
@@ -80,9 +81,9 @@ print("Conductance after improvement:",g.compute_conductance(output_SL_fast[0]))
 output_SL = output_SL_fast[0]
 ```
 
-## Examples with visualization for social networks
+## Examples with visualization
 
-For examples with visualization see the Jupyter notebook [examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/new_visualization_examples.ipynb).
+For general examples with visualization using our built-in drawing methods, see the Jupyter notebook [examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/new_visualization_examples.ipynb).
 
 For comparisons of spectral- and flow-based methods with visualization see the Jupyter notebooks [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/spectral_vs_flow_with_visualization.ipynb) and [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/spectral_vs_flow_2_with_visualization.ipynb).
 
