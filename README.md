@@ -82,15 +82,11 @@ output_SL = output_SL_fast[0]
 
 ## Examples with visualization for social networks
 
-For examples with visualization of the output see the Jupyter notebooks [examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples_with_visualization.ipynb), [more examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/more_examples_with_visualization.ipynb).
+For examples with visualization see the Jupyter notebook [examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/new_visualization_examples.ipynb).
 
 For comparisons of spectral- and flow-based methods with visualization see the Jupyter notebooks [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/spectral_vs_flow_with_visualization.ipynb) and [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/spectral_vs_flow_2_with_visualization.ipynb).
 
 For visual demonstration of algorithms that can improve a given seed set of nodes see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/improveType_algorithms_with_visualization.ipynb).
-
-## Examples with visualization for bioinformatics networks
-
-For examples with visualization see the Jupyter notebook [bioinformatics examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples_Bioinformatics_with_visualization.ipynb).
 
 ## Scalable graph analytics on your laptop
 
