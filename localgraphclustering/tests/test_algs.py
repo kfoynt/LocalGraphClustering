@@ -1,9 +1,24 @@
 from localgraphclustering import *
 import time
 import numpy as np
+import networkx as nx
+import random
 
 def load_example_graph(vtype,itype):
     return GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ",vtype=vtype,itype=itype)
+
+def generate_random_3Dgraph(n_nodes, radius, seed=None):
+
+    if seed is not None:
+        random.seed(seed)
+    
+    # Generate a dict of positions
+    pos = {i: (random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1)) for i in range(n_nodes)}
+    
+    # Create random 3D network
+    G = nx.random_geometric_graph(n_nodes, radius, pos=pos)
+
+    return G
 
 def test_GraphLocal_methods():
     g = load_example_graph(np.uint32,np.uint32)
@@ -32,6 +47,58 @@ def test_GraphLocal_methods():
 
     # Test graph with more than one components
     G = GraphLocal("notebooks/datasets/neuro-fmri-01.edges",file_type = "edgelist", separator = " ", header = True)
+
+    # Test drawing fuinctions
+    # Read graph. This also supports gml and graphml format.
+    # The data set contains pairwise similarities of blasted 
+    # sequences of 232 proteins belonging to the amidohydrolase superfamily. 
+    g = GraphLocal('notebooks/datasets/sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh.graphml','graphml',' ')
+
+    # Load pre-computed coordinates for nodes.
+    pos = np.loadtxt('notebooks/datasets/sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh.xy', dtype = 'float')
+
+    groups = np.loadtxt('notebooks/datasets/sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh.class', dtype = 'float')
+
+    drawing = g.draw_groups(pos,groups,figsize=(15,15),nodesize=10**2,edgealpha=0.05)
+
+    # Find the solution of L1-regularized PageRank using localized accelerated gradient descent.
+    # This method is the fastest among other l1-regularized solvers and other approximate PageRank solvers.
+    reference_node = [218]
+    l1_reg_vector = approximate_PageRank(g,reference_node,rho=1.0e-4,method="l1reg")
+
+    # Call C++ version of sweep cut rounding on the l1-regularized PageRank solution.
+    output_sc_fast = sweep_cut(g,l1_reg_vector)
+
+    # Extract the partition for g and store it.
+    l1_reg_vector_rounded = output_sc_fast[0]
+
+    # Highlight local cluster
+    drawing.highlight(l1_reg_vector_rounded,otheredges=True,filled=True)
+    drawing.nodesize(l1_reg_vector_rounded,10**2)
+    drawing.nodecolor(l1_reg_vector_rounded,c='y')
+    # Make reference node larger and thicker
+    drawing.nodecolor(reference_node,facecolor='r',edgecolor='g',alpha=1)
+    drawing.nodesize(reference_node,15**2)
+    drawing.nodewidth(reference_node,3)
+    drawing.show()
+
+    #redraw the graph first
+    drawing = g.draw_groups(pos,groups,figsize=(15,15),nodesize=5**2,edgealpha=0.05)
+
+    # Nodes circled whose color is not blue are missclassified
+    drawing.nodecolor(l1_reg_vector_rounded,edgecolor='g',alpha=1)
+    drawing.nodesize(l1_reg_vector_rounded,15**2)
+    drawing.nodewidth(l1_reg_vector_rounded,5)
+    drawing.show()
+
+    N = generate_random_3Dgraph(n_nodes=200, radius=0.25, seed=1)
+    pos = np.array(list(nx.get_node_attributes(N,'pos').values()))
+    G = GraphLocal()
+    G = G.from_networkx(N)
+    drawing = G.draw(pos,edgealpha=0.01,nodealpha=0.5,
+                      values=[random.uniform(0, 1) for i in range(200)])
+    drawing = G.draw_groups(pos,[range(50),range(50,100),range(100,150)],edgealpha=0.01,nodealpha=0.5)
+
 
 def test_sweepcut_self_loop():
     """ This is a regression test for sweep-cuts with self-loops """

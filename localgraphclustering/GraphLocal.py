@@ -8,12 +8,26 @@ import pandas as pd
 import warnings
 import collections as cole
 from .cpp import *
+import random
 
 import gzip
 import bz2
 import lzma
 
 import multiprocessing as mp
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.collections import LineCollection
+from mpl_toolkits.mplot3d.art3d import Line3DCollection
+from matplotlib.colors import to_rgb,to_rgba
+from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.colors import Normalize
+from matplotlib.cm import ScalarMappable
+
+from collections import defaultdict
+
+from .GraphDrawing import GraphDrawing
 
 def _load_from_shared(sabuf, dtype, shape):
     return np.frombuffer(sabuf, dtype=dtype).reshape(shape)
@@ -558,8 +572,6 @@ class GraphLocal:
         Parameters
         ----------
 
-        G: GraphLocal
-
         vals: Sequence[float]
             a feature value per node used to find the ex against each other, i.e. conductance
 
@@ -616,3 +628,191 @@ class GraphLocal:
         minvals = vals[minverts]
 
         return minverts, minvals
+    
+    @staticmethod
+    def _plotting(drawing,rgba_list,nodesize,nodemarker,edgecolor,edgealpha,linewidth,is_3d):
+        drawing.scatter(facecolors=rgba_list,edgecolors=rgba_list,s=nodesize,marker=nodemarker,zorder=2)
+        drawing.plot(colors=to_rgba(edgecolor,edgealpha),linewidths=linewidth)
+        axs = drawing.ax
+        axs.autoscale()
+        if is_3d == 3:
+            # Set the initial view
+            axs.view_init(30, angle)
+
+
+    def draw(self,coords,alpha=1.0,nodesize=5,linewidth=1,
+         nodealpha=1.0,edgealpha=1.0,edgecolor='k',nodemarker='o',
+         axs=None,fig=None,values=None,cm=None,valuecenter=None,angle=30,
+         figsize=None,nodecolor='r'):
+        if values is not None:
+            values = np.asarray(values)
+            if values.ndim == 2:
+                node_color_list = np.reshape(values,len(coords))
+            else:
+                node_color_list = values
+            vmin = min(node_color_list)
+            vmax = max(node_color_list)
+            if cm is not None:
+                cm = plt.get_cmap(cm)
+            else:
+                if valuecenter is not None:
+                    #when both values and valuecenter are provided, use PuOr colormap to determine colors
+                    cm = plt.get_cmap("PuOr")
+                    offset = max(abs(node_color_list-valuecenter))
+                    vmax = valuecenter + offset
+                    vmin = valuecenter - offset
+                else:
+                    cm = plt.get_cmap("magma")
+            m = ScalarMappable(norm=Normalize(vmin=vmin,vmax=vmax), cmap=cm)
+            rgba_list = m.to_rgba(node_color_list,alpha=alpha*nodealpha)
+        else:
+            rgba_list = np.array([to_rgba(nodecolor,alpha=alpha*nodealpha) for _ in range(self._num_vertices)])
+        
+        drawing = GraphDrawing(self,coords,ax=axs,figsize=figsize)
+        self._plotting(drawing,rgba_list,nodesize,nodemarker,edgecolor,edgealpha,linewidth,len(coords[0])==3)
+
+        return drawing
+
+
+    def draw_groups(self,coords,groups,alpha=1.0,nodesize=5,linewidth=1,
+         nodealpha=1.0,edgealpha=0.01,edgecolor='k',nodemarker='o',axs=None,
+         fig=None,cm=None,angle=30,figsize=None):
+        """
+        standard drawing function of GraphLocal object
+
+        Parameters
+        ----------
+
+        coords: a n-by-2 or n-by-3 array with coordinates for each node of the graph.
+
+        Optional parameters
+        ------------------
+
+        alpha: float (1.0 by default)
+            the overall alpha scaling of the plot, [0,1]
+
+        nodealpha: float (1.0 by default)
+            the overall node alpha scaling of the plot, [0, 1]
+
+        edgealpha: float (1.0 by default)
+            the overall edge alpha scaling of the plot, [0, 1]
+
+        setalpha: float (1.0 by default)
+            the overall set alpha scaling of the plot, [0, 1]
+
+        nodecolor: string or RGB ('r' by default)
+
+        edgecolor: string or RGB ('k' by default)
+
+        setcolor: string or RGB ('y' by default)
+
+        nodemarker: string ('o' by default)
+
+        nodesize: float (5.0 by default)
+
+        linewidth: float (1.0 by default)
+
+        nodeset: Sequence[int] (None by default)
+            a set of nodes to highlight
+
+        groups: Sequence[Sequence[int]] (None by default)
+            node partitions, different colors will be assigned to different groups
+
+        axs,fig: None,None (default) 
+            by default it will create a new figure, or this will plot in axs if not None.
+
+        values: Sequence[float] (None by default)
+            used to determine node colors in a colormap, should have the same length as coords
+
+        cm: string ("Reds" by default)
+            colormap
+
+        Returns
+        -------
+
+        a dictionary with: 
+        fig, ax, setnodes, groupnodes
+        """
+        
+        #when values are not provided, use tab20 or gist_ncar colormap to determine colors
+        number_of_colors = 1
+        node_color_list = np.zeros(self._num_vertices)
+        groups = np.asarray(groups)
+        if groups.ndim == 1:
+            #convert 1-d group to a 2-d representation
+            grp_dict = defaultdict(list)
+            for idx,key in enumerate(groups):
+                grp_dict[key].append(idx)
+            groups = np.asarray(list(grp_dict.values()))
+        number_of_colors += len(groups)
+        #separate the color for different groups as far as we can
+        for i,g in enumerate(groups):
+            node_color_list[g] = (1+i)*1.0/(number_of_colors-1)
+        if number_of_colors <= 20:
+            cm = plt.get_cmap("tab20b")
+        else:
+            cm = plt.get_cmap("magma")
+        vmin = 0.0
+        vmax = 1.0
+        drawing = GraphDrawing(self,coords,ax=axs,figsize=figsize)
+        m = ScalarMappable(norm=Normalize(vmin=vmin,vmax=vmax), cmap=cm)
+        rgba_list = m.to_rgba(node_color_list,alpha=alpha*nodealpha)
+        
+        self._plotting(drawing,rgba_list,nodesize,nodemarker,edgecolor,edgealpha,linewidth,len(coords[0])==3)
+
+        return drawing
+    
+    """     
+    def draw_2d(self,pos,axs,cm,nodemarker='o',nodesize=5,edgealpha=0.01,linewidth=1,
+                node_color_list=None,edgecolor='k',nodecolor='r',node_list=None,nodelist_in=None,
+                nodelist_out=None,setalpha=1.0,nodealpha=1.0,use_values=False,vmin=0.0,vmax=1.0):
+        if use_values:
+            axs.scatter([p[0] for p in pos[nodelist_in]],[p[1] for p in pos[nodelist_in]],c=node_color_list[nodelist_in],
+                s=nodesize,marker=nodemarker,cmap=cm,norm=Normalize(vmin=vmin,vmax=vmax),alpha=setalpha,zorder=2)
+            axs.scatter([p[0] for p in pos[nodelist_out]],[p[1] for p in pos[nodelist_out]],c=node_color_list[nodelist_out],
+                s=nodesize,marker=nodemarker,cmap=cm,norm=Normalize(vmin=vmin,vmax=vmax),alpha=nodealpha,zorder=2)
+        else:
+            if node_color_list is not None:
+                axs.scatter([p[0] for p in pos],[p[1] for p in pos],c=node_color_list,s=nodesize,marker=nodemarker,
+                    cmap=cm,norm=Normalize(vmin=vmin,vmax=vmax),zorder=2)
+            else:
+                axs.scatter([p[0] for p in pos],[p[1] for p in pos],c=nodecolor,s=nodesize,marker=nodemarker,zorder=2)
+        node_list = range(self._num_vertices) if node_list is None else node_list
+        edge_pos = []
+        for i in node_list:
+            self._push_edges_for_node(i,self.aj[self.ai[i]:self.ai[i+1]],pos,edge_pos)
+        edge_pos = np.asarray(edge_pos)
+        edge_collection = LineCollection(edge_pos,colors=to_rgba(edgecolor,edgealpha),linewidths=linewidth)
+        #make sure edges are at the bottom
+        edge_collection.set_zorder(1)
+        axs.add_collection(edge_collection)
+        axs.autoscale()
+    
+    def draw_3d(self,pos,axs,cm,nodemarker='o',nodesize=5,edgealpha=0.01,linewidth=1,
+                node_color_list=None,angle=30,edgecolor='k',nodecolor='r',node_list=None,
+                nodelist_in=None,nodelist_out=None,setalpha=1.0,nodealpha=1.0,use_values=False,vmin=0.0,vmax=1.0):
+        if use_values:
+            axs.scatter([p[0] for p in pos[nodelist_in]],[p[1] for p in pos[nodelist_in]],[p[2] for p in pos[nodelist_in]],c=node_color_list[nodelist_in],
+                s=nodesize,marker=nodemarker,cmap=cm,norm=Normalize(vmin=vmin,vmax=vmax),zorder=2,alpha=setalpha)
+            axs.scatter([p[0] for p in pos[nodelist_out]],[p[1] for p in pos[nodelist_out]],[p[2] for p in pos[nodelist_out]],c=node_color_list[nodelist_out],
+                s=nodesize,marker=nodemarker,cmap=cm,norm=Normalize(vmin=vmin,vmax=vmax),zorder=2,alpha=nodealpha)
+        else:
+            if node_color_list is not None:
+                axs.scatter([p[0] for p in pos],[p[1] for p in pos],[p[2] for p in pos],c=node_color_list,
+                    s=nodesize,marker=nodemarker,cmap=cm,norm=Normalize(vmin=vmin,vmax=vmax),zorder=2)
+            else:
+                axs.scatter([p[0] for p in pos],[p[1] for p in pos],[p[2] for p in pos],c=nodecolor,
+                    s=nodesize,marker=nodemarker,zorder=2)
+        node_list = range(self._num_vertices) if node_list is None else node_list
+        edge_pos = []
+        for i in node_list:
+            self._push_edges_for_node(i,self.aj[self.ai[i]:self.ai[i+1]],pos,edge_pos)
+        edge_pos = np.asarray(edge_pos)
+        edge_collection = Line3DCollection(edge_pos,colors=to_rgba(edgecolor,edgealpha),linewidths=linewidth)
+        #make sure edges are at the bottom
+        edge_collection.set_zorder(1)
+        axs.add_collection(edge_collection)
+        axs.autoscale()
+        # Set the initial view
+        axs.view_init(30, angle)
+    """

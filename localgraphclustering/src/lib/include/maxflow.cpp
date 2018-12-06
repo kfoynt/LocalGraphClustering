@@ -6,6 +6,8 @@
 #include <climits>
 #include <utility>
 #include <iostream>
+#include <stack> 
+#include <algorithm> 
 
 /*
 Based on http://www.geeksforgeeks.org/dinics-algorithm-maximum-flow/
@@ -18,6 +20,7 @@ using namespace std;
 template<typename vtype, typename itype>
 bool graph<vtype,itype>::BFS(vtype s, vtype t, vtype V)
 {
+    //cout << "start BFS" << endl;
     for (vtype i = 0 ; i < V ; i++) {
         level[i] = -1;
     }
@@ -63,6 +66,88 @@ bool graph<vtype,itype>::BFS(vtype s, vtype t, vtype V)
 //           from i.
 //  u : Current vertex
 //  t : Sink
+// UPDATE: convert original recursion approach to a iteration approach
+// https://www.codeproject.com/Articles/418776/How-to-replace-recursive-functions-using-stack-and
+
+template<typename vtype, typename itype>
+double graph<vtype,itype>::sendFlow(vtype init_u, double init_flow, vtype t, vtype start[])
+{
+    struct SnapShot {
+        //double temp_flow;
+        vtype u;
+        double flow;
+        int stage = 0;
+        SnapShot(vtype node, double f)
+        {
+            u = node;
+            flow = f;
+        }
+    };
+    double retVal = 0;
+
+    stack<SnapShot> SnapShotStack;
+
+    SnapShot currentSnapShot = SnapShot(init_u,init_flow);
+
+    SnapShotStack.push(currentSnapShot);
+    while (!SnapShotStack.empty()) {
+        //cout << SnapShotStack.size() << endl;
+        currentSnapShot=SnapShotStack.top();
+        SnapShotStack.pop();
+        vtype u = currentSnapShot.u;
+        if (start[u] >= adj[u].size()) {
+            continue;
+        }
+        Edge<vtype,itype> &e = adj[u][start[u]];
+        double flow = currentSnapShot.flow;
+        switch (currentSnapShot.stage)
+        {
+        case 0:
+            //cout << "a" << endl;
+            //cout << u << " " << start[u] << " " << adj[u].size() << " " << e.v << endl;
+            currentSnapShot.stage = 1;
+            SnapShotStack.push(currentSnapShot);
+            if (u != t && level[e.v] == level[u]+1 && e.flow < e.C && start[e.v] < adj[e.v].size()) {
+                // find minimum flow from u to t
+                double curr_flow = min(flow, e.C - e.flow);
+                SnapShot newSnapShot = SnapShot(e.v,curr_flow);
+                SnapShotStack.push(newSnapShot);
+            }
+            break;
+        case 1:
+            //cout << "b" << endl;
+            if (u == t) {
+                retVal = flow;
+                break;
+            }
+            double temp_flow = (retVal > 0) ? retVal : 0;
+            //cout << u << " " << start[u] << " " << e.flow << " " << e.v << " " << e.rev << " " << temp_flow << endl;
+            // add flow  to current edge
+            e.flow += temp_flow;
+ 
+            // subtract flow from reverse edge
+            // of current edge
+            adj[e.v][e.rev].flow -= temp_flow;
+            retVal = temp_flow;
+            start[u] ++;
+            if (retVal <= 0 && start[u] < adj[u].size()) {
+                //cout << u << " " << start[u] << " " << adj[u].size() << endl;
+                Edge<vtype,itype> &new_e = adj[u][start[u]];
+                SnapShotStack.push(currentSnapShot);
+                if (u != t && level[new_e.v] == level[u]+1 && new_e.flow < new_e.C && start[new_e.v] < adj[new_e.v].size()) {
+                    double curr_flow = min(flow, new_e.C - new_e.flow);
+                    SnapShot newSnapShot = SnapShot(new_e.v,curr_flow);
+                    SnapShotStack.push(newSnapShot);
+                }
+            }
+            break;
+        }
+    }
+
+    return retVal;
+}
+
+/*
 template<typename vtype, typename itype>
 double graph<vtype,itype>::sendFlow(vtype u, double flow, vtype t, vtype start[])
 {
@@ -96,8 +181,35 @@ double graph<vtype,itype>::sendFlow(vtype u, double flow, vtype t, vtype start[]
  
     return 0;
 }
+*/
  
 
+template<typename vtype, typename itype>
+void graph<vtype,itype>::find_cut(vtype u_init, vector<bool>& mincut, vtype& length)
+{
+    stack <vtype> stk;
+    stk.push(u_init);
+    while (!stk.empty()) {
+        vtype u = stk.top();
+        //cout << u << " " << stk.size() << endl;
+        stk.pop();
+        if (mincut[u] == true) {
+            continue;
+        }
+        mincut[u] = true;
+        length ++;
+        for (int i = 0 ; i < adj[u].size(); i ++) {
+            int k = adj[u].size() - 1 - i;
+            //cout << k << " " << adj[u].size() << endl;
+            Edge<vtype,itype> e = adj[u][k];
+            if (e.flow < e.C && mincut[e.v] == false) {
+                stk.push(e.v);
+            }
+        }
+    }
+}
+
+/*
 template<typename vtype, typename itype>
 void graph<vtype,itype>::find_cut(vtype u, vector<bool>& mincut, vtype& length)
 {
@@ -111,12 +223,14 @@ void graph<vtype,itype>::find_cut(vtype u, vector<bool>& mincut, vtype& length)
         }
     }
 }
+*/
 
 
 // Returns maximum flow in graph
 template<typename vtype, typename itype>
 pair<double,vtype> graph<vtype,itype>::DinicMaxflow(vtype s, vtype t, vtype V, vector<bool>& mincut)
 {
+    //cout << "start" << endl;
     // Corner case
     if (s == t)
         return make_pair(-1,0);
@@ -135,7 +249,7 @@ pair<double,vtype> graph<vtype,itype>::DinicMaxflow(vtype s, vtype t, vtype V, v
         }
         start = new vtype[V+1];
         fill(start,start+V+1,0);
- 
+        //cout << "here" << endl;
         // while flow is not zero in graph from S to D
         double flow = sendFlow(s, INT_MAX, t, start);
         //cout << flow << endl;
