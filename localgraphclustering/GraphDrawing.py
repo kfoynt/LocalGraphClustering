@@ -91,9 +91,13 @@ class GraphDrawing:
             self._plotting_update_color(colors,node,edgecolor,alpha)
 
         return self.nodes_collection.get_facecolor()[node]
-
+    
+    # The better way here might be diectly modifying self.edge_collection._paths
     def edgecolor(self,i,j,c=None,alpha=None):
         colors = self.edge_collection.get_edgecolor()
+        if len(colors) == 1:
+            colors = np.array([colors[0]]*self.G._num_edges)
+            self.edge_collection.set_edgecolor(c=colors)
         idx = self.edge_mapping[(i,j)]
         return self._plotting_update_color(colors,idx,c,alpha)
 
@@ -143,7 +147,7 @@ class GraphDrawing:
         else:
             self.nodes_collection = self.ax.scatter([p[0] for p in coords],[p[1] for p in coords],[p[2] for p in coords],**kwargs)
         self.ax._sci(self.nodes_collection)
-        
+
     def plot(self,**kwargs):
         if len(self.coords[0]) == 2:
             self.edge_collection = LineCollection(self.edge_pos,**kwargs)
