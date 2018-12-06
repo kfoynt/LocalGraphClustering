@@ -34,6 +34,7 @@ The current version is 0.4.4 and it is appropriate for experts and intermediates
 - Global spectral partitioning
 - Densest subgraph
 - [Triangle clusters and vertex neighborhood metrics](https://arxiv.org/pdf/1112.0031.pdf)
+- Handy network drawing methods
 
 ## Pipelines
 
@@ -80,17 +81,13 @@ print("Conductance after improvement:",g.compute_conductance(output_SL_fast[0]))
 output_SL = output_SL_fast[0]
 ```
 
-## Examples with visualization for social networks
+## Examples with visualization
 
-For examples with visualization of the output see the Jupyter notebooks [examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples_with_visualization.ipynb), [more examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/more_examples_with_visualization.ipynb).
+For general examples with visualization using our built-in drawing methods, see the Jupyter notebook [examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/new_visualization_examples.ipynb).
 
 For comparisons of spectral- and flow-based methods with visualization see the Jupyter notebooks [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/spectral_vs_flow_with_visualization.ipynb) and [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/spectral_vs_flow_2_with_visualization.ipynb).
 
 For visual demonstration of algorithms that can improve a given seed set of nodes see the Jupyter notebook [here](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/improveType_algorithms_with_visualization.ipynb).
-
-## Examples with visualization for bioinformatics networks
-
-For examples with visualization see the Jupyter notebook [bioinformatics examples with visualization](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/examples_Bioinformatics_with_visualization.ipynb).
 
 ## Scalable graph analytics on your laptop
 
