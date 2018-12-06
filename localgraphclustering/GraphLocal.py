@@ -644,6 +644,64 @@ class GraphLocal:
          nodealpha=1.0,edgealpha=1.0,edgecolor='k',nodemarker='o',
          axs=None,fig=None,values=None,cm=None,valuecenter=None,angle=30,
          figsize=None,nodecolor='r'):
+
+        
+        """
+        Standard drawing function when having single cluster
+
+        Parameters
+        ----------
+
+        coords: a n-by-2 or n-by-3 array with coordinates for each node of the graph.
+
+        Optional parameters
+        ------------------
+
+        alpha: float (1.0 by default)
+            the overall alpha scaling of the plot, [0,1]
+
+        nodealpha: float (1.0 by default)
+            the overall node alpha scaling of the plot, [0, 1]
+
+        edgealpha: float (1.0 by default)
+            the overall edge alpha scaling of the plot, [0, 1]
+
+        nodecolor: string or RGB ('r' by default)
+
+        edgecolor: string or RGB ('k' by default)
+
+        setcolor: string or RGB ('y' by default)
+
+        nodemarker: string ('o' by default)
+
+        nodesize: float (5.0 by default)
+
+        linewidth: float (1.0 by default)
+
+        axs,fig: None,None (default) 
+            by default it will create a new figure, or this will plot in axs if not None.
+
+        values: Sequence[float] (None by default)
+            used to determine node colors in a colormap, should have the same length as coords
+
+        valuecenter: often used with values together to determine vmin and vmax of colormap
+            offset = max(abs(values-valuecenter))
+            vmax = valuecenter + offset
+            vmin = valuecenter - offset
+
+        cm: string or colormap object (None by default)
+
+        figsize: tuple (None by default)
+
+        angle: float (30 by default) 
+            set initial view angle when drawing 3d
+
+        Returns
+        -------
+
+        A GraphDrawing object
+        """
+
         if values is not None:
             values = np.asarray(values)
             if values.ndim == 2:
@@ -678,12 +736,16 @@ class GraphLocal:
          nodealpha=1.0,edgealpha=0.01,edgecolor='k',nodemarker='o',axs=None,
          fig=None,cm=None,angle=30,figsize=None):
         """
-        standard drawing function of GraphLocal object
-
+        Standard drawing function when having multiple clusters
+        
         Parameters
         ----------
 
         coords: a n-by-2 or n-by-3 array with coordinates for each node of the graph.
+
+        groups: list[list] or list, for the first case, each sublist represents a cluster
+            for the second case, list must have the same length as the number of nodes and 
+            nodes with the number are in the same cluster
 
         Optional parameters
         ------------------
@@ -697,14 +759,9 @@ class GraphLocal:
         edgealpha: float (1.0 by default)
             the overall edge alpha scaling of the plot, [0, 1]
 
-        setalpha: float (1.0 by default)
-            the overall set alpha scaling of the plot, [0, 1]
-
         nodecolor: string or RGB ('r' by default)
 
         edgecolor: string or RGB ('k' by default)
-
-        setcolor: string or RGB ('y' by default)
 
         nodemarker: string ('o' by default)
 
@@ -712,26 +769,20 @@ class GraphLocal:
 
         linewidth: float (1.0 by default)
 
-        nodeset: Sequence[int] (None by default)
-            a set of nodes to highlight
-
-        groups: Sequence[Sequence[int]] (None by default)
-            node partitions, different colors will be assigned to different groups
-
         axs,fig: None,None (default) 
             by default it will create a new figure, or this will plot in axs if not None.
 
-        values: Sequence[float] (None by default)
-            used to determine node colors in a colormap, should have the same length as coords
+        cm: string or colormap object (None by default)
 
-        cm: string ("Reds" by default)
-            colormap
+        figsize: tuple (None by default)
+
+        angle: float (30 by default) 
+            set initial view angle when drawing 3d
 
         Returns
         -------
 
-        a dictionary with: 
-        fig, ax, setnodes, groupnodes
+        A GraphDrawing object
         """
         
         #when values are not provided, use tab20 or gist_ncar colormap to determine colors
