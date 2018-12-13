@@ -71,74 +71,75 @@ bool graph<vtype,itype>::BFS(vtype s, vtype t, vtype V)
 
 template<typename vtype, typename itype>
 double graph<vtype,itype>::sendFlow(vtype init_u, double init_flow, vtype t, vtype start[])
-{
-    struct SnapShot {
-        //double temp_flow;
-        vtype u;
-        double flow;
-        int stage = 0;
-        SnapShot(vtype node, double f)
-        {
-            u = node;
-            flow = f;
-        }
-    };
+{   
+
+    pair<int,double> SnapShots[n];
+
     double retVal = 0;
 
-    stack<SnapShot> SnapShotStack;
+    stack<vtype> SnapShotStack;
 
-    SnapShot currentSnapShot = SnapShot(init_u,init_flow);
+    //SnapShot currentSnapShot = SnapShot(init_u,init_flow);
+    //SnapShot* currentPtr;
+    SnapShots[init_u].first = 0;
+    SnapShots[init_u].second = init_flow;
 
-    SnapShotStack.push(currentSnapShot);
+    SnapShotStack.push(init_u);
     while (!SnapShotStack.empty()) {
         //cout << SnapShotStack.size() << endl;
-        currentSnapShot=SnapShotStack.top();
-        SnapShotStack.pop();
-        vtype u = currentSnapShot.u;
-        if (start[u] >= adj[u].size()) {
+        vtype u=SnapShotStack.top();
+
+        if (u == t) {
+            retVal = SnapShots[u].second;
+            SnapShotStack.pop();
             continue;
         }
+
         Edge<vtype,itype> &e = adj[u][start[u]];
-        double flow = currentSnapShot.flow;
-        switch (currentSnapShot.stage)
+        double flow = SnapShots[u].second;
+        switch (SnapShots[u].first)
         {
         case 0:
             //cout << "a" << endl;
             //cout << u << " " << start[u] << " " << adj[u].size() << " " << e.v << endl;
-            currentSnapShot.stage = 1;
-            SnapShotStack.push(currentSnapShot);
-            if (u != t && level[e.v] == level[u]+1 && e.flow < e.C && start[e.v] < adj[e.v].size()) {
+            SnapShots[u].first = 1;
+            //SnapShotStack.push(u);
+            if (level[e.v] == level[u]+1 && e.flow < e.C) {
                 // find minimum flow from u to t
                 double curr_flow = min(flow, e.C - e.flow);
-                SnapShot newSnapShot = SnapShot(e.v,curr_flow);
-                SnapShotStack.push(newSnapShot);
+                SnapShots[e.v].first = 0;
+                SnapShots[e.v].second = curr_flow;
+                //SnapShot newSnapShot = SnapShot(e.v,curr_flow);
+                SnapShotStack.push(e.v);
             }
             break;
         case 1:
             //cout << "b" << endl;
-            if (u == t) {
-                retVal = flow;
-                break;
+            if (retVal > 0) {
+                // add flow to current edge
+                e.flow += retVal;
+                // subtract flow from reverse edge
+                // of current edge
+                adj[e.v][e.rev].flow -= retVal;
             }
-            double temp_flow = (retVal > 0) ? retVal : 0;
-            //cout << u << " " << start[u] << " " << e.flow << " " << e.v << " " << e.rev << " " << temp_flow << endl;
-            // add flow  to current edge
-            e.flow += temp_flow;
- 
-            // subtract flow from reverse edge
-            // of current edge
-            adj[e.v][e.rev].flow -= temp_flow;
-            retVal = temp_flow;
-            start[u] ++;
-            if (retVal <= 0 && start[u] < adj[u].size()) {
+
+            if (retVal <= 0 && (start[u]+1) < adj[u].size()) {
+                start[u] ++;
                 //cout << u << " " << start[u] << " " << adj[u].size() << endl;
                 Edge<vtype,itype> &new_e = adj[u][start[u]];
-                SnapShotStack.push(currentSnapShot);
-                if (u != t && level[new_e.v] == level[u]+1 && new_e.flow < new_e.C && start[new_e.v] < adj[new_e.v].size()) {
+                //SnapShotStack.push(u);
+                //SnapShotStack.push(currentPtr);
+                if (level[new_e.v] == level[u]+1 && new_e.flow < new_e.C) {
                     double curr_flow = min(flow, new_e.C - new_e.flow);
-                    SnapShot newSnapShot = SnapShot(new_e.v,curr_flow);
-                    SnapShotStack.push(newSnapShot);
+                    SnapShots[new_e.v].first = 0;
+                    SnapShots[new_e.v].second = curr_flow;
+                    SnapShotStack.push(new_e.v);
+                    //SnapShot newSnapShot = SnapShot(new_e.v,curr_flow);
+                    //SnapShotStack.push(&newSnapShot);
                 }
+            }
+            else {
+                SnapShotStack.pop();
             }
             break;
         }
@@ -147,41 +148,42 @@ double graph<vtype,itype>::sendFlow(vtype init_u, double init_flow, vtype t, vty
     return retVal;
 }
 
-/*
-template<typename vtype, typename itype>
-double graph<vtype,itype>::sendFlow(vtype u, double flow, vtype t, vtype start[])
-{
-    // Sink reached
-    if (u == t)
-        return flow;
+
+// template<typename vtype, typename itype>
+// double graph<vtype,itype>::sendFlow(vtype u, double flow, vtype t, vtype start[])
+// {
+//     //cout << u << " " << start[u] << endl;
+//     // Sink reached
+//     if (u == t)
+//         return flow;
  
-    // Traverse all adjacent edges one -by - one.
-    for (  ; start[u] < adj[u].size(); start[u]++) {
-        // Pick next edge from adjacency list of u
-        Edge<vtype,itype> &e = adj[u][start[u]]; 
+//     // Traverse all adjacent edges one -by - one.
+//     for (  ; start[u] < adj[u].size(); start[u]++) {
+//         // Pick next edge from adjacency list of u
+//         Edge<vtype,itype> &e = adj[u][start[u]]; 
                                      
-        if (level[e.v] == level[u]+1 && e.flow < e.C) {
-            // find minimum flow from u to t
-            double curr_flow = min(flow, e.C - e.flow);
+//         if (level[e.v] == level[u]+1 && e.flow < e.C) {
+//             // find minimum flow from u to t
+//             double curr_flow = min(flow, e.C - e.flow);
  
-            double temp_flow = sendFlow(e.v, curr_flow, t, start);
+//             double temp_flow = sendFlow(e.v, curr_flow, t, start);
  
-            // flow is greater than zero
-            if (temp_flow > 0) {
-                // add flow  to current edge
-                e.flow += temp_flow;
+//             // flow is greater than zero
+//             if (temp_flow > 0) {
+//                 // add flow  to current edge
+//                 e.flow += temp_flow;
  
-                // subtract flow from reverse edge
-                // of current edge
-                adj[e.v][e.rev].flow -= temp_flow;
-                return temp_flow;
-            }
-        }
-    }
+//                 // subtract flow from reverse edge
+//                 // of current edge
+//                 adj[e.v][e.rev].flow -= temp_flow;
+//                 //cout << u << " " << temp_flow << endl;
+//                 return temp_flow;
+//             }
+//         }
+//     }
  
-    return 0;
-}
-*/
+//     return 0;
+// }
  
 
 template<typename vtype, typename itype>
