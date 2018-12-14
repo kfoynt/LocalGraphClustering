@@ -70,10 +70,10 @@ bool graph<vtype,itype>::BFS(vtype s, vtype t, vtype V)
 // https://www.codeproject.com/Articles/418776/How-to-replace-recursive-functions-using-stack-and
 
 template<typename vtype, typename itype>
-double graph<vtype,itype>::sendFlow(vtype init_u, double init_flow, vtype t, vtype start[])
+double graph<vtype,itype>::sendFlow(vtype init_u, double init_flow, vtype t, vtype start[], pair<int,double>* SnapShots)
 {   
 
-    pair<int,double> SnapShots[n];
+    //pair<int,double> SnapShots[n];
 
     double retVal = 0;
 
@@ -243,6 +243,7 @@ pair<double,vtype> graph<vtype,itype>::DinicMaxflow(vtype s, vtype t, vtype V, v
     // from source to sink
     vtype *start = NULL;
     //cout << INT_MAX << endl;
+    pair<int,double> SnapShots[n];
     while (BFS(s, t, V) == true){
         // store how many edges are visited
         // from V { 0 to V }
@@ -253,12 +254,12 @@ pair<double,vtype> graph<vtype,itype>::DinicMaxflow(vtype s, vtype t, vtype V, v
         fill(start,start+V+1,0);
         //cout << "here" << endl;
         // while flow is not zero in graph from S to D
-        double flow = sendFlow(s, INT_MAX, t, start);
+        double flow = sendFlow(s, INT_MAX, t, start, SnapShots);
         //cout << flow << endl;
         while (flow > 0) {
         	// Add path flow to overall flow
             total += flow;
-            flow = sendFlow(s, INT_MAX, t, start);
+            flow = sendFlow(s, INT_MAX, t, start, SnapShots);
         }
         //cout << "BFS" << endl;
     }
