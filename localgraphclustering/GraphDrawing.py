@@ -79,7 +79,7 @@ class GraphDrawing:
         """
         return self.fig
 
-    def highlight(self,nodelist,othernodes=False,otheredges=False,filled=False,alpha=0):
+    def highlight(self,nodelist,othernodes=False,otheredges=False,circled=True,alpha=0.1):
         """
         highlight a set of nodes
 
@@ -97,19 +97,24 @@ class GraphDrawing:
         otheredges: bool (False by default)
             whether to hide edges that doesn't connect two nodes in the nodelist
 
-        filled: bool (False by default)
-            set to True to only circle nodes in the nodelist
+        circled: bool (False by default)
+            set to True to circle nodes in the nodelist
  
         alpha: float (1.0 by default)
-            change alpha for nodes in the nodelist
+            change alpha for nodes that are not in the nodelist
         """
         nodeset = set(nodelist)
-        if not othernodes or not filled:
+        if not othernodes or circled:
             node_out = list(set(range(self.G._num_vertices)) - nodeset)
             if not othernodes:
                 self.nodecolor(node_out,alpha=alpha)
-            if not filled:
-                self.only_circle_nodes(nodelist)
+            if circled:
+                self.nodecolor(nodelist,facecolor='r',edgecolor='b',alpha=1)
+                curr_size = self.nodes_collection.get_sizes()[0]
+                self.nodesize(nodelist,[(curr_size*1.5)**2]*len(nodelist))
+                curr_width = self.nodes_collection.get_linewidths()[0]
+                self.nodewidth(nodelist,[(curr_width*1.5)**2]*len(nodelist))
+                #self.only_circle_nodes(nodelist)
         if not otheredges:
             for (i,j) in self.edge_mapping.keys():
                 if i not in nodeset or j not in nodeset:

@@ -73,7 +73,7 @@ def test_GraphLocal_methods():
     l1_reg_vector_rounded = output_sc_fast[0]
 
     # Highlight local cluster
-    drawing.highlight(l1_reg_vector_rounded,otheredges=True,filled=True)
+    drawing.highlight(l1_reg_vector_rounded,otheredges=True)
     drawing.nodesize(l1_reg_vector_rounded,10**2)
     drawing.nodecolor(l1_reg_vector_rounded,c='y')
     # Make reference node larger and thicker

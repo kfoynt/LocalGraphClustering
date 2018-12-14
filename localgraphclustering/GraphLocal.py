@@ -802,7 +802,7 @@ class GraphLocal:
         if number_of_colors <= 20:
             cm = plt.get_cmap("tab20b")
         else:
-            cm = plt.get_cmap("magma")
+            cm = plt.get_cmap("gist_ncar")
         vmin = 0.0
         vmax = 1.0
         drawing = GraphDrawing(self,coords,ax=axs,figsize=figsize)

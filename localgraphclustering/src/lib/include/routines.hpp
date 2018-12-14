@@ -65,7 +65,7 @@ public:
     pair<double, double> get_stats_weighted(unordered_map<vtype, vtype>& R_map, vtype nR);
     void addEdge(vtype u, vtype v, double C);
     bool BFS(vtype s, vtype t, vtype V);
-    double sendFlow(vtype u, double flow, vtype t, vtype start[]);
+    double sendFlow(vtype u, double flow, vtype t, vtype start[], pair<int,double>* SnapShots);
     pair<double,vtype> DinicMaxflow(vtype s, vtype t, vtype V, vector<bool>& mincut);
     void find_cut(vtype u, vector<bool>& mincut, vtype& length);
 
