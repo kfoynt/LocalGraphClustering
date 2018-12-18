@@ -630,9 +630,14 @@ class GraphLocal:
         return minverts, minvals
     
     @staticmethod
-    def _plotting(drawing,rgba_list,nodesize,nodemarker,edgecolor,edgealpha,linewidth,is_3d):
-        drawing.scatter(facecolors=rgba_list,edgecolors=rgba_list,s=nodesize,marker=nodemarker,zorder=2)
-        drawing.plot(colors=to_rgba(edgecolor,edgealpha),linewidths=linewidth)
+    def _plotting(drawing,edgecolor,edgealpha,linewidth,is_3d,**kwargs):
+        """
+        private function to do the plotting
+        "**kwargs" represents all possible optional parameters of "scatter" function 
+        in matplotlib.pyplot
+        """
+        drawing.scatter(**kwargs)
+        drawing.plot(color=edgecolor,alpha=edgealpha,linewidths=linewidth)
         axs = drawing.ax
         axs.autoscale()
         if is_3d == 3:
@@ -701,7 +706,7 @@ class GraphLocal:
 
         A GraphDrawing object
         """
-
+        drawing = GraphDrawing(self,coords,ax=axs,figsize=figsize)
         if values is not None:
             values = np.asarray(values)
             if values.ndim == 2:
@@ -721,13 +726,11 @@ class GraphLocal:
                     vmin = valuecenter - offset
                 else:
                     cm = plt.get_cmap("magma")
-            m = ScalarMappable(norm=Normalize(vmin=vmin,vmax=vmax), cmap=cm)
-            rgba_list = m.to_rgba(node_color_list,alpha=alpha*nodealpha)
+            self._plotting(drawing,edgecolor,edgealpha,linewidth,len(coords[0])==3,c=node_color_list,alpha=alpha*nodealpha,
+                edgecolors='none',s=nodesize,marker=nodemarker,zorder=2,cmap=cm,vmin=vmin,vmax=vmax)
         else:
-            rgba_list = np.array([to_rgba(nodecolor,alpha=alpha*nodealpha) for _ in range(self._num_vertices)])
-        
-        drawing = GraphDrawing(self,coords,ax=axs,figsize=figsize)
-        self._plotting(drawing,rgba_list,nodesize,nodemarker,edgecolor,edgealpha,linewidth,len(coords[0])==3)
+            self._plotting(drawing,edgecolor,edgealpha,linewidth,len(coords[0])==3,c=nodecolor,alpha=alpha*nodealpha,
+                edgecolors='none',s=nodesize,marker=nodemarker,zorder=2)
 
         return drawing
 
@@ -806,10 +809,11 @@ class GraphLocal:
         vmin = 0.0
         vmax = 1.0
         drawing = GraphDrawing(self,coords,ax=axs,figsize=figsize)
-        m = ScalarMappable(norm=Normalize(vmin=vmin,vmax=vmax), cmap=cm)
-        rgba_list = m.to_rgba(node_color_list,alpha=alpha*nodealpha)
+        #m = ScalarMappable(norm=Normalize(vmin=vmin,vmax=vmax), cmap=cm)
+        #rgba_list = m.to_rgba(node_color_list,alpha=alpha*nodealpha)
         
-        self._plotting(drawing,rgba_list,nodesize,nodemarker,edgecolor,edgealpha,linewidth,len(coords[0])==3)
+        self._plotting(drawing,edgecolor,edgealpha,linewidth,len(coords[0])==3,s=nodesize,marker=nodemarker,zorder=2,
+            cmap=cm,vmin=vmin,vmax=vmax,alpha=alpha*nodealpha,edgecolors='none',c=node_color_list)
 
         return drawing
     
