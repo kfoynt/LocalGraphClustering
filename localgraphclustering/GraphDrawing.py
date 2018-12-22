@@ -163,19 +163,37 @@ class GraphDrawing:
         
         Returns
         -------
-        current node color
+        list of two lists, where the first is new face color and the second is new edge color, if face color 
+        is not changed, the first is None, if edge color is not changed, the second is None
         """
         if c is not None:
             edgecolor = c
             facecolor = c
+        ret_facecolor,ret_edgecolor = None,None
         if facecolor is not None or alpha is not None:
             colors = self.nodes_collection.get_facecolor()
-            self._plotting_update_color(colors,node,facecolor,alpha)
+            # This means right now, all nodes have the same facecolor
+            if colors.shape[0] == 1:
+                # Firstly, we need to expand the color array so that every node has an independant facecolor
+                self.nodes_collection.set_facecolor([colors[0] for i in range(self.G._num_vertices)])
+                colors = self.nodes_collection.get_facecolor()
+            ret_facecolor = self._plotting_update_color(colors,node,facecolor,alpha)
         if edgecolor is not None or alpha is not None:
             colors = self.nodes_collection.get_edgecolor()
-            self._plotting_update_color(colors,node,edgecolor,alpha)
+            if colors.shape[0] <= 1:
+                # This means right now, all nodes have hidden edges
+                if colors.shape[0] == 0:
+                    # Use facecolor as edgecolor
+                    colors = self.nodes_collection.get_facecolor()
+                # This means right now, all nodes have the same edgecolor
+                if colors.shape[0] == 1:
+                    # Firstly, we need to expand the color array so that every node has an independant edgecolor
+                    colors = [colors[0] for i in range(self.G._num_vertices)]
+                self.nodes_collection.set_edgecolor(colors)
+                colors = self.nodes_collection.get_edgecolor()
+            ret_edgecolor = self._plotting_update_color(colors,node,edgecolor,alpha)
 
-        return self.nodes_collection.get_facecolor()[node]
+        return [ret_facecolor,ret_edgecolor]
     
     # The better way here might be diectly modifying self.edge_collection._paths
     def edgecolor(self,i,j,c=None,alpha=None):
@@ -258,6 +276,7 @@ class GraphDrawing:
     def _plotting_update_color(container,key,c,alpha):
         if c is not None:
             if c == "none":
+                # only circle the nodes
                 container[key] = c
             else:
                 if alpha is not None:
@@ -284,6 +303,7 @@ class GraphDrawing:
             self.nodes_collection = self.ax.scatter([p[0] for p in coords],[p[1] for p in coords],**kwargs)
         else:
             self.nodes_collection = self.ax.scatter([p[0] for p in coords],[p[1] for p in coords],[p[2] for p in coords],**kwargs)
+        self.ax.add_collection(self.nodes_collection)
         self.ax._sci(self.nodes_collection)
 
     def plot(self,**kwargs):
