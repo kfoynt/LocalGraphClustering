@@ -97,10 +97,15 @@ def ncp_experiment(ncpdata,R,func,method_stats):
         for F in ncpdata.set_funcs: # build the list of keys for set_funcs
             output_stats.update(F(ncpdata.graph, S))
         output_stats = {"output_" + str(key):value for key,value in output_stats.items() } # add output prefix
+        if ncpdata.store_output_clusters:
+            output_cluster = {"output_cluster": S}
 
         method_stats['methodfunc']  = func
         method_stats['time'] = dt
-        return [dict(**input_stats, **output_stats, **method_stats)]
+        if ncpdata.store_output_clusters:
+            return [dict(**input_stats, **output_stats, **method_stats, **output_cluster)]
+        else:
+            return [dict(**input_stats, **output_stats, **method_stats)]
     else:
         return [] # nothing to return
 
@@ -167,7 +172,7 @@ def ncp_worker(workid, runtype, ncpdata, setids, func, timeout):
     return results
 
 class NCPData:
-    def __init__(self, graph, setfuncs=[], input_stats=True, do_largest_component=True):
+    def __init__(self, graph, setfuncs=[], input_stats=True, do_largest_component=True, store_output_clusters=False):
         if do_largest_component:
             self.graph = graph.largest_component()
         else:
@@ -176,6 +181,7 @@ class NCPData:
         # We need to save this for the pickle input/output
         self.do_largest_component = do_largest_component
         self.input_stats = input_stats
+        self.store_output_clusters = store_output_clusters
         self.set_funcs = setfuncs
         self.nruns = 0
 
@@ -186,6 +192,8 @@ class NCPData:
             result_fields = ["input_" + field for field in standard_fields.keys()]
         result_fields.extend(["output_" + str(field) for field in standard_fields.keys()])
         result_fields.extend(["methodfunc", "input_set_type", "input_set_params", "time"])
+        if store_output_clusters:
+            result_fields.extend(["output_cluster"])
         self.result_fields = result_fields
         self.neighborhood_cond = None
         self.fiedler_set = None
@@ -617,6 +625,17 @@ class NCPData:
         self.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout,
                 method=func,methodname="mqi")
         return self
+    
+    def refine(self,
+            sets, 
+            method=None, 
+            methodname=None,
+            nthreads: int = 4,
+            timeout: float = 1000,
+            **kwargs):
+        method = self._check_method(method, methodname)
+        func = partialfunc(flow_clustering,delta=kwargs["delta"],method=method)
+        return self.add_set_samples(methodname=methodname,method=func, nthreads=nthreads, sets=sets, timeout=timeout)
 
     def _fiedler_set(self):
         if self.fiedler_set is None:
