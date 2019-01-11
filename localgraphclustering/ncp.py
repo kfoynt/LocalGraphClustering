@@ -17,11 +17,16 @@ from .GraphLocal import GraphLocal
 from .triangleclusters import triangleclusters
 from .cpp import *
 
+np.random.seed(seed=123)
+
 class partialfunc(functools.partial):
     @classmethod
     def from_partial(cls, f):
+        print("f.func: ", f.func, " f.args: ", f.args, " f.keywords: ", f.keywords)
         return cls(f.func, f.args, f.keywords)
     def __eq__(self, f2):
+        print("f2: ", f2)
+        print("Mpikes?")
         if not (isinstance(f2, partialfunc)):
             return False
         return all([getattr(self, attr) == getattr(f2, attr) for attr in ['func', 'args', 'keywords']])
@@ -321,7 +326,10 @@ class NCPData:
             ntotalruns = sum(len(run) for run in list_of_sets)
             nruns = 0
             for (workid, setids) in enumerate(list_of_sets):
+                print("Run target to get the rval. Workid: ", workid)
+                print("target: ", target)
                 rval = target(workid, setids, method, timeout)
+                print("Finished running")
                 nruns += len(rval)
                 assert nruns <= ntotalruns, "expected up to %i ntotalruns but got %i runs"%(ntotalruns, nruns)
                 self.results.extend(rval)
@@ -401,7 +409,9 @@ class NCPData:
         endset = len(self.sets)
 
         setnos = np.array_split(range(startset,endset), nthreads) # set numbers
+        print("Run samples")
         self._run_samples(_ncp_set_worker, setnos, method, timeout, nthreads)
+        print("Finished running samples")
 
     def as_data_frame(self):
         """ Return the NCP results as a pandas dataframe """
@@ -635,6 +645,7 @@ class NCPData:
             **kwargs):
         method = self._check_method(method, methodname)
         func = partialfunc(flow_clustering,delta=kwargs["delta"],method=method)
+        print("Set func: ", methodname)
         return self.add_set_samples(methodname=methodname,method=func, nthreads=nthreads, sets=sets, timeout=timeout)
 
     def _fiedler_set(self):

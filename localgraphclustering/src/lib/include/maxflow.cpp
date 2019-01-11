@@ -232,7 +232,7 @@ void graph<vtype,itype>::find_cut(vtype u, vector<bool>& mincut, vtype& length)
 template<typename vtype, typename itype>
 pair<double,vtype> graph<vtype,itype>::DinicMaxflow(vtype s, vtype t, vtype V, vector<bool>& mincut)
 {
-    //cout << "start" << endl;
+    cout << "start" << endl;
     // Corner case
     if (s == t)
         return make_pair(-1,0);
@@ -248,26 +248,29 @@ pair<double,vtype> graph<vtype,itype>::DinicMaxflow(vtype s, vtype t, vtype V, v
         // store how many edges are visited
         // from V { 0 to V }
         if (start != NULL) {
+            cout << "CRASHH 1" << endl;
             delete[] start;
         }
+        cout << "CRASHH 2" << endl;
         start = new vtype[V+1];
+        cout << "CRASHH 3" << endl;
         fill(start,start+V+1,0);
-        //cout << "here" << endl;
+        cout << "here" << endl;
         // while flow is not zero in graph from S to D
         double flow = sendFlow(s, INT_MAX, t, start, SnapShots);
-        //cout << flow << endl;
+        cout << flow << endl;
         while (flow > 0) {
         	// Add path flow to overall flow
             total += flow;
             flow = sendFlow(s, INT_MAX, t, start, SnapShots);
         }
-        //cout << "BFS" << endl;
+        cout << "BFS" << endl;
     }
-    //cout << "out" << endl;
+    cout << "out" << endl;
     vtype length = 0;
     fill(mincut.begin(),mincut.end(),false);
     find_cut(s,mincut,length);
-    //cout << "length " << length << endl;
+    cout << "length " << length << endl;
  
     // return maximum flow
     return make_pair(total,length);

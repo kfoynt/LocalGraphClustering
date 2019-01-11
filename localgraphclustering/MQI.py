@@ -36,6 +36,9 @@ def MQI(G, ref_nodes):
 
     nR = len(R)
 
+    print("About to run MQI_cpp")
     (actual_length,actual_xids) = MQI_cpp(n,G.ai,G.aj,nR,R)
+    print("Run MQI_cpp")
+    print("Output: actual_length", actual_length, " actual_xids: ", actual_xids)
 
     return [actual_xids, G.compute_conductance(actual_xids)]

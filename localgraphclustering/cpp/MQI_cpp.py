@@ -39,10 +39,13 @@ _graphlib_funs_MQI32_64 = _setup_MQI_args(
 def _get_MQI_cpp_types_fun(ai,aj):
     float_type,vtype,itype,ctypes_vtype,ctypes_itype = determine_types(ai,aj)
     if (vtype, itype) == (np.int64, np.int64):
+        print("vtype,itype,int64")
         fun = _graphlib_funs_MQI64
     elif (vtype, itype) == (np.uint32, np.int64):
+        print("vtype,itype,uint32,int64")
         fun = _graphlib_funs_MQI32_64
     else:
+        print("vtype,itype,uint32,uint32")
         fun = _graphlib_funs_MQI32
     return float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun
 
@@ -75,8 +78,14 @@ def MQI_cpp(n,ai,aj,nR,R):
     float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun = _get_MQI_cpp_types_fun(ai,aj)
     R=np.array(R,dtype=vtype)
     ret_set=np.zeros(nR,dtype=vtype)
+    print(fun)
+    print("n ", n, " nR ", nR, " ai ", ai, " aj ", aj, " R ", R, " len(R)", len(R))
     actual_length=fun(n,nR,ai,aj,0,R,ret_set)
+    print("Finished running: ", fun)
     actual_set=np.empty(actual_length,dtype=vtype)
+    print("Actual set initialized as empty array: ", actual_set)
     actual_set[:]=[ret_set[i] for i in range(actual_length)]
+    print("Set atual set with correct values")
     
+    print("Return results")
     return (actual_length,actual_set)
