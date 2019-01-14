@@ -17,9 +17,12 @@ from .GraphLocal import GraphLocal
 from .triangleclusters import triangleclusters
 from .cpp import *
 
+np.random.seed(seed=123)
+
 class partialfunc(functools.partial):
     @classmethod
     def from_partial(cls, f):
+        print("f.func: ", f.func, " f.args: ", f.args, " f.keywords: ", f.keywords)
         return cls(f.func, f.args, f.keywords)
     def __eq__(self, f2):
         if not (isinstance(f2, partialfunc)):
