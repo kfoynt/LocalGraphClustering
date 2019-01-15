@@ -200,10 +200,8 @@ vtype graph<vtype,itype>::pprgrow(double alpha, double eps,vtype* seedids, vtype
     }
     sort(possible_nodes, possible_nodes + map_size, myobject<vtype>);
 //    vtype actual_length = sweep_cut(possible_nodes, map_size, xids, xlength, rows, values);
-    if(map_size > xlength){
-        map_size = xlength;
-    }
-    for(j = 0; j < map_size; j ++){
+
+    for(j = 0; j < min(map_size,xlength); j ++){
         xids[j] = possible_nodes[j].first + offset;
         values[j] = possible_nodes[j].second;
     }
