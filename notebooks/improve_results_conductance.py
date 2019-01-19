@@ -13,7 +13,7 @@ np.random.seed(seed=123)
 
 helper.lgc_graphlist
 
-def run_improve(g, gname, method, methodname, delta, nthreads=12, timeout=1000):
+def run_improve(g, gname, method, methodname, delta, nthreads=24, timeout=1000):
     ratio = 1.0
     if g._num_vertices > 1000000:
         ratio = 0.05
