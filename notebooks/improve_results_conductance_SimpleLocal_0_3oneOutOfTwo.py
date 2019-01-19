@@ -49,7 +49,7 @@ def run_improve(g, gname, method, methodname, delta, nthreads=24, timeout=1000):
     pickle.dump(ncp, open('results/' + method + "-ncp-" + gname + '.pickle', 'wb'))
     pickle.dump(ncp2, open('results/' + method + "-ncp2-" + gname + '.pickle', 'wb'))
 
-mygraphs = {'email-Enron':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/Email-Enron.edgelist',
+mygraphs = {'email-Enron':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/email-Enron.edgelist',
             'pokec':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/soc-pokec-relationships.edgelist',
             'livejournal':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/soc-LiveJournal1.edgelist'
            }
