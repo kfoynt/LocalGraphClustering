@@ -35,13 +35,7 @@ def run_improve(g, gname, method, methodname, delta, nthreads=24, timeout=1000):
     print("Make an NCP object for Improve Algo")
     ncp2 = lgc.NCPData(g)
     print("Going into improve mode")
-    try:
-        output = ncp2.refine(sets, method=method, methodname=methodname, nthreads=nthreads, timeout=timeout, **{"delta": delta})
-    except Exception as E:
-        print("Exception in user code:")
-        print('-'*60)
-        traceback.print_exc(file=sys.stdout)
-        print('-'*60)
+    output = ncp2.refine(sets, method=method, methodname=methodname, nthreads=nthreads, timeout=timeout, **{"delta": delta})
     fig = lgc.NCPPlots(ncp2).mqi_input_output_cond_plot()[0]
     fig.axes[0].set_title(gname + " " + methodname+"-NCP")
     fig.savefig("figures/" + method + "-ncp-"+gname+".pdf", bbox_inches="tight", figsize=(100,100))
