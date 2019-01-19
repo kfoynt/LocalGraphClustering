@@ -46,6 +46,7 @@ def run_improve(g, gname, method, methodname, delta, nthreads=24, timeout=1000):
 mygraphs = {'orkut':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/com-orkut.ungraph.edgelist'
            }
 
+start = time.time()
 for (gname,gfile) in mygraphs.items():
     print(gname, gfile)
     sep = ' '
@@ -55,4 +56,5 @@ for (gname,gfile) in mygraphs.items():
     g = lgc.GraphLocal(os.path.join("..", "data", gfile),'edgelist', "	")
     g.discard_weights()
     run_improve(g, gname=gname, method="sl", methodname="SimpleLocal", delta=0.6, timeout=100000000)
+    end = time.time()
     print("Elapsed time for ", gname , " is ", end - start)
