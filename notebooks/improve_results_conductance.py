@@ -9,11 +9,14 @@ import os
 sys.path.insert(0, os.path.join("..", "LocalGraphClustering", "notebooks"))
 import helper
 import pickle
+
+import time
+
 np.random.seed(seed=123)
 
 helper.lgc_graphlist
 
-def run_improve(g, gname, method, methodname, delta, nthreads=24, timeout=1000):
+def run_improve(g, gname, method, methodname, delta, nthreads=6, timeout=1000):
     ratio = 1.0
     if g._num_vertices > 1000000:
         ratio = 0.05
@@ -48,7 +51,10 @@ def run_improve(g, gname, method, methodname, delta, nthreads=24, timeout=1000):
     
 ## This is a test
 
+start = time.time()
 for gname in ["ppi-homo"]:
     g = helper.lgc_data(gname)
     g.discard_weights()
     run_improve(g, gname=gname, method="mqi", methodname="MQI", delta=0.3, timeout=100000000)
+end = time.time()
+print("Elapsed time: ", end - start)
