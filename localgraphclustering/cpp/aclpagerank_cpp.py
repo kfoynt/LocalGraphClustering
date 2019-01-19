@@ -51,7 +51,7 @@ def _get_aclpagerank_cpp_types_fun(ai,aj):
         fun = _graphlib_funs_aclpagerank32
     return float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun
 
-def aclpagerank_cpp(n,ai,aj,alpha,eps,seedids,maxsteps,xlength=10**6):
+def aclpagerank_cpp(n,ai,aj,alpha,eps,seedids,maxsteps,xlength=10**7):
     float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun = _get_aclpagerank_cpp_types_fun(ai,aj)
     nseedids = len(seedids)
     seedids = np.array(seedids,dtype=vtype)
