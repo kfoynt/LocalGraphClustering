@@ -62,5 +62,5 @@ for (gname,gfile) in mygraphs.items():
         gfile = gfile[0]
     g = lgc.GraphLocal(os.path.join("..", "data", gfile),'edgelist', "	")
     g.discard_weights()
-    run_improve(g, gname=gname, method="sl", methodname="SimpleLocal", delta=0.9, timeout=100000000)
+    run_improve(g, gname=gname, method="sl", methodname="SimpleLocal", delta=0.3, timeout=100000000)
     print("Elapsed time for ", gname , " is ", end - start)

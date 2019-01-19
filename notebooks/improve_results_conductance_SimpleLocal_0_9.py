@@ -49,7 +49,7 @@ def run_improve(g, gname, method, methodname, delta, nthreads=24, timeout=1000):
     pickle.dump(ncp, open('results/' + method + "-ncp-" + gname + '.pickle', 'wb'))
     pickle.dump(ncp2, open('results/' + method + "-ncp2-" + gname + '.pickle', 'wb'))
 
-mygraphs = {'email-Enron':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/Email-Enron.edgelist',
+mygraphs = {'email-Enron':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/email-Enron.edgelist',
             'pokec':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/soc-pokec-relationships.edgelist',
             'orkut':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/com-orkut.ungraph.edgelist',
             'livejournal':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/soc-LiveJournal1.edgelist'
@@ -63,5 +63,5 @@ for (gname,gfile) in mygraphs.items():
         gfile = gfile[0]
     g = lgc.GraphLocal(os.path.join("..", "data", gfile),'edgelist', "	")
     g.discard_weights()
-    run_improve(g, gname=gname, method="sl", methodname="SimpleLocal", delta=0.3, timeout=100000000)
+    run_improve(g, gname=gname, method="sl", methodname="SimpleLocal", delta=0.9, timeout=100000000)
     print("Elapsed time for ", gname , " is ", end - start)
