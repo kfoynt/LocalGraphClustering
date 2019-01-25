@@ -228,10 +228,13 @@ void graph<vtype,itype>::find_cut(vtype u, vector<bool>& mincut, vtype& length)
 
 
 // Returns maximum flow in graph
+// s: source node
+// t: taget node
+// V: total number of nodes
+// mincut: store the result
 template<typename vtype, typename itype>
 pair<double,vtype> graph<vtype,itype>::DinicMaxflow(vtype s, vtype t, vtype V, vector<bool>& mincut)
 {
-    //cout << "start" << endl;
     // Corner case
     if (s == t)
         return make_pair(-1,0);
