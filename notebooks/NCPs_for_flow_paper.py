@@ -15,7 +15,7 @@ print("Running senate")
 g = lgc.GraphLocal('./datasets/senate.graphml','graphml')
 
 ncp_instance = lgc.NCPData(g)
-ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=nthreads)
+ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=24)
 
 ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
 #plot conductance vs size
@@ -39,7 +39,7 @@ print("Running JohnsHopkins")
 g = lgc.GraphLocal('./datasets/JohnsHopkins.graphml','graphml')
 
 ncp_instance = lgc.NCPData(g)
-ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=nthreads)
+ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=24)
 
 ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
 #plot conductance vs size
@@ -63,7 +63,7 @@ print("Running usroads")
 g = lgc.GraphLocal('./datasets/usroads-cc.graphml','graphml')
 
 ncp_instance = lgc.NCPData(g)
-ncp_instance.approxPageRank(ratio=0.5,timeout=5000000,nthreads=nthreads)
+ncp_instance.approxPageRank(ratio=0.5,timeout=5000000,nthreads=24)
 
 ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
 #plot conductance vs size
@@ -87,7 +87,7 @@ print("Running Colgate")
 g = lgc.GraphLocal('./datasets/Colgate88_reduced.graphml','graphml')
 
 ncp_instance = lgc.NCPData(g)
-ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=nthreads)
+ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=24)
 
 ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
 #plot conductance vs size
@@ -114,7 +114,7 @@ print("Running ppimips")
 g = lgc.GraphLocal('./datasets/ppi_mips.graphml','graphml',' ')
 
 ncp_instance = lgc.NCPData(g)
-ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=nthreads)
+ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=24)
 
 ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
 #plot conductance vs size
@@ -140,7 +140,7 @@ print("Running sfld")
 g = lgc.GraphLocal('./datasets/sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh.graphml','graphml',' ')
 
 ncp_instance = lgc.NCPData(g)
-ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=nthreads)
+ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=24)
 
 ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
 #plot conductance vs size
@@ -178,7 +178,7 @@ for (gname,gfile) in mygraphs.items():
     g.discard_weights()
 
     ncp_instance = lgc.NCPData(g)
-    ncp_instance.approxPageRank(ratio=0.3,timeout=5000000,nthreads=nthreads)
+    ncp_instance.approxPageRank(ratio=0.3,timeout=5000000,nthreads=24)
 
     ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
     #plot conductance vs size
