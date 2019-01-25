@@ -70,7 +70,7 @@ bool graph<vtype,itype>::BFS(vtype s, vtype t, vtype V)
 // https://www.codeproject.com/Articles/418776/How-to-replace-recursive-functions-using-stack-and
 
 template<typename vtype, typename itype>
-double graph<vtype,itype>::sendFlow(vtype init_u, double init_flow, vtype t, vtype start[], vector<pair<int,double>>& SnapShots)
+double graph<vtype,itype>::sendFlow(vtype init_u, double init_flow, vtype t, vtype* start, vector<pair<int,double>>& SnapShots)
 {   
 
     //pair<int,double> SnapShots[n];
@@ -94,7 +94,6 @@ double graph<vtype,itype>::sendFlow(vtype init_u, double init_flow, vtype t, vty
             SnapShotStack.pop();
             continue;
         }
-
         Edge<vtype,itype> &e = adj[u][start[u]];
         double flow = SnapShots[u].second;
         switch (SnapShots[u].first)
@@ -241,14 +240,15 @@ pair<double,vtype> graph<vtype,itype>::DinicMaxflow(vtype s, vtype t, vtype V, v
  
     // Augment the flow while there is path
     // from source to sink
-    vtype *start = new vtype[V+1];
-    //cout << INT_MAX << endl;
-    vector<pair<int,double>> SnapShots(n);
+    vtype *start = new(nothrow) vtype[V+1];
+    if (start == NULL) {
+        cout << "allocation of memory failed!" << endl;
+    }
+    vector<pair<int,double>> SnapShots(V+1);
     while (BFS(s, t, V) == true){
         // store how many edges are visited
         // from V { 0 to V }
         fill(start,start+V+1,0);
-        //cout << "here" << endl;
         // while flow is not zero in graph from S to D
         double flow = sendFlow(s, INT_MAX, t, start, SnapShots);
         //cout << flow << endl;
