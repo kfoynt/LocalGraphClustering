@@ -49,7 +49,7 @@ def approximate_PageRank_weighted(G,
     #print("Uses the weighted Andersen Chung and Lang (ACL) Algorithm.")
     n = G.adjacency_matrix.shape[0]
     (length,xids,values) = aclpagerank_weighted_cpp(n,G.ai,G.aj,G.adjacency_matrix.data,alpha,rho,
-                ref_nodes,1,iterations)
+                ref_nodes,iterations)
     p = np.zeros(n)
     p[xids] = values
 

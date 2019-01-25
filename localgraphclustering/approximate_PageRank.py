@@ -128,7 +128,7 @@ def approximate_PageRank(G,
         if cpp:
             n = G.adjacency_matrix.shape[0]
             (length,xids,values) = aclpagerank_weighted_cpp(n,G.ai,G.aj,G.adjacency_matrix.data,alpha,rho,
-                ref_nodes,1,iterations)
+                ref_nodes,iterations)
             if normalize:
                 values *= G.dn[xids] # those are inverse degrees
             return (xids,values)
