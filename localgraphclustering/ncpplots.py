@@ -144,7 +144,7 @@ class NCPPlots:
         pos = dfmin["best"]
         ax.set_xlabel("effective size", fontsize=18)
         ax.set_ylabel("expansion", fontsize=18)
-        ax.plot(x, y)
+        ax.plot(x, y, linewidth=3)
         return fig, ax, list(zip(x,y,pos))
 
     def interactive(self,feature, group, min_tuples, alpha=0.3, ratio=1.0, log=True, filename=""):
