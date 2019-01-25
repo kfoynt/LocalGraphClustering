@@ -247,7 +247,6 @@ pair<double,vtype> graph<vtype,itype>::DinicMaxflow(vtype s, vtype t, vtype V, v
     while (BFS(s, t, V) == true){
         // store how many edges are visited
         // from V { 0 to V }
-        start = new vtype[V+1];
         fill(start,start+V+1,0);
         //cout << "here" << endl;
         // while flow is not zero in graph from S to D
