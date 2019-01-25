@@ -3,16 +3,8 @@ import localgraphclustering as lgc
 import time
 import numpy as np
 
-# Import the graph_tool module for visualization.
-from graph_tool.all import * 
-
 # Import matplotlib 
 import matplotlib.pyplot as plt
-
-# Just a useful function.
-def diff(a, b):
-        b = set(b)
-        return np.asarray([aa for aa in a if aa not in b], dtype = 'int64')
     
 import pickle
 import csv
