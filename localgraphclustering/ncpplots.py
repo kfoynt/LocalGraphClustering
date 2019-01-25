@@ -62,8 +62,8 @@ class NCPPlots:
         fig, ax = plt.subplots()
         ax.hexbin(ncpdata["input_cond"], ncpdata["output_cond"],
                       gridsize=nbins, cmap="magma", bins='log', mincnt=1)
-        ax.set_xlabel("input conductance")
-        ax.set_ylabel("output conductance")
+        ax.set_xlabel("input conductance", fontsize=18)
+        ax.set_ylabel("output conductance", fontsize=18)
         ax.set_xlim(0,1)
         ax.set_ylim(0,1)
         ax.set_aspect('equal', 'box')
@@ -103,7 +103,7 @@ class NCPPlots:
         tmp.sort(key = lambda x: x[0])
         x = [i[0] for i in tmp]
         y = [i[1] for i in tmp]
-        ax.plot(x, y, label=label)
+        ax.plot(x, y, label=label, linewidth=3)
         return list(zip(x,y,pos))
 
     def feature_by_group_histogram_and_min_line(self, feature, group,
@@ -119,8 +119,8 @@ class NCPPlots:
     def cond_by_vol(self, **kwargs):
         fig, ax, min_tuples = self.feature_by_group_histogram_and_min_line(
             "output_cond", "output_voleff", **kwargs)
-        ax.set_xlabel("effective volume")
-        ax.set_ylabel("conductance")
+        ax.set_xlabel("effective volume", fontsize=18)
+        ax.set_ylabel("conductance", fontsize=18)
         return fig, ax, min_tuples
 
 
@@ -128,8 +128,8 @@ class NCPPlots:
     def cond_by_size(self, **kwargs):
         fig, ax, min_tuples = self.feature_by_group_histogram_and_min_line(
             "output_cond", "output_sizeeff", **kwargs)
-        ax.set_xlabel("effective size")
-        ax.set_ylabel("conductance")
+        ax.set_xlabel("effective size", fontsize=18)
+        ax.set_ylabel("conductance", fontsize=18)
         return fig, ax, min_tuples
 
 
@@ -142,8 +142,8 @@ class NCPPlots:
         y = dfmin["output_isop"]
         x = dfmin["output_sizeeff"]
         pos = dfmin["best"]
-        ax.set_xlabel("effective size")
-        ax.set_ylabel("expansion")
+        ax.set_xlabel("effective size", fontsize=18)
+        ax.set_ylabel("expansion", fontsize=18)
         ax.plot(x, y)
         return fig, ax, list(zip(x,y,pos))
 

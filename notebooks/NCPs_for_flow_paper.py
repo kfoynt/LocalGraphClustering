@@ -17,6 +17,7 @@ import csv
 
 # # Read graph. This also supports gml and graphml format.
 # g = lgc.GraphLocal('./datasets/senate.graphml','graphml')
+# g.discard_weights()
 
 # ncp_instance = lgc.NCPData(g)
 # ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=24)
@@ -41,6 +42,7 @@ import csv
 
 # # Read John Hopkins graph.
 # g = lgc.GraphLocal('./datasets/JohnsHopkins.graphml','graphml')
+# g.discard_weights()
 
 # ncp_instance = lgc.NCPData(g)
 # ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=24)
@@ -65,6 +67,7 @@ import csv
 
 # # Read John Hopkins graph.
 # g = lgc.GraphLocal('./datasets/usroads-cc.graphml','graphml')
+# g.discard_weights()
 
 # ncp_instance = lgc.NCPData(g)
 # ncp_instance.approxPageRank(ratio=0.5,timeout=5000000,nthreads=24)
@@ -89,6 +92,7 @@ import csv
 
 # # Read John Hopkins graph.
 # g = lgc.GraphLocal('./datasets/Colgate88_reduced.graphml','graphml')
+# g.discard_weights()
 
 # ncp_instance = lgc.NCPData(g)
 # ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=24)
@@ -116,6 +120,7 @@ import csv
 # # We used the data set proposed in consisting of a subset of 220 protein complexes of 1562 proteins. 
 # # Details can be found here: https://clusteval.sdu.dk/1/datasets/685
 # g = lgc.GraphLocal('./datasets/ppi_mips.graphml','graphml',' ')
+# g.discard_weights()
 
 # ncp_instance = lgc.NCPData(g)
 # ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=24)
@@ -142,6 +147,7 @@ import csv
 # # The data set contains pairwise similarities of blasted 
 # # sequences of 232 proteins belonging to the amidohydrolase superfamily. 
 # g = lgc.GraphLocal('./datasets/sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh.graphml','graphml',' ')
+# g.discard_weights()
 
 # ncp_instance = lgc.NCPData(g)
 # ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=24)
