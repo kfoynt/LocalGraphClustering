@@ -241,15 +241,12 @@ pair<double,vtype> graph<vtype,itype>::DinicMaxflow(vtype s, vtype t, vtype V, v
  
     // Augment the flow while there is path
     // from source to sink
-    vtype *start = NULL;
+    vtype *start = new vtype[V+1];
     //cout << INT_MAX << endl;
     vector<pair<int,double>> SnapShots(n);
     while (BFS(s, t, V) == true){
         // store how many edges are visited
         // from V { 0 to V }
-        if (start != NULL) {
-            delete[] start;
-        }
         start = new vtype[V+1];
         fill(start,start+V+1,0);
         //cout << "here" << endl;
@@ -268,7 +265,7 @@ pair<double,vtype> graph<vtype,itype>::DinicMaxflow(vtype s, vtype t, vtype V, v
     fill(mincut.begin(),mincut.end(),false);
     find_cut(s,mincut,length);
     //cout << "length " << length << endl;
- 
+    delete[] start;
     // return maximum flow
     return make_pair(total,length);
 }
