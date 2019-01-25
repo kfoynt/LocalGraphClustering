@@ -13,7 +13,7 @@ import csv
 g = lgc.GraphLocal('./datasets/senate.graphml','graphml')
 
 ncp_instance = lgc.NCPData(g)
-ncp_instance.approxPageRank(ratio=0.5,timeout=7200)
+ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=nthreads)
 
 ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
 #plot conductance vs size
@@ -35,7 +35,7 @@ pickle.dump(ncp_instance, open('results/' + "acl" + "-ncp-" + "senate" + '.pickl
 g = lgc.GraphLocal('./datasets/JohnsHopkins.graphml','graphml')
 
 ncp_instance = lgc.NCPData(g)
-ncp_instance.approxPageRank(ratio=0.5,timeout=7200)
+ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=nthreads)
 
 ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
 #plot conductance vs size
@@ -57,7 +57,7 @@ pickle.dump(ncp_instance, open('results/' + "acl" + "-ncp-" + "JohnsHopkins" + '
 g = lgc.GraphLocal('./datasets/usroads-cc.graphml','graphml')
 
 ncp_instance = lgc.NCPData(g)
-ncp_instance.approxPageRank(ratio=0.5,timeout=7200)
+ncp_instance.approxPageRank(ratio=0.5,timeout=5000000,nthreads=nthreads)
 
 ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
 #plot conductance vs size
@@ -79,7 +79,7 @@ pickle.dump(ncp_instance, open('results/' + "acl" + "-ncp-" + "usroads" + '.pick
 g = lgc.GraphLocal('./datasets/Colgate88_reduced.graphml','graphml')
 
 ncp_instance = lgc.NCPData(g)
-ncp_instance.approxPageRank(ratio=0.5,timeout=7200)
+ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=nthreads)
 
 ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
 #plot conductance vs size
@@ -104,7 +104,7 @@ pickle.dump(ncp_instance, open('results/' + "acl" + "-ncp-" + "colgate" + '.pick
 g = lgc.GraphLocal('./datasets/ppi_mips.graphml','graphml',' ')
 
 ncp_instance = lgc.NCPData(g)
-ncp_instance.approxPageRank(ratio=0.5,timeout=7200)
+ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=nthreads)
 
 ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
 #plot conductance vs size
@@ -128,7 +128,7 @@ pickle.dump(ncp_instance, open('results/' + "acl" + "-ncp-" + "ppimips" + '.pick
 g = lgc.GraphLocal('./datasets/sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh.graphml','graphml',' ')
 
 ncp_instance = lgc.NCPData(g)
-ncp_instance.approxPageRank(ratio=0.5,timeout=7200)
+ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=nthreads)
 
 ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
 #plot conductance vs size
@@ -163,7 +163,7 @@ for (gname,gfile) in mygraphs.items():
     g.discard_weights()
 
     ncp_instance = lgc.NCPData(g)
-    ncp_instance.approxPageRank(ratio=0.5,timeout=7200)
+    ncp_instance.approxPageRank(ratio=0.3,timeout=5000000,nthreads=nthreads)
 
     ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
     #plot conductance vs size
