@@ -38,10 +38,10 @@ def run_improve(g, gname, method, methodname, delta, nthreads=24, timeout=1000):
     output = ncp2.refine(sets, method=method, methodname=methodname, nthreads=nthreads, timeout=timeout, **{"delta": delta})
     fig = lgc.NCPPlots(ncp2).mqi_input_output_cond_plot()[0]
     fig.axes[0].set_title(gname + " " + methodname+"-NCP")
-    fig.savefig("figures/" + method + "-ncp-"+gname+".pdf", bbox_inches="tight", figsize=(100,100))
+    fig.savefig("figures/" + method + "delta" + str(delta) + "-ncp-"+gname+".pdf", bbox_inches="tight", figsize=(100,100))
     plt.show()
-    pickle.dump(ncp, open('results/' + method + "delta" + delta + "-ncp-" + gname + '.pickle', 'wb'))
-    pickle.dump(ncp2, open('results/' + method + "delta" + delta + "-ncp2-" + gname + '.pickle', 'wb'))
+    pickle.dump(ncp, open('results/' + method + "delta" + str(delta) + "-ncp-" + gname + '.pickle', 'wb'))
+    pickle.dump(ncp2, open('results/' + method + "delta" + str(delta) + "-ncp2-" + gname + '.pickle', 'wb'))
 
 mygraphs = {'orkut':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/com-orkut.ungraph.edgelist'
            }
