@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import pickle
 import csv
 
+print("Running senate")
+
 # Read graph. This also supports gml and graphml format.
 g = lgc.GraphLocal('./datasets/senate.graphml','graphml')
 
@@ -30,6 +32,8 @@ plt.savefig('figures/expand_card_senate.png', bbox_inches='tight')
 plt.show()
 
 pickle.dump(ncp_instance, open('results/' + "acl" + "-ncp-" + "senate" + '.pickle', 'wb'))
+
+print("Running JohnsHopkins")
 
 # Read John Hopkins graph.
 g = lgc.GraphLocal('./datasets/JohnsHopkins.graphml','graphml')
@@ -53,6 +57,8 @@ plt.show()
 
 pickle.dump(ncp_instance, open('results/' + "acl" + "-ncp-" + "JohnsHopkins" + '.pickle', 'wb'))
 
+print("Running usroads")
+
 # Read John Hopkins graph.
 g = lgc.GraphLocal('./datasets/usroads-cc.graphml','graphml')
 
@@ -75,6 +81,8 @@ plt.show()
 
 pickle.dump(ncp_instance, open('results/' + "acl" + "-ncp-" + "usroads" + '.pickle', 'wb'))
 
+print("Running Colgate")
+
 # Read John Hopkins graph.
 g = lgc.GraphLocal('./datasets/Colgate88_reduced.graphml','graphml')
 
@@ -96,6 +104,8 @@ plt.savefig('figures/expand_card_colgate.png', bbox_inches='tight')
 plt.show()
 
 pickle.dump(ncp_instance, open('results/' + "acl" + "-ncp-" + "colgate" + '.pickle', 'wb'))
+
+print("Running ppimips")
 
 # Read graph. This also supports gml and graphml format.
 # The MIPS Mammalian Protein-Protein Database is a database for protein-protein interactions of mammalian species. 
@@ -121,6 +131,8 @@ plt.savefig('figures/expand_card_ppimips.png', bbox_inches='tight')
 plt.show()
 
 pickle.dump(ncp_instance, open('results/' + "acl" + "-ncp-" + "ppimips" + '.pickle', 'wb'))
+
+print("Running sfld")
 
 # Read graph. This also supports gml and graphml format.
 # The data set contains pairwise similarities of blasted 
@@ -159,6 +171,9 @@ for (gname,gfile) in mygraphs.items():
     if isinstance(gfile, tuple):
         sep = gfile[1]
         gfile = gfile[0]
+        
+    print("Running " + gname)
+    
     g = lgc.GraphLocal(os.path.join("..", "data", gfile),'edgelist', "	")
     g.discard_weights()
 
