@@ -78,9 +78,10 @@ def aclpagerank_weighted_cpp(ai,aj,lib):
     return fun
 """
 
-def aclpagerank_weighted_cpp(n,ai,aj,a,alpha,eps,seedids,nseedids,maxsteps,xlength=10**7,flag=0):
+def aclpagerank_weighted_cpp(n,ai,aj,a,alpha,eps,seedids,maxsteps,xlength=10**7,flag=0):
     float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun = _get_aclpagerank_weighted_cpp_types_fun(ai,aj)
     seedids=np.array(seedids,dtype=vtype)
+    nseedids = len(seedids)
     xids=np.zeros(xlength,dtype=vtype)
     values=np.zeros(xlength,dtype=float_type)
     a=np.array(a,dtype=float_type)
