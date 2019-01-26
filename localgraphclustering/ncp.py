@@ -75,6 +75,9 @@ def _partial_functions_equal(func1, func2):
             print(getattr(func1, attr), getattr(func2, attr))
     return are_equal
 
+def does_nothing():
+    return
+
 """ This is helpful for some of the NCP studies to return the set we are given. """
 def _evaluate_set(G,N):
     if 0 < len(N) < G._num_vertices:
@@ -111,7 +114,6 @@ def ncp_experiment(ncpdata,R,func,method_stats):
             return [dict(**input_stats, **output_stats, **method_stats)]
     else:
         return [] # nothing to return
-
 
 """ This is how worker's get the graph data and the NCP setup information. """
 # we are now using stuff from here
@@ -315,7 +317,7 @@ class NCPData:
             else:
                 self.method_names[method] = name
         return method
-
+                
     def _run_samples(self, target, list_of_sets, method, timeout, nprocs):
         if nprocs == 1:
             # we special case nprocs = 1 so that we can get coverage
@@ -405,7 +407,32 @@ class NCPData:
 
         setnos = np.array_split(range(startset,endset), nthreads) # set numbers
         self._run_samples(_ncp_set_worker, setnos, method, timeout, nthreads)
-
+        
+    def add_set_samples_without_method(self, sets):
+        method = self._check_method(does_nothing, None)
+        startset = len(self.sets)
+        self.sets.extend(sets)
+        
+        counter = 1
+        for cluster in sets:
+            input_stats = self.graph.set_scores(cluster)
+            for F in self.set_funcs: # build the list of keys for set_funcs
+                input_stats.update(F(self.graph, cluster))
+            input_stats = {"input_" + str(key):value for key,value in input_stats.items() } # add input prefix
+        
+            output_stats = self.graph.set_scores(cluster)
+            for F in self.set_funcs: # build the list of keys for set_funcs
+                output_stats.update(F(self.graph, cluster))
+            output_stats = {"output_" + str(key):value for key,value in output_stats.items() } # add output prefix
+            if self.store_output_clusters:
+                output_cluster = {"output_cluster": cluster} 
+            
+            method_stats = {'input_set_type': 'set', 'input_set_params':startset+counter, 'methodfunc':does_nothing, 'time':0}
+            
+            self.results.extend([dict(**input_stats, **output_stats, **method_stats)])
+            
+            counter = counter + 1
+            
     def as_data_frame(self):
         """ Return the NCP results as a pandas dataframe """
         df = pd.DataFrame.from_records(self.results, columns=self.result_fields)
