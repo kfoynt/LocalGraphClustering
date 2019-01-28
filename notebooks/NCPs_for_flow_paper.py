@@ -38,8 +38,8 @@ plt.show()
 
 pickle.dump(ncp_instance, open('results/ncp-senate.pickle', 'wb'))
 
-mygraphs = {'email-Enron':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/email-Enron.edgelist',
-            'pokec':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/soc-pokec-relationships.edgelist',
+mygraphs = {#'email-Enron':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/email-Enron.edgelist',
+            #'pokec':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/soc-pokec-relationships.edgelist',
             'orkut':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/com-orkut.ungraph.edgelist',
             'livejournal':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/soc-LiveJournal1.edgelist'
            }
@@ -58,7 +58,7 @@ for (gname,gfile) in mygraphs.items():
     g.discard_weights()
 
     ncp_instance = lgc.NCPData(g)
-    ncp_instance.approxPageRank(ratio=0.3,timeout=5000000,nthreads=24)
+    ncp_instance.approxPageRank(ratio=0.1,timeout=5000000,nthreads=24)
 
     ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
     #plot conductance vs size
