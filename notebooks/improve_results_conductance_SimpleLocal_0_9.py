@@ -29,13 +29,19 @@ def run_improve(g, gname, method, methodname, delta, nthreads=24, timeout=1000):
     elif g._num_vertices > 5000:
         ratio = 0.8
     print("ratio: ", ratio)
+    start = time.time()
     ncp = lgc.NCPData(g,store_output_clusters=True)
     ncp.approxPageRank(ratio=ratio,nthreads=nthreads,localmins=False,neighborhoods=False,random_neighborhoods=False)
+    end = time.time()
+    print("Elapsed time for acl-ncp for dataset ", gname , " is ", end - start, " the method is ", methodname, " delta is ", delta)
     sets = [st["output_cluster"] for st in ncp.results]
     print("Make an NCP object for Improve Algo")
+    start2 = time.time()
     ncp2 = lgc.NCPData(g)
     print("Going into improve mode")
     output = ncp2.refine(sets, method=method, methodname=methodname, nthreads=nthreads, timeout=timeout, **{"delta": delta})
+    end2 = time.time()
+    print("Elapsed time for improve-ncp for dataset ", gname , " is ", end2 - start2, " the method is ", methodname, " delta is ", delta)
     fig = lgc.NCPPlots(ncp2).mqi_input_output_cond_plot()[0]
     fig.axes[0].set_title(gname + " " + methodname+"-NCP")
     fig.savefig("figures/" + method + "delta" + str(delta) + "-ncp-"+gname+".pdf", bbox_inches="tight", figsize=(100,100))
@@ -49,7 +55,6 @@ mygraphs = {'email-Enron':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClusterin
             'livejournal':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/soc-LiveJournal1.edgelist'
            }
 
-start = time.time()
 for (gname,gfile) in mygraphs.items():
     print(gname, gfile)
     sep = ' '
@@ -59,5 +64,3 @@ for (gname,gfile) in mygraphs.items():
     g = lgc.GraphLocal(os.path.join("..", "data", gfile),'edgelist', "	")
     g.discard_weights()
     run_improve(g, gname=gname, method="sl", methodname="SimpleLocal", delta=0.9, timeout=100000000)
-    end = time.time()
-    print("Elapsed time for ", gname , " is ", end - start)
