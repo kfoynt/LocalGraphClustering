@@ -27,6 +27,7 @@
 #include <cmath>
 #include <vector>
 #include <time.h>
+#include <unordered_set>
 
 #include "include/proxl1PRaccel_c_interface.h"
 #include "include/routines.hpp"
