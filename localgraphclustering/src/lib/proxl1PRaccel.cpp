@@ -43,6 +43,27 @@ double find_max(double* grad, double* ds, vtype n){
     return max_num;
 }
 
+template<typename vtype>
+double find_min(double* vec, vtype n){
+    double min_num = vec[0];
+    for(vtype i = 0; i < n; i ++){
+        min_num = max(min_num,vec[i]);
+    }
+    return min_num;
+}
+
+template<typename vtype>
+double compute_l2_norm(vector<double> &q, vector<double> &q_old, vtype n){
+    double l2_norm = 0;
+    for(vtype i = 0; i < n; i ++){
+        //cout << max_num << " " << grad[i]/ds[i] << endl;
+        l2_norm += (q[i] - q_old[i])*(q[i] - q_old[i]);
+    }
+    l2_norm = sqrt(l2_norm);
+    
+    return l2_norm;
+}
+
 template<typename vtype, typename itype>
 void update_grad(double* grad, double* y, vector<double>& c, itype* ai, vtype* aj, double* a,
                  vtype n, double alpha, double* dsinv, vtype offset, unordered_map<vtype,vtype>& indices)
@@ -96,7 +117,6 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
         c[v[i]-offset] = -1 * grad[v[i]-offset];
     }
 
-    // XXX
     //Find nonzero indices in y and dsinv
     unordered_map<vtype,vtype> indices;
     for (vtype i = 0; i < n; i ++) {
@@ -198,10 +218,10 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
 
 template<typename vtype, typename itype>
 void update_grad_unnormalized(double* grad, double* y, vector<double>& c, itype* ai, vtype* aj, double* a,
-                 vtype n, double alpha, double* dsinv, vtype offset, unordered_map<vtype,vtype>& indices)
+                 vtype n, double alpha, double* d, vtype offset, unordered_map<vtype,vtype>& indices)
 {
     for(vtype i = 0; i < n; i ++){
-        grad[i] = (1+alpha)/2*y[i] - c[i];
+        grad[i] = ((1+alpha)/2)*d[i]*y[i] - c[i];
     }
     vtype temp;
 
@@ -209,8 +229,7 @@ void update_grad_unnormalized(double* grad, double* y, vector<double>& c, itype*
         vtype i = it->first;
         for(itype j = ai[i]-offset; j < ai[i+1]-offset; j ++){
             temp = aj[j]-offset;
-            //grad[i] -= a[j] * y[temp] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5;
-            grad[temp] -= 2*(a[j]* y[i] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5);
+            grad[temp] -= ((1-alpha)/2)*a[j]*y[i];
         }
     }
 
@@ -252,40 +271,38 @@ vtype graph<vtype,itype>::proxl1PRaccel_unnormalized(double alpha, double rho, v
     //Find nonzero indices in y and dsinv
     unordered_map<vtype,vtype> indices;
     for (vtype i = 0; i < n; i ++) {
-        if (y[i] != 0 && dsinv[i] != 0) {
+        if (y[i] != 0 && d[i] != 0) {
             indices[i] = 0;
         }
     }
 
     //New Change for p_0
-    update_grad_unnormalized(grad,y,c,ai,aj,a,n,alpha,dsinv,offset,indices);
+    update_grad_unnormalized(grad,y,c,ai,aj,a,n,alpha,d,offset,indices);
     //cout << "max grad: " << *max_element(grad,grad+n) << " min grad: " << *min_element(grad,grad+n) << endl;
-    /*for(vtype i = 0; i < n; i ++){
-        cout << grad[i] << endl;
-    }*/
+    /*
+    for(vtype i = 0; i < n; i ++){
+        cout << "grad[" << i << "] " << grad[i] << endl;
+    }
+    */
     vector<double> q (n,0);
     vector<double> q_old (n,0);
     //vector<double> y (n,0);
     double z;
     size_t iter = 0;
-    double thd = (1 + epsilon) * rho * alpha;
-    //cout << thd << " " << find_max<vtype>(grad,ds,n) << endl;
+
     double thd1,betak;
     t1 = clock();
     //t2 = clock();
-    if(find_max<vtype>(grad,ds,n) > thd) {
-        fill(y,y+n,0);
-        indices.clear();
-    }
-    else {
-        for(vtype i = 0; i < n; i ++){
-            p[i] = abs(y[i])*ds[i];
-        }
-        //cout << "max y: " << *max_element(y,y+n) << " min y: " << *min_element(y,y+n) << endl;
-        //cout << "max grad: " << *max_element(grad,grad+n) << " min grad: " << *min_element(grad,grad+n) << endl;
-        return not_converged;
-    }
-    while((iter < (size_t)maxiter) && (find_max<vtype>(grad,ds,n) > thd)){
+    
+    fill(y,y+n,0);
+    indices.clear();
+    
+    double min_d;
+    min_d = find_min<vtype>(d,n);
+    double mu = ((1+alpha)/2)*min_d;
+    double crit;
+
+    while((iter < (size_t)maxiter)){
         /*
         t3 = clock();
         cout << "1: " <<  ((double)t3 - (double)t2)/double(CLOCKS_PER_SEC) << endl;
@@ -293,15 +310,17 @@ vtype graph<vtype,itype>::proxl1PRaccel_unnormalized(double alpha, double rho, v
         */
         iter ++;
         q_old = q;
+        
         if(iter == 1){
             betak = 0;
         }
         else{
-            betak = (1-sqrt(alpha))/(1+sqrt(alpha));
+            betak = (1-sqrt(mu))/(1+sqrt(mu));
         }
+
         for(vtype i = 0; i < n; i ++){
-            z = y[i] - grad[i];
-            thd1 = rho*alpha*ds[i];
+            z = y[i] - grad[i]/d[i];
+            thd1 = rho*alpha;
             if(z >= thd1){
                 q[i] = z - thd1;
             }
@@ -314,16 +333,31 @@ vtype graph<vtype,itype>::proxl1PRaccel_unnormalized(double alpha, double rho, v
         }
         for(vtype i = 0; i < n; i ++){
             y[i] = q[i] + betak*(q[i]-q_old[i]);
-            if (y[i] != 0 && indices.find(i) == indices.end() && dsinv[i] != 0) {
+            if (y[i] != 0 && indices.find(i) == indices.end() && d[i] != 0) {
                 indices[i] = 0;
             }
         }
+       
+        /*
+        for(vtype i = 0; i < n; i ++){
+            cout << "iter.: " << iter << " y[" << i << "] " << y[i] << endl;
+        }
+        if(iter == 2) break;
+        */
+        
         /*
         t3 = clock();
         cout << "2: " <<  ((double)t3 - (double)t2)/double(CLOCKS_PER_SEC) << endl;
         t2 = clock();
         */
-        update_grad(grad,y,c,ai,aj,a,n,alpha,dsinv,offset,indices);
+        update_grad_unnormalized(grad,y,c,ai,aj,a,n,alpha,d,offset,indices);
+        
+        /*
+        for(vtype i = 0; i < n; i ++){
+            cout << "iter.: " << iter << " grad[" << i << "] " << grad[i] << endl;
+        }
+        */
+        
         /*
         t3 = clock();
         cout << "3: " <<  ((double)t3 - (double)t2)/double(CLOCKS_PER_SEC) << endl;
@@ -334,6 +368,13 @@ vtype graph<vtype,itype>::proxl1PRaccel_unnormalized(double alpha, double rho, v
             not_converged = 1;
             return not_converged;
         }
+        
+        crit = compute_l2_norm<vtype>(q,q_old,n);
+        //cout << "iter.: " << iter << " l2norm: " <<  crit << endl;
+        if (crit < epsilon){
+            not_converged = 0;
+            break;
+        }
     }
 
     if(iter >= (size_t)maxiter){
@@ -341,7 +382,7 @@ vtype graph<vtype,itype>::proxl1PRaccel_unnormalized(double alpha, double rho, v
     }
 
     for(vtype i = 0; i < n; i ++){
-        p[i] = abs(q[i])*ds[i];
+        p[i] = abs(q[i]);
     }
     //cout << "max y: " << *max_element(y,y+n) << " min y: " << *min_element(y,y+n) << endl;
     //cout << "max grad: " << *max_element(grad,grad+n) << " min grad: " << *min_element(grad,grad+n) << endl;
