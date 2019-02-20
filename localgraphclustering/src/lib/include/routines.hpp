@@ -120,6 +120,11 @@ public:
     vtype proxl1PRaccel(double alpha, double rho, vtype* v, vtype v_nums, double* d,
                         double* ds, double* dsinv, double epsilon, double* grad, double* p, double* y,
                         vtype maxiter,double max_time);
+                        
+    //functions in proxl1PRaccel.cpp
+    vtype proxl1PRaccel_unnormalized(double alpha, double rho, vtype* v, vtype v_nums, double* d,
+                        double* ds, double* dsinv, double epsilon, double* grad, double* p, double* y,
+                        vtype maxiter,double max_time);
 
 
     //functions in densest_subgraph.cpp

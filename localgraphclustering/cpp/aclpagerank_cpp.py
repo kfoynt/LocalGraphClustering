@@ -19,7 +19,7 @@ from . import _graphlib
 
 # Load the functions
 def _setup_aclpagerank_args(vtypestr, itypestr, fun):
-    float_type,vtype,itype,ctypes_vtype,ctypes_itype = standard_types(vtypestr,itypestr)
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype,bool_type = standard_types(vtypestr,itypestr)
 
     fun.restype=ctypes_vtype
     fun.argtypes=[ctypes_vtype,ndpointer(ctypes_itype, flags="C_CONTIGUOUS"),

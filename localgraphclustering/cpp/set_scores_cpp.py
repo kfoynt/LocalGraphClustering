@@ -8,7 +8,7 @@ from . import _graphlib
 
 # Load the functions
 def _setup_setscores_args(vtypestr, itypestr, fun, weighted):
-    float_type,vtype,itype,ctypes_vtype,ctypes_itype = standard_types(vtypestr,itypestr)
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype,bool_type = standard_types(vtypestr,itypestr)
 
     fun.restype=None
     if weighted:
