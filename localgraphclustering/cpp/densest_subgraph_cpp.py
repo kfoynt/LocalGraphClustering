@@ -15,7 +15,7 @@ from . import _graphlib
 
 
 def _setup_densest_subgraph_args(vtypestr, itypestr, fun):
-    float_type,vtype,itype,ctypes_vtype,ctypes_itype = standard_types(vtypestr,itypestr)
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype,bool_type = standard_types(vtypestr,itypestr)
 
     fun.restype=float_type
     fun.argtypes=[ctypes_vtype,

@@ -15,6 +15,7 @@ def approximate_PageRank(G,
                          ys: Sequence[float] = None,
                          cpp: bool = True,
                          normalize: bool = True,
+                         normalized_objective: bool = True,
                          method: str = "acl"):
     """
     Computes PageRank vector locally.
@@ -81,6 +82,10 @@ def approximate_PageRank(G,
     normalize: bool
         Default = True
         Normalize the output to be directly input into sweepcut routines.
+        
+    normalized_objective: bool
+        Default = True
+        Use normalized Laplacian in the objective function, works only for "method=l1reg" and "cpp=True"
 
     cpp: bool
         default = True
@@ -141,12 +146,12 @@ def approximate_PageRank(G,
         if cpp:
             if ys == None:
                 p = proxl1PRaccel_cpp(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, alpha = alpha,
-                                     rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2]
+                                     rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout, normalized_objective = normalized_objective)[2]
             else:
                 p = proxl1PRaccel_cpp(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, y = ys, alpha = alpha,
                                      rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2]
         else:
-            p = fista_dinput_dense(ref_nodes, G, alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout)
+            p = fista_dinput_dense(ref_nodes, G, alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout, normalized_objective = normalized_objective)
         # convert result to a sparse vector
         nonzeros = np.count_nonzero(p)
         idx = np.zeros(nonzeros,dtype=np.dtype(G.aj[0]))
