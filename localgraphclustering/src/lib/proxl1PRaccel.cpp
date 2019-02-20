@@ -27,6 +27,7 @@
 #include <cmath>
 #include <vector>
 #include <time.h>
+#include <unordered_set>
 
 #include "include/proxl1PRaccel_c_interface.h"
 #include "include/routines.hpp"
@@ -45,9 +46,11 @@ double find_max(double* grad, double* ds, vtype n){
 
 template<typename vtype, typename itype>
 void update_grad(double* grad, double* y, vector<double>& c, itype* ai, vtype* aj, double* a,
-                 vtype n, double alpha, double* dsinv, vtype offset, unordered_map<vtype,vtype>& indices)
+                 vtype n, double alpha, double* dsinv, vtype offset, unordered_map<vtype,vtype>& indices,
+                 unordered_set<vtype>& nz_ids)
 {
-    for(vtype i = 0; i < n; i ++){
+    for(auto it = nz_ids.begin() ; it != nz_ids.end(); ++it){
+        vtype i = *it;
         grad[i] = (1+alpha)/2*y[i] - c[i];
     }
     vtype temp;
@@ -99,14 +102,18 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
     // XXX
     //Find nonzero indices in y and dsinv
     unordered_map<vtype,vtype> indices;
+    unordered_set<vtype> nz_ids;
     for (vtype i = 0; i < n; i ++) {
         if (y[i] != 0 && dsinv[i] != 0) {
             indices[i] = 0;
         }
+        if (y[i] != 0 || c[i] != 0) {
+            nz_ids.insert(i);
+        }
     }
 
     //New Change for p_0
-    update_grad(grad,y,c,ai,aj,a,n,alpha,dsinv,offset,indices);
+    update_grad(grad,y,c,ai,aj,a,n,alpha,dsinv,offset,indices,nz_ids);
     //cout << "max grad: " << *max_element(grad,grad+n) << " min grad: " << *min_element(grad,grad+n) << endl;
     /*for(vtype i = 0; i < n; i ++){
         cout << grad[i] << endl;
@@ -165,13 +172,16 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
             if (y[i] != 0 && indices.find(i) == indices.end() && dsinv[i] != 0) {
                 indices[i] = 0;
             }
+            if (y[i] != 0 && nz_ids.find(i) == nz_ids.end()) {
+                nz_ids.insert(i);
+            }
         }
         /*
         t3 = clock();
         cout << "2: " <<  ((double)t3 - (double)t2)/double(CLOCKS_PER_SEC) << endl;
         t2 = clock();
         */
-        update_grad(grad,y,c,ai,aj,a,n,alpha,dsinv,offset,indices);
+        update_grad(grad,y,c,ai,aj,a,n,alpha,dsinv,offset,indices,nz_ids);
         /*
         t3 = clock();
         cout << "3: " <<  ((double)t3 - (double)t2)/double(CLOCKS_PER_SEC) << endl;
@@ -198,9 +208,11 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
 
 template<typename vtype, typename itype>
 void update_grad_unnormalized(double* grad, double* y, vector<double>& c, itype* ai, vtype* aj, double* a,
-                 vtype n, double alpha, double* dsinv, vtype offset, unordered_map<vtype,vtype>& indices)
+                 vtype n, double alpha, double* dsinv, vtype offset, unordered_map<vtype,vtype>& indices,
+                 unordered_set<vtype>& nz_ids)
 {
-    for(vtype i = 0; i < n; i ++){
+    for(auto it = nz_ids.begin() ; it != nz_ids.end(); ++it){
+        vtype i = *it;
         grad[i] = (1+alpha)/2*y[i] - c[i];
     }
     vtype temp;
@@ -251,14 +263,18 @@ vtype graph<vtype,itype>::proxl1PRaccel_unnormalized(double alpha, double rho, v
 
     //Find nonzero indices in y and dsinv
     unordered_map<vtype,vtype> indices;
+    unordered_set<vtype> nz_ids;
     for (vtype i = 0; i < n; i ++) {
         if (y[i] != 0 && dsinv[i] != 0) {
             indices[i] = 0;
         }
+        if (y[i] != 0 || c[i] != 0) {
+            nz_ids.insert(i);
+        }
     }
 
     //New Change for p_0
-    update_grad_unnormalized(grad,y,c,ai,aj,a,n,alpha,dsinv,offset,indices);
+    update_grad_unnormalized(grad,y,c,ai,aj,a,n,alpha,dsinv,offset,indices,nz_ids);
     //cout << "max grad: " << *max_element(grad,grad+n) << " min grad: " << *min_element(grad,grad+n) << endl;
     /*for(vtype i = 0; i < n; i ++){
         cout << grad[i] << endl;
@@ -323,7 +339,7 @@ vtype graph<vtype,itype>::proxl1PRaccel_unnormalized(double alpha, double rho, v
         cout << "2: " <<  ((double)t3 - (double)t2)/double(CLOCKS_PER_SEC) << endl;
         t2 = clock();
         */
-        update_grad(grad,y,c,ai,aj,a,n,alpha,dsinv,offset,indices);
+        update_grad(grad,y,c,ai,aj,a,n,alpha,dsinv,offset,indices,nz_ids);
         /*
         t3 = clock();
         cout << "3: " <<  ((double)t3 - (double)t2)/double(CLOCKS_PER_SEC) << endl;
