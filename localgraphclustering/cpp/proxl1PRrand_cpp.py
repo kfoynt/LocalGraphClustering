@@ -29,7 +29,7 @@ from . import _graphlib
 
 # Load the functions
 def _setup_proxl1PRrand_args(vtypestr, itypestr, fun):
-    float_type,vtype,itype,ctypes_vtype,ctypes_itype = standard_types(vtypestr,itypestr)
+    float_type,vtype,itype,ctypes_vtype,ctypes_itype,bool_type = standard_types(vtypestr,itypestr)
 
     fun.restype=ctypes_vtype
     fun.argtypes=[ctypes_vtype,ndpointer(ctypes_itype, flags="C_CONTIGUOUS"),
@@ -43,7 +43,7 @@ def _setup_proxl1PRrand_args(vtypestr, itypestr, fun):
                   ndpointer(float_type, flags="C_CONTIGUOUS"),
                   ndpointer(float_type, flags="C_CONTIGUOUS"),
                   ndpointer(float_type, flags="C_CONTIGUOUS"),ctypes_vtype,ctypes_vtype,
-                  float_type]
+                  float_type, bool_type]
 
     return fun
 
@@ -66,7 +66,7 @@ def _get_proxl1PRrand_cpp_types_fun(ai,aj):
         fun = _graphlib_funs_proxl1PRrand32
     return float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun
 
-def proxl1PRrand_cpp(ai,aj,a,ref_node,d,ds,dsinv,y=None,alpha = 0.15,rho = 1.0e-5,epsilon = 1.0e-4,maxiter = 10000,max_time = 100):
+def proxl1PRrand_cpp(ai,aj,a,ref_node,d,ds,dsinv,y=None,alpha = 0.15,rho = 1.0e-5,epsilon = 1.0e-4,maxiter = 10000,max_time = 100,normalized_objective=True):
     float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun = _get_proxl1PRrand_cpp_types_fun(ai,aj)
     n = len(ai) - 1
     if type(ref_node) is not list:
@@ -81,7 +81,7 @@ def proxl1PRrand_cpp(ai,aj,a,ref_node,d,ds,dsinv,y=None,alpha = 0.15,rho = 1.0e-
     else:
         new_y = np.array(y,dtype=float_type)
 
-    not_converged=fun(n,ai,aj,a,alpha,rho,ref_node,len(ref_node),d,ds,dsinv,epsilon,grad,p,new_y,maxiter,0,max_time)
+    not_converged=fun(n,ai,aj,a,alpha,rho,ref_node,len(ref_node),d,ds,dsinv,epsilon,grad,p,new_y,maxiter,0,max_time, normalized_objective)
 
     if y != None:
         for i in range(n):
