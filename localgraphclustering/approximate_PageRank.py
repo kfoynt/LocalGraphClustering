@@ -139,16 +139,17 @@ def approximate_PageRank(G,
             return (xids,values)
         else:
             raise Exception("There is only C++ version for acl weighted.")
-    elif method == "l1reg":
+    elif method == "l1reg" or method == "l1reg-rand":
         #print("Uses the Fast Iterative Soft Thresholding Algorithm (FISTA).")
         # TODO fix the following warning
         # warnings.warn("The normalization of this routine hasn't been adjusted to the new system yet")
+        algo = proxl1PRaccel_cpp if method == "l1reg" else proxl1PRrand_cpp
         if cpp:
             if ys == None:
-                p = proxl1PRaccel_cpp(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, alpha = alpha,
+                p = algo(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, alpha = alpha,
                                      rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout, normalized_objective = normalized_objective)[2]
             else:
-                p = proxl1PRaccel_cpp(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, y = ys, alpha = alpha,
+                p = algo(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, y = ys, alpha = alpha,
                                      rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout)[2]
         else:
             p = fista_dinput_dense(ref_nodes, G, alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout, normalized_objective = normalized_objective)
