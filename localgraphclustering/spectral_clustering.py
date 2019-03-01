@@ -32,7 +32,7 @@ def spectral_clustering(G, ref_nodes,
 
     method: str
         Which method to use for the nodes embedding.
-        Options: "acl", "l1reg", "nibble", "fiedler", "fiedler_local"
+        Options: "acl", "l1reg", "l1reg-rand", "nibble", "fiedler", "fiedler_local"
 
     refine:
 
@@ -94,7 +94,7 @@ def spectral_clustering(G, ref_nodes,
     if G._weighted:
         warnings.warn("The weights of the graph will be discarded. Use approximate_PageRank_weighted instead if you want to keep the edge weights.")
 
-    if method == "acl" or method == "acl_weighted" or method == "l1reg":
+    if method == "acl" or method == "acl_weighted" or method == "l1reg" or method == "l1reg-rand":
         p = approximate_PageRank(G,ref_nodes,timeout = timeout, iterations = iterations, alpha = alpha,
             rho = rho, epsilon = epsilon, method = method, ys = ys)
     elif method == "nibble":

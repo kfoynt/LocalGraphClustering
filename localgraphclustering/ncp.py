@@ -632,6 +632,19 @@ class NCPData:
         for func in funcs.keys():
             self.add_random_node_samples(method=func,methodname=funcs[func],ratio=ratio,nthreads=nthreads,timeout=timeout/len(funcs))
         return self
+    
+    def l1reg_rand(self,
+              gamma: float = 0.01/0.99,
+              rholist: List[float] = [1.0e-10,1.0e-8,1.0e-7,1.0e-6,1.0e-5,1.0e-4],
+              ratio: float = 0.3,
+              nthreads: int = 4,
+              timeout: float = 1000):
+        alpha = 1.0-1.0/(1.0+gamma)
+        funcs = {partialfunc(spectral_clustering, alpha=alpha,rho=rho,method="l1reg-rand"):'l1reg;rho=%.0e'%(rho)
+                    for rho in rholist}
+        for func in funcs.keys():
+            self.add_random_node_samples(method=func,methodname=funcs[func],ratio=ratio,nthreads=nthreads,timeout=timeout/len(funcs))
+        return self
 
     def crd(self,
             U: int = 3,
