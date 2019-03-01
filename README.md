@@ -19,6 +19,11 @@ The current version is 0.4.4 and it is appropriate for experts and intermediates
 - [David Gleich](https://www.cs.purdue.edu/homes/dgleich/), email: dgleich at purdue dot edu
 - [Michael Mahoney](https://www.stat.berkeley.edu/~mmahoney/), email: mmahoney at stat dot berkeley dot edu
 
+### Contributors
+
+- [Chufeng Hu](https://www.linkedin.com/in/chufeng-hu-545022114/?originalSubdomain=ca), email: chufeng dot hu at uwaterloo dot ca
+- [Yuying Li](https://cs.uwaterloo.ca/~yuying/), email: yuying at uwaterloo dot ca 
+
 ## List of applications and methods
 
 - [Approximate PageRank](https://dl.acm.org/citation.cfm?id=1170528)
