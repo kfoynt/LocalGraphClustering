@@ -113,8 +113,8 @@ def proxl1PRaccel_cpp(ai,aj,a,ref_node,d,ds,dsinv,y=None,alpha = 0.15,rho = 1.0e
 
     not_converged=fun(n,ai,aj,a,alpha,rho,ref_node,len(ref_node),d,ds,dsinv,epsilon,grad,p,new_y,maxiter,0,max_time,normalized_objective)
 
-    if y != None:
-        for i in range(n):
-            y[i] = new_y[i]
+    #if y != None:
+    #    for i in range(n):
+    #        y[i] = new_y[i]
 
     return (not_converged,grad,p)
