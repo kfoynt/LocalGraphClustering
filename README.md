@@ -23,6 +23,7 @@ The current version is 0.4.4 and it is appropriate for experts and intermediates
 
 - [Chufeng Hu](https://www.linkedin.com/in/chufeng-hu-545022114/?originalSubdomain=ca), email: chufeng dot hu at uwaterloo dot ca
 - [Yuying Li](https://cs.uwaterloo.ca/~yuying/), email: yuying at uwaterloo dot ca 
+- [Ben Johnson](https://github.com/bkj), email: bkj dot 322 at gmail dot com
 
 ## List of applications and methods
 
