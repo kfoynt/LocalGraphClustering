@@ -8,7 +8,7 @@ import warnings
 def approximate_PageRank(G,
                          ref_nodes,
                          timeout: float = 100,
-                         iterations: int = 100000,
+                         iterations: int = 1000000,
                          alpha: float = 0.15,
                          rho: float = 1.0e-6,
                          epsilon: float = 1.0e-2,
@@ -71,7 +71,7 @@ def approximate_PageRank(G,
         Regularization parameter for the l1-norm of the model.
 
     iterations: int
-        Default = 1000
+        Default = 1000000
         Maximum number of iterations of ACL algorithm.
 
     timeout: float
