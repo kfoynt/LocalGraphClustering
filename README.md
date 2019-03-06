@@ -38,6 +38,7 @@ The current version is 0.4.4 and it is appropriate for experts and intermediates
 - [Multiclass label prediction](https://dl.acm.org/citation.cfm?id=2783376)
 - [Network Community Profiles](http://www.tandfonline.com/doi/abs/10.1080/15427951.2009.10129177)
 - Global spectral partitioning
+- Find k clusters
 - Densest subgraph
 - [Triangle clusters and vertex neighborhood metrics](https://arxiv.org/pdf/1112.0031.pdf)
 - Handy network drawing methods
@@ -47,6 +48,7 @@ The current version is 0.4.4 and it is appropriate for experts and intermediates
 - [Network Community Profiles](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/NCPs.ipynb)
 - [Multiclass label prediction](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/multiclasslabelprediction.ipynb)
 - [Triangle clusters and vertex neighborhood metrics](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/TriangleClustersAndVertexNeighborhoodMetrics.ipynb)
+- [Find k clusters](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/find_k_clusters.ipynb)
 
 ## Examples
 
