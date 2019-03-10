@@ -8,3 +8,5 @@ plotly
 coverage
 python-coveralls
 jupyter
+joblib
+sklearn
