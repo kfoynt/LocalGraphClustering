@@ -10,7 +10,7 @@ Local Graph Clustering provides
 - tools to compute [Network Community Profiles](http://www.tandfonline.com/doi/abs/10.1080/15427951.2009.10129177)
 - scalable graph analytics on your laptop
 
-The current version is 0.4.4 and it is appropriate for experts and intermediates. Contact information for any questions and feedback is given below.
+The current version is 0.5.0 and it is appropriate for experts and intermediates. Contact information for any questions and feedback is given below.
 
 ### Authors
 
