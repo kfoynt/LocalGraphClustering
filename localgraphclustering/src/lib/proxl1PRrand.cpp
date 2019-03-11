@@ -208,26 +208,17 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype numNodes, vtype* seed, double epsil
             for (vtype i = 0; i < numNodes; ++i) {
                 maxNorm = max(maxNorm, abs(grad[i]*dsinv[i]));
             }
-            //cout << "iter.: " << numiter << " maxNorm: " <<  maxNorm << endl;
         }
         
         if (numiter++ > maxiter) {
-            //cout << "not converged" << endl;
             not_converged = 1;
             break;
         }
-        
-        // double crit = proxl1PRrand::compute_l2_norm<vtype>(grad,n);
-        // cout << "iter.: " << numiter << " l2norm: " <<  crit << endl;  
-        
     }
     //proxl1PRrand::writeTime(timeStamp, "/home/c55hu/Documents/research/experiment/output/time-rand.txt");
     //proxl1PRrand::writeLog(numNodes, "/home/c55hu/Documents/research/experiment/output/q-rand.txt", q);
     // double pSum = 0;
-    // for (vtype i = 0; i < numNodes; ++i) {
-    //     q[i] = abs(q[i]*ds[i]);
-    //     pSum += q[i];
-    // }
+    for (vtype i = 0; i < numNodes; ++i) q[i] = q[i]*ds[i];
     // cout << "total probability: " << pSum << endl;
     delete [] candidates;
     delete [] visited;

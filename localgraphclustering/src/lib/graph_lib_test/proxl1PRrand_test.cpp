@@ -27,7 +27,7 @@ int main() {
         dsinv[i] = 1/ds[i];
     }
     double p0[4] = {0,0,0,0};
-    cout << proxl1PRrand64(n,ai,aj,a,alpha,rho,v,2,d,ds,dsinv,epsilon,grad,p,p0,maxiter,0,100) << endl;
+    cout << proxl1PRrand64(n,ai,aj,a,alpha,rho,v,2,d,ds,dsinv,epsilon,grad,p,p0,maxiter,0,100, true) << endl;
     double sum = 0;
     cout << "p" << endl;
     for(int i = 0; i < 4; i ++){
