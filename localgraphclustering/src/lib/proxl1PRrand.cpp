@@ -173,7 +173,7 @@ namespace proxl1PRrand
 }
 
 template<typename vtype, typename itype>
-vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* y, double* d, double* ds, double* dsinv, double* grad, vtype maxiter)
+vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* warm_start_q, double* d, double* ds, double* dsinv, double* grad, vtype maxiter)
 {
 	vtype not_converged = 0;
     vtype* candidates = new vtype[num_nodes];
@@ -193,7 +193,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     }
 
     for (vtype i = 0; i < num_nodes; ++i) {
-        if (!visited[i] && y[i] != 0 && dsinv[i] != 0) {
+        if (!visited[i] && warm_start_q[i] != 0 && dsinv[i] != 0) {
             candidates[candidates_size++] = i;
             visited[i] = true;
         }
@@ -211,7 +211,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     double stepSize = 2.0/(1+alpha);
     while (maxNorm > threshold) {
         vtype r = proxl1PRrand::getRand() % candidates_size;
-        proxl1PRrand::updateGrad(candidates[r], stepSize, c, ra, q, grad, ds, dsinv, ai, aj, visited, candidates, candidates_size);
+        proxl1PRrand::updateGrad(candidates[r], stepSize, c, ra, warm_start_q, grad, ds, dsinv, ai, aj, visited, candidates, candidates_size);
         
         if (numiter % num_nodes == 0) {
             maxNorm = 0;
@@ -228,7 +228,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     //proxl1PRrand::writeTime(timeStamp, "/home/c55hu/Documents/research/experiment/output/time-rand.txt");
     //proxl1PRrand::writeLog(num_nodes, "/home/c55hu/Documents/research/experiment/output/q-rand.txt", q);
     // update y and q
-    for (vtype i = 0; i < num_nodes; ++i) q[i] = (y[i] = q[i]) * ds[i];
+    for (vtype i = 0; i < num_nodes; ++i) q[i] = (q[i] = warm_start_q[i]) * ds[i];
     delete [] candidates;
     delete [] visited;
     return not_converged;
