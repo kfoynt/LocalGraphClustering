@@ -50,7 +50,7 @@ def approximate_PageRank_weighted(G,
     n = G.adjacency_matrix.shape[0]
     (length,xids,values) = aclpagerank_weighted_cpp(n,G.ai,G.aj,G.adjacency_matrix.data,alpha,rho,
                 ref_nodes,iterations)
-    p = np.zeros(n)
-    p[xids] = values
+    #p = np.zeros(n)
+    #p[xids] = values
 
-    return p
+    return xids, values
