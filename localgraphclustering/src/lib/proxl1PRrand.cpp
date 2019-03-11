@@ -227,8 +227,8 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     }
     //proxl1PRrand::writeTime(timeStamp, "/home/c55hu/Documents/research/experiment/output/time-rand.txt");
     //proxl1PRrand::writeLog(num_nodes, "/home/c55hu/Documents/research/experiment/output/q-rand.txt", q);
-    // update y and q
-    for (vtype i = 0; i < num_nodes; ++i) q[i] = (q[i] = warm_start_q[i]) * ds[i];
+    // update q and scale it to probabilities
+    for (vtype i = 0; i < num_nodes; ++i) q[i] = warm_start_q[i] * ds[i];
     delete [] candidates;
     delete [] visited;
     return not_converged;
