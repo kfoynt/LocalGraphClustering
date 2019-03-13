@@ -124,7 +124,7 @@ public:
     // functions in proxl1PRrand.cpp
     vtype proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* y, double* d, double* ds, double* dsinv, double* grad, vtype maxiter);
     // functions in proxl1PRrand.cpp
-    vtype proxl1PRrand_unnormalized(vtype numNodes, vtype* v, double epsilon, double alpha, double rho, double* q, double* d, double* ds, double* dsinv, double* grad, vtype maxiter);
+    vtype proxl1PRrand_unnormalized(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* y, double* d, double* ds, double* dsinv, double* grad, vtype maxiter);
     //functions in proxl1PRaccel.cpp
     vtype proxl1PRaccel_unnormalized(double alpha, double rho, vtype* v, vtype v_nums, double* d,
                         double* ds, double* dsinv, double epsilon, double* grad, double* p, double* y,
