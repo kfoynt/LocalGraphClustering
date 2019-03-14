@@ -191,11 +191,13 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
         candidates[i] = seed[i];
         visited[seed[i]] = true;
     }
-
+    // for warm start frame work
     for (vtype i = 0; i < num_nodes; ++i) {
         if (!visited[i] && warm_start_q[i] != 0 && dsinv[i] != 0) {
             candidates[candidates_size++] = i;
             visited[i] = true;
+            // compute grad
+            grad[i] = (1+alpha)/2*warm_start_q[i] + grad[i];
         }
     }
     // exp start write graph
