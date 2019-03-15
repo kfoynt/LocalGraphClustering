@@ -248,20 +248,46 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 }
 
 template<typename vtype, typename itype>
-vtype graph<vtype,itype>::proxl1PRrand_unnormalized(vtype num_nodes, vtype* seed, double epsilon, double alpha, double rho, double* q, double* d, double* ds, double* dsinv, double* grad, vtype maxiter)
+vtype graph<vtype,itype>::proxl1PRrand_unnormalized(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* y, double* d, double* ds, double* dsinv, double* grad, vtype maxiter)
 {
     clock_t timeStamp = clock();
+    
 	vtype not_converged = 0;
-    vtype Seed = seed[0]; // randomly choose
-    double maxNorm;
-    grad[Seed] = -alpha;  // grad = -gradient
-    maxNorm = abs(grad[Seed]/d[Seed]);
     vtype* candidates = new vtype[num_nodes];
     bool* visited = new bool[num_nodes];
     for (vtype i = 0; i < num_nodes; ++i) visited[i] = false;
-    vtype candidates_size = 1;
-    candidates[0] = Seed;
-    visited[Seed] = true;
+    
+    
+    // initialize seed nodes as candidates
+    double maxNorm = 0;
+    vtype candidates_size = num_seeds;
+    for (vtype i = 0; i < num_seeds; ++i) {
+        // set gradient and update max norm
+        grad[seed[i]] = -alpha/num_seeds;
+        maxNorm = max(maxNorm, abs(grad[seed[i]]*d[seed[i]]));
+        // set as candidate nodes
+        candidates[i] = seed[i];
+        visited[seed[i]] = true;
+    }
+
+    for (vtype i = 0; i < num_nodes; ++i) {
+        if (!visited[i] && y[i] != 0 && d[i] != 0) {
+            candidates[candidates_size++] = i;
+            visited[i] = true;
+        }
+    }
+    
+//     double maxNorm;
+//     grad[Seed] = -alpha;  // grad = -gradient
+//     maxNorm = abs(grad[Seed]/d[Seed]);
+//     vtype* candidates = new vtype[num_nodes];
+//     bool* visited = new bool[num_nodes];
+//     for (vtype i = 0; i < num_nodes; ++i) visited[i] = false;
+//     vtype candidates_size = 1;
+//     candidates[0] = Seed;
+//     visited[Seed] = true;
+    
+    
     // exp start write graph
     // proxl1PRrand::writeGraph(num_nodes, "/home/c55hu/Documents/research/experiment/output/graph.txt", ai, aj);
     // proxl1PRrand::writeQdiag(num_nodes, "/home/c55hu/Documents/research/experiment/output/Qdiag.txt", ai, aj, d, alpha);
@@ -315,7 +341,7 @@ uint32_t proxl1PRrand32(uint32_t n, uint32_t* ai, uint32_t* aj, double* a, doubl
         return g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
     }
     else{
-        return g.proxl1PRrand_unnormalized(n, v, epsilon, alpha, rho, p, d, ds, dsinv, grad, maxiter);
+        return g.proxl1PRrand_unnormalized(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
     }
 }
 
@@ -329,7 +355,7 @@ int64_t proxl1PRrand64(int64_t n, int64_t* ai, int64_t* aj, double* a, double al
         return g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
     }
     else{
-        return g.proxl1PRrand_unnormalized(n, v, epsilon, alpha, rho, p, d, ds, dsinv, grad, maxiter);
+        return g.proxl1PRrand_unnormalized(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
     }
 }
 
@@ -343,6 +369,6 @@ uint32_t proxl1PRrand32_64(uint32_t n, int64_t* ai, uint32_t* aj, double* a, dou
         return g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
     }
     else{
-        return g.proxl1PRrand_unnormalized(n, v, epsilon, alpha, rho, p, d, ds, dsinv, grad, maxiter);
+        return g.proxl1PRrand_unnormalized(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
     }
 }

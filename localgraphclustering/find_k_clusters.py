@@ -5,6 +5,7 @@ from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import pairwise_distances
 from joblib import Parallel, delayed
 from .approximate_PageRank import approximate_PageRank
+from .approximate_PageRank_weighted import approximate_PageRank_weighted
 
 from .GraphLocal import GraphLocal
 from .cpp import *
@@ -18,7 +19,8 @@ def compute_embedding(g,
                       normalize,
                       normalized_objective,
                       epsilon,
-                      iterations):
+                      iterations,
+                      is_weighted):
     
     ref_node = [node]
 
@@ -27,16 +29,23 @@ def compute_embedding(g,
     min_crit = 10000
     min_crit_embedding = 0
 
-    for rho in list(reversed(sampled_rhos)):
+    if not is_weighted:
+    
+        for rho in list(reversed(sampled_rhos)):
 
-        output = approximate_PageRank(g,ref_node,method=localmethod,alpha=alpha,rho=rho,normalize=normalize,normalized_objective=normalized_objective,epsilon=epsilon,iterations=iterations) 
+            output = approximate_PageRank(g,ref_node,method=localmethod,alpha=alpha,rho=rho,normalize=normalize,normalized_objective=normalized_objective,epsilon=epsilon,iterations=iterations) 
 
-        conductance = g.compute_conductance(output[0])
 
-        crit = conductance
-        if crit <= min_crit:
-            min_crit = crit
-            min_crit_embedding = output
+            conductance = g.compute_conductance(output[0])
+
+            crit = conductance
+            if crit <= min_crit:
+                min_crit = crit
+                min_crit_embedding = output
+                
+    else:
+        rho = rho_list[0]
+        min_crit_embedding = approximate_PageRank_weighted(g,ref_node,alpha=alpha,rho=rho)
     
     return min_crit_embedding
 
@@ -137,10 +146,12 @@ def find_k_clusters(g,
     
     n = g._num_vertices
     
+    is_weighted = g._weighted
+    
     if njobs > 1:
-        results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations) for node in range(n))
+        results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations,is_weighted) for node in range(n))
     else:
-        results =[compute_embedding(g,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations) for node in range(n)]
+        results =[compute_embedding(g,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations,is_weighted) for node in range(n)]
         
     sum_ = 0
     JA = [0]
@@ -261,10 +272,12 @@ def compute_all_embeddings_and_distances(g,
     
     n = g._num_vertices
     
+    is_weighted = g._weighted
+    
     if njobs > 1:
-        results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations) for node in range(n))
+        results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations,is_weighted) for node in range(n))
     else:
-        results =[compute_embedding(g,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations) for node in range(n)]
+        results =[compute_embedding(g,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations,is_weighted) for node in range(n)]
         
     sum_ = 0
     JA = [0]
