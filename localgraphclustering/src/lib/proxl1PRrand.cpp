@@ -132,7 +132,7 @@ namespace proxl1PRrand
     }
 
     template<typename vtype, typename itype>
-    void updateGrad(vtype& node, double& stepSize, double& c, double& ra, double* q, double* grad, double* ds, double* dsinv, double* a, itype* ai, vtype* aj, bool* visited, vtype* candidates, vtype& candidates_size) {
+    void updateGrad(vtype& node, const double& stepSize, const double& c, const double& ra, double* q, double* grad, double* ds, double* dsinv, double* a, itype* ai, vtype* aj, bool* visited, vtype* candidates, vtype& candidates_size) {
         double dqs = -grad[node]-ds[node]*ra;
         double dq = dqs*stepSize;
         double cdq = c*dq;
