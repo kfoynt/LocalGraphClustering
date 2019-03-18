@@ -189,7 +189,7 @@ def setup_mqi_weighted_test():
                 edges.append((i,j,10))
             else:
                 edges.append((i,j,1))
-    g = lgc.GraphLocal()
+    g = GraphLocal()
     g.list_to_gl(ei,ej,e)
     cluster = MQI_weighted(g,range(20))[0]
     # MQI_weighted should return the five node subclique with edge weight to be 10
