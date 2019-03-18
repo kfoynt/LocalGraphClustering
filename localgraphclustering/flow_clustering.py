@@ -1,6 +1,7 @@
 from typing import *
 import numpy as np
 from .MQI import MQI
+from .MQI_weighted import MQI_weighted
 from .SimpleLocal import SimpleLocal
 from .capacity_releasing_diffusion import capacity_releasing_diffusion
 from .GraphLocal import GraphLocal
