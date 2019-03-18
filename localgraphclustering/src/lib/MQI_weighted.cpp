@@ -1,5 +1,5 @@
 /**
- * This is an implementation of the MQI algorithm from Lang and Rao (2004). 
+ * This is an implementation of the MQI algorithm from Lang and Rao (2004) on weighted graphs. 
  * The goal is to find the best subset of a seed set with the smallest conductance.
  *
  * INPUT:
@@ -24,7 +24,7 @@
  *     int64_t actual_length = MQI64(m, nR, ai, aj, offset, R, ret_set);
  */
 
-#ifdef MQI_H
+#ifdef MQI_WEIGHTED_H
 
 #include <iostream>
 #include <stdlib.h>
@@ -34,14 +34,15 @@
 #include <stdint.h>
 #include <typeinfo>
 #include "include/routines.hpp"
-#include "include/MQI_c_interface.h"
+#include "include/MQI_weighted_c_interface.h"
 
 using namespace std;
 
 
 template<typename vtype, typename itype>
-void graph<vtype,itype>::build_map(unordered_map<vtype, vtype>& R_map,
-                                   unordered_map<vtype, vtype>& degree_map, vtype* R, vtype nR)
+void graph<vtype,itype>::build_map_weighted(unordered_map<vtype, vtype>& R_map,
+                                   unordered_map<vtype, vtype>& degree_map, vtype* R, vtype nR, 
+                                   double* degrees)
 {
     vtype deg;
     for(vtype i = 0; i < nR; i ++){
@@ -49,11 +50,11 @@ void graph<vtype,itype>::build_map(unordered_map<vtype, vtype>& R_map,
     }
     for(auto iter = R_map.begin(); iter != R_map.end(); ++iter){
         vtype u = iter->first;
-        deg = get_degree_unweighted(u);
+        deg = degrees[u];
         for(vtype j = ai[u] - offset; j < ai[u+1] - offset; j ++){
             vtype v = aj[j] - offset;
             if(R_map.count(v) > 0){
-                deg --;
+                deg = deg - a[j];
             }
         }
         degree_map[u] = deg;
@@ -61,9 +62,10 @@ void graph<vtype,itype>::build_map(unordered_map<vtype, vtype>& R_map,
 }
 
 template<typename vtype, typename itype>
-void graph<vtype,itype>::build_list(unordered_map<vtype, vtype>& R_map, unordered_map<vtype, vtype>& degree_map,
-    vtype src, vtype dest, itype A, itype C)
+void graph<vtype,itype>::build_list_weighted(unordered_map<vtype, vtype>& R_map, unordered_map<vtype, vtype>& degree_map,
+    vtype src, vtype dest, itype A, itype C, double* degrees)
 {
+    // replacing edge weight connecting two nodes on side A with A*deg
     for(auto R_iter = R_map.begin(); R_iter != R_map.end(); ++R_iter){
         vtype u = R_iter->first;
         vtype u1 = R_iter->second;
@@ -72,11 +74,13 @@ void graph<vtype,itype>::build_list(unordered_map<vtype, vtype>& R_map, unordere
             auto got = R_map.find(v);
             if(R_map.count(v) > 0){
                 vtype v1 = got->second;
-                double w = A;
+                double w = A * a[j];
                 addEdge(u1, v1, w);
             }
         }
     }
+
+    // add edges from S to node in side B and from node in side B to T
     for(auto R_iter = R_map.begin(); R_iter != R_map.end(); ++R_iter){
         vtype u1 = src;
         vtype v = R_iter->first;
@@ -88,7 +92,8 @@ void graph<vtype,itype>::build_list(unordered_map<vtype, vtype>& R_map, unordere
         u1 = v1;
         v1 = dest;
         vtype u = v;
-        w = C * (ai[u + 1] - ai[u]);
+        //w = C * (ai[u + 1] - ai[u]);
+        w = C * degrees[u];
         addEdge(u1, v1, w);
         //new_edge<vtype,itype>(u1, v1, w, to, cap, flow, next, fin, &nEdge);
     }
@@ -96,20 +101,21 @@ void graph<vtype,itype>::build_list(unordered_map<vtype, vtype>& R_map, unordere
 
 
 template<typename vtype, typename itype>
-vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
+vtype graph<vtype,itype>::MQI_weighted(vtype nR, vtype* R, vtype* ret_set)
 {
     vtype total_iter = 0;
     unordered_map<vtype, vtype> R_map;
     unordered_map<vtype, vtype> degree_map;
-    build_map(R_map, degree_map, R, nR);
+    build_map_weighted(R_map, degree_map, R, nR, degrees);
     itype nedges = 0;
     double condOld = 1;
     double condNew;
-    itype total_degree = ai[n] - offset;
-    pair<itype, itype> set_stats = get_stats(R_map, nR);
-    itype curvol = set_stats.first;
-    itype curcutsize = set_stats.second;
-    nedges = curvol - curcutsize + 2 * nR;
+    double total_degree = accumulate(degrees,degrees+n,0);
+    pair<double, double> set_stats = get_stats_weighted(R_map, nR);
+    double curvol = set_stats.first;
+    double curcutsize = set_stats.second;
+    pair<itype, itype> set_stats_unweighted = get_stats(R_map, nR);
+    nedges = set_stats_unweighted.first - set_stats_unweighted.second + 2 * nR;
     //cout << "deg " << total_degree << " cut " << curcutsize << " vol " << curvol << endl;
     if (curvol == 0 || curvol == total_degree) {
         return 0;
@@ -124,12 +130,13 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
     }
     level = new int[nverts];
     vector<bool> mincut (nverts);
-    build_list(R_map,degree_map,nR,nR+1,curvol,curcutsize);
+    build_list_weighted(R_map,degree_map,nR,nR+1,curvol,curcutsize,degrees);
     pair<double, vtype> retData = DinicMaxflow(nR, nR+1, nverts, mincut);
     delete [] adj;
     delete [] level;
     vtype nRold = nR;
     vtype nRnew = 0; 
+    //cout << condNew << " " << condOld << endl;
     while(condNew < condOld){
         nRnew = nRold - retData.second + 1;
         //cout << retData.second << " " << nedges << endl;
@@ -146,11 +153,12 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
         condOld = condNew;
         R_map.clear();
         degree_map.clear();
-        build_map(R_map, degree_map, Rnew, nRnew);
-        set_stats = get_stats(R_map, nRnew);
+        build_map_weighted(R_map, degree_map, Rnew, nRnew, degrees);
+        set_stats = get_stats_weighted(R_map, nRnew);
         curvol = set_stats.first;
         curcutsize = set_stats.second;
-        nedges = curvol - curcutsize + 2 * nRnew;
+        set_stats_unweighted = get_stats(R_map, nRnew);
+        nedges = set_stats_unweighted.first - set_stats_unweighted.second + 2 * nR;
         if(nRnew > 0){
             condNew = (double)curcutsize/(double)min(total_degree - curvol, curvol);
             //cout << "curvol: " << curvol << " condNew: " << condNew << endl;
@@ -161,7 +169,7 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
             }
             level = new int[nverts];
             //vector<bool> mincut (nverts);
-            build_list(R_map,degree_map,nRnew,nRnew+1,curvol,curcutsize);
+            build_list_weighted(R_map,degree_map,nRnew,nRnew+1,curvol,curcutsize,degrees);
             retData = DinicMaxflow(nRnew, nRnew + 1, nverts, mincut);
             delete [] adj;
             delete [] level;
@@ -188,4 +196,3 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
 }
 
 #endif
-

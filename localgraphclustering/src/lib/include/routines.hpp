@@ -115,6 +115,14 @@ public:
                    vtype* R, vtype nR);
     void build_list(unordered_map<vtype, vtype>& R_map, unordered_map<vtype, vtype>& degree_map, vtype src, vtype dest, itype a, itype c);
 
+    
+    //functions in MQI_weighted.cpp
+    vtype MQI_weighted(vtype nR, vtype* R, vtype* ret_set);
+    void build_map_weighted(unordered_map<vtype, vtype>& R_map,unordered_map<vtype, vtype>& degree_map,
+                   vtype* R, vtype nR, double* degrees);
+    void build_list_weighted(unordered_map<vtype, vtype>& R_map, unordered_map<vtype, vtype>& degree_map, vtype src, vtype dest, 
+                   itype a, itype c, double* degrees);
+
 
     //functions in proxl1PRaccel.cpp
     vtype proxl1PRaccel(double alpha, double rho, vtype* v, vtype v_nums, double* d,
