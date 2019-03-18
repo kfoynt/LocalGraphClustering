@@ -19,3 +19,6 @@ from .flow_clustering import flow_clustering
 
 from .triangleclusters import triangleclusters
 from .neighborhoodmin import neighborhoodmin
+from .find_k_clusters import find_k_clusters
+from .find_k_clusters import compute_all_embeddings_and_distances
+from .find_k_clusters import compute_k_clusters
