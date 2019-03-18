@@ -10,6 +10,7 @@ from .densest_subgraph import densest_subgraph
 from .multiclass_label_prediction import multiclass_label_prediction
 from .SimpleLocal import SimpleLocal
 from .MQI import MQI
+from .MQI_weighted import MQI_weighted
 from .pageRank_nibble import PageRank_nibble
 from .capacity_releasing_diffusion import capacity_releasing_diffusion
 

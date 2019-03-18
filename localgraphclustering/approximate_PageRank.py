@@ -115,7 +115,7 @@ def approximate_PageRank(G,
     An np.ndarray (1D embedding) of the nodes.
     """
 
-    if G._weighted:
+    if G._weighted and method != "acl_weighted":
         warnings.warn("The weights of the graph will be discarded. Use approximate_PageRank_weighted instead if you want to keep the edge weights.")
     if method == "acl":
         #print("Uses the Andersen Chung and Lang (ACL) Algorithm.")
