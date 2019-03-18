@@ -132,7 +132,7 @@ namespace proxl1PRrand
     }
 
     template<typename vtype, typename itype>
-    void updateGrad(vtype& node, double& stepSize, double& c, double& ra, double* q, double* grad, double* ds, double* dsinv, itype* ai, vtype* aj, bool* visited, vtype* candidates, vtype& candidates_size) {
+    void updateGrad(vtype& node, const double& stepSize, const double& c, const double& ra, double* q, double* grad, double* ds, double* dsinv, double* a, itype* ai, vtype* aj, bool* visited, vtype* candidates, vtype& candidates_size) {
         double dqs = -grad[node]-ds[node]*ra;
         double dq = dqs*stepSize;
         double cdq = c*dq;
@@ -143,7 +143,7 @@ namespace proxl1PRrand
         vtype neighbor;
         for (itype j = ai[node]; j < ai[node + 1]; ++j) {
             neighbor = aj[j];
-            grad[neighbor] -= cdqdsinv*dsinv[neighbor]; //(1 + alpha)
+            grad[neighbor] -= cdqdsinv*dsinv[neighbor]*a[neighbor]; //(1 + alpha)
             if (!visited[neighbor] && q[neighbor] - stepSize*grad[neighbor] >= stepSize*ds[neighbor]*ra) {
                 visited[neighbor] = true;
                 candidates[candidates_size++] = neighbor;
@@ -170,6 +170,17 @@ namespace proxl1PRrand
             }
         }
     }
+
+    template<typename vtype, typename itype>
+    void warm_start(vtype& node, double& alpha, double* y, double* dsinv, double* grad, itype* ai, vtype* aj, double* a) {
+        grad[node] += (1+alpha)/2*y[node];
+
+        vtype neighbor;
+        for (itype j = ai[node]; j < ai[node + 1]; ++j) {
+            neighbor = aj[j];
+            grad[node] -= (1-alpha)/2*a[neighbor]*dsinv[neighbor]*dsinv[node];
+        }
+    }
 }
 
 template<typename vtype, typename itype>
@@ -191,11 +202,13 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
         candidates[i] = seed[i];
         visited[seed[i]] = true;
     }
-
+    // for warm start frame work
     for (vtype i = 0; i < num_nodes; ++i) {
         if (!visited[i] && y[i] != 0 && dsinv[i] != 0) {
             candidates[candidates_size++] = i;
             visited[i] = true;
+            // compute grad
+            proxl1PRrand::warm_start(i, alpha, y, dsinv, grad, ai, aj, a);
         }
     }
     // exp start write graph
@@ -211,7 +224,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     double stepSize = 2.0/(1+alpha);
     while (maxNorm > threshold) {
         vtype r = proxl1PRrand::getRand() % candidates_size;
-        proxl1PRrand::updateGrad(candidates[r], stepSize, c, ra, q, grad, ds, dsinv, ai, aj, visited, candidates, candidates_size);
+        proxl1PRrand::updateGrad(candidates[r], stepSize, c, ra, y, grad, ds, dsinv, a, ai, aj, visited, candidates, candidates_size);
         
         if (numiter % num_nodes == 0) {
             maxNorm = 0;
@@ -227,8 +240,8 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     }
     //proxl1PRrand::writeTime(timeStamp, "/home/c55hu/Documents/research/experiment/output/time-rand.txt");
     //proxl1PRrand::writeLog(num_nodes, "/home/c55hu/Documents/research/experiment/output/q-rand.txt", q);
-    // update y and q
-    for (vtype i = 0; i < num_nodes; ++i) q[i] = (y[i] = q[i]) * ds[i];
+    // update q and scale it to probabilities
+    for (vtype i = 0; i < num_nodes; ++i) q[i] = y[i] * ds[i];
     delete [] candidates;
     delete [] visited;
     return not_converged;
