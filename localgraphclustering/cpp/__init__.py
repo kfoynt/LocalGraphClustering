@@ -39,6 +39,7 @@ from .aclpagerank_weighted_cpp import *
 from .capacity_releasing_diffusion_cpp import *
 from .densest_subgraph_cpp import *
 from .MQI_cpp import *
+from .MQI_weighted_cpp import *
 from .proxl1PRaccel import *
 from .proxl1PRrand_cpp import *
 from .SimpleLocal_cpp import *

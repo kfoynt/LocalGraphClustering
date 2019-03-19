@@ -168,9 +168,32 @@ def setup_flow_clustering_test(g):
     R = output_sc[0]
     phi0 = g.set_scores(R)["cond"]
 
-    for method in ["mqi","crd","sl"]:
+    for method in ["mqi","mqi_weighted","crd","sl"]:
         phi = g.set_scores(flow_clustering(g,R,method=method)[0])["cond"]
         assert(phi <= phi0)
+
+def setup_mqi_weighted_test():
+    for vtype,itype in [(np.uint32,np.uint32),(np.uint32,np.int64),(np.int64,np.int64)]:
+        g = load_example_graph(vtype,itype)
+        g.discard_weights()
+        cond1 = MQI(g,range(20))[1]
+        cond2 = MQI_weighted(g,range(20))[1]
+        # MQI_weighted should give the same result as MQI when running on unweighted graph
+        assert(cond1 == cond2)
+    # create a 100 node clique
+    edges = []
+    for i in range(100):
+        for j in range(i+1,100):
+            # set edge weight of a five node subclique to be 10 and 1 elsewhere
+            if i < 5 and j < 5:
+                edges.append((i,j,10))
+            else:
+                edges.append((i,j,1))
+    g = GraphLocal()
+    g.list_to_gl(ei,ej,e)
+    cluster = MQI_weighted(g,range(20))[0]
+    # MQI_weighted should return the five node subclique with edge weight to be 10
+    assert(np.array_equal(MQI_weighted(g,range(20))[0],np.array(range(5))))
 
 def test_all_algs():
     for vtype,itype in [(np.uint32,np.uint32),(np.uint32,np.int64),(np.int64,np.int64)]:
