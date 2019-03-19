@@ -170,6 +170,28 @@ namespace proxl1PRrand
             }
         }
     }
+    
+    template<typename vtype, typename itype>
+    void warm_start(vtype& node, double& alpha, double* y, double* dsinv, double* grad, itype* ai, vtype* aj) {
+        grad[node] += (1+alpha)/2*y[node];
+
+        vtype neighbor;
+        for (itype j = ai[node]; j < ai[node + 1]; ++j) {
+            neighbor = aj[j];
+            grad[node] -= (1-alpha)/2*dsinv[neighbor]*dsinv[node]*y[neighbor];
+        }
+    }
+    
+    template<typename vtype, typename itype>
+    void warm_start_unnormalized(vtype& node, double& alpha, double* y, double* d, double* grad, itype* ai, vtype* aj) {
+        grad[node] += (1+alpha)/2*y[node]*d[node];
+
+        vtype neighbor;
+        for (itype j = ai[node]; j < ai[node + 1]; ++j) {
+            neighbor = aj[j];
+            grad[node] -= (1-alpha)/2*y[neighbor];
+        }
+    }
 }
 
 template<typename vtype, typename itype>
@@ -191,11 +213,13 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
         candidates[i] = seed[i];
         visited[seed[i]] = true;
     }
-
+    // for warm start frame work
     for (vtype i = 0; i < num_nodes; ++i) {
         if (!visited[i] && y[i] != 0 && dsinv[i] != 0) {
             candidates[candidates_size++] = i;
             visited[i] = true;
+            // compute grad
+            proxl1PRrand::warm_start(i, alpha, y, dsinv, grad, ai, aj);
         }
     }
     // exp start write graph
@@ -257,10 +281,13 @@ vtype graph<vtype,itype>::proxl1PRrand_unnormalized(vtype num_nodes, vtype* seed
         visited[seed[i]] = true;
     }
 
+    // for warm start frame work
     for (vtype i = 0; i < num_nodes; ++i) {
-        if (!visited[i] && y[i] != 0 && d[i] != 0) {
+        if (!visited[i] && y[i] != 0 && dsinv[i] != 0) {
             candidates[candidates_size++] = i;
             visited[i] = true;
+            // compute grad
+            proxl1PRrand::warm_start_unnormalized(i, alpha, y, d, grad, ai, aj);
         }
     }
     
