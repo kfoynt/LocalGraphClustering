@@ -33,6 +33,7 @@
 #include <utility>
 #include <stdint.h>
 #include <typeinfo>
+#include <numeric>
 #include "include/routines.hpp"
 #include "include/MQI_weighted_c_interface.h"
 
@@ -118,7 +119,12 @@ vtype graph<vtype,itype>::MQI_weighted(vtype nR, vtype* R, vtype* ret_set)
     nedges = set_stats_unweighted.first - set_stats_unweighted.second + 2 * nR;
     //cout << "deg " << total_degree << " cut " << curcutsize << " vol " << curvol << endl;
     if (curvol == 0 || curvol == total_degree) {
-        return 0;
+        vtype j = 0;
+        for(auto R_iter = R_map.begin(); R_iter != R_map.end(); ++ R_iter){
+            ret_set[j] = R_iter->first + offset;
+            j ++;
+        }
+        return nR;
     }
     condNew = (double)curcutsize/(double)min(total_degree - curvol, curvol);
     //cout << "iter: " << total_iter << " conductance: " << condNew << endl;
@@ -132,6 +138,7 @@ vtype graph<vtype,itype>::MQI_weighted(vtype nR, vtype* R, vtype* ret_set)
     vector<bool> mincut (nverts);
     build_list_weighted(R_map,degree_map,nR,nR+1,curvol,curcutsize,degrees);
     pair<double, vtype> retData = DinicMaxflow(nR, nR+1, nverts, mincut);
+    //cout << "max flow value: " << retData.first << endl;
     delete [] adj;
     delete [] level;
     vtype nRold = nR;
@@ -171,6 +178,7 @@ vtype graph<vtype,itype>::MQI_weighted(vtype nR, vtype* R, vtype* ret_set)
             //vector<bool> mincut (nverts);
             build_list_weighted(R_map,degree_map,nRnew,nRnew+1,curvol,curcutsize,degrees);
             retData = DinicMaxflow(nRnew, nRnew + 1, nverts, mincut);
+            //cout << "max flow value: " << retData.first << endl;
             delete [] adj;
             delete [] level;
             //cout << "here " << nedges << " " << curvol << " " << curcutsize << endl;
