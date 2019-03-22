@@ -112,14 +112,14 @@ For advanced examples see the Jupyter notebook [here](https://github.com/kfoynt/
 
 ## Demonstration: social networks
 
-<img src="images/JHopkins.png" width="440" height="250"> <img src="images/Hopkins_global.png" width="440" height="250">
-<img src="images/Hopkins_local_1.png" width="440" height="250"> <img src="images/Hopkins_local_2.png" width="440" height="250">
+<img src="images/JHopkins.png" width="390" height="225"> <img src="images/Hopkins_global.png" width="390" height="225">
+<img src="images/Hopkins_local_1.png" width="390" height="225"> <img src="images/Hopkins_local_2.png" width="390" height="225">
 
 ## Demonstration: bioinformatics networks
 
-<img src="images/pss.png" width="440" height="250"> <img src="images/pss_local.png" width="440" height="250">
-<img src="images/ppi.png" width="440" height="250"> <img src="images/ppi_local.png" width="440" height="250">
-<img src="images/blasted.png" width="440" height="250"> <img src="images/blasted_local.png" width="440" height="250">
+<img src="images/pss.png" width="390" height="225"> <img src="images/pss_local.png" width="390" height="225">
+<img src="images/ppi.png" width="390" height="225"> <img src="images/ppi_local.png" width="390" height="225">
+<img src="images/blasted.png" width="390" height="225"> <img src="images/blasted_local.png" width="390" height="225">
 
 ## Presentation
 
