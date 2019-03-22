@@ -86,7 +86,7 @@ def compute_embedding_and_improve(g,
 #         rho = rho_list[0]
 #         min_crit_embedding = approximate_PageRank_weighted(g,ref_node,alpha=alpha,rho=rho)
     
-    output_mqi = flow_clustering(g,output[0],method="mqi")
+    output_mqi = flow_clustering(g,min_crit_embedding[0],method="mqi")
     
     return output_mqi
 
