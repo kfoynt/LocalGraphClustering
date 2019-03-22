@@ -7,6 +7,7 @@ from sklearn.metrics import pairwise_distances
 from joblib import Parallel, delayed
 from .approximate_PageRank import approximate_PageRank
 from .approximate_PageRank_weighted import approximate_PageRank_weighted
+from .flow_clustering import flow_clustering
 
 from .GraphLocal import GraphLocal
 from .cpp import *
@@ -48,6 +49,46 @@ def compute_embedding(g,
 #         min_crit_embedding = approximate_PageRank_weighted(g,ref_node,alpha=alpha,rho=rho)
     
     return min_crit_embedding
+
+def compute_embedding_and_improve(g,
+                      node,
+                      rho_list,
+                      nsamples_from_rho,
+                      localmethod,
+                      alpha,
+                      normalize,
+                      normalized_objective,
+                      epsilon,
+                      iterations):
+    
+    ref_node = [node]
+
+    sampled_rhos = list(np.geomspace(rho_list[0], rho_list[1], nsamples_from_rho, endpoint=True))
+
+    min_crit = 10000
+    min_crit_embedding = 0
+
+#     if not is_weighted:
+    
+    for rho in list(reversed(sampled_rhos)):
+
+        output = approximate_PageRank(g,ref_node,method=localmethod,alpha=alpha,rho=rho,normalize=normalize,normalized_objective=normalized_objective,epsilon=epsilon,iterations=iterations) 
+
+
+        conductance = g.compute_conductance(output[0])
+
+        crit = conductance
+        if crit <= min_crit:
+            min_crit = crit
+            min_crit_embedding = output
+                
+#     else:
+#         rho = rho_list[0]
+#         min_crit_embedding = approximate_PageRank_weighted(g,ref_node,alpha=alpha,rho=rho)
+    
+    output_mqi = flow_clustering(g,output[0],method="mqi")
+    
+    return output_mqi
 
 def find_clusters(g, 
                     nclusters, 
@@ -249,7 +290,6 @@ def compute_all_embeddings_and_distances(g,
     prefer, backend: str
         Check documentation of https://joblib.readthedocs.io/en/latest/
 
-
     Returns
     -------
 
@@ -345,7 +385,7 @@ def graph_segmentation(g,
                     backend: str = 'multiprocessing',
                     how_many_in_parallel = 5):
     """
-    Segment the graph into pieces by peeling off one by one clusters using local graph clustering.
+    Segment the graph into pieces by peeling off clusters in parallel using local graph clustering.
     --------------------------------
 
     Parameters
@@ -399,8 +439,7 @@ def graph_segmentation(g,
     how_many_in_parallel: int
         Default = 20
         Number of segments that are computed in parallel. 
-        There is a trade-off here.
-    
+        There is a trade-off here.    
 
     Returns
     -------
@@ -456,6 +495,137 @@ def graph_segmentation(g,
         
         g_copy.renew_data(A.tocsr())
 
+        if A.nnz == 0:
+            return labels, info
+        
+        
+def graph_segmentation_with_improve(g, 
+                    rho_list, 
+                    localmethod: str = 'l1reg-rand', 
+                    normalize: bool = False, 
+                    normalized_objective: bool = False, 
+                    epsilon: float = 1.0e-2, 
+                    iterations: int = 10000000,
+                    alpha: float = 0.1, 
+                    nsamples_from_rho: int = 50,
+                    njobs = 1,
+                    prefer: str = 'threads', 
+                    backend: str = 'multiprocessing',
+                    how_many_in_parallel = 5):
+    """
+    Segment the graph into pieces by peeling off clusters in parallel using local graph clustering,
+    spectral + flow.
+    --------------------------------
+
+    Parameters
+    ----------
+
+    g: GraphLocal
+
+    rho_list: 2D list of floats
+        This is an interval of rhos, the regularization parameters for l1-regularized PageRank.
+        The first element should be smaller than the second elelement of the list.
+
+    Parameters (optional)
+    ---------------------
+
+    alpha: float
+        Default == 0.11
+        Teleportation parameter of the personalized PageRank linear system.
+        The smaller the more global the personalized PageRank vector is.
+        
+    nsamples_from_rho: int
+        Number of samples of rho parameters to be selected from interval rho_list.
+
+    localmethod: string
+        Default = 'l1reg-rand'
+        Which method to use.
+        Options: 'l1reg', 'l1reg-rand'.
+        
+    iterations: int
+        Default = 1000000
+        Maximum number of iterations of ACL algorithm.
+        
+    epsilon: float
+        Default = 1.0e-2
+        Tolerance for localmethod
+
+    normalize: bool
+        Default = True
+        Normalize the output to be directly input into sweepcut routines.
+        
+    normalized_objective: bool
+        Default = True
+        Use normalized Laplacian in the objective function, works only for "method=l1reg" and "cpp=True"
+        
+    njobs: int
+        Default = 1
+        Number of jobs to be run in parallel
+        
+    prefer, backend: str
+        Check documentation of https://joblib.readthedocs.io/en/latest/
+        
+    how_many_in_parallel: int
+        Default = 20
+        Number of segments that are computed in parallel. 
+        There is a trade-off here.
+
+    Returns
+    -------
+
+    info: list of lists
+    Each element of the list is another list with two elements.
+    The first element is the indices of the a segment, while the second element
+    is the vector representation of that segment.
+    
+    labels: np.ndarray
+    An np.ndarray of the cluster allocation of each node.
+    For example labels[i] is the cluster of node i.
+    
+    """
+    
+    g_copy = GraphLocal()
+    g_copy.from_sparse_adjacency(g.adjacency_matrix)
+    A = g_copy.adjacency_matrix.tolil()
+    candidates = set(range(g_copy._num_vertices))
+    
+#     is_weighted = g._weighted
+
+    labels = np.zeros(g_copy._num_vertices)
+    info = []
+    ct = 0
+
+    while True:
+        
+# #         if not is_weighted:
+#         output = compute_embedding(g_copy,ref_node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations)
+# #         else:
+# #             rho = rho_list[0]
+# #             output = approximate_PageRank_weighted(g,ref_node,alpha=alpha,rho=rho)
+            
+        if njobs > 1:
+            ref_nodes = random.sample(candidates, min(how_many_in_parallel,len(candidates)))
+            
+            results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding_and_improve)(g_copy,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations) for node in ref_nodes)
+        else:
+            ref_nodes = random.sample(candidates, njobs)
+            
+            results =[compute_embedding_and_improve(g_copy,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations) for node in ref_nodes]
+    
+        for res in results:
+            labels[res[0]] = ct
+            ct += 1
+            for i in res[0]:
+                idx = A[i,:].nonzero()[1].astype(np.int64)
+                A[i,idx] = 0
+                A[idx,i] = 0
+            candidates = candidates - set(res[0])
+            info.append(res)
+        
+        g_copy.renew_data(A.tocsr())
+
+        print(A.nnz)
+        
         if A.nnz == 0:
             return labels, info
         

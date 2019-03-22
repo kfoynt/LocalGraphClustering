@@ -25,3 +25,4 @@ from .find_clusters import compute_clusters_given_distance
 from .find_clusters import graph_segmentation
 from .find_clusters import compute_clusters_from_region_adjacency
 from .find_clusters import compute_embeddings_and_distances_from_region_adjacency
+from .find_clusters import graph_segmentation_with_improve
