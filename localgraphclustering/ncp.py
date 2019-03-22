@@ -492,6 +492,7 @@ class NCPData:
                        timeout: float = 1000,
                        spectral_args: Dict = {},
                        deep: bool = False,
+                       method = "acl",
                        methodname_prefix: str = "ncpapr",
                        **kwargs):
         """ Compute the NCP via an approximate PageRank computation.
@@ -518,11 +519,9 @@ class NCPData:
         the same with or without deep.
 
         """
-
-        method = "acl"
-        if self.graph._weighted:
-            method="acl_weighted"
-
+#         if self.graph._weighted:
+#             method="acl_weighted"
+        
         if len(methodname_prefix) > 0:
             methodname = methodname_prefix + "_" + method
             deepmethodname_prefix = "deep" + "_" + methodname_prefix

@@ -19,9 +19,9 @@ from .flow_clustering import flow_clustering
 
 from .triangleclusters import triangleclusters
 from .neighborhoodmin import neighborhoodmin
-from .find_k_clusters import find_k_clusters
-from .find_k_clusters import compute_all_embeddings_and_distances
-from .find_k_clusters import compute_k_clusters
-from .find_k_clusters import graph_segmentation
-from .find_k_clusters import compute_k_clusters_from_region_adjacency
-from .find_k_clusters import compute_embeddings_and_distances_from_region_adjacency
+from .find_clusters import find_clusters
+from .find_clusters import compute_all_embeddings_and_distances
+from .find_clusters import compute_clusters_given_distance
+from .find_clusters import graph_segmentation
+from .find_clusters import compute_clusters_from_region_adjacency
+from .find_clusters import compute_embeddings_and_distances_from_region_adjacency
