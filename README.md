@@ -39,8 +39,8 @@ The current version is 0.5.0 and it is appropriate for experts and intermediates
 - [Network Community Profiles](http://www.tandfonline.com/doi/abs/10.1080/15427951.2009.10129177)
 - Global spectral partitioning
 - Find k clusters
-- Partition a graph
-- Image segmentation
+- Graph partitioning using local graph clustering
+- Image segmentation using local graph clustering
 - Densest subgraph
 - [Triangle clusters and vertex neighborhood metrics](https://arxiv.org/pdf/1112.0031.pdf)
 - Handy network drawing methods
