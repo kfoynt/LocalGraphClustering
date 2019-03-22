@@ -38,7 +38,9 @@ The current version is 0.5.0 and it is appropriate for experts and intermediates
 - [Multiclass label prediction](https://dl.acm.org/citation.cfm?id=2783376)
 - [Network Community Profiles](http://www.tandfonline.com/doi/abs/10.1080/15427951.2009.10129177)
 - Global spectral partitioning
-- Find k clusters
+- Find k clusters using local graph clustering
+- Graph partitioning using local graph clustering
+- Image segmentation using local graph clustering
 - Densest subgraph
 - [Triangle clusters and vertex neighborhood metrics](https://arxiv.org/pdf/1112.0031.pdf)
 - Handy network drawing methods
@@ -48,7 +50,9 @@ The current version is 0.5.0 and it is appropriate for experts and intermediates
 - [Network Community Profiles](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/NCPs.ipynb)
 - [Multiclass label prediction](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/multiclasslabelprediction.ipynb)
 - [Triangle clusters and vertex neighborhood metrics](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/TriangleClustersAndVertexNeighborhoodMetrics.ipynb)
-- [Find k clusters](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/find_k_clusters.ipynb)
+- [Find k clusters](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/find_clusters_social_network.ipynb)
+- [Image segmentation](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/image_segmentation_using_local_graph_clustering.ipynb)
+- [Find small clusters in image using conductance](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/find_very_small_clusters_in_images.ipynb)
 
 ## Examples
 
@@ -108,14 +112,14 @@ For advanced examples see the Jupyter notebook [here](https://github.com/kfoynt/
 
 ## Demonstration: social networks
 
-<img src="images/JHopkins.png" width="440" height="250"> <img src="images/Hopkins_global.png" width="440" height="250">
-<img src="images/Hopkins_local_1.png" width="440" height="250"> <img src="images/Hopkins_local_2.png" width="440" height="250">
+<img src="images/JHopkins.png" width="390" height="225"> <img src="images/Hopkins_global.png" width="390" height="225">
+<img src="images/Hopkins_local_1.png" width="390" height="225"> <img src="images/Hopkins_local_2.png" width="390" height="225">
 
 ## Demonstration: bioinformatics networks
 
-<img src="images/pss.png" width="440" height="250"> <img src="images/pss_local.png" width="440" height="250">
-<img src="images/ppi.png" width="440" height="250"> <img src="images/ppi_local.png" width="440" height="250">
-<img src="images/blasted.png" width="440" height="250"> <img src="images/blasted_local.png" width="440" height="250">
+<img src="images/pss.png" width="390" height="225"> <img src="images/pss_local.png" width="390" height="225">
+<img src="images/ppi.png" width="390" height="225"> <img src="images/ppi_local.png" width="390" height="225">
+<img src="images/blasted.png" width="390" height="225"> <img src="images/blasted_local.png" width="390" height="225">
 
 ## Presentation
 

@@ -138,6 +138,11 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
     /*for(vtype i = 0; i < n; i ++){
         cout << grad[i] << endl;
     }*/
+    
+//     for (vtype i = 0; i < n; ++i) {
+//         cout << "grad[" << i << "]: " << grad[i] << endl;
+//     }
+    
     vector<double> q (n,0);
     vector<double> q_old (n,0);
     //vector<double> y (n,0);
@@ -221,8 +226,26 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
     for(vtype i = 0; i < n; i ++){
         p[i] = abs(q[i])*ds[i];
     }
+    
+    for (vtype i = 0; i < n; ++i) {
+        cout << "grad[" << i << "]: " << grad[i] << endl;
+    }
+    
     //cout << "max y: " << *max_element(y,y+n) << " min y: " << *min_element(y,y+n) << endl;
     //cout << "max grad: " << *max_element(grad,grad+n) << " min grad: " << *min_element(grad,grad+n) << endl;
+    
+//     for (vtype i = 0; i < n; ++i) {
+//         cout << "grad[" << i << "]: " << grad[i] << endl;
+//     }
+    
+//     for (vtype i = 0; i < n; ++i) {
+//         cout << "y[" << i << "]: " << y[i] << endl;
+//     }
+    
+//     for (vtype i = 0; i < n; ++i) {
+//         cout << "p[" << i << "]: " << p[i] << endl;
+//     }
+    
     return not_converged;
 }
 
@@ -304,6 +327,8 @@ vtype graph<vtype,itype>::proxl1PRaccel_unnormalized(double alpha, double rho, v
     double z;
     size_t iter = 0;
 
+    double thd = (1 + epsilon) * rho * alpha;
+    
     double thd1,betak;
     t1 = clock();
     //t2 = clock();
@@ -314,9 +339,8 @@ vtype graph<vtype,itype>::proxl1PRaccel_unnormalized(double alpha, double rho, v
     double min_d;
     min_d = find_min<vtype>(d,n);
     double mu = ((1+alpha)/2)*min_d;
-    double crit;
 
-    while((iter < (size_t)maxiter)){
+    while((iter < (size_t)maxiter) && (find_max<vtype>(grad,d,n) > thd)){
         /*
         t3 = clock();
         cout << "1: " <<  ((double)t3 - (double)t2)/double(CLOCKS_PER_SEC) << endl;
@@ -384,12 +408,12 @@ vtype graph<vtype,itype>::proxl1PRaccel_unnormalized(double alpha, double rho, v
             return not_converged;
         }
         
-        crit = compute_l2_norm<vtype>(q,q_old,n);
+        //crit = compute_l2_norm<vtype>(q,q_old,n);
         //cout << "iter.: " << iter << " l2norm: " <<  crit << endl;
-        if (crit < epsilon){
-            not_converged = 0;
-            break;
-        }
+//         if (crit < epsilon){
+//             not_converged = 0;
+//             break;
+//         }
     }
 
     if(iter >= (size_t)maxiter){

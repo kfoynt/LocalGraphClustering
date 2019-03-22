@@ -33,9 +33,10 @@
 #include <utility>
 #include <stdint.h>
 #include <typeinfo>
-#include <numeric>
+#include <numeric>      // std::accumulate
 #include "include/routines.hpp"
 #include "include/MQI_weighted_c_interface.h"
+
 
 using namespace std;
 
@@ -111,7 +112,7 @@ vtype graph<vtype,itype>::MQI_weighted(vtype nR, vtype* R, vtype* ret_set)
     itype nedges = 0;
     double condOld = 1;
     double condNew;
-    double total_degree = accumulate(degrees,degrees+n,0);
+    double total_degree = std::accumulate(degrees,degrees+n,0);
     pair<double, double> set_stats = get_stats_weighted(R_map, nR);
     double curvol = set_stats.first;
     double curcutsize = set_stats.second;
