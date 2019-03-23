@@ -502,6 +502,9 @@ def graph_segmentation(g,
         print ("Percentage completed: ", 100-len(candidates)/g._num_vertices*100, end="\r")
         
         if len(candidates) <= g._num_vertices*ratio:
+            for i in candidates:
+                labels[i] = ct
+                ct += 1
             return labels, info
         
         
