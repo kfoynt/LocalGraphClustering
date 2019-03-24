@@ -86,7 +86,7 @@ def compute_embedding_and_improve(g,
 #         rho = rho_list[0]
 #         min_crit_embedding = approximate_PageRank_weighted(g,ref_node,alpha=alpha,rho=rho)
     
-    output_mqi = flow_clustering(g,min_crit_embedding[0],method="mqi")
+    output_mqi = flow_clustering(g,min_crit_embedding[0],method="mqi_weighted")
     
     return output_mqi
 
@@ -520,10 +520,10 @@ def graph_segmentation_with_improve(g,
                     njobs = 1,
                     prefer: str = 'threads', 
                     backend: str = 'multiprocessing',
-                    how_many_in_parallel = 5):
+                    how_many_in_parallel = 5,
+                    ratio = 0.01):
     """
-    Segment the graph into pieces by peeling off clusters in parallel using local graph clustering,
-    spectral + flow.
+    Segment the graph into pieces by peeling off clusters in parallel using local graph clustering.
     --------------------------------
 
     Parameters
@@ -577,7 +577,12 @@ def graph_segmentation_with_improve(g,
     how_many_in_parallel: int
         Default = 20
         Number of segments that are computed in parallel. 
-        There is a trade-off here.
+        There is a trade-off here.    
+        
+    ratio: float
+        Default = 0.01
+        Let n be the number of nodes, this segmentation code will ignore the last ratio*n nodes,
+        and it will cluster them as one cluster.
 
     Returns
     -------
@@ -595,47 +600,48 @@ def graph_segmentation_with_improve(g,
     
     g_copy = GraphLocal()
     g_copy.from_sparse_adjacency(g.adjacency_matrix)
-    A = g_copy.adjacency_matrix.tolil()
-    candidates = set(range(g_copy._num_vertices))
-    
-#     is_weighted = g._weighted
+    candidates = list(range(g_copy._num_vertices))
 
-    labels = np.zeros(g_copy._num_vertices)
+    labels = np.zeros(g_copy._num_vertices,dtype=np.int32)
     info = []
     ct = 0
 
     while True:
         
-# #         if not is_weighted:
-#         output = compute_embedding(g_copy,ref_node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations)
-# #         else:
-# #             rho = rho_list[0]
-# #             output = approximate_PageRank_weighted(g,ref_node,alpha=alpha,rho=rho)
-            
         if njobs > 1:
-            ref_nodes = random.sample(candidates, min(how_many_in_parallel,len(candidates)))
+            select_from = list(range(g_copy._num_vertices))
+            ref_nodes = random.sample(select_from, min(how_many_in_parallel,len(select_from)))
             
             results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding_and_improve)(g_copy,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations) for node in ref_nodes)
         else:
-            ref_nodes = random.sample(candidates, njobs)
+            select_from = list(range(g_copy._num_vertices))
+            ref_nodes = random.sample(select_from, njobs)
             
             results =[compute_embedding_and_improve(g_copy,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations) for node in ref_nodes]
     
+        union_sets_to_remove = set()
         for res in results:
-            labels[res[0]] = ct
+            idx = [candidates[i] for i in res[0]]
+            labels[idx] = ct
             ct += 1
-            for i in res[0]:
-                idx = A[i,:].nonzero()[1].astype(np.int64)
-                A[i,idx] = 0
-                A[idx,i] = 0
-            candidates = candidates - set(res[0])
-            info.append(res)
-        
-        g_copy.renew_data(A.tocsr())
+            union_sets_to_remove.update(res[0])
+            info.append([idx,res[1]])
+    
+        for index in sorted(list(union_sets_to_remove), reverse=True):
+            del candidates[index]
+    
+        indices = list(set(range(g_copy._num_vertices)) - set(union_sets_to_remove))
+        A = g_copy.adjacency_matrix.tocsr()[indices, :].tocsc()[:, indices]
 
-        print(A.nnz)
+        g_copy = GraphLocal()
+        g_copy.from_sparse_adjacency(A)
         
-        if A.nnz == 0:
+        print ("Percentage completed: ", 100-len(candidates)/g._num_vertices*100, end="\r")
+        
+        if len(candidates) <= g._num_vertices*ratio:
+            for i in candidates:
+                labels[i] = ct
+                ct += 1
             return labels, info
         
 def compute_embeddings_and_distances_from_region_adjacency(g,info, metric='euclidean', n_jobs=1):
