@@ -112,7 +112,12 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
     nedges = curvol - curcutsize + 2 * nR;
     //cout << "deg " << total_degree << " cut " << curcutsize << " vol " << curvol << endl;
     if (curvol == 0 || curvol == total_degree) {
-        return 0;
+        vtype j = 0;
+        for(auto R_iter = R_map.begin(); R_iter != R_map.end(); ++ R_iter){
+            ret_set[j] = R_iter->first + offset;
+            j ++;
+        }
+        return nR;
     }
     condNew = (double)curcutsize/(double)min(total_degree - curvol, curvol);
     //cout << "iter: " << total_iter << " conductance: " << condNew << endl;
