@@ -111,6 +111,14 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
     itype curcutsize = set_stats.second;
     nedges = curvol - curcutsize + 2 * nR;
     //cout << "deg " << total_degree << " cut " << curcutsize << " vol " << curvol << endl;
+    if (curvol == 0 || curvol == total_degree) {
+        vtype j = 0;
+        for(auto R_iter = R_map.begin(); R_iter != R_map.end(); ++ R_iter){
+            ret_set[j] = R_iter->first + offset;
+            j ++;
+        }
+        return nR;
+    }
     condNew = (double)curcutsize/(double)min(total_degree - curvol, curvol);
     //cout << "iter: " << total_iter << " conductance: " << condNew << endl;
     total_iter ++;
@@ -165,6 +173,9 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
             //cout << "here " << nedges << " " << curvol << " " << curcutsize << endl;
             //retData = max_flow_MQI<vtype, itype>(ai, aj, offset, curvol, curcutsize, nedges, nRnew + 2,
             //        R_map, degree_map, nRnew, nRnew + 1, mincut, Q, fin, pro, another_pro, dist, flow, cap, next, to);
+        }
+        else {
+            return 0;
         }
         free(Rnew);
         nRold = nRnew;

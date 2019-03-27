@@ -279,6 +279,72 @@ class GraphLocal:
         rval.ai = itype(rval.adjacency_matrix.indptr)
         rval.aj = vtype(rval.adjacency_matrix.indices)
         return rval
+    
+    def from_sparse_adjacency(self,A):
+        """
+        Create a GraphLocal object from a sparse adjacency matrix.
+
+        Paramters
+        ---------
+        A
+            Adjacency matrix.
+        """
+        self.adjacency_matrix = A.copy()
+        self._num_vertices = A.shape[0]
+        self._num_edges = A.nnz
+
+        # TODO, use this in the read_graph
+        self._weighted = False
+        for i in self.adjacency_matrix.data:
+            if i != 1:
+                self._weighted = True
+                break
+
+        # automatically determine sizes
+        if self._num_vertices < 4294967295:
+            vtype = np.uint32
+        else:
+            vtype = np.int64
+        if 2*self._num_edges < 4294967295:
+            itype = np.uint32
+        else:
+            itype = np.int64
+
+        self.compute_statistics()
+        self.ai = itype(self.adjacency_matrix.indptr)
+        self.aj = vtype(self.adjacency_matrix.indices)
+        
+    def renew_data(self,A):
+        """
+        Update data because the adjacency matrix changed
+
+        Paramters
+        ---------
+        A
+            Adjacency matrix.
+        """
+        self._num_edges = A.nnz
+
+        # TODO, use this in the read_graph
+        self._weighted = False
+        for i in self.adjacency_matrix.data:
+            if i != 1:
+                self._weighted = True
+                break
+
+        # automatically determine sizes
+        if self._num_vertices < 4294967295:
+            vtype = np.uint32
+        else:
+            vtype = np.int64
+        if 2*self._num_edges < 4294967295:
+            itype = np.uint32
+        else:
+            itype = np.int64
+
+        self.compute_statistics()
+        self.ai = itype(self.adjacency_matrix.indptr)
+        self.aj = vtype(self.adjacency_matrix.indices)
 
     def list_to_gl(self,source,target,weights,vtype=np.uint32, itype=np.uint32):
         """

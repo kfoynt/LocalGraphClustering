@@ -1,6 +1,7 @@
 from typing import *
 import numpy as np
 from .MQI import MQI
+from .MQI_weighted import MQI_weighted
 from .SimpleLocal import SimpleLocal
 from .capacity_releasing_diffusion import capacity_releasing_diffusion
 from .GraphLocal import GraphLocal
@@ -27,7 +28,7 @@ def flow_clustering(G, ref_nodes,
 
     method: str
         Which method to use for the nodes embedding.
-        Options: "mqi", "sl", "crd"
+        Options: "mqi", "mqi_weighted", "sl", "crd"
 
     Returns
     -------
@@ -43,8 +44,10 @@ def flow_clustering(G, ref_nodes,
     
     if method == "mqi":
         if G._weighted:
-            warnings.warn("The weights of the graph will be discarded. Use \"crd\" if you want to keep them.")
+            warnings.warn("The weights of the graph will be discarded. Use \"crd\" or \"mqi_weighted\" if you want to keep them.")
         return MQI(G,ref_nodes)
+    if method == "mqi_weighted":
+        return MQI_weighted(G,ref_nodes)
     elif method == "crd":
         return capacity_releasing_diffusion(G,ref_nodes,U=U,h=h,w=w,iterations=iterations)
     elif method == "sl":
@@ -52,6 +55,6 @@ def flow_clustering(G, ref_nodes,
             warnings.warn("The weights of the graph will be discarded. Use \"crd\" if you want to keep them.")
         return SimpleLocal(G,ref_nodes,delta=delta)
     else:
-        raise Exception("Unknown method, available methods are \"mqi\", \"crd\", \"sl\".")
+        raise Exception("Unknown method, available methods are \"mqi\", \"mqi_weighted\", \"crd\", \"sl\".")
 
 
