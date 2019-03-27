@@ -143,6 +143,9 @@ def _ncp_node_worker(workid, setids,func,timeout):
 def _ncp_neighborhood_worker(workid, setids,func,timeout):
     return ncp_worker(workid, "neighborhood", workvars["ncpdata"], setids, func, timeout)
 
+def _ncp_refine_worker(workid, setids, func, timeout):
+    return ncp_worder(workid, "refine", workvars["ncpdata"], setids, func, timeout)
+
 def _ncp_set_worker(workid, setids,func,timeout):
     return ncp_worker(workid, "set", workvars["ncpdata"], setids, func, timeout)
 
@@ -155,6 +158,12 @@ def ncp_worker(workid, runtype, ncpdata, setids, func, timeout):
         if runtype == 'node':
             method_stats = {'input_set_type': runtype, 'input_set_params':Rid[0]}
             result = ncp_experiment(ncpdata, Rid, func, method_stats)
+            results.extend(result)
+        elif runtype == 'refine':
+            setid = Rid
+            R = ncpdata.output_set(setid)[0]
+            method_stats = {'input_set_type': runtype, 'input_set_params':Rid}
+            result = ncp_experiment(ncpdata, R, func, method_stats)
             results.extend(result)
         elif runtype == 'neighborhood':
             R = Rid.copy() # duplicate so we don't keep extra weird data around
@@ -169,7 +178,7 @@ def ncp_worker(workid, runtype, ncpdata, setids, func, timeout):
             result = ncp_experiment(ncpdata, R, func, method_stats)
             results.extend(result)
         else:
-            raise(ValueError("the runtype must be 'node','neighborhood', or 'set'"))
+            raise(ValueError("the runtype must be 'node','refine','neighborhood', or 'set'"))
 
         end = time.time()
         if end - start > timeout:
@@ -288,6 +297,8 @@ class NCPData:
             return R
         elif result["input_set_type"]=="set":
             return self.sets[result["input_set_params"]].copy()
+        elif result["input_set_type"]=="refine":
+            return self.output_set(result["input_set_params"])[0]
         else:
             raise(ValueError("the input_set_type is unrecognized"))
 
@@ -317,7 +328,7 @@ class NCPData:
             else:
                 self.method_names[method] = name
         return method
-                
+
     def _run_samples(self, target, list_of_sets, method, timeout, nprocs):
         if nprocs == 1:
             # we special case nprocs = 1 so that we can get coverage
@@ -407,32 +418,32 @@ class NCPData:
 
         setnos = np.array_split(range(startset,endset), nthreads) # set numbers
         self._run_samples(_ncp_set_worker, setnos, method, timeout, nthreads)
-        
+
     def add_set_samples_without_method(self, sets):
         method = self._check_method(does_nothing, None)
         startset = len(self.sets)
         self.sets.extend(sets)
-        
+
         counter = 1
         for cluster in sets:
             input_stats = self.graph.set_scores(cluster)
             for F in self.set_funcs: # build the list of keys for set_funcs
                 input_stats.update(F(self.graph, cluster))
             input_stats = {"input_" + str(key):value for key,value in input_stats.items() } # add input prefix
-        
+
             output_stats = self.graph.set_scores(cluster)
             for F in self.set_funcs: # build the list of keys for set_funcs
                 output_stats.update(F(self.graph, cluster))
             output_stats = {"output_" + str(key):value for key,value in output_stats.items() } # add output prefix
             if self.store_output_clusters:
-                output_cluster = {"output_cluster": cluster} 
-            
+                output_cluster = {"output_cluster": cluster}
+
             method_stats = {'input_set_type': 'set', 'input_set_params':startset+counter, 'methodfunc':does_nothing, 'time':0}
-            
+
             self.results.extend([dict(**input_stats, **output_stats, **method_stats)])
-            
+
             counter = counter + 1
-            
+
     def as_data_frame(self):
         """ Return the NCP results as a pandas dataframe """
         df = pd.DataFrame.from_records(self.results, columns=self.result_fields)
@@ -632,7 +643,7 @@ class NCPData:
         for func in funcs.keys():
             self.add_random_node_samples(method=func,methodname=funcs[func],ratio=ratio,nthreads=nthreads,timeout=timeout/len(funcs))
         return self
-    
+
     def l1reg_rand(self,
               gamma: float = 0.01/0.99,
               rholist: List[float] = [1.0e-10,1.0e-8,1.0e-7,1.0e-6,1.0e-5,1.0e-4],
@@ -668,10 +679,10 @@ class NCPData:
         self.add_random_neighborhood_samples(ratio=ratio,nthreads=nthreads,timeout=timeout,
                 method=func,methodname="mqi")
         return self
-    
+
     def refine(self,
-            sets, 
-            method=None, 
+            sets,
+            method=None,
             methodname=None,
             nthreads: int = 4,
             timeout: float = 1000,
