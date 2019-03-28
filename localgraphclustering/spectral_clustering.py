@@ -91,7 +91,7 @@ def spectral_clustering(G, ref_nodes,
         Stores the value of the best conductance found by the last called rounding procedure.
     """
 
-    if G._weighted and method != "acl_weighted":
+    if G._weighted and method not in ["acl_weighted","l1reg","l1reg-rand"]:
         warnings.warn("The weights of the graph will be discarded. Use approximate_PageRank_weighted instead if you want to keep the edge weights.")
 
     if method == "acl" or method == "acl_weighted" or method == "l1reg" or method == "l1reg-rand":
