@@ -2203,6 +2203,11 @@ static const char __pyx_k_start[] = "start";
 static const char __pyx_k_temp1[] = "temp1";
 static const char __pyx_k_temp2[] = "temp2";
 static const char __pyx_k_temp3[] = "temp3";
+static const char __pyx_k_temp4[] = "temp4";
+static const char __pyx_k_temp5[] = "temp5";
+static const char __pyx_k_temp6[] = "temp6";
+static const char __pyx_k_temp7[] = "temp7";
+static const char __pyx_k_temp8[] = "temp8";
 static const char __pyx_k_var_I[] = "var_I";
 static const char __pyx_k_var_X[] = "var_X";
 static const char __pyx_k_zeros[] = "zeros";
@@ -2252,6 +2257,7 @@ static const char __pyx_k_pyx_unpickle_Enum[] = "__pyx_unpickle_Enum";
 static const char __pyx_k_affinity_kimon_pyx[] = "affinity_kimon.pyx";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_strided_and_direct[] = "<strided and direct>";
+static const char __pyx_k_affinity_multiscale[] = "affinity_multiscale";
 static const char __pyx_k_strided_and_indirect[] = "<strided and indirect>";
 static const char __pyx_k_contiguous_and_direct[] = "<contiguous and direct>";
 static const char __pyx_k_MemoryView_of_r_object[] = "<MemoryView of %r object>";
@@ -2317,6 +2323,7 @@ static PyObject *__pyx_n_s_affinity;
 static PyObject *__pyx_n_s_affinity_gray;
 static PyObject *__pyx_n_s_affinity_kimon;
 static PyObject *__pyx_kp_s_affinity_kimon_pyx;
+static PyObject *__pyx_n_s_affinity_multiscale;
 static PyObject *__pyx_n_s_allocate_buffer;
 static PyObject *__pyx_n_s_base;
 static PyObject *__pyx_n_s_c;
@@ -2398,6 +2405,11 @@ static PyObject *__pyx_n_s_sub_img;
 static PyObject *__pyx_n_s_temp1;
 static PyObject *__pyx_n_s_temp2;
 static PyObject *__pyx_n_s_temp3;
+static PyObject *__pyx_n_s_temp4;
+static PyObject *__pyx_n_s_temp5;
+static PyObject *__pyx_n_s_temp6;
+static PyObject *__pyx_n_s_temp7;
+static PyObject *__pyx_n_s_temp8;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_threshold;
 static PyObject *__pyx_kp_s_unable_to_allocate_array_data;
@@ -2411,6 +2423,7 @@ static PyObject *__pyx_n_s_wkl;
 static PyObject *__pyx_n_s_zeros;
 static PyObject *__pyx_pf_14affinity_kimon_affinity(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_n, int __pyx_v_p, int __pyx_v_q, double __pyx_v_r, double __pyx_v_var_I, double __pyx_v_var_X, double __pyx_v_threshold, __Pyx_memviewslice __pyx_v_sub_img); /* proto */
 static PyObject *__pyx_pf_14affinity_kimon_2affinity_gray(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_n, int __pyx_v_p, int __pyx_v_q, double __pyx_v_r, double __pyx_v_var_I, double __pyx_v_var_X, double __pyx_v_threshold, __Pyx_memviewslice __pyx_v_sub_img); /* proto */
+static PyObject *__pyx_pf_14affinity_kimon_4affinity_multiscale(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_n, int __pyx_v_p, int __pyx_v_q, double __pyx_v_r, double __pyx_v_var_I, double __pyx_v_var_X, double __pyx_v_threshold, __Pyx_memviewslice __pyx_v_sub_img); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_shape, Py_ssize_t __pyx_v_itemsize, PyObject *__pyx_v_format, PyObject *__pyx_v_mode, int __pyx_v_allocate_buffer); /* proto */
@@ -2463,6 +2476,7 @@ static PyObject *__pyx_int_0;
 static PyObject *__pyx_int_1;
 static PyObject *__pyx_int_2;
 static PyObject *__pyx_int_3;
+static PyObject *__pyx_int_8;
 static PyObject *__pyx_int_184977713;
 static PyObject *__pyx_int_neg_1;
 static PyObject *__pyx_tuple_;
@@ -2493,14 +2507,16 @@ static PyObject *__pyx_tuple__25;
 static PyObject *__pyx_tuple__26;
 static PyObject *__pyx_tuple__28;
 static PyObject *__pyx_tuple__30;
-static PyObject *__pyx_tuple__31;
 static PyObject *__pyx_tuple__32;
 static PyObject *__pyx_tuple__33;
 static PyObject *__pyx_tuple__34;
 static PyObject *__pyx_tuple__35;
+static PyObject *__pyx_tuple__36;
+static PyObject *__pyx_tuple__37;
 static PyObject *__pyx_codeobj__27;
 static PyObject *__pyx_codeobj__29;
-static PyObject *__pyx_codeobj__36;
+static PyObject *__pyx_codeobj__31;
+static PyObject *__pyx_codeobj__38;
 /* Late includes */
 
 /* "affinity_kimon.pyx":9
@@ -3905,6 +3921,7 @@ static PyObject *__pyx_pf_14affinity_kimon_2affinity_gray(CYTHON_UNUSED PyObject
  *                     col.extend([l, k])
  *                     data.extend([wkl, wkl])             # <<<<<<<<<<<<<<
  *     return data, row, col
+ * 
  */
           __pyx_t_2 = PyFloat_FromDouble(__pyx_v_wkl); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 105, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
@@ -3940,6 +3957,8 @@ static PyObject *__pyx_pf_14affinity_kimon_2affinity_gray(CYTHON_UNUSED PyObject
  *                     col.extend([l, k])
  *                     data.extend([wkl, wkl])
  *     return data, row, col             # <<<<<<<<<<<<<<
+ * 
+ * def affinity_multiscale(int n, int p, int q, double r, double var_I, double var_X, double threshold, double[:,:,:] sub_img):
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2 = PyTuple_New(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 106, __pyx_L1_error)
@@ -3982,6 +4001,1160 @@ static PyObject *__pyx_pf_14affinity_kimon_2affinity_gray(CYTHON_UNUSED PyObject
   __PYX_XDEC_MEMVIEW(&__pyx_v_F, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_v_X, 1);
   __Pyx_XDECREF(__pyx_v_temp2);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_sub_img, 1);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "affinity_kimon.pyx":108
+ *     return data, row, col
+ * 
+ * def affinity_multiscale(int n, int p, int q, double r, double var_I, double var_X, double threshold, double[:,:,:] sub_img):             # <<<<<<<<<<<<<<
+ * 
+ *     cdef int i, j, k, l
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_14affinity_kimon_5affinity_multiscale(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_14affinity_kimon_5affinity_multiscale = {"affinity_multiscale", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_14affinity_kimon_5affinity_multiscale, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_14affinity_kimon_5affinity_multiscale(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  int __pyx_v_n;
+  int __pyx_v_p;
+  int __pyx_v_q;
+  double __pyx_v_r;
+  double __pyx_v_var_I;
+  double __pyx_v_var_X;
+  double __pyx_v_threshold;
+  __Pyx_memviewslice __pyx_v_sub_img = { 0, 0, { 0 }, { 0 }, { 0 } };
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("affinity_multiscale (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_n,&__pyx_n_s_p,&__pyx_n_s_q,&__pyx_n_s_r,&__pyx_n_s_var_I,&__pyx_n_s_var_X,&__pyx_n_s_threshold,&__pyx_n_s_sub_img,0};
+    PyObject* values[8] = {0,0,0,0,0,0,0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
+        CYTHON_FALLTHROUGH;
+        case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
+        CYTHON_FALLTHROUGH;
+        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
+        CYTHON_FALLTHROUGH;
+        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
+        CYTHON_FALLTHROUGH;
+        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        CYTHON_FALLTHROUGH;
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_n)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        CYTHON_FALLTHROUGH;
+        case  1:
+        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_p)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("affinity_multiscale", 1, 8, 8, 1); __PYX_ERR(0, 108, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  2:
+        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_q)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("affinity_multiscale", 1, 8, 8, 2); __PYX_ERR(0, 108, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  3:
+        if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_r)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("affinity_multiscale", 1, 8, 8, 3); __PYX_ERR(0, 108, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  4:
+        if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_I)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("affinity_multiscale", 1, 8, 8, 4); __PYX_ERR(0, 108, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  5:
+        if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_var_X)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("affinity_multiscale", 1, 8, 8, 5); __PYX_ERR(0, 108, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  6:
+        if (likely((values[6] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_threshold)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("affinity_multiscale", 1, 8, 8, 6); __PYX_ERR(0, 108, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  7:
+        if (likely((values[7] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_sub_img)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("affinity_multiscale", 1, 8, 8, 7); __PYX_ERR(0, 108, __pyx_L3_error)
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "affinity_multiscale") < 0)) __PYX_ERR(0, 108, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 8) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+      values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+      values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
+      values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
+      values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
+      values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
+    }
+    __pyx_v_n = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_n == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 108, __pyx_L3_error)
+    __pyx_v_p = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_p == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 108, __pyx_L3_error)
+    __pyx_v_q = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_q == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 108, __pyx_L3_error)
+    __pyx_v_r = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_r == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 108, __pyx_L3_error)
+    __pyx_v_var_I = __pyx_PyFloat_AsDouble(values[4]); if (unlikely((__pyx_v_var_I == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 108, __pyx_L3_error)
+    __pyx_v_var_X = __pyx_PyFloat_AsDouble(values[5]); if (unlikely((__pyx_v_var_X == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 108, __pyx_L3_error)
+    __pyx_v_threshold = __pyx_PyFloat_AsDouble(values[6]); if (unlikely((__pyx_v_threshold == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 108, __pyx_L3_error)
+    __pyx_v_sub_img = __Pyx_PyObject_to_MemoryviewSlice_dsdsds_double(values[7], PyBUF_WRITABLE); if (unlikely(!__pyx_v_sub_img.memview)) __PYX_ERR(0, 108, __pyx_L3_error)
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("affinity_multiscale", 1, 8, 8, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 108, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("affinity_kimon.affinity_multiscale", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_14affinity_kimon_4affinity_multiscale(__pyx_self, __pyx_v_n, __pyx_v_p, __pyx_v_q, __pyx_v_r, __pyx_v_var_I, __pyx_v_var_X, __pyx_v_threshold, __pyx_v_sub_img);
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_14affinity_kimon_4affinity_multiscale(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_n, int __pyx_v_p, int __pyx_v_q, double __pyx_v_r, double __pyx_v_var_I, double __pyx_v_var_X, double __pyx_v_threshold, __Pyx_memviewslice __pyx_v_sub_img) {
+  int __pyx_v_i;
+  int __pyx_v_j;
+  int __pyx_v_k;
+  int __pyx_v_l;
+  double __pyx_v_wkl;
+  double __pyx_v_d;
+  double __pyx_v_nF;
+  double __pyx_v_temp1;
+  double __pyx_v_temp2;
+  double __pyx_v_temp3;
+  PyObject *__pyx_v_row = 0;
+  PyObject *__pyx_v_col = 0;
+  PyObject *__pyx_v_data = 0;
+  __Pyx_memviewslice __pyx_v_F = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_X = { 0, 0, { 0 }, { 0 }, { 0 } };
+  PyObject *__pyx_v_temp4 = NULL;
+  PyObject *__pyx_v_temp5 = NULL;
+  PyObject *__pyx_v_temp6 = NULL;
+  PyObject *__pyx_v_temp7 = NULL;
+  PyObject *__pyx_v_temp8 = NULL;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  __Pyx_memviewslice __pyx_t_5 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  int __pyx_t_6;
+  int __pyx_t_7;
+  int __pyx_t_8;
+  Py_ssize_t __pyx_t_9;
+  Py_ssize_t __pyx_t_10;
+  Py_ssize_t __pyx_t_11;
+  Py_ssize_t __pyx_t_12;
+  Py_ssize_t __pyx_t_13;
+  Py_ssize_t __pyx_t_14;
+  Py_ssize_t __pyx_t_15;
+  Py_ssize_t __pyx_t_16;
+  Py_ssize_t __pyx_t_17;
+  Py_ssize_t __pyx_t_18;
+  Py_ssize_t __pyx_t_19;
+  Py_ssize_t __pyx_t_20;
+  Py_ssize_t __pyx_t_21;
+  Py_ssize_t __pyx_t_22;
+  Py_ssize_t __pyx_t_23;
+  Py_ssize_t __pyx_t_24;
+  Py_ssize_t __pyx_t_25;
+  Py_ssize_t __pyx_t_26;
+  Py_ssize_t __pyx_t_27;
+  Py_ssize_t __pyx_t_28;
+  int __pyx_t_29;
+  int __pyx_t_30;
+  int __pyx_t_31;
+  Py_ssize_t __pyx_t_32;
+  Py_ssize_t __pyx_t_33;
+  Py_ssize_t __pyx_t_34;
+  Py_ssize_t __pyx_t_35;
+  Py_ssize_t __pyx_t_36;
+  Py_ssize_t __pyx_t_37;
+  Py_ssize_t __pyx_t_38;
+  Py_ssize_t __pyx_t_39;
+  Py_ssize_t __pyx_t_40;
+  Py_ssize_t __pyx_t_41;
+  Py_ssize_t __pyx_t_42;
+  Py_ssize_t __pyx_t_43;
+  Py_ssize_t __pyx_t_44;
+  Py_ssize_t __pyx_t_45;
+  Py_ssize_t __pyx_t_46;
+  Py_ssize_t __pyx_t_47;
+  Py_ssize_t __pyx_t_48;
+  Py_ssize_t __pyx_t_49;
+  Py_ssize_t __pyx_t_50;
+  Py_ssize_t __pyx_t_51;
+  Py_ssize_t __pyx_t_52;
+  Py_ssize_t __pyx_t_53;
+  Py_ssize_t __pyx_t_54;
+  Py_ssize_t __pyx_t_55;
+  Py_ssize_t __pyx_t_56;
+  Py_ssize_t __pyx_t_57;
+  Py_ssize_t __pyx_t_58;
+  Py_ssize_t __pyx_t_59;
+  Py_ssize_t __pyx_t_60;
+  Py_ssize_t __pyx_t_61;
+  Py_ssize_t __pyx_t_62;
+  Py_ssize_t __pyx_t_63;
+  Py_ssize_t __pyx_t_64;
+  Py_ssize_t __pyx_t_65;
+  Py_ssize_t __pyx_t_66;
+  Py_ssize_t __pyx_t_67;
+  Py_ssize_t __pyx_t_68;
+  Py_ssize_t __pyx_t_69;
+  Py_ssize_t __pyx_t_70;
+  Py_ssize_t __pyx_t_71;
+  Py_ssize_t __pyx_t_72;
+  Py_ssize_t __pyx_t_73;
+  Py_ssize_t __pyx_t_74;
+  Py_ssize_t __pyx_t_75;
+  Py_ssize_t __pyx_t_76;
+  Py_ssize_t __pyx_t_77;
+  Py_ssize_t __pyx_t_78;
+  Py_ssize_t __pyx_t_79;
+  Py_ssize_t __pyx_t_80;
+  Py_ssize_t __pyx_t_81;
+  Py_ssize_t __pyx_t_82;
+  Py_ssize_t __pyx_t_83;
+  int __pyx_t_84;
+  Py_ssize_t __pyx_t_85;
+  Py_ssize_t __pyx_t_86;
+  Py_ssize_t __pyx_t_87;
+  Py_ssize_t __pyx_t_88;
+  Py_ssize_t __pyx_t_89;
+  Py_ssize_t __pyx_t_90;
+  Py_ssize_t __pyx_t_91;
+  Py_ssize_t __pyx_t_92;
+  Py_ssize_t __pyx_t_93;
+  Py_ssize_t __pyx_t_94;
+  Py_ssize_t __pyx_t_95;
+  Py_ssize_t __pyx_t_96;
+  Py_ssize_t __pyx_t_97;
+  Py_ssize_t __pyx_t_98;
+  Py_ssize_t __pyx_t_99;
+  Py_ssize_t __pyx_t_100;
+  Py_ssize_t __pyx_t_101;
+  Py_ssize_t __pyx_t_102;
+  Py_ssize_t __pyx_t_103;
+  Py_ssize_t __pyx_t_104;
+  Py_ssize_t __pyx_t_105;
+  Py_ssize_t __pyx_t_106;
+  Py_ssize_t __pyx_t_107;
+  Py_ssize_t __pyx_t_108;
+  Py_ssize_t __pyx_t_109;
+  Py_ssize_t __pyx_t_110;
+  Py_ssize_t __pyx_t_111;
+  Py_ssize_t __pyx_t_112;
+  Py_ssize_t __pyx_t_113;
+  Py_ssize_t __pyx_t_114;
+  Py_ssize_t __pyx_t_115;
+  Py_ssize_t __pyx_t_116;
+  double __pyx_t_117;
+  int __pyx_t_118;
+  int __pyx_t_119;
+  __Pyx_RefNannySetupContext("affinity_multiscale", 0);
+
+  /* "affinity_kimon.pyx":113
+ *     cdef double wkl, d, nF, temp1, temp2, temp3
+ * 
+ *     cdef list row = [], col = [], data = []             # <<<<<<<<<<<<<<
+ * 
+ *     cdef double[:,:] F
+ */
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 113, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_v_row = ((PyObject*)__pyx_t_1);
+  __pyx_t_1 = 0;
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 113, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_v_col = ((PyObject*)__pyx_t_1);
+  __pyx_t_1 = 0;
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 113, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_v_data = ((PyObject*)__pyx_t_1);
+  __pyx_t_1 = 0;
+
+  /* "affinity_kimon.pyx":118
+ *     cdef double[:,:] X
+ * 
+ *     F = np.zeros([n, 8])             # <<<<<<<<<<<<<<
+ *     X = np.zeros([n, 2])
+ * 
+ */
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 118, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 118, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_n); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 118, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_4 = PyList_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 118, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_GIVEREF(__pyx_t_2);
+  PyList_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
+  __Pyx_INCREF(__pyx_int_8);
+  __Pyx_GIVEREF(__pyx_int_8);
+  PyList_SET_ITEM(__pyx_t_4, 1, __pyx_int_8);
+  __pyx_t_2 = 0;
+  __pyx_t_2 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_2)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_2);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+    }
+  }
+  __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_2, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 118, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 118, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_v_F = __pyx_t_5;
+  __pyx_t_5.memview = NULL;
+  __pyx_t_5.data = NULL;
+
+  /* "affinity_kimon.pyx":119
+ * 
+ *     F = np.zeros([n, 8])
+ *     X = np.zeros([n, 2])             # <<<<<<<<<<<<<<
+ * 
+ *     for i in range(n):
+ */
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 119, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 119, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_n); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 119, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_2 = PyList_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 119, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_GIVEREF(__pyx_t_3);
+  PyList_SET_ITEM(__pyx_t_2, 0, __pyx_t_3);
+  __Pyx_INCREF(__pyx_int_2);
+  __Pyx_GIVEREF(__pyx_int_2);
+  PyList_SET_ITEM(__pyx_t_2, 1, __pyx_int_2);
+  __pyx_t_3 = 0;
+  __pyx_t_3 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
+    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_4);
+    if (likely(__pyx_t_3)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
+      __Pyx_INCREF(__pyx_t_3);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_4, function);
+    }
+  }
+  __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_3, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 119, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 119, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_v_X = __pyx_t_5;
+  __pyx_t_5.memview = NULL;
+  __pyx_t_5.data = NULL;
+
+  /* "affinity_kimon.pyx":121
+ *     X = np.zeros([n, 2])
+ * 
+ *     for i in range(n):             # <<<<<<<<<<<<<<
+ *         F[i,0] = 0
+ *         F[i,1] = 0
+ */
+  __pyx_t_6 = __pyx_v_n;
+  __pyx_t_7 = __pyx_t_6;
+  for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
+    __pyx_v_i = __pyx_t_8;
+
+    /* "affinity_kimon.pyx":122
+ * 
+ *     for i in range(n):
+ *         F[i,0] = 0             # <<<<<<<<<<<<<<
+ *         F[i,1] = 0
+ *         F[i,2] = 0
+ */
+    __pyx_t_9 = __pyx_v_i;
+    __pyx_t_10 = 0;
+    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_9 * __pyx_v_F.strides[0]) ) + __pyx_t_10 * __pyx_v_F.strides[1]) )) = 0.0;
+
+    /* "affinity_kimon.pyx":123
+ *     for i in range(n):
+ *         F[i,0] = 0
+ *         F[i,1] = 0             # <<<<<<<<<<<<<<
+ *         F[i,2] = 0
+ *         F[i,3] = 0
+ */
+    __pyx_t_11 = __pyx_v_i;
+    __pyx_t_12 = 1;
+    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_11 * __pyx_v_F.strides[0]) ) + __pyx_t_12 * __pyx_v_F.strides[1]) )) = 0.0;
+
+    /* "affinity_kimon.pyx":124
+ *         F[i,0] = 0
+ *         F[i,1] = 0
+ *         F[i,2] = 0             # <<<<<<<<<<<<<<
+ *         F[i,3] = 0
+ *         F[i,4] = 0
+ */
+    __pyx_t_13 = __pyx_v_i;
+    __pyx_t_14 = 2;
+    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_13 * __pyx_v_F.strides[0]) ) + __pyx_t_14 * __pyx_v_F.strides[1]) )) = 0.0;
+
+    /* "affinity_kimon.pyx":125
+ *         F[i,1] = 0
+ *         F[i,2] = 0
+ *         F[i,3] = 0             # <<<<<<<<<<<<<<
+ *         F[i,4] = 0
+ *         F[i,5] = 0
+ */
+    __pyx_t_15 = __pyx_v_i;
+    __pyx_t_16 = 3;
+    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_15 * __pyx_v_F.strides[0]) ) + __pyx_t_16 * __pyx_v_F.strides[1]) )) = 0.0;
+
+    /* "affinity_kimon.pyx":126
+ *         F[i,2] = 0
+ *         F[i,3] = 0
+ *         F[i,4] = 0             # <<<<<<<<<<<<<<
+ *         F[i,5] = 0
+ *         F[i,6] = 0
+ */
+    __pyx_t_17 = __pyx_v_i;
+    __pyx_t_18 = 4;
+    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_17 * __pyx_v_F.strides[0]) ) + __pyx_t_18 * __pyx_v_F.strides[1]) )) = 0.0;
+
+    /* "affinity_kimon.pyx":127
+ *         F[i,3] = 0
+ *         F[i,4] = 0
+ *         F[i,5] = 0             # <<<<<<<<<<<<<<
+ *         F[i,6] = 0
+ *         F[i,7] = 0
+ */
+    __pyx_t_19 = __pyx_v_i;
+    __pyx_t_20 = 5;
+    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_19 * __pyx_v_F.strides[0]) ) + __pyx_t_20 * __pyx_v_F.strides[1]) )) = 0.0;
+
+    /* "affinity_kimon.pyx":128
+ *         F[i,4] = 0
+ *         F[i,5] = 0
+ *         F[i,6] = 0             # <<<<<<<<<<<<<<
+ *         F[i,7] = 0
+ *         X[i,0] = 0
+ */
+    __pyx_t_21 = __pyx_v_i;
+    __pyx_t_22 = 6;
+    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_21 * __pyx_v_F.strides[0]) ) + __pyx_t_22 * __pyx_v_F.strides[1]) )) = 0.0;
+
+    /* "affinity_kimon.pyx":129
+ *         F[i,5] = 0
+ *         F[i,6] = 0
+ *         F[i,7] = 0             # <<<<<<<<<<<<<<
+ *         X[i,0] = 0
+ *         X[i,1] = 0
+ */
+    __pyx_t_23 = __pyx_v_i;
+    __pyx_t_24 = 7;
+    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_23 * __pyx_v_F.strides[0]) ) + __pyx_t_24 * __pyx_v_F.strides[1]) )) = 0.0;
+
+    /* "affinity_kimon.pyx":130
+ *         F[i,6] = 0
+ *         F[i,7] = 0
+ *         X[i,0] = 0             # <<<<<<<<<<<<<<
+ *         X[i,1] = 0
+ * 
+ */
+    __pyx_t_25 = __pyx_v_i;
+    __pyx_t_26 = 0;
+    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_X.data + __pyx_t_25 * __pyx_v_X.strides[0]) ) + __pyx_t_26 * __pyx_v_X.strides[1]) )) = 0.0;
+
+    /* "affinity_kimon.pyx":131
+ *         F[i,7] = 0
+ *         X[i,0] = 0
+ *         X[i,1] = 0             # <<<<<<<<<<<<<<
+ * 
+ *     # RGB values
+ */
+    __pyx_t_27 = __pyx_v_i;
+    __pyx_t_28 = 1;
+    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_X.data + __pyx_t_27 * __pyx_v_X.strides[0]) ) + __pyx_t_28 * __pyx_v_X.strides[1]) )) = 0.0;
+  }
+
+  /* "affinity_kimon.pyx":134
+ * 
+ *     # RGB values
+ *     for i in range(p):             # <<<<<<<<<<<<<<
+ *         for j in range(q):
+ *             k = i*q + j
+ */
+  __pyx_t_6 = __pyx_v_p;
+  __pyx_t_7 = __pyx_t_6;
+  for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
+    __pyx_v_i = __pyx_t_8;
+
+    /* "affinity_kimon.pyx":135
+ *     # RGB values
+ *     for i in range(p):
+ *         for j in range(q):             # <<<<<<<<<<<<<<
+ *             k = i*q + j
+ *             F[k,0] = sub_img[i, j, 0]
+ */
+    __pyx_t_29 = __pyx_v_q;
+    __pyx_t_30 = __pyx_t_29;
+    for (__pyx_t_31 = 0; __pyx_t_31 < __pyx_t_30; __pyx_t_31+=1) {
+      __pyx_v_j = __pyx_t_31;
+
+      /* "affinity_kimon.pyx":136
+ *     for i in range(p):
+ *         for j in range(q):
+ *             k = i*q + j             # <<<<<<<<<<<<<<
+ *             F[k,0] = sub_img[i, j, 0]
+ *             F[k,1] = sub_img[i, j, 1]
+ */
+      __pyx_v_k = ((__pyx_v_i * __pyx_v_q) + __pyx_v_j);
+
+      /* "affinity_kimon.pyx":137
+ *         for j in range(q):
+ *             k = i*q + j
+ *             F[k,0] = sub_img[i, j, 0]             # <<<<<<<<<<<<<<
+ *             F[k,1] = sub_img[i, j, 1]
+ *             F[k,2] = sub_img[i, j, 2]
+ */
+      __pyx_t_32 = __pyx_v_i;
+      __pyx_t_33 = __pyx_v_j;
+      __pyx_t_34 = 0;
+      __pyx_t_35 = __pyx_v_k;
+      __pyx_t_36 = 0;
+      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_35 * __pyx_v_F.strides[0]) ) + __pyx_t_36 * __pyx_v_F.strides[1]) )) = (*((double *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_sub_img.data + __pyx_t_32 * __pyx_v_sub_img.strides[0]) ) + __pyx_t_33 * __pyx_v_sub_img.strides[1]) ) + __pyx_t_34 * __pyx_v_sub_img.strides[2]) )));
+
+      /* "affinity_kimon.pyx":138
+ *             k = i*q + j
+ *             F[k,0] = sub_img[i, j, 0]
+ *             F[k,1] = sub_img[i, j, 1]             # <<<<<<<<<<<<<<
+ *             F[k,2] = sub_img[i, j, 2]
+ *             F[k,3] = sub_img[i, j, 3]
+ */
+      __pyx_t_37 = __pyx_v_i;
+      __pyx_t_38 = __pyx_v_j;
+      __pyx_t_39 = 1;
+      __pyx_t_40 = __pyx_v_k;
+      __pyx_t_41 = 1;
+      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_40 * __pyx_v_F.strides[0]) ) + __pyx_t_41 * __pyx_v_F.strides[1]) )) = (*((double *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_sub_img.data + __pyx_t_37 * __pyx_v_sub_img.strides[0]) ) + __pyx_t_38 * __pyx_v_sub_img.strides[1]) ) + __pyx_t_39 * __pyx_v_sub_img.strides[2]) )));
+
+      /* "affinity_kimon.pyx":139
+ *             F[k,0] = sub_img[i, j, 0]
+ *             F[k,1] = sub_img[i, j, 1]
+ *             F[k,2] = sub_img[i, j, 2]             # <<<<<<<<<<<<<<
+ *             F[k,3] = sub_img[i, j, 3]
+ *             F[k,4] = sub_img[i, j, 4]
+ */
+      __pyx_t_42 = __pyx_v_i;
+      __pyx_t_43 = __pyx_v_j;
+      __pyx_t_44 = 2;
+      __pyx_t_45 = __pyx_v_k;
+      __pyx_t_46 = 2;
+      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_45 * __pyx_v_F.strides[0]) ) + __pyx_t_46 * __pyx_v_F.strides[1]) )) = (*((double *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_sub_img.data + __pyx_t_42 * __pyx_v_sub_img.strides[0]) ) + __pyx_t_43 * __pyx_v_sub_img.strides[1]) ) + __pyx_t_44 * __pyx_v_sub_img.strides[2]) )));
+
+      /* "affinity_kimon.pyx":140
+ *             F[k,1] = sub_img[i, j, 1]
+ *             F[k,2] = sub_img[i, j, 2]
+ *             F[k,3] = sub_img[i, j, 3]             # <<<<<<<<<<<<<<
+ *             F[k,4] = sub_img[i, j, 4]
+ *             F[k,5] = sub_img[i, j, 5]
+ */
+      __pyx_t_47 = __pyx_v_i;
+      __pyx_t_48 = __pyx_v_j;
+      __pyx_t_49 = 3;
+      __pyx_t_50 = __pyx_v_k;
+      __pyx_t_51 = 3;
+      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_50 * __pyx_v_F.strides[0]) ) + __pyx_t_51 * __pyx_v_F.strides[1]) )) = (*((double *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_sub_img.data + __pyx_t_47 * __pyx_v_sub_img.strides[0]) ) + __pyx_t_48 * __pyx_v_sub_img.strides[1]) ) + __pyx_t_49 * __pyx_v_sub_img.strides[2]) )));
+
+      /* "affinity_kimon.pyx":141
+ *             F[k,2] = sub_img[i, j, 2]
+ *             F[k,3] = sub_img[i, j, 3]
+ *             F[k,4] = sub_img[i, j, 4]             # <<<<<<<<<<<<<<
+ *             F[k,5] = sub_img[i, j, 5]
+ *             F[k,6] = sub_img[i, j, 6]
+ */
+      __pyx_t_52 = __pyx_v_i;
+      __pyx_t_53 = __pyx_v_j;
+      __pyx_t_54 = 4;
+      __pyx_t_55 = __pyx_v_k;
+      __pyx_t_56 = 4;
+      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_55 * __pyx_v_F.strides[0]) ) + __pyx_t_56 * __pyx_v_F.strides[1]) )) = (*((double *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_sub_img.data + __pyx_t_52 * __pyx_v_sub_img.strides[0]) ) + __pyx_t_53 * __pyx_v_sub_img.strides[1]) ) + __pyx_t_54 * __pyx_v_sub_img.strides[2]) )));
+
+      /* "affinity_kimon.pyx":142
+ *             F[k,3] = sub_img[i, j, 3]
+ *             F[k,4] = sub_img[i, j, 4]
+ *             F[k,5] = sub_img[i, j, 5]             # <<<<<<<<<<<<<<
+ *             F[k,6] = sub_img[i, j, 6]
+ *             F[k,7] = sub_img[i, j, 7]
+ */
+      __pyx_t_57 = __pyx_v_i;
+      __pyx_t_58 = __pyx_v_j;
+      __pyx_t_59 = 5;
+      __pyx_t_60 = __pyx_v_k;
+      __pyx_t_61 = 5;
+      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_60 * __pyx_v_F.strides[0]) ) + __pyx_t_61 * __pyx_v_F.strides[1]) )) = (*((double *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_sub_img.data + __pyx_t_57 * __pyx_v_sub_img.strides[0]) ) + __pyx_t_58 * __pyx_v_sub_img.strides[1]) ) + __pyx_t_59 * __pyx_v_sub_img.strides[2]) )));
+
+      /* "affinity_kimon.pyx":143
+ *             F[k,4] = sub_img[i, j, 4]
+ *             F[k,5] = sub_img[i, j, 5]
+ *             F[k,6] = sub_img[i, j, 6]             # <<<<<<<<<<<<<<
+ *             F[k,7] = sub_img[i, j, 7]
+ *             X[k,0] = i
+ */
+      __pyx_t_62 = __pyx_v_i;
+      __pyx_t_63 = __pyx_v_j;
+      __pyx_t_64 = 6;
+      __pyx_t_65 = __pyx_v_k;
+      __pyx_t_66 = 6;
+      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_65 * __pyx_v_F.strides[0]) ) + __pyx_t_66 * __pyx_v_F.strides[1]) )) = (*((double *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_sub_img.data + __pyx_t_62 * __pyx_v_sub_img.strides[0]) ) + __pyx_t_63 * __pyx_v_sub_img.strides[1]) ) + __pyx_t_64 * __pyx_v_sub_img.strides[2]) )));
+
+      /* "affinity_kimon.pyx":144
+ *             F[k,5] = sub_img[i, j, 5]
+ *             F[k,6] = sub_img[i, j, 6]
+ *             F[k,7] = sub_img[i, j, 7]             # <<<<<<<<<<<<<<
+ *             X[k,0] = i
+ *             X[k,1] = j
+ */
+      __pyx_t_67 = __pyx_v_i;
+      __pyx_t_68 = __pyx_v_j;
+      __pyx_t_69 = 7;
+      __pyx_t_70 = __pyx_v_k;
+      __pyx_t_71 = 7;
+      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_70 * __pyx_v_F.strides[0]) ) + __pyx_t_71 * __pyx_v_F.strides[1]) )) = (*((double *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_sub_img.data + __pyx_t_67 * __pyx_v_sub_img.strides[0]) ) + __pyx_t_68 * __pyx_v_sub_img.strides[1]) ) + __pyx_t_69 * __pyx_v_sub_img.strides[2]) )));
+
+      /* "affinity_kimon.pyx":145
+ *             F[k,6] = sub_img[i, j, 6]
+ *             F[k,7] = sub_img[i, j, 7]
+ *             X[k,0] = i             # <<<<<<<<<<<<<<
+ *             X[k,1] = j
+ * 
+ */
+      __pyx_t_72 = __pyx_v_k;
+      __pyx_t_73 = 0;
+      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_X.data + __pyx_t_72 * __pyx_v_X.strides[0]) ) + __pyx_t_73 * __pyx_v_X.strides[1]) )) = __pyx_v_i;
+
+      /* "affinity_kimon.pyx":146
+ *             F[k,7] = sub_img[i, j, 7]
+ *             X[k,0] = i
+ *             X[k,1] = j             # <<<<<<<<<<<<<<
+ * 
+ *     for k in range(n):
+ */
+      __pyx_t_74 = __pyx_v_k;
+      __pyx_t_75 = 1;
+      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_X.data + __pyx_t_74 * __pyx_v_X.strides[0]) ) + __pyx_t_75 * __pyx_v_X.strides[1]) )) = __pyx_v_j;
+    }
+  }
+
+  /* "affinity_kimon.pyx":148
+ *             X[k,1] = j
+ * 
+ *     for k in range(n):             # <<<<<<<<<<<<<<
+ *         #if k%100 == 0:
+ *         #print k
+ */
+  __pyx_t_6 = __pyx_v_n;
+  __pyx_t_7 = __pyx_t_6;
+  for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
+    __pyx_v_k = __pyx_t_8;
+
+    /* "affinity_kimon.pyx":151
+ *         #if k%100 == 0:
+ *         #print k
+ *         for l in range(k+1, n):             # <<<<<<<<<<<<<<
+ *             temp1 = abs(X[k,0] - X[l,0])
+ *             temp1 = temp1*temp1
+ */
+    __pyx_t_29 = __pyx_v_n;
+    __pyx_t_30 = __pyx_t_29;
+    for (__pyx_t_31 = (__pyx_v_k + 1); __pyx_t_31 < __pyx_t_30; __pyx_t_31+=1) {
+      __pyx_v_l = __pyx_t_31;
+
+      /* "affinity_kimon.pyx":152
+ *         #print k
+ *         for l in range(k+1, n):
+ *             temp1 = abs(X[k,0] - X[l,0])             # <<<<<<<<<<<<<<
+ *             temp1 = temp1*temp1
+ *             temp2 = abs(X[k,1] - X[l,1])
+ */
+      __pyx_t_76 = __pyx_v_k;
+      __pyx_t_77 = 0;
+      __pyx_t_78 = __pyx_v_l;
+      __pyx_t_79 = 0;
+      __pyx_v_temp1 = fabs(((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_X.data + __pyx_t_76 * __pyx_v_X.strides[0]) ) + __pyx_t_77 * __pyx_v_X.strides[1]) ))) - (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_X.data + __pyx_t_78 * __pyx_v_X.strides[0]) ) + __pyx_t_79 * __pyx_v_X.strides[1]) )))));
+
+      /* "affinity_kimon.pyx":153
+ *         for l in range(k+1, n):
+ *             temp1 = abs(X[k,0] - X[l,0])
+ *             temp1 = temp1*temp1             # <<<<<<<<<<<<<<
+ *             temp2 = abs(X[k,1] - X[l,1])
+ *             temp2 = temp2*temp2
+ */
+      __pyx_v_temp1 = (__pyx_v_temp1 * __pyx_v_temp1);
+
+      /* "affinity_kimon.pyx":154
+ *             temp1 = abs(X[k,0] - X[l,0])
+ *             temp1 = temp1*temp1
+ *             temp2 = abs(X[k,1] - X[l,1])             # <<<<<<<<<<<<<<
+ *             temp2 = temp2*temp2
+ *             d = temp1 + temp2
+ */
+      __pyx_t_80 = __pyx_v_k;
+      __pyx_t_81 = 1;
+      __pyx_t_82 = __pyx_v_l;
+      __pyx_t_83 = 1;
+      __pyx_v_temp2 = fabs(((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_X.data + __pyx_t_80 * __pyx_v_X.strides[0]) ) + __pyx_t_81 * __pyx_v_X.strides[1]) ))) - (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_X.data + __pyx_t_82 * __pyx_v_X.strides[0]) ) + __pyx_t_83 * __pyx_v_X.strides[1]) )))));
+
+      /* "affinity_kimon.pyx":155
+ *             temp1 = temp1*temp1
+ *             temp2 = abs(X[k,1] - X[l,1])
+ *             temp2 = temp2*temp2             # <<<<<<<<<<<<<<
+ *             d = temp1 + temp2
+ *             if d < r:
+ */
+      __pyx_v_temp2 = (__pyx_v_temp2 * __pyx_v_temp2);
+
+      /* "affinity_kimon.pyx":156
+ *             temp2 = abs(X[k,1] - X[l,1])
+ *             temp2 = temp2*temp2
+ *             d = temp1 + temp2             # <<<<<<<<<<<<<<
+ *             if d < r:
+ *                 temp1 = abs(F[k,0] - F[l,0])
+ */
+      __pyx_v_d = (__pyx_v_temp1 + __pyx_v_temp2);
+
+      /* "affinity_kimon.pyx":157
+ *             temp2 = temp2*temp2
+ *             d = temp1 + temp2
+ *             if d < r:             # <<<<<<<<<<<<<<
+ *                 temp1 = abs(F[k,0] - F[l,0])
+ *                 temp1 = temp1*temp1
+ */
+      __pyx_t_84 = ((__pyx_v_d < __pyx_v_r) != 0);
+      if (__pyx_t_84) {
+
+        /* "affinity_kimon.pyx":158
+ *             d = temp1 + temp2
+ *             if d < r:
+ *                 temp1 = abs(F[k,0] - F[l,0])             # <<<<<<<<<<<<<<
+ *                 temp1 = temp1*temp1
+ *                 temp2 = abs(F[k,1] - F[l,1])
+ */
+        __pyx_t_85 = __pyx_v_k;
+        __pyx_t_86 = 0;
+        __pyx_t_87 = __pyx_v_l;
+        __pyx_t_88 = 0;
+        __pyx_v_temp1 = fabs(((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_85 * __pyx_v_F.strides[0]) ) + __pyx_t_86 * __pyx_v_F.strides[1]) ))) - (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_87 * __pyx_v_F.strides[0]) ) + __pyx_t_88 * __pyx_v_F.strides[1]) )))));
+
+        /* "affinity_kimon.pyx":159
+ *             if d < r:
+ *                 temp1 = abs(F[k,0] - F[l,0])
+ *                 temp1 = temp1*temp1             # <<<<<<<<<<<<<<
+ *                 temp2 = abs(F[k,1] - F[l,1])
+ *                 temp2 = temp2*temp2
+ */
+        __pyx_v_temp1 = (__pyx_v_temp1 * __pyx_v_temp1);
+
+        /* "affinity_kimon.pyx":160
+ *                 temp1 = abs(F[k,0] - F[l,0])
+ *                 temp1 = temp1*temp1
+ *                 temp2 = abs(F[k,1] - F[l,1])             # <<<<<<<<<<<<<<
+ *                 temp2 = temp2*temp2
+ *                 temp3 = abs(F[k,2] - F[l,2])
+ */
+        __pyx_t_89 = __pyx_v_k;
+        __pyx_t_90 = 1;
+        __pyx_t_91 = __pyx_v_l;
+        __pyx_t_92 = 1;
+        __pyx_v_temp2 = fabs(((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_89 * __pyx_v_F.strides[0]) ) + __pyx_t_90 * __pyx_v_F.strides[1]) ))) - (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_91 * __pyx_v_F.strides[0]) ) + __pyx_t_92 * __pyx_v_F.strides[1]) )))));
+
+        /* "affinity_kimon.pyx":161
+ *                 temp1 = temp1*temp1
+ *                 temp2 = abs(F[k,1] - F[l,1])
+ *                 temp2 = temp2*temp2             # <<<<<<<<<<<<<<
+ *                 temp3 = abs(F[k,2] - F[l,2])
+ *                 temp3 = temp3*temp3
+ */
+        __pyx_v_temp2 = (__pyx_v_temp2 * __pyx_v_temp2);
+
+        /* "affinity_kimon.pyx":162
+ *                 temp2 = abs(F[k,1] - F[l,1])
+ *                 temp2 = temp2*temp2
+ *                 temp3 = abs(F[k,2] - F[l,2])             # <<<<<<<<<<<<<<
+ *                 temp3 = temp3*temp3
+ *                 temp4 = abs(F[k,3] - F[l,3])
+ */
+        __pyx_t_93 = __pyx_v_k;
+        __pyx_t_94 = 2;
+        __pyx_t_95 = __pyx_v_l;
+        __pyx_t_96 = 2;
+        __pyx_v_temp3 = fabs(((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_93 * __pyx_v_F.strides[0]) ) + __pyx_t_94 * __pyx_v_F.strides[1]) ))) - (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_95 * __pyx_v_F.strides[0]) ) + __pyx_t_96 * __pyx_v_F.strides[1]) )))));
+
+        /* "affinity_kimon.pyx":163
+ *                 temp2 = temp2*temp2
+ *                 temp3 = abs(F[k,2] - F[l,2])
+ *                 temp3 = temp3*temp3             # <<<<<<<<<<<<<<
+ *                 temp4 = abs(F[k,3] - F[l,3])
+ *                 temp4 = temp4*temp4
+ */
+        __pyx_v_temp3 = (__pyx_v_temp3 * __pyx_v_temp3);
+
+        /* "affinity_kimon.pyx":164
+ *                 temp3 = abs(F[k,2] - F[l,2])
+ *                 temp3 = temp3*temp3
+ *                 temp4 = abs(F[k,3] - F[l,3])             # <<<<<<<<<<<<<<
+ *                 temp4 = temp4*temp4
+ *                 temp5 = abs(F[k,4] - F[l,4])
+ */
+        __pyx_t_97 = __pyx_v_k;
+        __pyx_t_98 = 3;
+        __pyx_t_99 = __pyx_v_l;
+        __pyx_t_100 = 3;
+        __pyx_t_1 = PyFloat_FromDouble(fabs(((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_97 * __pyx_v_F.strides[0]) ) + __pyx_t_98 * __pyx_v_F.strides[1]) ))) - (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_99 * __pyx_v_F.strides[0]) ) + __pyx_t_100 * __pyx_v_F.strides[1]) )))))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 164, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __Pyx_XDECREF_SET(__pyx_v_temp4, __pyx_t_1);
+        __pyx_t_1 = 0;
+
+        /* "affinity_kimon.pyx":165
+ *                 temp3 = temp3*temp3
+ *                 temp4 = abs(F[k,3] - F[l,3])
+ *                 temp4 = temp4*temp4             # <<<<<<<<<<<<<<
+ *                 temp5 = abs(F[k,4] - F[l,4])
+ *                 temp5 = temp5*temp5
+ */
+        __pyx_t_1 = PyNumber_Multiply(__pyx_v_temp4, __pyx_v_temp4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 165, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __Pyx_DECREF_SET(__pyx_v_temp4, __pyx_t_1);
+        __pyx_t_1 = 0;
+
+        /* "affinity_kimon.pyx":166
+ *                 temp4 = abs(F[k,3] - F[l,3])
+ *                 temp4 = temp4*temp4
+ *                 temp5 = abs(F[k,4] - F[l,4])             # <<<<<<<<<<<<<<
+ *                 temp5 = temp5*temp5
+ *                 temp6 = abs(F[k,5] - F[l,5])
+ */
+        __pyx_t_101 = __pyx_v_k;
+        __pyx_t_102 = 4;
+        __pyx_t_103 = __pyx_v_l;
+        __pyx_t_104 = 4;
+        __pyx_t_1 = PyFloat_FromDouble(fabs(((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_101 * __pyx_v_F.strides[0]) ) + __pyx_t_102 * __pyx_v_F.strides[1]) ))) - (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_103 * __pyx_v_F.strides[0]) ) + __pyx_t_104 * __pyx_v_F.strides[1]) )))))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 166, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __Pyx_XDECREF_SET(__pyx_v_temp5, __pyx_t_1);
+        __pyx_t_1 = 0;
+
+        /* "affinity_kimon.pyx":167
+ *                 temp4 = temp4*temp4
+ *                 temp5 = abs(F[k,4] - F[l,4])
+ *                 temp5 = temp5*temp5             # <<<<<<<<<<<<<<
+ *                 temp6 = abs(F[k,5] - F[l,5])
+ *                 temp6 = temp6*temp6
+ */
+        __pyx_t_1 = PyNumber_Multiply(__pyx_v_temp5, __pyx_v_temp5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 167, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __Pyx_DECREF_SET(__pyx_v_temp5, __pyx_t_1);
+        __pyx_t_1 = 0;
+
+        /* "affinity_kimon.pyx":168
+ *                 temp5 = abs(F[k,4] - F[l,4])
+ *                 temp5 = temp5*temp5
+ *                 temp6 = abs(F[k,5] - F[l,5])             # <<<<<<<<<<<<<<
+ *                 temp6 = temp6*temp6
+ *                 temp7 = abs(F[k,6] - F[l,6])
+ */
+        __pyx_t_105 = __pyx_v_k;
+        __pyx_t_106 = 5;
+        __pyx_t_107 = __pyx_v_l;
+        __pyx_t_108 = 5;
+        __pyx_t_1 = PyFloat_FromDouble(fabs(((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_105 * __pyx_v_F.strides[0]) ) + __pyx_t_106 * __pyx_v_F.strides[1]) ))) - (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_107 * __pyx_v_F.strides[0]) ) + __pyx_t_108 * __pyx_v_F.strides[1]) )))))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 168, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __Pyx_XDECREF_SET(__pyx_v_temp6, __pyx_t_1);
+        __pyx_t_1 = 0;
+
+        /* "affinity_kimon.pyx":169
+ *                 temp5 = temp5*temp5
+ *                 temp6 = abs(F[k,5] - F[l,5])
+ *                 temp6 = temp6*temp6             # <<<<<<<<<<<<<<
+ *                 temp7 = abs(F[k,6] - F[l,6])
+ *                 temp7 = temp7*temp7
+ */
+        __pyx_t_1 = PyNumber_Multiply(__pyx_v_temp6, __pyx_v_temp6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 169, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __Pyx_DECREF_SET(__pyx_v_temp6, __pyx_t_1);
+        __pyx_t_1 = 0;
+
+        /* "affinity_kimon.pyx":170
+ *                 temp6 = abs(F[k,5] - F[l,5])
+ *                 temp6 = temp6*temp6
+ *                 temp7 = abs(F[k,6] - F[l,6])             # <<<<<<<<<<<<<<
+ *                 temp7 = temp7*temp7
+ *                 temp8 = abs(F[k,7] - F[l,7])
+ */
+        __pyx_t_109 = __pyx_v_k;
+        __pyx_t_110 = 6;
+        __pyx_t_111 = __pyx_v_l;
+        __pyx_t_112 = 6;
+        __pyx_t_1 = PyFloat_FromDouble(fabs(((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_109 * __pyx_v_F.strides[0]) ) + __pyx_t_110 * __pyx_v_F.strides[1]) ))) - (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_111 * __pyx_v_F.strides[0]) ) + __pyx_t_112 * __pyx_v_F.strides[1]) )))))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 170, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __Pyx_XDECREF_SET(__pyx_v_temp7, __pyx_t_1);
+        __pyx_t_1 = 0;
+
+        /* "affinity_kimon.pyx":171
+ *                 temp6 = temp6*temp6
+ *                 temp7 = abs(F[k,6] - F[l,6])
+ *                 temp7 = temp7*temp7             # <<<<<<<<<<<<<<
+ *                 temp8 = abs(F[k,7] - F[l,7])
+ *                 temp8 = temp8*temp8
+ */
+        __pyx_t_1 = PyNumber_Multiply(__pyx_v_temp7, __pyx_v_temp7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 171, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __Pyx_DECREF_SET(__pyx_v_temp7, __pyx_t_1);
+        __pyx_t_1 = 0;
+
+        /* "affinity_kimon.pyx":172
+ *                 temp7 = abs(F[k,6] - F[l,6])
+ *                 temp7 = temp7*temp7
+ *                 temp8 = abs(F[k,7] - F[l,7])             # <<<<<<<<<<<<<<
+ *                 temp8 = temp8*temp8
+ *                 nF = temp1 + temp2 + temp3 + temp4 + temp5 + temp6 + temp7 + temp8
+ */
+        __pyx_t_113 = __pyx_v_k;
+        __pyx_t_114 = 7;
+        __pyx_t_115 = __pyx_v_l;
+        __pyx_t_116 = 7;
+        __pyx_t_1 = PyFloat_FromDouble(fabs(((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_113 * __pyx_v_F.strides[0]) ) + __pyx_t_114 * __pyx_v_F.strides[1]) ))) - (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_F.data + __pyx_t_115 * __pyx_v_F.strides[0]) ) + __pyx_t_116 * __pyx_v_F.strides[1]) )))))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 172, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __Pyx_XDECREF_SET(__pyx_v_temp8, __pyx_t_1);
+        __pyx_t_1 = 0;
+
+        /* "affinity_kimon.pyx":173
+ *                 temp7 = temp7*temp7
+ *                 temp8 = abs(F[k,7] - F[l,7])
+ *                 temp8 = temp8*temp8             # <<<<<<<<<<<<<<
+ *                 nF = temp1 + temp2 + temp3 + temp4 + temp5 + temp6 + temp7 + temp8
+ *                 wkl = exp(-nF/var_I - d/var_X)
+ */
+        __pyx_t_1 = PyNumber_Multiply(__pyx_v_temp8, __pyx_v_temp8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 173, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __Pyx_DECREF_SET(__pyx_v_temp8, __pyx_t_1);
+        __pyx_t_1 = 0;
+
+        /* "affinity_kimon.pyx":174
+ *                 temp8 = abs(F[k,7] - F[l,7])
+ *                 temp8 = temp8*temp8
+ *                 nF = temp1 + temp2 + temp3 + temp4 + temp5 + temp6 + temp7 + temp8             # <<<<<<<<<<<<<<
+ *                 wkl = exp(-nF/var_I - d/var_X)
+ *                 if wkl > threshold:
+ */
+        __pyx_t_1 = PyFloat_FromDouble(((__pyx_v_temp1 + __pyx_v_temp2) + __pyx_v_temp3)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __pyx_t_4 = PyNumber_Add(__pyx_t_1, __pyx_v_temp4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 174, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_4);
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __pyx_t_1 = PyNumber_Add(__pyx_t_4, __pyx_v_temp5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __pyx_t_4 = PyNumber_Add(__pyx_t_1, __pyx_v_temp6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 174, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_4);
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __pyx_t_1 = PyNumber_Add(__pyx_t_4, __pyx_v_temp7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __pyx_t_4 = PyNumber_Add(__pyx_t_1, __pyx_v_temp8); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 174, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_4);
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __pyx_t_117 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_117 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 174, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __pyx_v_nF = __pyx_t_117;
+
+        /* "affinity_kimon.pyx":175
+ *                 temp8 = temp8*temp8
+ *                 nF = temp1 + temp2 + temp3 + temp4 + temp5 + temp6 + temp7 + temp8
+ *                 wkl = exp(-nF/var_I - d/var_X)             # <<<<<<<<<<<<<<
+ *                 if wkl > threshold:
+ *                     row.extend([k, l])
+ */
+        __pyx_t_117 = (-__pyx_v_nF);
+        if (unlikely(__pyx_v_var_I == 0)) {
+          PyErr_SetString(PyExc_ZeroDivisionError, "float division");
+          __PYX_ERR(0, 175, __pyx_L1_error)
+        }
+        if (unlikely(__pyx_v_var_X == 0)) {
+          PyErr_SetString(PyExc_ZeroDivisionError, "float division");
+          __PYX_ERR(0, 175, __pyx_L1_error)
+        }
+        __pyx_v_wkl = exp(((__pyx_t_117 / __pyx_v_var_I) - (__pyx_v_d / __pyx_v_var_X)));
+
+        /* "affinity_kimon.pyx":176
+ *                 nF = temp1 + temp2 + temp3 + temp4 + temp5 + temp6 + temp7 + temp8
+ *                 wkl = exp(-nF/var_I - d/var_X)
+ *                 if wkl > threshold:             # <<<<<<<<<<<<<<
+ *                     row.extend([k, l])
+ *                     col.extend([l, k])
+ */
+        __pyx_t_84 = ((__pyx_v_wkl > __pyx_v_threshold) != 0);
+        if (__pyx_t_84) {
+
+          /* "affinity_kimon.pyx":177
+ *                 wkl = exp(-nF/var_I - d/var_X)
+ *                 if wkl > threshold:
+ *                     row.extend([k, l])             # <<<<<<<<<<<<<<
+ *                     col.extend([l, k])
+ *                     data.extend([wkl, wkl])
+ */
+          __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_k); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 177, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_4);
+          __pyx_t_118 = __Pyx_ListComp_Append(__pyx_v_row, __pyx_t_4); if (unlikely(__pyx_t_118 == ((int)-1))) __PYX_ERR(0, 177, __pyx_L1_error)
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_l); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 177, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_4);
+          __pyx_t_119 = __Pyx_PyList_Append(__pyx_v_row, __pyx_t_4); if (unlikely(__pyx_t_119 == ((int)-1))) __PYX_ERR(0, 177, __pyx_L1_error)
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          (void)((__pyx_t_118 | __pyx_t_119));
+
+          /* "affinity_kimon.pyx":178
+ *                 if wkl > threshold:
+ *                     row.extend([k, l])
+ *                     col.extend([l, k])             # <<<<<<<<<<<<<<
+ *                     data.extend([wkl, wkl])
+ *     return data, row, col
+ */
+          __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_l); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 178, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_4);
+          __pyx_t_119 = __Pyx_ListComp_Append(__pyx_v_col, __pyx_t_4); if (unlikely(__pyx_t_119 == ((int)-1))) __PYX_ERR(0, 178, __pyx_L1_error)
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_k); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 178, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_4);
+          __pyx_t_118 = __Pyx_PyList_Append(__pyx_v_col, __pyx_t_4); if (unlikely(__pyx_t_118 == ((int)-1))) __PYX_ERR(0, 178, __pyx_L1_error)
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          (void)((__pyx_t_119 | __pyx_t_118));
+
+          /* "affinity_kimon.pyx":179
+ *                     row.extend([k, l])
+ *                     col.extend([l, k])
+ *                     data.extend([wkl, wkl])             # <<<<<<<<<<<<<<
+ *     return data, row, col
+ */
+          __pyx_t_4 = PyFloat_FromDouble(__pyx_v_wkl); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 179, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_4);
+          __pyx_t_118 = __Pyx_ListComp_Append(__pyx_v_data, __pyx_t_4); if (unlikely(__pyx_t_118 == ((int)-1))) __PYX_ERR(0, 179, __pyx_L1_error)
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __pyx_t_4 = PyFloat_FromDouble(__pyx_v_wkl); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 179, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_4);
+          __pyx_t_119 = __Pyx_PyList_Append(__pyx_v_data, __pyx_t_4); if (unlikely(__pyx_t_119 == ((int)-1))) __PYX_ERR(0, 179, __pyx_L1_error)
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          (void)((__pyx_t_118 | __pyx_t_119));
+
+          /* "affinity_kimon.pyx":176
+ *                 nF = temp1 + temp2 + temp3 + temp4 + temp5 + temp6 + temp7 + temp8
+ *                 wkl = exp(-nF/var_I - d/var_X)
+ *                 if wkl > threshold:             # <<<<<<<<<<<<<<
+ *                     row.extend([k, l])
+ *                     col.extend([l, k])
+ */
+        }
+
+        /* "affinity_kimon.pyx":157
+ *             temp2 = temp2*temp2
+ *             d = temp1 + temp2
+ *             if d < r:             # <<<<<<<<<<<<<<
+ *                 temp1 = abs(F[k,0] - F[l,0])
+ *                 temp1 = temp1*temp1
+ */
+      }
+    }
+  }
+
+  /* "affinity_kimon.pyx":180
+ *                     col.extend([l, k])
+ *                     data.extend([wkl, wkl])
+ *     return data, row, col             # <<<<<<<<<<<<<<
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 180, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_INCREF(__pyx_v_data);
+  __Pyx_GIVEREF(__pyx_v_data);
+  PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_v_data);
+  __Pyx_INCREF(__pyx_v_row);
+  __Pyx_GIVEREF(__pyx_v_row);
+  PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_v_row);
+  __Pyx_INCREF(__pyx_v_col);
+  __Pyx_GIVEREF(__pyx_v_col);
+  PyTuple_SET_ITEM(__pyx_t_4, 2, __pyx_v_col);
+  __pyx_r = __pyx_t_4;
+  __pyx_t_4 = 0;
+  goto __pyx_L0;
+
+  /* "affinity_kimon.pyx":108
+ *     return data, row, col
+ * 
+ * def affinity_multiscale(int n, int p, int q, double r, double var_I, double var_X, double threshold, double[:,:,:] sub_img):             # <<<<<<<<<<<<<<
+ * 
+ *     cdef int i, j, k, l
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
+  __Pyx_AddTraceback("affinity_kimon.affinity_multiscale", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XDECREF(__pyx_v_row);
+  __Pyx_XDECREF(__pyx_v_col);
+  __Pyx_XDECREF(__pyx_v_data);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_F, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_X, 1);
+  __Pyx_XDECREF(__pyx_v_temp4);
+  __Pyx_XDECREF(__pyx_v_temp5);
+  __Pyx_XDECREF(__pyx_v_temp6);
+  __Pyx_XDECREF(__pyx_v_temp7);
+  __Pyx_XDECREF(__pyx_v_temp8);
   __PYX_XDEC_MEMVIEW(&__pyx_v_sub_img, 1);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -19931,6 +21104,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_affinity_gray, __pyx_k_affinity_gray, sizeof(__pyx_k_affinity_gray), 0, 0, 1, 1},
   {&__pyx_n_s_affinity_kimon, __pyx_k_affinity_kimon, sizeof(__pyx_k_affinity_kimon), 0, 0, 1, 1},
   {&__pyx_kp_s_affinity_kimon_pyx, __pyx_k_affinity_kimon_pyx, sizeof(__pyx_k_affinity_kimon_pyx), 0, 0, 1, 0},
+  {&__pyx_n_s_affinity_multiscale, __pyx_k_affinity_multiscale, sizeof(__pyx_k_affinity_multiscale), 0, 0, 1, 1},
   {&__pyx_n_s_allocate_buffer, __pyx_k_allocate_buffer, sizeof(__pyx_k_allocate_buffer), 0, 0, 1, 1},
   {&__pyx_n_s_base, __pyx_k_base, sizeof(__pyx_k_base), 0, 0, 1, 1},
   {&__pyx_n_s_c, __pyx_k_c, sizeof(__pyx_k_c), 0, 0, 1, 1},
@@ -20012,6 +21186,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_temp1, __pyx_k_temp1, sizeof(__pyx_k_temp1), 0, 0, 1, 1},
   {&__pyx_n_s_temp2, __pyx_k_temp2, sizeof(__pyx_k_temp2), 0, 0, 1, 1},
   {&__pyx_n_s_temp3, __pyx_k_temp3, sizeof(__pyx_k_temp3), 0, 0, 1, 1},
+  {&__pyx_n_s_temp4, __pyx_k_temp4, sizeof(__pyx_k_temp4), 0, 0, 1, 1},
+  {&__pyx_n_s_temp5, __pyx_k_temp5, sizeof(__pyx_k_temp5), 0, 0, 1, 1},
+  {&__pyx_n_s_temp6, __pyx_k_temp6, sizeof(__pyx_k_temp6), 0, 0, 1, 1},
+  {&__pyx_n_s_temp7, __pyx_k_temp7, sizeof(__pyx_k_temp7), 0, 0, 1, 1},
+  {&__pyx_n_s_temp8, __pyx_k_temp8, sizeof(__pyx_k_temp8), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {&__pyx_n_s_threshold, __pyx_k_threshold, sizeof(__pyx_k_threshold), 0, 0, 1, 1},
   {&__pyx_kp_s_unable_to_allocate_array_data, __pyx_k_unable_to_allocate_array_data, sizeof(__pyx_k_unable_to_allocate_array_data), 0, 0, 1, 0},
@@ -20338,6 +21517,18 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__28);
   __pyx_codeobj__29 = (PyObject*)__Pyx_PyCode_New(8, 0, 22, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__28, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_affinity_kimon_pyx, __pyx_n_s_affinity_gray, 63, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__29)) __PYX_ERR(0, 63, __pyx_L1_error)
 
+  /* "affinity_kimon.pyx":108
+ *     return data, row, col
+ * 
+ * def affinity_multiscale(int n, int p, int q, double r, double var_I, double var_X, double threshold, double[:,:,:] sub_img):             # <<<<<<<<<<<<<<
+ * 
+ *     cdef int i, j, k, l
+ */
+  __pyx_tuple__30 = PyTuple_Pack(28, __pyx_n_s_n, __pyx_n_s_p, __pyx_n_s_q, __pyx_n_s_r, __pyx_n_s_var_I, __pyx_n_s_var_X, __pyx_n_s_threshold, __pyx_n_s_sub_img, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_k, __pyx_n_s_l, __pyx_n_s_wkl, __pyx_n_s_d, __pyx_n_s_nF, __pyx_n_s_temp1, __pyx_n_s_temp2, __pyx_n_s_temp3, __pyx_n_s_row, __pyx_n_s_col, __pyx_n_s_data, __pyx_n_s_F, __pyx_n_s_X, __pyx_n_s_temp4, __pyx_n_s_temp5, __pyx_n_s_temp6, __pyx_n_s_temp7, __pyx_n_s_temp8); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 108, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__30);
+  __Pyx_GIVEREF(__pyx_tuple__30);
+  __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(8, 0, 28, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_affinity_kimon_pyx, __pyx_n_s_affinity_multiscale, 108, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(0, 108, __pyx_L1_error)
+
   /* "View.MemoryView":286
  *         return self.name
  * 
@@ -20345,9 +21536,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * cdef strided = Enum("<strided and direct>") # default
  * cdef indirect = Enum("<strided and indirect>")
  */
-  __pyx_tuple__30 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct_or_indirect); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(2, 286, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__30);
-  __Pyx_GIVEREF(__pyx_tuple__30);
+  __pyx_tuple__32 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct_or_indirect); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(2, 286, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__32);
+  __Pyx_GIVEREF(__pyx_tuple__32);
 
   /* "View.MemoryView":287
  * 
@@ -20356,9 +21547,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * cdef indirect = Enum("<strided and indirect>")
  * 
  */
-  __pyx_tuple__31 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(2, 287, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__31);
-  __Pyx_GIVEREF(__pyx_tuple__31);
+  __pyx_tuple__33 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct); if (unlikely(!__pyx_tuple__33)) __PYX_ERR(2, 287, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__33);
+  __Pyx_GIVEREF(__pyx_tuple__33);
 
   /* "View.MemoryView":288
  * cdef generic = Enum("<strided and direct or indirect>")
@@ -20367,9 +21558,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * 
  */
-  __pyx_tuple__32 = PyTuple_Pack(1, __pyx_kp_s_strided_and_indirect); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(2, 288, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__32);
-  __Pyx_GIVEREF(__pyx_tuple__32);
+  __pyx_tuple__34 = PyTuple_Pack(1, __pyx_kp_s_strided_and_indirect); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(2, 288, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__34);
+  __Pyx_GIVEREF(__pyx_tuple__34);
 
   /* "View.MemoryView":291
  * 
@@ -20378,9 +21569,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * cdef indirect_contiguous = Enum("<contiguous and indirect>")
  * 
  */
-  __pyx_tuple__33 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_direct); if (unlikely(!__pyx_tuple__33)) __PYX_ERR(2, 291, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__33);
-  __Pyx_GIVEREF(__pyx_tuple__33);
+  __pyx_tuple__35 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_direct); if (unlikely(!__pyx_tuple__35)) __PYX_ERR(2, 291, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__35);
+  __Pyx_GIVEREF(__pyx_tuple__35);
 
   /* "View.MemoryView":292
  * 
@@ -20389,19 +21580,19 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * 
  */
-  __pyx_tuple__34 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_indirect); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(2, 292, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__34);
-  __Pyx_GIVEREF(__pyx_tuple__34);
+  __pyx_tuple__36 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_indirect); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(2, 292, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__36);
+  __Pyx_GIVEREF(__pyx_tuple__36);
 
   /* "(tree fragment)":1
  * def __pyx_unpickle_Enum(__pyx_type, long __pyx_checksum, __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
  */
-  __pyx_tuple__35 = PyTuple_Pack(5, __pyx_n_s_pyx_type, __pyx_n_s_pyx_checksum, __pyx_n_s_pyx_state, __pyx_n_s_pyx_PickleError, __pyx_n_s_pyx_result); if (unlikely(!__pyx_tuple__35)) __PYX_ERR(2, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__35);
-  __Pyx_GIVEREF(__pyx_tuple__35);
-  __pyx_codeobj__36 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__35, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_pyx_unpickle_Enum, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__36)) __PYX_ERR(2, 1, __pyx_L1_error)
+  __pyx_tuple__37 = PyTuple_Pack(5, __pyx_n_s_pyx_type, __pyx_n_s_pyx_checksum, __pyx_n_s_pyx_state, __pyx_n_s_pyx_PickleError, __pyx_n_s_pyx_result); if (unlikely(!__pyx_tuple__37)) __PYX_ERR(2, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__37);
+  __Pyx_GIVEREF(__pyx_tuple__37);
+  __pyx_codeobj__38 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__37, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_pyx_unpickle_Enum, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__38)) __PYX_ERR(2, 1, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -20415,6 +21606,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitGlobals(void) {
   __pyx_int_1 = PyInt_FromLong(1); if (unlikely(!__pyx_int_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_2 = PyInt_FromLong(2); if (unlikely(!__pyx_int_2)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_3 = PyInt_FromLong(3); if (unlikely(!__pyx_int_3)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_int_8 = PyInt_FromLong(8); if (unlikely(!__pyx_int_8)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_184977713 = PyInt_FromLong(184977713L); if (unlikely(!__pyx_int_184977713)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_neg_1 = PyInt_FromLong(-1); if (unlikely(!__pyx_int_neg_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   return 0;
@@ -20801,6 +21993,18 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_affinity_gray, __pyx_t_1) < 0) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
+  /* "affinity_kimon.pyx":108
+ *     return data, row, col
+ * 
+ * def affinity_multiscale(int n, int p, int q, double r, double var_I, double var_X, double threshold, double[:,:,:] sub_img):             # <<<<<<<<<<<<<<
+ * 
+ *     cdef int i, j, k, l
+ */
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_14affinity_kimon_5affinity_multiscale, NULL, __pyx_n_s_affinity_kimon); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 108, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_affinity_multiscale, __pyx_t_1) < 0) __PYX_ERR(0, 108, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
   /* "affinity_kimon.pyx":1
  * #cython: boundscheck=False, wraparound=False, nonecheck=False             # <<<<<<<<<<<<<<
  * 
@@ -20831,7 +22035,7 @@ if (!__Pyx_RefNanny) {
  * cdef strided = Enum("<strided and direct>") # default
  * cdef indirect = Enum("<strided and indirect>")
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__30, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 286, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__32, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 286, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_XGOTREF(generic);
   __Pyx_DECREF_SET(generic, __pyx_t_1);
@@ -20845,7 +22049,7 @@ if (!__Pyx_RefNanny) {
  * cdef indirect = Enum("<strided and indirect>")
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__31, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 287, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__33, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 287, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_XGOTREF(strided);
   __Pyx_DECREF_SET(strided, __pyx_t_1);
@@ -20859,7 +22063,7 @@ if (!__Pyx_RefNanny) {
  * 
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__32, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 288, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__34, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 288, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_XGOTREF(indirect);
   __Pyx_DECREF_SET(indirect, __pyx_t_1);
@@ -20873,7 +22077,7 @@ if (!__Pyx_RefNanny) {
  * cdef indirect_contiguous = Enum("<contiguous and indirect>")
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__33, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 291, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__35, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_XGOTREF(contiguous);
   __Pyx_DECREF_SET(contiguous, __pyx_t_1);
@@ -20887,7 +22091,7 @@ if (!__Pyx_RefNanny) {
  * 
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__34, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 292, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__36, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 292, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_XGOTREF(indirect_contiguous);
   __Pyx_DECREF_SET(indirect_contiguous, __pyx_t_1);
