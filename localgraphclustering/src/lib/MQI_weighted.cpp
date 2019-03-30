@@ -65,7 +65,7 @@ void graph<vtype,itype>::build_map_weighted(unordered_map<vtype, vtype>& R_map,
 
 template<typename vtype, typename itype>
 void graph<vtype,itype>::build_list_weighted(unordered_map<vtype, vtype>& R_map, unordered_map<vtype, vtype>& degree_map,
-    vtype src, vtype dest, itype A, itype C, double* degrees)
+    vtype src, vtype dest, double A, double C, double* degrees)
 {
     // replacing edge weight connecting two nodes on side A with A*deg
     for(auto R_iter = R_map.begin(); R_iter != R_map.end(); ++R_iter){

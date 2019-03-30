@@ -121,7 +121,7 @@ public:
     void build_map_weighted(unordered_map<vtype, vtype>& R_map,unordered_map<vtype, vtype>& degree_map,
                    vtype* R, vtype nR, double* degrees);
     void build_list_weighted(unordered_map<vtype, vtype>& R_map, unordered_map<vtype, vtype>& degree_map, vtype src, vtype dest, 
-                   itype a, itype c, double* degrees);
+                   double a, double c, double* degrees);
 
 
     //functions in proxl1PRaccel.cpp
