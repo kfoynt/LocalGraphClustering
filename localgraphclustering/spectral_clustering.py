@@ -17,7 +17,9 @@ def spectral_clustering(G, ref_nodes,
                         vol: float = 100,
                         phi: float = 0.5,
                         refine = None,
-                        method: str = "acl"):
+                        method: str = "acl",
+                        normalize: bool = True,
+                        normalized_objective: bool = True):
     """
     Provide a simple interface to do spectral based clustering.
 
@@ -58,6 +60,14 @@ def spectral_clustering(G, ref_nodes,
 
     Extra parameters for "l1reg" (optional)
     ----------------------------------------
+    
+    normalize: bool
+        Default = True
+        Normalize the output to be directly input into sweepcut routines.
+        
+    normalized_objective: bool
+        Default = True
+        Use normalized Laplacian in the objective function, works only for "method=l1reg" and "cpp=True"
 
     epsilon: float
         Default == 1.0e-2
@@ -96,7 +106,7 @@ def spectral_clustering(G, ref_nodes,
 
     if method == "acl" or method == "acl_weighted" or method == "l1reg" or method == "l1reg-rand":
         p = approximate_PageRank(G,ref_nodes,timeout = timeout, iterations = iterations, alpha = alpha,
-            rho = rho, epsilon = epsilon, method = method, ys = ys)
+            rho = rho, epsilon = epsilon, normalize = normalize, normalized_objective = normalized_objective, method = method, ys = ys)
     elif method == "nibble":
         p = PageRank_nibble(G,ref_nodes,vol = vol,phi = phi,epsilon = epsilon,iterations = iterations,timeout = timeout)
     elif method == "fiedler":
