@@ -73,7 +73,9 @@ void graph<vtype,itype>::build_list(unordered_map<vtype, vtype>& R_map, unordere
             if(R_map.count(v) > 0){
                 vtype v1 = got->second;
                 double w = A;
-                addEdge(u1, v1, w);
+                if (v1 > u1) {
+                    addEdge(u1, v1, w);
+                }
             }
         }
     }

@@ -66,6 +66,7 @@ public:
     void addEdge(vtype u, vtype v, double C);
     bool BFS(vtype s, vtype t, vtype V);
     double sendFlow(vtype u, double flow, vtype t, vector<vtype>& start, vector<pair<int,double>>& SnapShots);
+    //double sendFlow(vtype u, double flow, vtype t, vector<vtype>& start);
     pair<double,vtype> DinicMaxflow(vtype s, vtype t, vtype V, vector<bool>& mincut);
     void find_cut(vtype u, vector<bool>& mincut, vtype& length);
 
@@ -189,10 +190,10 @@ template<typename vtype, typename itype>
 void graph<vtype,itype>::addEdge(vtype u, vtype v, double C)
 {
     // Forward edge : 0 flow and C capacity
-    Edge<vtype,itype> p{v, 0, C, (itype)adj[v].size()};
+    Edge<vtype,itype> p{v, 0, C, adj[v].size()};
  
-    // Back edge : 0 flow and 0 capacity
-    Edge<vtype,itype> q{u, 0, 0, (itype)adj[u].size()};
+    // Back edge : 0 flow and C capacity
+    Edge<vtype,itype> q{u, 0, C, adj[u].size()};
  
     adj[u].push_back(p);
     adj[v].push_back(q); // reverse edge
