@@ -149,7 +149,7 @@ double graph<vtype,itype>::sendFlow(vtype init_u, double init_flow, vtype t, vec
 
 
 // template<typename vtype, typename itype>
-// double graph<vtype,itype>::sendFlow(vtype u, double flow, vtype t, vtype start[])
+// double graph<vtype,itype>::sendFlow(vtype u, double flow, vtype t, vector<vtype>& start)
 // {
 //     //cout << u << " " << start[u] << endl;
 //     // Sink reached
@@ -235,6 +235,12 @@ void graph<vtype,itype>::find_cut(vtype u, vector<bool>& mincut, vtype& length)
 template<typename vtype, typename itype>
 pair<double,vtype> graph<vtype,itype>::DinicMaxflow(vtype s, vtype t, vtype V, vector<bool>& mincut)
 {
+    for(int i = 0; i < V; i ++){
+        for(int j = 0; j < adj[i].size(); j ++){
+            Edge<vtype,itype> &e = adj[i][j]; 
+            //cout << i << " " << e.v << " " << e.C << " " << e.rev << " " << adj[e.v][e.rev].v << " " << adj[e.v][e.rev].C << " " << adj[e.v][e.rev].rev << endl;
+        }
+    }
     // Corner case
     if (s == t)
         return make_pair(-1,0);
@@ -251,13 +257,13 @@ pair<double,vtype> graph<vtype,itype>::DinicMaxflow(vtype s, vtype t, vtype V, v
         // from V { 0 to V }
         fill(start.begin(),start.end(),0);
         // while flow is not zero in graph from S to D
-        double flow = sendFlow(s, INT_MAX, t, start, SnapShots);
-        //cout << flow << endl;
+        double flow = sendFlow(s, numeric_limits<double>::max(), t, start, SnapShots);
         while (flow > 0) {
         	// Add path flow to overall flow
             total += flow;
-            flow = sendFlow(s, INT_MAX, t, start, SnapShots);
+            flow = sendFlow(s, numeric_limits<double>::max(), t, start, SnapShots);
         }
+        //cout << "curr flow: " << total << endl;
         //cout << "BFS" << endl;
     }
     //cout << "out" << endl;
