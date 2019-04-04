@@ -190,10 +190,10 @@ template<typename vtype, typename itype>
 void graph<vtype,itype>::addEdge(vtype u, vtype v, double C)
 {
     // Forward edge : 0 flow and C capacity
-    Edge<vtype,itype> p{v, 0, C, adj[v].size()};
+    Edge<vtype,itype> p{v, 0, C, (itype)adj[v].size()};
  
     // Back edge : 0 flow and C capacity
-    Edge<vtype,itype> q{u, 0, C, adj[u].size()};
+    Edge<vtype,itype> q{u, 0, C, (itype)adj[u].size()};
  
     adj[u].push_back(p);
     adj[v].push_back(q); // reverse edge
