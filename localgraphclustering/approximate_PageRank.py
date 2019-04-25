@@ -21,7 +21,7 @@ def approximate_PageRank(G,
     Computes PageRank vector locally.
     --------------------------------
 
-    When method is "acl":
+    When method is "acl" or "acl_weighted":
 
     Uses the Andersen Chung and Lang (ACL) Algorithm. For details please refer to:
     R. Andersen, F. Chung and K. Lang. Local Graph Partitioning using PageRank Vectors
@@ -95,7 +95,7 @@ def approximate_PageRank(G,
         default = True
         Use the faster C++ version or not.
 
-    Extra parameters for "l1reg" (optional)
+    Extra parameters for "l1reg" or "l1reg-rand" (optional)
     -------------------------------------------
 
     epsilon: float64
@@ -115,7 +115,7 @@ def approximate_PageRank(G,
     An np.ndarray (1D embedding) of the nodes.
     """
 
-    if G._weighted and (method != "acl_weighted" or method != "l1reg-rand"):
+    if G._weighted and method not in ["acl_weighted","l1reg-rand","l1reg"]:
         warnings.warn("The weights of the graph will be discarded. Use approximate_PageRank_weighted or l1reg-rand instead if you want to keep the edge weights.")
     if method == "acl":
         #print("Uses the Andersen Chung and Lang (ACL) Algorithm.")
@@ -169,4 +169,4 @@ def approximate_PageRank(G,
                 it += 1
         return (idx,vals)
     else:
-        raise Exception("Unknown method, available methods are \"acl\" or \"acl_weighted\" or \"l1reg\".")
+        raise Exception("Unknown method, available methods are \"acl\" or \"acl_weighted\" or \"l1reg\" or \"l1reg-rand\".")

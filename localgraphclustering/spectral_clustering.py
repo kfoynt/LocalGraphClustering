@@ -36,9 +36,10 @@ def spectral_clustering(G, ref_nodes,
         Which method to use for the nodes embedding.
         Options: "acl", "l1reg", "l1reg-rand", "nibble", "fiedler", "fiedler_local"
 
-    refine:
+    refine: function handler
+        An extra function to refine your cluster, must be in the format of "refine(GraphLocal,list)".
 
-    Extra parameters for "acl" and "l1reg" (optional)
+    Extra parameters for "acl", "acl_weighted", "l1reg", "l1reg-rand" (optional)
     -------------------------------------------------
 
     alpha: float
@@ -58,7 +59,7 @@ def spectral_clustering(G, ref_nodes,
         Default = 100
         Maximum time in seconds
 
-    Extra parameters for "l1reg" (optional)
+    Extra parameters for "l1reg" or "l1reg-rand" (optional)
     ----------------------------------------
     
     normalize: bool
@@ -116,7 +117,7 @@ def spectral_clustering(G, ref_nodes,
     elif method == "fiedler_local":
         p = fiedler_local(G,ref_nodes)[0]
     else:
-        raise Exception("Unknown method, available methods are \"acl\", \"acl_weighted\", \"l1reg\", \"nibble\", \"fiedler\", \"fiedler_local\".")
+        raise Exception("Unknown method, available methods are \"acl\", \"acl_weighted\", \"l1reg\", \"l1reg-rand\", \"nibble\", \"fiedler\", \"fiedler_local\".")
 
     output = sweep_cut(G,p)
 
