@@ -521,8 +521,6 @@ class NCPData:
         the same with or without deep.
 
         """
-#         if self.graph._weighted:
-#             method="acl_weighted"
         
         if len(methodname_prefix) > 0:
             methodname = methodname_prefix + "_" + method
@@ -560,7 +558,9 @@ class NCPData:
             for rho in rholist:
                 self.add_localmin_samples(
                     method=partialfunc(
-                        spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,method=method,normalize=normalize,normalized_objective=normalized_objective),
+                        spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,
+                        method=method,normalize=normalize,
+                        normalized_objective=normalized_objective),
                     methodname="%s_localmin:rho=%.0e"%(methodname, rho*10),
                     neighborhoods=True,
                     ratio=localmin_ratio,
@@ -575,7 +575,9 @@ class NCPData:
                 kwargs['ratio'] = myratio
             self.add_random_node_samples(
                 method=partialfunc(
-                    spectral_clustering,**spectral_args,alpha=alpha,rho=rho,method=method,normalize=normalize,normalized_objective=normalized_objective),
+                    spectral_clustering,**spectral_args,alpha=alpha,rho=rho,
+                    method=method,normalize=normalize,
+                    normalized_objective=normalized_objective),
                 methodname="%s:rho=%.0e"%(methodname, rho),
                 timeout=timeout/(nruns*len(rholist)), **kwargs)
             log.log("random_node rho=%.1e"%(rho))
@@ -587,7 +589,8 @@ class NCPData:
                 kwargs['ratio'] = myratio
             self.add_random_neighborhood_samples(
                 method=partialfunc(
-                    spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,method=method,normalize=normalize,normalized_objective=normalized_objective),
+                    spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,
+                    method=method,normalize=normalize,normalized_objective=normalized_objective),
                 methodname="%s_neighborhoods:rho=%.0e"%(methodname, rho*10),
                 timeout=timeout/(len(rholist)), **kwargs)
             log.log("random_neighborhood rho=%.1e"%(rho))
@@ -616,7 +619,8 @@ class NCPData:
                 neighborhoods=False, neighborhood_ratio=neighborhood_ratio,
                 random_neighborhoods=random_neighborhoods,
                 timeout = deeptimeout, spectral_args=spectral_args, deep=False,
-                methodname_prefix=deepmethodname_prefix,normalize=normalize,normalized_objective=normalized_objective,
+                method=method, methodname_prefix=deepmethodname_prefix,
+                normalize=normalize,normalized_objective=normalized_objective,
                 **kwargs)
 
         return self
