@@ -19,7 +19,8 @@ def spectral_clustering(G, ref_nodes,
                         refine = None,
                         method: str = "acl",
                         normalize: bool = True,
-                        normalized_objective: bool = True):
+                        normalized_objective: bool = True,
+                        cpp: bool = True):
     """
     Provide a simple interface to do spectral based clustering.
 
@@ -69,6 +70,10 @@ def spectral_clustering(G, ref_nodes,
     normalized_objective: bool
         Default = True
         Use normalized Laplacian in the objective function, works only for "method=l1reg" and "cpp=True"
+        
+    cpp: bool
+        Default = True
+        If true calls the cpp code for approximate pagerank, otherwise, it calls the python code.
 
     epsilon: float
         Default == 1.0e-2
@@ -107,9 +112,9 @@ def spectral_clustering(G, ref_nodes,
 
     if method == "acl" or method == "acl_weighted" or method == "l1reg" or method == "l1reg-rand":
         p = approximate_PageRank(G,ref_nodes,timeout = timeout, iterations = iterations, alpha = alpha,
-            rho = rho, epsilon = epsilon, normalize = normalize, normalized_objective = normalized_objective, method = method, ys = ys)
+            rho = rho, epsilon = epsilon, normalize = normalize, normalized_objective = normalized_objective, method = method, ys = ys, cpp = cpp)
     elif method == "nibble":
-        p = PageRank_nibble(G,ref_nodes,vol = vol,phi = phi,epsilon = epsilon,iterations = iterations,timeout = timeout)
+        p = PageRank_nibble(G,ref_nodes,vol = vol,phi = phi,epsilon = epsilon,iterations = iterations,timeout = timeout, cpp = cpp)
     elif method == "fiedler":
         if ref_nodes is not None:
             warnings.warn("ref_nodes will be discarded since we are computing a global fiedler vector.")

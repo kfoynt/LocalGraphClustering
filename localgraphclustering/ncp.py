@@ -496,6 +496,7 @@ class NCPData:
                        methodname_prefix: str = "ncpapr",
                        normalize: bool = True,
                        normalized_objective: bool = True,
+                       cpp: bool = True,
                        **kwargs):
         """ Compute the NCP via an approximate PageRank computation.
 
@@ -560,7 +561,7 @@ class NCPData:
                     method=partialfunc(
                         spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,
                         method=method,normalize=normalize,
-                        normalized_objective=normalized_objective),
+                        normalized_objective=normalized_objective,cpp=cpp),
                     methodname="%s_localmin:rho=%.0e"%(methodname, rho*10),
                     neighborhoods=True,
                     ratio=localmin_ratio,
@@ -577,7 +578,7 @@ class NCPData:
                 method=partialfunc(
                     spectral_clustering,**spectral_args,alpha=alpha,rho=rho,
                     method=method,normalize=normalize,
-                    normalized_objective=normalized_objective),
+                    normalized_objective=normalized_objective,cpp=cpp),
                 methodname="%s:rho=%.0e"%(methodname, rho),
                 timeout=timeout/(nruns*len(rholist)), **kwargs)
             log.log("random_node rho=%.1e"%(rho))
@@ -590,7 +591,7 @@ class NCPData:
             self.add_random_neighborhood_samples(
                 method=partialfunc(
                     spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,
-                    method=method,normalize=normalize,normalized_objective=normalized_objective),
+                    method=method,normalize=normalize,normalized_objective=normalized_objective,cpp=cpp),
                 methodname="%s_neighborhoods:rho=%.0e"%(methodname, rho*10),
                 timeout=timeout/(len(rholist)), **kwargs)
             log.log("random_neighborhood rho=%.1e"%(rho))

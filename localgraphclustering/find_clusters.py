@@ -22,7 +22,8 @@ def compute_embedding(g,
                       normalize,
                       normalized_objective,
                       epsilon,
-                      iterations):
+                      iterations,
+                      cpp):
     
     ref_node = [node]
 
@@ -37,7 +38,7 @@ def compute_embedding(g,
     
         for rho in list(reversed(sampled_rhos)):
 
-            output = approximate_PageRank(g,ref_node,method=localmethod,alpha=alpha,rho=rho,normalize=normalize,normalized_objective=normalized_objective,epsilon=epsilon,iterations=iterations) 
+            output = approximate_PageRank(g,ref_node,cpp=cpp,method=localmethod,alpha=alpha,rho=rho,normalize=normalize,normalized_objective=normalized_objective,epsilon=epsilon,iterations=iterations) 
 
             conductance = g.compute_conductance(output[0])
 
@@ -58,7 +59,8 @@ def compute_embedding_and_improve(g,
                       normalize,
                       normalized_objective,
                       epsilon,
-                      iterations):
+                      iterations,
+                      cpp):
     
     ref_node = [node]
 
@@ -73,7 +75,7 @@ def compute_embedding_and_improve(g,
     
         for rho in list(reversed(sampled_rhos)):
 
-            output = approximate_PageRank(g,ref_node,method=localmethod,alpha=alpha,rho=rho,normalize=normalize,normalized_objective=normalized_objective,epsilon=epsilon,iterations=iterations) 
+            output = approximate_PageRank(g,ref_node,cpp=cpp,method=localmethod,alpha=alpha,rho=rho,normalize=normalize,normalized_objective=normalized_objective,epsilon=epsilon,iterations=iterations) 
 
             conductance = g.compute_conductance(output[0])
 
@@ -93,6 +95,7 @@ def find_clusters(g,
                     localmethod: str = 'l1reg-rand', 
                     normalize: bool = False, 
                     normalized_objective: bool = False, 
+                    cpp: bool = True,
                     epsilon: float = 1.0e-2, 
                     iterations: int = 10000000,
                     nsamples_from_rho: int = 50,
@@ -156,6 +159,10 @@ def find_clusters(g,
     normalized_objective: bool
         Default = True
         Use normalized Laplacian in the objective function, works only for "method=l1reg" and "cpp=True"
+        
+    cpp: bool
+        Default = True
+        If true calls the cpp code for approximate pagerank, otherwise, it calls the python code.
 
     linkage: str
         Default = 'average'
@@ -190,9 +197,9 @@ def find_clusters(g,
 #     is_weighted = g._weighted
     
     if njobs > 1:
-        results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations) for node in range(n))
+        results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in range(n))
     else:
-        results =[compute_embedding(g,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,alpha,normalize,normalized_objective,epsilon,iterations) for node in range(n)]
+        results =[compute_embedding(g,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,alpha,normalize,normalized_objective,epsilon,iterations,cpp) for node in range(n)]
         
     sum_ = 0
     JA = [0]
@@ -223,6 +230,7 @@ def compute_all_embeddings_and_distances(g,
                     localmethod: str = 'l1reg-rand', 
                     normalize: bool = False, 
                     normalized_objective: bool = False, 
+                    cpp: bool = True,
                     epsilon: float = 1.0e-2, 
                     iterations: int = 10000000,
                     nsamples_from_rho: int = 50,
@@ -281,6 +289,10 @@ def compute_all_embeddings_and_distances(g,
         Default = True
         Use normalized Laplacian in the objective function, works only for "method=l1reg" and "cpp=True"
         
+    cpp: bool
+        Default = True
+        If true calls the cpp code for approximate pagerank, otherwise, it calls the python code.
+        
     metric: str
         Default = 'euclidean'
         Metric for measuring distances among nodes.
@@ -310,9 +322,9 @@ def compute_all_embeddings_and_distances(g,
 #     is_weighted = g._weighted
     
     if njobs > 1:
-        results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations) for node in range(n))
+        results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in range(n))
     else:
-        results =[compute_embedding(g,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations) for node in range(n)]
+        results =[compute_embedding(g,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in range(n)]
         
     sum_ = 0
     JA = [0]
@@ -381,6 +393,7 @@ def graph_segmentation(g,
                     localmethod: str = 'l1reg-rand', 
                     normalize: bool = False, 
                     normalized_objective: bool = False, 
+                    cpp: bool = True,
                     epsilon: float = 1.0e-2, 
                     iterations: int = 10000000,
                     nsamples_from_rho: int = 50,
@@ -438,6 +451,10 @@ def graph_segmentation(g,
         Default = True
         Use normalized Laplacian in the objective function, works only for "method=l1reg" and "cpp=True"
         
+    cpp: bool
+        Default = True
+        If true calls the cpp code for approximate pagerank, otherwise, it calls the python code.
+        
     njobs: int
         Default = 1
         Number of jobs to be run in parallel
@@ -483,12 +500,12 @@ def graph_segmentation(g,
             select_from = list(range(g_copy._num_vertices))
             ref_nodes = random.sample(select_from, min(how_many_in_parallel,len(select_from)))
             
-            results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g_copy,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations) for node in ref_nodes)
+            results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g_copy,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in ref_nodes)
         else:
             select_from = list(range(g_copy._num_vertices))
             ref_nodes = random.sample(select_from, njobs)
             
-            results =[compute_embedding(g_copy,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations) for node in ref_nodes]
+            results =[compute_embedding(g_copy,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in ref_nodes]
     
         union_sets_to_remove = set()
         for res in results:
@@ -522,6 +539,7 @@ def graph_segmentation_with_improve(g,
                     localmethod: str = 'l1reg-rand', 
                     normalize: bool = False, 
                     normalized_objective: bool = False, 
+                    cpp: bool = True,
                     epsilon: float = 1.0e-2, 
                     iterations: int = 10000000,
                     nsamples_from_rho: int = 50,
@@ -579,6 +597,10 @@ def graph_segmentation_with_improve(g,
         Default = True
         Use normalized Laplacian in the objective function, works only for "method=l1reg" and "cpp=True"
         
+    cpp: bool
+        Default = True
+        If true calls the cpp code for approximate pagerank, otherwise, it calls the python code.
+        
     njobs: int
         Default = 1
         Number of jobs to be run in parallel
@@ -624,12 +646,12 @@ def graph_segmentation_with_improve(g,
             select_from = list(range(g_copy._num_vertices))
             ref_nodes = random.sample(select_from, min(how_many_in_parallel,len(select_from)))
             
-            results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding_and_improve)(g_copy,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations) for node in ref_nodes)
+            results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding_and_improve)(g_copy,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in ref_nodes)
         else:
             select_from = list(range(g_copy._num_vertices))
             ref_nodes = random.sample(select_from, njobs)
             
-            results =[compute_embedding_and_improve(g_copy,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations) for node in ref_nodes]
+            results =[compute_embedding_and_improve(g_copy,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in ref_nodes]
     
         union_sets_to_remove = set()
         for res in results:
