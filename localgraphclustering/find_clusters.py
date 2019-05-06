@@ -100,7 +100,8 @@ def find_clusters(g,
                     iterations: int = 10000000,
                     nsamples_from_rho: int = 50,
                     nsamples_from_alpha: int = 50,
-                    linkage: str = 'average', 
+                    linkage: str = 'average',
+                    norm_type: int = 2,
                     njobs: int = 1, 
                     prefer: str = 'threads', 
                     backend: str = 'multiprocessing',
@@ -176,6 +177,10 @@ def find_clusters(g,
         For details check:
         https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise_distances.html
         
+    norm_type: int
+        Default = 2
+        Norm for normalization of the embeddings.
+        
     njobs: int
         Default = 1
         Number of jobs to be run in parallel
@@ -206,7 +211,7 @@ def find_clusters(g,
     IA = []
     A  = []
     for data in results:
-        vec = data[1]/np.linalg.norm(data[1],2)
+        vec = data[1]/np.linalg.norm(data[1],norm_type)
         how_many = len(data[0])
         sum_ += how_many
         JA.append(sum_)
@@ -224,7 +229,7 @@ def find_clusters(g,
     
     return labels 
 
-def compute_all_embeddings_and_distances(g, 
+def compute_all_embeddings(g, 
                     rho_list, 
                     alpha_list,
                     localmethod: str = 'l1reg-rand', 
@@ -235,6 +240,7 @@ def compute_all_embeddings_and_distances(g,
                     iterations: int = 10000000,
                     nsamples_from_rho: int = 50,
                     nsamples_from_alpha: int = 50,
+                    norm_type: int = 2,
                     njobs: int = 1, 
                     prefer: str = 'threads', 
                     backend: str = 'multiprocessing',
@@ -293,11 +299,9 @@ def compute_all_embeddings_and_distances(g,
         Default = True
         If true calls the cpp code for approximate pagerank, otherwise, it calls the python code.
         
-    metric: str
-        Default = 'euclidean'
-        Metric for measuring distances among nodes.
-        For details check:
-        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise_distances.html
+    norm_type: int
+        Default = 2
+        Norm for normalization of the embeddings.
         
     njobs: int
         Default = 1
@@ -312,9 +316,6 @@ def compute_all_embeddings_and_distances(g,
     X: csc matrix
     The embeddings matrix. Each row corresponds to an embedding of a node. 
     
-    Z: 2D np.ndarray
-    The pairwise distance matrix Z. For example, component Z[i,j]
-    is the distance between nodes i and j.
     """
     
     n = g._num_vertices
@@ -331,7 +332,7 @@ def compute_all_embeddings_and_distances(g,
     IA = []
     A  = []
     for data in results:
-        vec = data[1]/np.linalg.norm(data[1],2)
+        vec = data[1]/np.linalg.norm(data[1],norm_type)
         how_many = len(data[0])
         sum_ += how_many
         JA.append(sum_)
@@ -342,9 +343,9 @@ def compute_all_embeddings_and_distances(g,
     
     X = X.transpose().tocsr()
     
-    Z = pairwise_distances(X, metric=metric, n_jobs=njobs)
+#     Z = pairwise_distances(X, metric=metric, n_jobs=njobs)
     
-    return X, Z
+    return X
 
 def compute_clusters_given_distance(nclusters,Z,linkage: str = 'average'):
     """
@@ -678,7 +679,7 @@ def graph_segmentation_with_improve(g,
                 ct += 1
             return labels, info
         
-def compute_embeddings_and_distances_from_region_adjacency(g,info, metric='euclidean', n_jobs=1):
+def compute_embeddings_and_distances_from_region_adjacency(g,info, metric='euclidean', norm_type = 2, n_jobs=1):
     """
     This method runs local graph clustering for each node in the region adjacency graph.
     Returns the embeddings for each node in a matrix X. Each row corresponds to an embedding
@@ -704,6 +705,11 @@ def compute_embeddings_and_distances_from_region_adjacency(g,info, metric='eucli
         For details check:
         https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise_distances.html
         
+        
+    norm_type: int
+        Default = 2
+        Norm for normalization of the embeddings.
+        
     njobs: int
         Default = 1
         Number of jobs to be run in parallel
@@ -725,7 +731,7 @@ def compute_embeddings_and_distances_from_region_adjacency(g,info, metric='eucli
     A  = []
 
     for data in info:
-        vec = data[1]/np.linalg.norm(data[1],2)
+        vec = data[1]/np.linalg.norm(data[1],norm_type)
         how_many = len(data[0])
         sum_ += how_many
         JA.append(sum_)
