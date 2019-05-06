@@ -21,6 +21,7 @@ from .triangleclusters import triangleclusters
 from .neighborhoodmin import neighborhoodmin
 from .find_clusters import find_clusters
 from .find_clusters import compute_all_embeddings
+from .find_clusters import normalize_embeddings
 from .find_clusters import compute_clusters_given_distance
 from .find_clusters import graph_segmentation
 from .find_clusters import compute_clusters_from_region_adjacency

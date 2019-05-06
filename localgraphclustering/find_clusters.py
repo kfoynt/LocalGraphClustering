@@ -240,16 +240,13 @@ def compute_all_embeddings(g,
                     iterations: int = 10000000,
                     nsamples_from_rho: int = 50,
                     nsamples_from_alpha: int = 50,
-                    norm_type: int = 2,
                     njobs: int = 1, 
                     prefer: str = 'threads', 
-                    backend: str = 'multiprocessing',
-                    metric: str ='euclidean'):
+                    backend: str = 'multiprocessing'):
     """
     This method runs local graph clustering for each node in the graph in parallel.
-    Returns the embeddings for each node in a matrix X. Each row corresponds to an embedding
-    of a node. It also returns the pairwise distance matrix Z. For example, component Z[i,j]
-    is the distance between nodes i and j.
+    Returns the embeddings for each node in a list. Each element of the list corresponds to an embedding
+    of a node.
 
     Parameters
     ----------
@@ -299,10 +296,6 @@ def compute_all_embeddings(g,
         Default = True
         If true calls the cpp code for approximate pagerank, otherwise, it calls the python code.
         
-    norm_type: int
-        Default = 2
-        Norm for normalization of the embeddings.
-        
     njobs: int
         Default = 1
         Number of jobs to be run in parallel
@@ -313,9 +306,8 @@ def compute_all_embeddings(g,
     Returns
     -------
 
-    X: csc matrix
-    The embeddings matrix. Each row corresponds to an embedding of a node. 
-    
+    embeddings: list of arrays
+        Each element corresponds to an embedding of a node. 
     """
     
     n = g._num_vertices
@@ -323,15 +315,47 @@ def compute_all_embeddings(g,
 #     is_weighted = g._weighted
     
     if njobs > 1:
-        results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in range(n))
+        embeddings = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in range(n))
     else:
-        results =[compute_embedding(g,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in range(n)]
+        embeddings =[compute_embedding(g,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in range(n)]
+    
+    return embeddings
+
+def normalize_embeddings(g, embeddings, 
+                    norm_type: int = 2):
+    """
+    Normalize the embeddings.
+
+    Parameters
+    ----------
+
+    g: GraphLocal
+
+    embeddings: list of arrays
+        Each element corresponds to an embedding of a node.
         
+
+    Parameters (optional)
+    ---------------------
+        
+    norm_type: int
+        Default = 2
+        Norm for normalization of the embeddings.
+
+    Returns
+    -------
+
+    X: csc matrix
+    The embeddings matrix. Each row corresponds to an embedding of a node. 
+    
+    """
+    n = g._num_vertices
+    
     sum_ = 0
     JA = [0]
     IA = []
     A  = []
-    for data in results:
+    for data in embeddings:
         vec = data[1]/np.linalg.norm(data[1],norm_type)
         how_many = len(data[0])
         sum_ += how_many
