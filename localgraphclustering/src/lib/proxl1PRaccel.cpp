@@ -107,7 +107,6 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
     for(vtype i = 0; i < n; i ++){
         cout << dsinv[i] << endl;
     }
-
     cout << "a" << endl;
     for(vtype i = 0; i < 8; i ++){
         cout << a[i] << endl;
@@ -284,7 +283,6 @@ vtype graph<vtype,itype>::proxl1PRaccel_unnormalized(double alpha, double rho, v
     for(vtype i = 0; i < n; i ++){
         cout << dsinv[i] << endl;
     }
-
     cout << "a" << endl;
     for(vtype i = 0; i < 8; i ++){
         cout << a[i] << endl;
