@@ -107,7 +107,6 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
     for(vtype i = 0; i < n; i ++){
         cout << dsinv[i] << endl;
     }
-
     cout << "a" << endl;
     for(vtype i = 0; i < 8; i ++){
         cout << a[i] << endl;
@@ -227,10 +226,6 @@ vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtyp
         p[i] = abs(q[i])*ds[i];
     }
     
-    for (vtype i = 0; i < n; ++i) {
-        cout << "grad[" << i << "]: " << grad[i] << endl;
-    }
-    
     //cout << "max y: " << *max_element(y,y+n) << " min y: " << *min_element(y,y+n) << endl;
     //cout << "max grad: " << *max_element(grad,grad+n) << " min grad: " << *min_element(grad,grad+n) << endl;
     
@@ -288,7 +283,6 @@ vtype graph<vtype,itype>::proxl1PRaccel_unnormalized(double alpha, double rho, v
     for(vtype i = 0; i < n; i ++){
         cout << dsinv[i] << endl;
     }
-
     cout << "a" << endl;
     for(vtype i = 0; i < 8; i ++){
         cout << a[i] << endl;

@@ -66,6 +66,7 @@ public:
     void addEdge(vtype u, vtype v, double C);
     bool BFS(vtype s, vtype t, vtype V);
     double sendFlow(vtype u, double flow, vtype t, vector<vtype>& start, vector<pair<int,double>>& SnapShots);
+    //double sendFlow(vtype u, double flow, vtype t, vector<vtype>& start);
     pair<double,vtype> DinicMaxflow(vtype s, vtype t, vtype V, vector<bool>& mincut);
     void find_cut(vtype u, vector<bool>& mincut, vtype& length);
 
@@ -121,7 +122,7 @@ public:
     void build_map_weighted(unordered_map<vtype, vtype>& R_map,unordered_map<vtype, vtype>& degree_map,
                    vtype* R, vtype nR, double* degrees);
     void build_list_weighted(unordered_map<vtype, vtype>& R_map, unordered_map<vtype, vtype>& degree_map, vtype src, vtype dest, 
-                   itype a, itype c, double* degrees);
+                   double a, double c, double* degrees);
 
 
     //functions in proxl1PRaccel.cpp
@@ -191,8 +192,8 @@ void graph<vtype,itype>::addEdge(vtype u, vtype v, double C)
     // Forward edge : 0 flow and C capacity
     Edge<vtype,itype> p{v, 0, C, (itype)adj[v].size()};
  
-    // Back edge : 0 flow and 0 capacity
-    Edge<vtype,itype> q{u, 0, 0, (itype)adj[u].size()};
+    // Back edge : 0 flow and C capacity
+    Edge<vtype,itype> q{u, 0, C, (itype)adj[u].size()};
  
     adj[u].push_back(p);
     adj[v].push_back(q); // reverse edge

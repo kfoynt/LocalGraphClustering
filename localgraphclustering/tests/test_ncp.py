@@ -62,9 +62,9 @@ def test_ncp_crd():
     G = load_example_graph()
     df = lgc.NCPData(G).crd(ratio=1)
 
-def test_ncp_clique():
+def test_ncp_grid():
     import networkx as nx
-    K10 = nx.complete_graph(10)
+    K10 = nx.grid_graph(dim=[10,10])
     G = lgc.GraphLocal().from_networkx(K10)
     ncp = lgc.NCPData(G).approxPageRank()
     df = ncp.as_data_frame()

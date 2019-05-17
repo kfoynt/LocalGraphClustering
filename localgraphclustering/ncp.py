@@ -98,7 +98,7 @@ def ncp_experiment(ncpdata,R,func,method_stats):
     S = func(ncpdata.graph, R)[0]
     dt = time.time() - start
 
-    if len(S) > 0:
+    if len(S) > 0 and sum(ncpdata.graph.d[S]) < ncpdata.graph.vol_G/2:
         output_stats = ncpdata.graph.set_scores(S)
         for F in ncpdata.set_funcs: # build the list of keys for set_funcs
             output_stats.update(F(ncpdata.graph, S))
@@ -505,6 +505,9 @@ class NCPData:
                        deep: bool = False,
                        method = "acl",
                        methodname_prefix: str = "ncpapr",
+                       normalize: bool = True,
+                       normalized_objective: bool = True,
+                       cpp: bool = True,
                        **kwargs):
         """ Compute the NCP via an approximate PageRank computation.
 
@@ -530,8 +533,6 @@ class NCPData:
         the same with or without deep.
 
         """
-#         if self.graph._weighted:
-#             method="acl_weighted"
         
         if len(methodname_prefix) > 0:
             methodname = methodname_prefix + "_" + method
@@ -569,7 +570,9 @@ class NCPData:
             for rho in rholist:
                 self.add_localmin_samples(
                     method=partialfunc(
-                        spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,method=method),
+                        spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,
+                        method=method,normalize=normalize,
+                        normalized_objective=normalized_objective,cpp=cpp),
                     methodname="%s_localmin:rho=%.0e"%(methodname, rho*10),
                     neighborhoods=True,
                     ratio=localmin_ratio,
@@ -584,7 +587,9 @@ class NCPData:
                 kwargs['ratio'] = myratio
             self.add_random_node_samples(
                 method=partialfunc(
-                    spectral_clustering,**spectral_args,alpha=alpha,rho=rho,method=method),
+                    spectral_clustering,**spectral_args,alpha=alpha,rho=rho,
+                    method=method,normalize=normalize,
+                    normalized_objective=normalized_objective,cpp=cpp),
                 methodname="%s:rho=%.0e"%(methodname, rho),
                 timeout=timeout/(nruns*len(rholist)), **kwargs)
             log.log("random_node rho=%.1e"%(rho))
@@ -596,7 +601,8 @@ class NCPData:
                 kwargs['ratio'] = myratio
             self.add_random_neighborhood_samples(
                 method=partialfunc(
-                    spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,method=method),
+                    spectral_clustering,**spectral_args,alpha=alpha,rho=rho*10,
+                    method=method,normalize=normalize,normalized_objective=normalized_objective,cpp=cpp),
                 methodname="%s_neighborhoods:rho=%.0e"%(methodname, rho*10),
                 timeout=timeout/(len(rholist)), **kwargs)
             log.log("random_neighborhood rho=%.1e"%(rho))
@@ -625,7 +631,8 @@ class NCPData:
                 neighborhoods=False, neighborhood_ratio=neighborhood_ratio,
                 random_neighborhoods=random_neighborhoods,
                 timeout = deeptimeout, spectral_args=spectral_args, deep=False,
-                methodname_prefix=deepmethodname_prefix,
+                method=method, methodname_prefix=deepmethodname_prefix,
+                normalize=normalize,normalized_objective=normalized_objective,
                 **kwargs)
 
         return self

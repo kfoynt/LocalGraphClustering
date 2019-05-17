@@ -17,7 +17,10 @@ def spectral_clustering(G, ref_nodes,
                         vol: float = 100,
                         phi: float = 0.5,
                         refine = None,
-                        method: str = "acl"):
+                        method: str = "acl",
+                        normalize: bool = True,
+                        normalized_objective: bool = True,
+                        cpp: bool = True):
     """
     Provide a simple interface to do spectral based clustering.
 
@@ -34,9 +37,10 @@ def spectral_clustering(G, ref_nodes,
         Which method to use for the nodes embedding.
         Options: "acl", "l1reg", "l1reg-rand", "nibble", "fiedler", "fiedler_local"
 
-    refine:
+    refine: function handler
+        An extra function to refine your cluster, must be in the format of "refine(GraphLocal,list)".
 
-    Extra parameters for "acl" and "l1reg" (optional)
+    Extra parameters for "acl", "acl_weighted", "l1reg", "l1reg-rand" (optional)
     -------------------------------------------------
 
     alpha: float
@@ -56,8 +60,20 @@ def spectral_clustering(G, ref_nodes,
         Default = 100
         Maximum time in seconds
 
-    Extra parameters for "l1reg" (optional)
+    Extra parameters for "l1reg" or "l1reg-rand" (optional)
     ----------------------------------------
+    
+    normalize: bool
+        Default = True
+        Normalize the output to be directly input into sweepcut routines.
+        
+    normalized_objective: bool
+        Default = True
+        Use normalized Laplacian in the objective function, works only for "method=l1reg" and "cpp=True"
+        
+    cpp: bool
+        Default = True
+        If true calls the cpp code for approximate pagerank, otherwise, it calls the python code.
 
     epsilon: float
         Default == 1.0e-2
@@ -91,14 +107,14 @@ def spectral_clustering(G, ref_nodes,
         Stores the value of the best conductance found by the last called rounding procedure.
     """
 
-    if G._weighted:
+    if G._weighted and method not in ["acl_weighted","l1reg","l1reg-rand"]:
         warnings.warn("The weights of the graph will be discarded. Use approximate_PageRank_weighted instead if you want to keep the edge weights.")
 
     if method == "acl" or method == "acl_weighted" or method == "l1reg" or method == "l1reg-rand":
         p = approximate_PageRank(G,ref_nodes,timeout = timeout, iterations = iterations, alpha = alpha,
-            rho = rho, epsilon = epsilon, method = method, ys = ys)
+            rho = rho, epsilon = epsilon, normalize = normalize, normalized_objective = normalized_objective, method = method, ys = ys, cpp = cpp)
     elif method == "nibble":
-        p = PageRank_nibble(G,ref_nodes,vol = vol,phi = phi,epsilon = epsilon,iterations = iterations,timeout = timeout)
+        p = PageRank_nibble(G,ref_nodes,vol = vol,phi = phi,epsilon = epsilon,iterations = iterations,timeout = timeout, cpp = cpp)
     elif method == "fiedler":
         if ref_nodes is not None:
             warnings.warn("ref_nodes will be discarded since we are computing a global fiedler vector.")
@@ -106,7 +122,7 @@ def spectral_clustering(G, ref_nodes,
     elif method == "fiedler_local":
         p = fiedler_local(G,ref_nodes)[0]
     else:
-        raise Exception("Unknown method, available methods are \"acl\", \"acl_weighted\", \"l1reg\", \"nibble\", \"fiedler\", \"fiedler_local\".")
+        raise Exception("Unknown method, available methods are \"acl\", \"acl_weighted\", \"l1reg\", \"l1reg-rand\", \"nibble\", \"fiedler\", \"fiedler_local\".")
 
     output = sweep_cut(G,p)
 

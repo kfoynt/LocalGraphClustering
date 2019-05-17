@@ -46,8 +46,9 @@ void graph<vtype,itype>::build_map_weighted(unordered_map<vtype, vtype>& R_map,
                                    unordered_map<vtype, vtype>& degree_map, vtype* R, vtype nR, 
                                    double* degrees)
 {
-    vtype deg;
+    double deg;
     for(vtype i = 0; i < nR; i ++){
+        //cout << R[i] - offset << " " << i << endl;
         R_map[R[i] - offset] = i;
     }
     for(auto iter = R_map.begin(); iter != R_map.end(); ++iter){
@@ -65,7 +66,7 @@ void graph<vtype,itype>::build_map_weighted(unordered_map<vtype, vtype>& R_map,
 
 template<typename vtype, typename itype>
 void graph<vtype,itype>::build_list_weighted(unordered_map<vtype, vtype>& R_map, unordered_map<vtype, vtype>& degree_map,
-    vtype src, vtype dest, itype A, itype C, double* degrees)
+    vtype src, vtype dest, double A, double C, double* degrees)
 {
     // replacing edge weight connecting two nodes on side A with A*deg
     for(auto R_iter = R_map.begin(); R_iter != R_map.end(); ++R_iter){
@@ -77,7 +78,9 @@ void graph<vtype,itype>::build_list_weighted(unordered_map<vtype, vtype>& R_map,
             if(R_map.count(v) > 0){
                 vtype v1 = got->second;
                 double w = A * a[j];
-                addEdge(u1, v1, w);
+                if(v1 > u1) {
+                    addEdge(u1, v1, w);
+                }
             }
         }
     }

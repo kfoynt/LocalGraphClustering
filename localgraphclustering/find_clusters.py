@@ -15,76 +15,74 @@ from .cpp import *
 def compute_embedding(g,
                       node,
                       rho_list,
+                      alpha_list,
                       nsamples_from_rho,
+                      nsamples_from_alpha,
                       localmethod,
-                      alpha,
                       normalize,
                       normalized_objective,
                       epsilon,
-                      iterations):
+                      iterations,
+                      cpp):
     
     ref_node = [node]
 
     sampled_rhos = list(np.geomspace(rho_list[0], rho_list[1], nsamples_from_rho, endpoint=True))
+    
+    sampled_alphas = list(np.geomspace(alpha_list[0], alpha_list[1], nsamples_from_alpha, endpoint=True))
 
     min_crit = 10000
     min_crit_embedding = 0
-
-#     if not is_weighted:
     
-    for rho in list(reversed(sampled_rhos)):
+    for alpha in list(reversed(sampled_alphas)):
+    
+        for rho in list(reversed(sampled_rhos)):
 
-        output = approximate_PageRank(g,ref_node,method=localmethod,alpha=alpha,rho=rho,normalize=normalize,normalized_objective=normalized_objective,epsilon=epsilon,iterations=iterations) 
+            output = approximate_PageRank(g,ref_node,cpp=cpp,method=localmethod,alpha=alpha,rho=rho,normalize=normalize,normalized_objective=normalized_objective,epsilon=epsilon,iterations=iterations) 
 
+            conductance = g.compute_conductance(output[0])
 
-        conductance = g.compute_conductance(output[0])
-
-        crit = conductance
-        if crit <= min_crit:
-            min_crit = crit
-            min_crit_embedding = output
-                
-#     else:
-#         rho = rho_list[0]
-#         min_crit_embedding = approximate_PageRank_weighted(g,ref_node,alpha=alpha,rho=rho)
+            crit = conductance
+            if crit <= min_crit:
+                min_crit = crit
+                min_crit_embedding = output
     
     return min_crit_embedding
 
 def compute_embedding_and_improve(g,
                       node,
                       rho_list,
+                      alpha_list,
                       nsamples_from_rho,
+                      nsamples_from_alpha,
                       localmethod,
-                      alpha,
                       normalize,
                       normalized_objective,
                       epsilon,
-                      iterations):
+                      iterations,
+                      cpp):
     
     ref_node = [node]
 
     sampled_rhos = list(np.geomspace(rho_list[0], rho_list[1], nsamples_from_rho, endpoint=True))
+    
+    sampled_alphas = list(np.geomspace(alpha_list[0], alpha_list[1], nsamples_from_alpha, endpoint=True))
 
     min_crit = 10000
     min_crit_embedding = 0
-
-#     if not is_weighted:
     
-    for rho in list(reversed(sampled_rhos)):
+    for alpha in list(reversed(sampled_alphas)):
+    
+        for rho in list(reversed(sampled_rhos)):
 
-        output = approximate_PageRank(g,ref_node,method=localmethod,alpha=alpha,rho=rho,normalize=normalize,normalized_objective=normalized_objective,epsilon=epsilon,iterations=iterations) 
+            output = approximate_PageRank(g,ref_node,cpp=cpp,method=localmethod,alpha=alpha,rho=rho,normalize=normalize,normalized_objective=normalized_objective,epsilon=epsilon,iterations=iterations) 
 
+            conductance = g.compute_conductance(output[0])
 
-        conductance = g.compute_conductance(output[0])
-
-        crit = conductance
-        if crit <= min_crit:
-            min_crit = crit
-            min_crit_embedding = output
-                
-#     else:
-#         rho = rho_list[0]
-#         min_crit_embedding = approximate_PageRank_weighted(g,ref_node,alpha=alpha,rho=rho)
+            crit = conductance
+            if crit <= min_crit:
+                min_crit = crit
+                min_crit_embedding = output
     
     output_mqi = flow_clustering(g,min_crit_embedding[0],method="mqi_weighted")
     
@@ -93,14 +91,17 @@ def compute_embedding_and_improve(g,
 def find_clusters(g, 
                     nclusters, 
                     rho_list, 
+                    alpha_list,
                     localmethod: str = 'l1reg-rand', 
                     normalize: bool = False, 
                     normalized_objective: bool = False, 
+                    cpp: bool = True,
                     epsilon: float = 1.0e-2, 
                     iterations: int = 10000000,
-                    alpha: float = 0.1, 
-                    nsamples_from_rho: int = 50, 
-                    linkage: str = 'average', 
+                    nsamples_from_rho: int = 50,
+                    nsamples_from_alpha: int = 50,
+                    linkage: str = 'average',
+                    norm_type: int = 2,
                     njobs: int = 1, 
                     prefer: str = 'threads', 
                     backend: str = 'multiprocessing',
@@ -122,19 +123,22 @@ def find_clusters(g,
         Number of clusters to be returned
         
     rho_list: 2D list of floats
-        This is an interval of rhos, the regularization parameters for l1-regularized PageRank.
+        This is an interval of rhos, the regularization parameter for l1-regularized PageRank.
         The first element should be smaller than the second elelement of the list.
+        
+    alpha_list: 2D list of floats
+        This is an interval of alphas, the teleportation parameter for l1-regularized PageRank.
+        The first element should be smaller than the second elelement of the list.
+        The smaller the more global the personalized PageRank vector is.
 
     Parameters (optional)
     ---------------------
-
-    alpha: float
-        Default == 0.11
-        Teleportation parameter of the personalized PageRank linear system.
-        The smaller the more global the personalized PageRank vector is.
         
     nsamples_from_rho: int
         Number of samples of rho parameters to be selected from interval rho_list.
+        
+    nsamples_from_alpha: int
+        Number of samples of alpha parameters to be selected from interval alpha_list.
 
     localmethod: string
         Default = 'l1reg-rand'
@@ -156,6 +160,10 @@ def find_clusters(g,
     normalized_objective: bool
         Default = True
         Use normalized Laplacian in the objective function, works only for "method=l1reg" and "cpp=True"
+        
+    cpp: bool
+        Default = True
+        If true calls the cpp code for approximate pagerank, otherwise, it calls the python code.
 
     linkage: str
         Default = 'average'
@@ -168,6 +176,10 @@ def find_clusters(g,
         Metric for measuring distances among nodes.
         For details check:
         https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise_distances.html
+        
+    norm_type: int
+        Default = 2
+        Norm for normalization of the embeddings.
         
     njobs: int
         Default = 1
@@ -190,16 +202,16 @@ def find_clusters(g,
 #     is_weighted = g._weighted
     
     if njobs > 1:
-        results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations) for node in range(n))
+        results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in range(n))
     else:
-        results =[compute_embedding(g,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations) for node in range(n)]
+        results =[compute_embedding(g,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,alpha,normalize,normalized_objective,epsilon,iterations,cpp) for node in range(n)]
         
     sum_ = 0
     JA = [0]
     IA = []
     A  = []
     for data in results:
-        vec = data[1]/np.linalg.norm(data[1],2)
+        vec = data[1]/np.linalg.norm(data[1],norm_type)
         how_many = len(data[0])
         sum_ += how_many
         JA.append(sum_)
@@ -217,24 +229,24 @@ def find_clusters(g,
     
     return labels 
 
-def compute_all_embeddings_and_distances(g, 
+def compute_all_embeddings(g, 
                     rho_list, 
+                    alpha_list,
                     localmethod: str = 'l1reg-rand', 
                     normalize: bool = False, 
                     normalized_objective: bool = False, 
+                    cpp: bool = True,
                     epsilon: float = 1.0e-2, 
                     iterations: int = 10000000,
-                    alpha: float = 0.1, 
-                    nsamples_from_rho: int = 50, 
+                    nsamples_from_rho: int = 50,
+                    nsamples_from_alpha: int = 50,
                     njobs: int = 1, 
                     prefer: str = 'threads', 
-                    backend: str = 'multiprocessing',
-                    metric: str ='euclidean'):
+                    backend: str = 'multiprocessing'):
     """
     This method runs local graph clustering for each node in the graph in parallel.
-    Returns the embeddings for each node in a matrix X. Each row corresponds to an embedding
-    of a node. It also returns the pairwise distance matrix Z. For example, component Z[i,j]
-    is the distance between nodes i and j.
+    Returns the embeddings for each node in a list. Each element of the list corresponds to an embedding
+    of a node.
 
     Parameters
     ----------
@@ -242,19 +254,22 @@ def compute_all_embeddings_and_distances(g,
     g: GraphLocal
 
     rho_list: 2D list of floats
-        This is an interval of rhos, the regularization parameters for l1-regularized PageRank.
+        This is an interval of rhos, the regularization parameter for l1-regularized PageRank.
         The first element should be smaller than the second elelement of the list.
+        
+    alpha_list: 2D list of floats
+        This is an interval of alphas, the teleportation parameter for l1-regularized PageRank.
+        The first element should be smaller than the second elelement of the list.
+        The smaller the more global the personalized PageRank vector is.
 
     Parameters (optional)
     ---------------------
-
-    alpha: float
-        Default == 0.11
-        Teleportation parameter of the personalized PageRank linear system.
-        The smaller the more global the personalized PageRank vector is.
         
     nsamples_from_rho: int
         Number of samples of rho parameters to be selected from interval rho_list.
+        
+    nsamples_from_alpha: int
+        Number of samples of alpha parameters to be selected from interval alpha_list.
 
     localmethod: string
         Default = 'l1reg-rand'
@@ -277,11 +292,9 @@ def compute_all_embeddings_and_distances(g,
         Default = True
         Use normalized Laplacian in the objective function, works only for "method=l1reg" and "cpp=True"
         
-    metric: str
-        Default = 'euclidean'
-        Metric for measuring distances among nodes.
-        For details check:
-        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise_distances.html
+    cpp: bool
+        Default = True
+        If true calls the cpp code for approximate pagerank, otherwise, it calls the python code.
         
     njobs: int
         Default = 1
@@ -293,12 +306,8 @@ def compute_all_embeddings_and_distances(g,
     Returns
     -------
 
-    X: csc matrix
-    The embeddings matrix. Each row corresponds to an embedding of a node. 
-    
-    Z: 2D np.ndarray
-    The pairwise distance matrix Z. For example, component Z[i,j]
-    is the distance between nodes i and j.
+    embeddings: list of arrays
+        Each element corresponds to an embedding of a node. 
     """
     
     n = g._num_vertices
@@ -306,16 +315,48 @@ def compute_all_embeddings_and_distances(g,
 #     is_weighted = g._weighted
     
     if njobs > 1:
-        results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations) for node in range(n))
+        embeddings = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in range(n))
     else:
-        results =[compute_embedding(g,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations) for node in range(n)]
+        embeddings =[compute_embedding(g,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in range(n)]
+    
+    return embeddings
+
+def normalize_embeddings(g, embeddings, 
+                    norm_type: int = 2):
+    """
+    Normalize the embeddings.
+
+    Parameters
+    ----------
+
+    g: GraphLocal
+
+    embeddings: list of arrays
+        Each element corresponds to an embedding of a node.
         
+
+    Parameters (optional)
+    ---------------------
+        
+    norm_type: int
+        Default = 2
+        Norm for normalization of the embeddings.
+
+    Returns
+    -------
+
+    X: csc matrix
+    The embeddings matrix. Each row corresponds to an embedding of a node. 
+    
+    """
+    n = g._num_vertices
+    
     sum_ = 0
     JA = [0]
     IA = []
     A  = []
-    for data in results:
-        vec = data[1]/np.linalg.norm(data[1],2)
+    for data in embeddings:
+        vec = data[1]/np.linalg.norm(data[1],norm_type)
         how_many = len(data[0])
         sum_ += how_many
         JA.append(sum_)
@@ -326,9 +367,9 @@ def compute_all_embeddings_and_distances(g,
     
     X = X.transpose().tocsr()
     
-    Z = pairwise_distances(X, metric=metric, n_jobs=njobs)
+#     Z = pairwise_distances(X, metric=metric, n_jobs=njobs)
     
-    return X, Z
+    return X
 
 def compute_clusters_given_distance(nclusters,Z,linkage: str = 'average'):
     """
@@ -373,13 +414,15 @@ def compute_clusters_given_distance(nclusters,Z,linkage: str = 'average'):
 
 def graph_segmentation(g, 
                     rho_list, 
+                    alpha_list,
                     localmethod: str = 'l1reg-rand', 
                     normalize: bool = False, 
                     normalized_objective: bool = False, 
+                    cpp: bool = True,
                     epsilon: float = 1.0e-2, 
                     iterations: int = 10000000,
-                    alpha: float = 0.1, 
                     nsamples_from_rho: int = 50,
+                    nsamples_from_alpha: int = 50,
                     njobs = 1,
                     prefer: str = 'threads', 
                     backend: str = 'multiprocessing',
@@ -395,19 +438,22 @@ def graph_segmentation(g,
     g: GraphLocal
 
     rho_list: 2D list of floats
-        This is an interval of rhos, the regularization parameters for l1-regularized PageRank.
+        This is an interval of rhos, the regularization parameter for l1-regularized PageRank.
         The first element should be smaller than the second elelement of the list.
+        
+    alpha_list: 2D list of floats
+        This is an interval of alphas, the teleportation parameter for l1-regularized PageRank.
+        The first element should be smaller than the second elelement of the list.
+        The smaller the more global the personalized PageRank vector is.
 
     Parameters (optional)
     ---------------------
-
-    alpha: float
-        Default == 0.11
-        Teleportation parameter of the personalized PageRank linear system.
-        The smaller the more global the personalized PageRank vector is.
         
     nsamples_from_rho: int
         Number of samples of rho parameters to be selected from interval rho_list.
+        
+    nsamples_from_alpha: int
+        Number of samples of alpha parameters to be selected from interval alpha_list.
 
     localmethod: string
         Default = 'l1reg-rand'
@@ -429,6 +475,10 @@ def graph_segmentation(g,
     normalized_objective: bool
         Default = True
         Use normalized Laplacian in the objective function, works only for "method=l1reg" and "cpp=True"
+        
+    cpp: bool
+        Default = True
+        If true calls the cpp code for approximate pagerank, otherwise, it calls the python code.
         
     njobs: int
         Default = 1
@@ -475,12 +525,12 @@ def graph_segmentation(g,
             select_from = list(range(g_copy._num_vertices))
             ref_nodes = random.sample(select_from, min(how_many_in_parallel,len(select_from)))
             
-            results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g_copy,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations) for node in ref_nodes)
+            results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding)(g_copy,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in ref_nodes)
         else:
             select_from = list(range(g_copy._num_vertices))
             ref_nodes = random.sample(select_from, njobs)
             
-            results =[compute_embedding(g_copy,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations) for node in ref_nodes]
+            results =[compute_embedding(g_copy,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in ref_nodes]
     
         union_sets_to_remove = set()
         for res in results:
@@ -510,13 +560,15 @@ def graph_segmentation(g,
         
 def graph_segmentation_with_improve(g, 
                     rho_list, 
+                    alpha_list,
                     localmethod: str = 'l1reg-rand', 
                     normalize: bool = False, 
                     normalized_objective: bool = False, 
+                    cpp: bool = True,
                     epsilon: float = 1.0e-2, 
                     iterations: int = 10000000,
-                    alpha: float = 0.1, 
                     nsamples_from_rho: int = 50,
+                    nsamples_from_alpha: int = 50,
                     njobs = 1,
                     prefer: str = 'threads', 
                     backend: str = 'multiprocessing',
@@ -532,19 +584,22 @@ def graph_segmentation_with_improve(g,
     g: GraphLocal
 
     rho_list: 2D list of floats
-        This is an interval of rhos, the regularization parameters for l1-regularized PageRank.
+        This is an interval of rhos, the regularization parameter for l1-regularized PageRank.
         The first element should be smaller than the second elelement of the list.
+        
+    alpha_list: 2D list of floats
+        This is an interval of alphas, the teleportation parameter for l1-regularized PageRank.
+        The first element should be smaller than the second elelement of the list.
+        The smaller the more global the personalized PageRank vector is.
 
     Parameters (optional)
     ---------------------
-
-    alpha: float
-        Default == 0.11
-        Teleportation parameter of the personalized PageRank linear system.
-        The smaller the more global the personalized PageRank vector is.
         
     nsamples_from_rho: int
         Number of samples of rho parameters to be selected from interval rho_list.
+        
+    nsamples_from_alpha: int
+        Number of samples of alpha parameters to be selected from interval alpha_list.
 
     localmethod: string
         Default = 'l1reg-rand'
@@ -566,6 +621,10 @@ def graph_segmentation_with_improve(g,
     normalized_objective: bool
         Default = True
         Use normalized Laplacian in the objective function, works only for "method=l1reg" and "cpp=True"
+        
+    cpp: bool
+        Default = True
+        If true calls the cpp code for approximate pagerank, otherwise, it calls the python code.
         
     njobs: int
         Default = 1
@@ -612,12 +671,12 @@ def graph_segmentation_with_improve(g,
             select_from = list(range(g_copy._num_vertices))
             ref_nodes = random.sample(select_from, min(how_many_in_parallel,len(select_from)))
             
-            results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding_and_improve)(g_copy,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations) for node in ref_nodes)
+            results = Parallel(n_jobs=njobs, prefer=prefer, backend=backend)(delayed(compute_embedding_and_improve)(g_copy,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in ref_nodes)
         else:
             select_from = list(range(g_copy._num_vertices))
             ref_nodes = random.sample(select_from, njobs)
             
-            results =[compute_embedding_and_improve(g_copy,node,rho_list,nsamples_from_rho,localmethod,alpha,normalize,normalized_objective,epsilon,iterations) for node in ref_nodes]
+            results =[compute_embedding_and_improve(g_copy,node,rho_list,alpha_list,nsamples_from_rho,nsamples_from_alpha,localmethod,normalize,normalized_objective,epsilon,iterations,cpp) for node in ref_nodes]
     
         union_sets_to_remove = set()
         for res in results:
@@ -644,7 +703,7 @@ def graph_segmentation_with_improve(g,
                 ct += 1
             return labels, info
         
-def compute_embeddings_and_distances_from_region_adjacency(g,info, metric='euclidean', n_jobs=1):
+def compute_embeddings_and_distances_from_region_adjacency(g,info, metric='euclidean', norm_type = 2, n_jobs=1):
     """
     This method runs local graph clustering for each node in the region adjacency graph.
     Returns the embeddings for each node in a matrix X. Each row corresponds to an embedding
@@ -670,6 +729,11 @@ def compute_embeddings_and_distances_from_region_adjacency(g,info, metric='eucli
         For details check:
         https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise_distances.html
         
+        
+    norm_type: int
+        Default = 2
+        Norm for normalization of the embeddings.
+        
     njobs: int
         Default = 1
         Number of jobs to be run in parallel
@@ -691,7 +755,7 @@ def compute_embeddings_and_distances_from_region_adjacency(g,info, metric='eucli
     A  = []
 
     for data in info:
-        vec = data[1]/np.linalg.norm(data[1],2)
+        vec = data[1]/np.linalg.norm(data[1],norm_type)
         how_many = len(data[0])
         sum_ += how_many
         JA.append(sum_)
