@@ -44,9 +44,9 @@ def approximate_PageRank(G,
     K. Fountoulakis, F. Roosta-Khorasani, J. Shun, X. Cheng and M. Mahoney. Variational
     Perspective on Local Graph Clustering. arXiv:1602.01886, 2017.
     arXiv link:https://arxiv.org/abs/1602.01886
-    
+
     When method is "l1reg-rand":
-    
+
     Uses a randomized proximal coordinate descent method.
 
     Parameters
@@ -86,7 +86,7 @@ def approximate_PageRank(G,
     normalize: bool
         Default = True
         Normalize the output to be directly input into sweepcut routines.
-        
+
     normalized_objective: bool
         Default = True
         Use normalized Laplacian in the objective function, works only for "method=l1reg" and "cpp=True"

@@ -279,8 +279,9 @@ class GraphLocal:
         rval.ai = itype(rval.adjacency_matrix.indptr)
         rval.aj = vtype(rval.adjacency_matrix.indices)
         return rval
-    
-    def from_sparse_adjacency(self,A):
+
+    @classmethod
+    def from_sparse_adjacency(cls,A):
         """
         Create a GraphLocal object from a sparse adjacency matrix.
 
@@ -289,6 +290,7 @@ class GraphLocal:
         A
             Adjacency matrix.
         """
+        self = cls()
         self.adjacency_matrix = A.copy()
         self._num_vertices = A.shape[0]
         self._num_edges = A.nnz
@@ -313,7 +315,8 @@ class GraphLocal:
         self.compute_statistics()
         self.ai = itype(self.adjacency_matrix.indptr)
         self.aj = vtype(self.adjacency_matrix.indices)
-        
+        return self
+
     def renew_data(self,A):
         """
         Update data because the adjacency matrix changed
@@ -694,12 +697,12 @@ class GraphLocal:
         minvals = vals[minverts]
 
         return minverts, minvals
-    
+
     @staticmethod
     def _plotting(drawing,edgecolor,edgealpha,linewidth,is_3d,**kwargs):
         """
         private function to do the plotting
-        "**kwargs" represents all possible optional parameters of "scatter" function 
+        "**kwargs" represents all possible optional parameters of "scatter" function
         in matplotlib.pyplot
         """
         drawing.scatter(**kwargs)
@@ -716,7 +719,7 @@ class GraphLocal:
          axs=None,fig=None,values=None,cm=None,valuecenter=None,angle=30,
          figsize=None,nodecolor='r'):
 
-        
+
         """
         Standard drawing function when having single cluster
 
@@ -749,7 +752,7 @@ class GraphLocal:
 
         linewidth: float (1.0 by default)
 
-        axs,fig: None,None (default) 
+        axs,fig: None,None (default)
             by default it will create a new figure, or this will plot in axs if not None.
 
         values: Sequence[float] (None by default)
@@ -764,7 +767,7 @@ class GraphLocal:
 
         figsize: tuple (None by default)
 
-        angle: float (30 by default) 
+        angle: float (30 by default)
             set initial view angle when drawing 3d
 
         Returns
@@ -806,14 +809,14 @@ class GraphLocal:
          fig=None,cm=None,angle=30,figsize=None):
         """
         Standard drawing function when having multiple clusters
-        
+
         Parameters
         ----------
 
         coords: a n-by-2 or n-by-3 array with coordinates for each node of the graph.
 
         groups: list[list] or list, for the first case, each sublist represents a cluster
-            for the second case, list must have the same length as the number of nodes and 
+            for the second case, list must have the same length as the number of nodes and
             nodes with the number are in the same cluster
 
         Optional parameters
@@ -838,14 +841,14 @@ class GraphLocal:
 
         linewidth: float (1.0 by default)
 
-        axs,fig: None,None (default) 
+        axs,fig: None,None (default)
             by default it will create a new figure, or this will plot in axs if not None.
 
         cm: string or colormap object (None by default)
 
         figsize: tuple (None by default)
 
-        angle: float (30 by default) 
+        angle: float (30 by default)
             set initial view angle when drawing 3d
 
         Returns
@@ -853,7 +856,7 @@ class GraphLocal:
 
         A GraphDrawing object
         """
-        
+
         #when values are not provided, use tab20 or gist_ncar colormap to determine colors
         number_of_colors = 1
         node_color_list = np.zeros(self._num_vertices)
@@ -877,13 +880,13 @@ class GraphLocal:
         drawing = GraphDrawing(self,coords,ax=axs,figsize=figsize)
         #m = ScalarMappable(norm=Normalize(vmin=vmin,vmax=vmax), cmap=cm)
         #rgba_list = m.to_rgba(node_color_list,alpha=alpha*nodealpha)
-        
+
         self._plotting(drawing,edgecolor,edgealpha,linewidth,len(coords[0])==3,s=nodesize,marker=nodemarker,zorder=2,
             cmap=cm,vmin=vmin,vmax=vmax,alpha=alpha*nodealpha,edgecolors='none',c=node_color_list)
 
         return drawing
-    
-    """     
+
+    """
     def draw_2d(self,pos,axs,cm,nodemarker='o',nodesize=5,edgealpha=0.01,linewidth=1,
                 node_color_list=None,edgecolor='k',nodecolor='r',node_list=None,nodelist_in=None,
                 nodelist_out=None,setalpha=1.0,nodealpha=1.0,use_values=False,vmin=0.0,vmax=1.0):
@@ -908,7 +911,7 @@ class GraphLocal:
         edge_collection.set_zorder(1)
         axs.add_collection(edge_collection)
         axs.autoscale()
-    
+
     def draw_3d(self,pos,axs,cm,nodemarker='o',nodesize=5,edgealpha=0.01,linewidth=1,
                 node_color_list=None,angle=30,edgecolor='k',nodecolor='r',node_list=None,
                 nodelist_in=None,nodelist_out=None,setalpha=1.0,nodealpha=1.0,use_values=False,vmin=0.0,vmax=1.0):

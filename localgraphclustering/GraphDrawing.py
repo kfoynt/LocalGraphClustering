@@ -10,7 +10,7 @@ from matplotlib.cm import ScalarMappable
 
 class GraphDrawing:
     """
-    This class implements all the drawing related methods for a GraphLocal 
+    This class implements all the drawing related methods for a GraphLocal
     instance. These methods include changing colors, highlighting a set etc.
     It is not designed to be used individually. Its purpose is to change all
     kinds of drawing properties after calling standard drawing functions,
@@ -22,9 +22,9 @@ class GraphDrawing:
 
     coords : a n-by-2 or n-by-3 array with coordinates for each node of the graph.
 
-    ax,fig : None,None (default) 
+    ax,fig : None,None (default)
             by default it will create a new figure, or this will plot in axs if not None.
-     
+
     is_3d : True when it is a 3D graph
 
     nodes_collection : a matplotlib PathCollection instance containing all nodes
@@ -32,7 +32,7 @@ class GraphDrawing:
     edge_collection : a matplotlib LineCollection instance containing all edges
 
     groups : list[list] or list, for the first case, each sublist represents a cluster
-            for the second case, list must have the same length as the number of nodes and 
+            for the second case, list must have the same length as the number of nodes and
             nodes with the number are in the same cluster
 
     """
@@ -50,13 +50,17 @@ class GraphDrawing:
         else:
             fig = ax.get_figure()
         ax.set_axis_off()
+
+        # this gives us no border
+        ax.xaxis.set_major_locator(plt.NullLocator())
+        ax.yaxis.set_major_locator(plt.NullLocator())
         self.fig = fig
         self.ax = ax
         self.nodes_collection = None
         self.edge_collection = None
         self.groups = groups
 
-    
+
     @staticmethod
     def _plotting_push_edges_for_node(center,points,pos,edge_pos,edge_mapping):
         for i,p in enumerate(points):
@@ -72,7 +76,7 @@ class GraphDrawing:
             GraphDrawing._plotting_push_edges_for_node(i,G.aj[G.ai[i]:G.ai[i+1]],pos,edge_pos,edge_mapping)
         edge_pos = np.asarray(edge_pos)
         return edge_pos,edge_mapping
-    
+
     def show(self):
         """
         show the graph
@@ -99,7 +103,7 @@ class GraphDrawing:
 
         circled: bool (False by default)
             set to True to circle nodes in the nodelist
- 
+
         alpha: float (1.0 by default)
             change alpha for nodes that are not in the nodelist
         """
@@ -119,7 +123,7 @@ class GraphDrawing:
             for (i,j) in self.edge_mapping.keys():
                 if i not in nodeset or j not in nodeset:
                     self.edgecolor(i,j,alpha=alpha)
-    
+
     def only_circle_nodes(self,nodeset):
         """
         only circle the nodes in nodeset
@@ -160,10 +164,10 @@ class GraphDrawing:
 
         alpha: float (None by default)
             when set to be None, alpha will not be changed
-        
+
         Returns
         -------
-        list of two lists, where the first is new face color and the second is new edge color, if face color 
+        list of two lists, where the first is new face color and the second is new edge color, if face color
         is not changed, the first is None, if edge color is not changed, the second is None
         """
         if c is not None:
@@ -194,7 +198,7 @@ class GraphDrawing:
             ret_edgecolor = self._plotting_update_color(colors,node,edgecolor,alpha)
 
         return [ret_facecolor,ret_edgecolor]
-    
+
     # The better way here might be diectly modifying self.edge_collection._paths
     def edgecolor(self,i,j,c=None,alpha=None):
         """
@@ -209,7 +213,7 @@ class GraphDrawing:
 
         alpha: float (None by default)
             when set to be None, alpha will not be changed
-        
+
         Returns
         -------
         current edge color
@@ -271,7 +275,7 @@ class GraphDrawing:
             widths[node] = np.reshape(width,len(width))
         self.nodes_collection.set_linewidths(widths)
         return widths[node]
-    
+
     @staticmethod
     def _plotting_update_color(container,key,c,alpha):
         if c is not None:
@@ -293,7 +297,7 @@ class GraphDrawing:
     def scatter(self,**kwargs):
         """
         a wrapper of standard matplotlib scatter function
-        
+
         Parameters
         ----------
         **kwargs: same as the parameters in matplotlib scatter
@@ -309,7 +313,7 @@ class GraphDrawing:
     def plot(self,**kwargs):
         """
         a wrapper of standard matplotlib plot function
-        
+
         Parameters
         ----------
         **kwargs: same as the parameters in matplotlib plot
@@ -322,5 +326,3 @@ class GraphDrawing:
         self.edge_collection.set_zorder(1)
         self.ax.add_collection(self.edge_collection)
         self.ax._sci(self.edge_collection)
-    
-
