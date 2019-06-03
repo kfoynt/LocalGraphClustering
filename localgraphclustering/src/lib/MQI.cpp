@@ -102,6 +102,7 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
 {
     vtype total_iter = 0;
     unordered_map<vtype, vtype> R_map;
+    unordered_map<vtype, vtype> old_R_map;
     unordered_map<vtype, vtype> degree_map;
     build_map(R_map, degree_map, R, nR);
     itype nedges = 0;
@@ -151,6 +152,7 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
             }
         }
         condOld = condNew;
+        old_R_map = R_map;
         R_map.clear();
         degree_map.clear();
         build_map(R_map, degree_map, Rnew, nRnew);
@@ -177,7 +179,12 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
             //        R_map, degree_map, nRnew, nRnew + 1, mincut, Q, fin, pro, another_pro, dist, flow, cap, next, to);
         }
         else {
-            return 0;
+            vtype j = 0;
+            for(auto R_iter = old_R_map.begin(); R_iter != old_R_map.end(); ++ R_iter){
+                ret_set[j] = R_iter->first + offset;
+                j ++;
+            }
+            return old_R_map.size();
         }
         free(Rnew);
         nRold = nRnew;
@@ -187,11 +194,11 @@ vtype graph<vtype,itype>::MQI(vtype nR, vtype* R, vtype* ret_set)
 
     //free(mincut);
     vtype j = 0;
-    for(auto R_iter = R_map.begin(); R_iter != R_map.end(); ++ R_iter){
+    for(auto R_iter = old_R_map.begin(); R_iter != old_R_map.end(); ++ R_iter){
         ret_set[j] = R_iter->first + offset;
         j ++;
     }
-    return nRnew;
+    return old_R_map.size();
 }
 
 #endif

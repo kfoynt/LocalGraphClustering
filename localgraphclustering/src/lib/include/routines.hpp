@@ -119,9 +119,9 @@ public:
     
     //functions in MQI_weighted.cpp
     vtype MQI_weighted(vtype nR, vtype* R, vtype* ret_set);
-    void build_map_weighted(unordered_map<vtype, vtype>& R_map,unordered_map<vtype, vtype>& degree_map,
+    void build_map_weighted(unordered_map<vtype, vtype>& R_map,unordered_map<vtype, double>& degree_map,
                    vtype* R, vtype nR, double* degrees);
-    void build_list_weighted(unordered_map<vtype, vtype>& R_map, unordered_map<vtype, vtype>& degree_map, vtype src, vtype dest, 
+    void build_list_weighted(unordered_map<vtype, vtype>& R_map, unordered_map<vtype, double>& degree_map, vtype src, vtype dest, 
                    double a, double c, double* degrees);
 
 
@@ -155,6 +155,16 @@ public:
                    vtype s, vtype t, double alpha, double beta);
     void assemble_graph(vector<bool>& mincut, vtype nverts, itype nedges, vector<tuple<vtype,vtype,double>>& EL);
 
+    //functions in SimpleLocal_weighted.cpp
+    void STAGEFLOW_weighted(double delta, double alpha, double beta, unordered_map<vtype,vtype>& fullyvisited, unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& S);
+    vtype SimpleLocal_weighted(vtype nR, vtype* R, vtype* ret_set, double delta);
+    void init_VL_weighted(unordered_map<vtype,vtype>& VL, unordered_map<vtype,vtype>& VL_rev,unordered_map<vtype,vtype>& R_map);
+    void init_EL_weighted(vector< tuple<vtype,vtype,double> >& EL, unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& VL, vtype s, vtype t, double alpha, double beta);
+    void update_VL_weighted(unordered_map<vtype,vtype>& VL, unordered_map<vtype,vtype>& VL_rev, vector<vtype>& E);
+    void update_EL_weighted(vector< tuple<vtype,vtype,double> >& EL, unordered_map<vtype,vtype>& VL, unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& W_map,
+                   vtype s, vtype t, double alpha, double beta);
+    void assemble_graph_weighted(vector<bool>& mincut, vtype nverts, itype nedges, vector<tuple<vtype,vtype,double>>& EL);
+    
 
     //functions for capacity releasing diffusion
     vtype capacity_releasing_diffusion(vector<vtype>& ref_node, vtype U,vtype h,vtype w,vtype iterations,vtype* cut);

@@ -511,8 +511,7 @@ def graph_segmentation(g,
     
     """
     
-    g_copy = GraphLocal()
-    g_copy.from_sparse_adjacency(g.adjacency_matrix)
+    g_copy = GraphLocal.from_sparse_adjacency(g.adjacency_matrix)
     candidates = list(range(g_copy._num_vertices))
 
     labels = np.zeros(g_copy._num_vertices,dtype=np.int32)
@@ -546,8 +545,7 @@ def graph_segmentation(g,
         indices = list(set(range(g_copy._num_vertices)) - set(union_sets_to_remove))
         A = g_copy.adjacency_matrix.tocsr()[indices, :].tocsc()[:, indices]
 
-        g_copy = GraphLocal()
-        g_copy.from_sparse_adjacency(A)
+        g_copy = GraphLocal.from_sparse_adjacency(A)
         
         print ("Percentage completed: ", 100-len(candidates)/g._num_vertices*100, end="\r")
         
@@ -656,9 +654,8 @@ def graph_segmentation_with_improve(g,
     For example labels[i] is the cluster of node i.
     
     """
-    
-    g_copy = GraphLocal()
-    g_copy.from_sparse_adjacency(g.adjacency_matrix)
+
+    g_copy = GraphLocal.from_sparse_adjacency(g.adjacency_matrix)
     candidates = list(range(g_copy._num_vertices))
 
     labels = np.zeros(g_copy._num_vertices,dtype=np.int32)
@@ -692,8 +689,7 @@ def graph_segmentation_with_improve(g,
         indices = list(set(range(g_copy._num_vertices)) - set(union_sets_to_remove))
         A = g_copy.adjacency_matrix.tocsr()[indices, :].tocsc()[:, indices]
 
-        g_copy = GraphLocal()
-        g_copy.from_sparse_adjacency(A)
+        g_copy = GraphLocal.from_sparse_adjacency(A)
         
         print ("Percentage completed: ", 100-len(candidates)/g._num_vertices*100, end="\r")
         
