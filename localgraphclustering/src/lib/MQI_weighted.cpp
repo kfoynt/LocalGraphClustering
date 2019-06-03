@@ -36,6 +36,7 @@
 #include <numeric>      // std::accumulate
 #include "include/routines.hpp"
 #include "include/MQI_weighted_c_interface.h"
+#include <limits>
 
 
 using namespace std;
@@ -43,7 +44,7 @@ using namespace std;
 
 template<typename vtype, typename itype>
 void graph<vtype,itype>::build_map_weighted(unordered_map<vtype, vtype>& R_map,
-                                   unordered_map<vtype, vtype>& degree_map, vtype* R, vtype nR, 
+                                   unordered_map<vtype, double>& degree_map, vtype* R, vtype nR, 
                                    double* degrees)
 {
     double deg;
@@ -65,7 +66,7 @@ void graph<vtype,itype>::build_map_weighted(unordered_map<vtype, vtype>& R_map,
 }
 
 template<typename vtype, typename itype>
-void graph<vtype,itype>::build_list_weighted(unordered_map<vtype, vtype>& R_map, unordered_map<vtype, vtype>& degree_map,
+void graph<vtype,itype>::build_list_weighted(unordered_map<vtype, vtype>& R_map, unordered_map<vtype, double>& degree_map,
     vtype src, vtype dest, double A, double C, double* degrees)
 {
     // replacing edge weight connecting two nodes on side A with A*deg
@@ -77,7 +78,7 @@ void graph<vtype,itype>::build_list_weighted(unordered_map<vtype, vtype>& R_map,
             auto got = R_map.find(v);
             if(R_map.count(v) > 0){
                 vtype v1 = got->second;
-                double w = A * a[j];
+                double w = a[j];
                 if(v1 > u1) {
                     addEdge(u1, v1, w);
                 }
@@ -91,16 +92,13 @@ void graph<vtype,itype>::build_list_weighted(unordered_map<vtype, vtype>& R_map,
         vtype v = R_iter->first;
         vtype v1 = R_iter->second;
         auto got = degree_map.find(v);
-        double w = A * got->second;
+        double w = got->second;
         addEdge(u1, v1, w);
-        //new_edge<vtype,itype>(u1, v1, w, to, cap, flow, next, fin, &nEdge);
         u1 = v1;
         v1 = dest;
         vtype u = v;
-        //w = C * (ai[u + 1] - ai[u]);
-        w = C * degrees[u];
+        w = C/A*degrees[u];
         addEdge(u1, v1, w);
-        //new_edge<vtype,itype>(u1, v1, w, to, cap, flow, next, fin, &nEdge);
     }
 }
 
@@ -110,7 +108,8 @@ vtype graph<vtype,itype>::MQI_weighted(vtype nR, vtype* R, vtype* ret_set)
 {
     vtype total_iter = 0;
     unordered_map<vtype, vtype> R_map;
-    unordered_map<vtype, vtype> degree_map;
+    unordered_map<vtype, vtype> old_R_map;
+    unordered_map<vtype, double> degree_map;
     build_map_weighted(R_map, degree_map, R, nR, degrees);
     itype nedges = 0;
     double condOld = 1;
@@ -162,6 +161,7 @@ vtype graph<vtype,itype>::MQI_weighted(vtype nR, vtype* R, vtype* ret_set)
             }
         }
         condOld = condNew;
+        old_R_map = R_map;
         R_map.clear();
         degree_map.clear();
         build_map_weighted(R_map, degree_map, Rnew, nRnew, degrees);
@@ -170,6 +170,7 @@ vtype graph<vtype,itype>::MQI_weighted(vtype nR, vtype* R, vtype* ret_set)
         curcutsize = set_stats.second;
         set_stats_unweighted = get_stats(R_map, nRnew);
         nedges = set_stats_unweighted.first - set_stats_unweighted.second + 2 * nR;
+        //cout << nRnew << " " << old_R_map.size() << endl;
         if(nRnew > 0){
             condNew = (double)curcutsize/(double)min(total_degree - curvol, curvol);
             //cout << "curvol: " << curvol << " condNew: " << condNew << endl;
@@ -190,7 +191,12 @@ vtype graph<vtype,itype>::MQI_weighted(vtype nR, vtype* R, vtype* ret_set)
             //        R_map, degree_map, nRnew, nRnew + 1, mincut, Q, fin, pro, another_pro, dist, flow, cap, next, to);
         }
         else {
-            return 0;
+            vtype j = 0;
+            for(auto R_iter = old_R_map.begin(); R_iter != old_R_map.end(); ++ R_iter){
+                ret_set[j] = R_iter->first + offset;
+                j ++;
+            }
+            return old_R_map.size();
         }
         free(Rnew);
         nRold = nRnew;
@@ -200,11 +206,11 @@ vtype graph<vtype,itype>::MQI_weighted(vtype nR, vtype* R, vtype* ret_set)
 
     //free(mincut);
     vtype j = 0;
-    for(auto R_iter = R_map.begin(); R_iter != R_map.end(); ++ R_iter){
+    for(auto R_iter = old_R_map.begin(); R_iter != old_R_map.end(); ++ R_iter){
         ret_set[j] = R_iter->first + offset;
         j ++;
     }
-    return nRnew;
+    return old_R_map.size();
 }
 
 #endif
