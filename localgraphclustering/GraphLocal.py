@@ -802,7 +802,7 @@ class GraphLocal:
 
 
     def draw_groups(self,coords,groups,alpha=1.0,nodesize=5,linewidth=1,
-         nodealpha=1.0,edgealpha=0.01,edgecolor='k',nodemarker='o',axs=None,
+         nodealpha=1.0,edgealpha=0.01,edgecolor='k',nodemarker='o',node_color_list=[],axs=None,
          fig=None,cm=None,angle=30,figsize=None):
         """
         Standard drawing function when having multiple clusters
@@ -856,7 +856,9 @@ class GraphLocal:
         
         #when values are not provided, use tab20 or gist_ncar colormap to determine colors
         number_of_colors = 1
-        node_color_list = np.zeros(self._num_vertices)
+        l_initial_node_color_list = len(node_color_list)
+        if l_initial_node_color_list == 0:
+            node_color_list = np.zeros(self._num_vertices)
         groups = np.asarray(groups)
         if groups.ndim == 1:
             #convert 1-d group to a 2-d representation
@@ -866,8 +868,9 @@ class GraphLocal:
             groups = np.asarray(list(grp_dict.values()))
         number_of_colors += len(groups)
         #separate the color for different groups as far as we can
-        for i,g in enumerate(groups):
-            node_color_list[g] = (1+i)*1.0/(number_of_colors-1)
+        if l_initial_node_color_list == 0:
+            for i,g in enumerate(groups):
+                node_color_list[g] = (1+i)*1.0/(number_of_colors-1)
         if number_of_colors <= 20:
             cm = plt.get_cmap("tab20b")
         else:
