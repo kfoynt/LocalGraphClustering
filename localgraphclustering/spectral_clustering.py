@@ -62,15 +62,15 @@ def spectral_clustering(G, ref_nodes,
 
     Extra parameters for "l1reg" or "l1reg-rand" (optional)
     ----------------------------------------
-    
+
     normalize: bool
         Default = True
         Normalize the output to be directly input into sweepcut routines.
-        
+
     normalized_objective: bool
         Default = True
         Use normalized Laplacian in the objective function, works only for "method=l1reg" and "cpp=True"
-        
+
     cpp: bool
         Default = True
         If true calls the cpp code for approximate pagerank, otherwise, it calls the python code.
@@ -116,7 +116,7 @@ def spectral_clustering(G, ref_nodes,
     elif method == "nibble":
         p = PageRank_nibble(G,ref_nodes,vol = vol,phi = phi,epsilon = epsilon,iterations = iterations,timeout = timeout, cpp = cpp)
     elif method == "fiedler":
-        if ref_nodes is not None:
+        if ref_nodes is not None and len(ref_nodes) > 0:
             warnings.warn("ref_nodes will be discarded since we are computing a global fiedler vector.")
         p = fiedler(G)[0]
     elif method == "fiedler_local":

@@ -24,6 +24,7 @@ PROXL1PRRAND_SRCS = ../proxl1PRrand.cpp proxl1PRrand_test.cpp
 DENSEST_SUBGRAPH_SRCS = ../densest_subgraph.cpp densest_subgraph_test.cpp ../densest_subgraph_c_interface.cpp readData.cpp ../graph_check.cpp
 CRD_SRCS = ../capacity_releasing_diffusion.cpp ../unit_flow.cpp crd_test.cpp ../crd_c_interface.cpp readData.cpp
 SL_SRCS = ../SimpleLocal.cpp ../SimpleLocal_c_interface.cpp readData.cpp SimpleLocal_test.cpp
+SL_WEIGHTED_SRCS = ../SimpleLocal_weighted.cpp ../SimpleLocal_weighted_c_interface.cpp
 TC_SRCS = ../triangleclusters.cpp
 SS_SRCS = ../set_scores.cpp
 
@@ -38,13 +39,14 @@ PROXL1PRRAND_OBJS = $(PROXL1PRRAND_SRCS:%.cpp=%.o)
 DENSEST_SUBGRAPH_OBJS = $(DENSEST_SUBGRAPH_SRCS:%.cpp=%.o)
 CRD_OBJS = $(CRD_SRCS:%.cpp=%.o)
 SL_OBJS = $(SL_SRCS:%.cpp=%.o)
+SL_WEIGHTED_OBJS = $(SL_WEIGHTED_SRCS:%.cpp=%.o)
 TC_OBJS = $(TC_SRCS:%.cpp=%.o)
 SS_OBJS = $(SS_SRCS:%.cpp=%.o)
 
-LIBOBJS = ../sweepcut.o ../aclpagerank.o ../MQI_c_interface.o ../MQI_weighted_c_interface.o ../ppr_path.o \
+LIBOBJS = ../sweepcut.o ../aclpagerank.o ../MQI.o ../MQI_weighted.o ../MQI_c_interface.o ../MQI_weighted_c_interface.o ../ppr_path.o \
 ../aclpagerank_weighted.o ../proxl1PRaccel.o ../proxl1PRrand.o ../set_scores.o ../densest_subgraph_c_interface.o \
 ../capacity_releasing_diffusion.o ../unit_flow.o ../crd_c_interface.o ../SimpleLocal.o ../SimpleLocal_c_interface.o \
-../triangleclusters.o
+../SimpleLocal_weighted.o ../SimpleLocal_weighted_c_interface.o ../triangleclusters.o
 
 all: sweepcut aclpagerank MQI ppr_path aclpagerank_weighted proxl1PRaccel densest_subgraph capacity_releasing_diffusion SimpleLocal $(LIB)
 
@@ -74,7 +76,7 @@ $(LIB): $(LIBOBJS)
 
 
 TARGET := sweepcut aclpagerank MQI ppr_path aclpagerank_weighted proxl1PRaccel proxl1PRrand densest_subgraph SimpleLocal capacity_releasing_diffusion set_scores
-OBJS := $(SWEEPCUT_OBJS) $(ACLPAGERANK_OBJS) $(MQI_OBJS) $(MQI_WEIGHTED_OBJS) $(PPR_PATH_OBJS) $(ACLPAGERANK_WEIGHTED_OBJS) $(PROXL1PRACCEL_OBJS) $(DENSEST_SUBGRAPH_OBJS) $(CRD_OBJS) $(SL_OBJS) $(TC_OBJS) $(SS_OBJS)
+OBJS := $(SWEEPCUT_OBJS) $(ACLPAGERANK_OBJS) $(MQI_OBJS) $(MQI_WEIGHTED_OBJS) $(PPR_PATH_OBJS) $(ACLPAGERANK_WEIGHTED_OBJS) $(PROXL1PRACCEL_OBJS) $(DENSEST_SUBGRAPH_OBJS) $(CRD_OBJS) $(SL_OBJS) $(SL_WEIGHTED_OBJS) $(TC_OBJS) $(SS_OBJS)
 
 test:
 	./sweepcut
