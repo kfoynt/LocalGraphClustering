@@ -13,6 +13,7 @@
 #include <tuple>
 #include <fstream>
 #include <limits>
+#include <numeric> 
 
 
 using namespace std;
