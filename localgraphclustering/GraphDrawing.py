@@ -301,10 +301,12 @@ class GraphDrawing:
         Parameters
         ----------
         **kwargs: same as the parameters in matplotlib scatter
-        """
+        """            
         coords = self.coords
         if len(self.coords[0]) == 2:
-            self.nodes_collection = self.ax.scatter([p[0] for p in coords],[p[1] for p in coords],**kwargs)
+#             self.nodes_collection = self.ax.scatter([p[0] for p in coords],[p[1] for p in coords],**kwargs)
+            for _s, _m, _c, _zorder, _x, _y in zip(kwargs['s'], kwargs['marker'], kwargs['c'], kwargs['zorder'], coords[:,0], coords[:,1]):
+                self.nodes_collection = self.ax.scatter(_x, _y, marker=_m, s=_s, c=_c, zorder=_zorder, cmap=kwargs['cmap'], vmin=kwargs['vmin'], vmax=kwargs['vmax'], alpha=kwargs['alpha'], edgecolors=kwargs['edgecolors'])
         else:
             self.nodes_collection = self.ax.scatter([p[0] for p in coords],[p[1] for p in coords],[p[2] for p in coords],**kwargs)
         self.ax.add_collection(self.nodes_collection)

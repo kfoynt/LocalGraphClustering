@@ -804,8 +804,8 @@ class GraphLocal:
         return drawing
 
 
-    def draw_groups(self,coords,groups,alpha=1.0,nodesize=5,linewidth=1,
-         nodealpha=1.0,edgealpha=0.01,edgecolor='k',nodemarker='o',node_color_list=[],axs=None,
+    def draw_groups(self,coords,groups,alpha=1.0,nodesize_list=[],linewidth=1,
+         nodealpha=1.0,edgealpha=0.01,edgecolor='k',nodemarker_list=[],node_color_list=[],nodeorder_list=[],axs=None,
          fig=None,cm=None,angle=30,figsize=None):
         """
         Standard drawing function when having multiple clusters
@@ -831,13 +831,13 @@ class GraphLocal:
         edgealpha: float (1.0 by default)
             the overall edge alpha scaling of the plot, [0, 1]
 
-        nodecolor: string or RGB ('r' by default)
+        nodecolor_list: list of string or RGB ('r' by default)
 
         edgecolor: string or RGB ('k' by default)
 
-        nodemarker: string ('o' by default)
+        nodemarker_list: list of strings ('o' by default)
 
-        nodesize: float (5.0 by default)
+        nodesize_list: list of floats (5.0 by default)
 
         linewidth: float (1.0 by default)
 
@@ -860,8 +860,17 @@ class GraphLocal:
         #when values are not provided, use tab20 or gist_ncar colormap to determine colors
         number_of_colors = 1
         l_initial_node_color_list = len(node_color_list)
+        l_initial_nodesize_list = len(nodesize_list)
+        l_initial_nodemarker_list = len(nodemarker_list)
+        l_initial_nodeorder_list = len(nodeorder_list)
         if l_initial_node_color_list == 0:
             node_color_list = np.zeros(self._num_vertices)
+        if l_initial_nodesize_list == 0:
+            nodesize_list = 5*np.ones(self._num_vertices)
+        if l_initial_nodemarker_list == 0:
+            nodemarker_list = ['o']*self._num_vertices
+        if l_initial_nodeorder_list == 0:
+            nodeorder_list = 5*np.ones(self._num_vertices)
         groups = np.asarray(groups)
         if groups.ndim == 1:
             #convert 1-d group to a 2-d representation
@@ -884,8 +893,7 @@ class GraphLocal:
         #m = ScalarMappable(norm=Normalize(vmin=vmin,vmax=vmax), cmap=cm)
         #rgba_list = m.to_rgba(node_color_list,alpha=alpha*nodealpha)
 
-        self._plotting(drawing,edgecolor,edgealpha,linewidth,len(coords[0])==3,s=nodesize,marker=nodemarker,zorder=2,
-            cmap=cm,vmin=vmin,vmax=vmax,alpha=alpha*nodealpha,edgecolors='none',c=node_color_list)
+        self._plotting(drawing,edgecolor,edgealpha,linewidth,len(coords[0])==3,s=nodesize_list,marker=nodemarker_list,zorder=nodeorder_list,cmap=cm,vmin=vmin,vmax=vmax,alpha=alpha*nodealpha,edgecolors='none',c=node_color_list)
 
         return drawing
 
