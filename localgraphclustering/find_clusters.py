@@ -2,11 +2,13 @@ import scipy as sp
 import numpy as np
 import time
 import random
+import multiprocessing as mp
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import pairwise_distances
 from joblib import Parallel, delayed
 from .approximate_PageRank import approximate_PageRank
 from .approximate_PageRank_weighted import approximate_PageRank_weighted
+from .spectral_clustering import spectral_clustering
 from .flow_clustering import flow_clustering
 
 from .GraphLocal import GraphLocal
@@ -819,3 +821,175 @@ def compute_clusters_from_region_adjacency(g,nclusters,Z,info,linkage: str = 'co
             expanded_labels[j] = labels[i]
     
     return expanded_labels 
+
+
+def semisupervised_learning_with_improve(g,truth,kwargs_list,nprocs=1):
+    input_size_all = []
+    l1reg_PR_all = []
+    l1reg_RC_all = []
+    l1reg_F1_all = []
+    mqi_PR_all = []
+    mqi_RC_all = []
+    mqi_F1_all = []
+    sl_PR_all = []
+    sl_RC_all = []
+    sl_F1_all = []
+    def wrapper(q_in,q_out):
+        while True:
+            kwargs = q_in.get()
+            if kwargs is None:
+                break
+            delta = kwargs["delta"]
+            del kwargs["delta"]
+            ntrials = 0
+            input_size_curr = []
+            l1reg_PR_curr = []
+            l1reg_RC_curr = []
+            l1reg_F1_curr = []
+            mqi_PR_curr = []
+            mqi_RC_curr = []
+            mqi_F1_curr = []
+            sl_PR_curr = []
+            sl_RC_curr = []
+            sl_F1_curr = []
+            while ntrials < 20:
+                seed_node = np.random.choice(truth)
+                l1reg_output = spectral_clustering(g,[seed_node],**kwargs)[0]
+                if len(l1reg_output) == 0:
+                    continue
+                input_size_curr.append(len(l1reg_output))
+                if g._weighted:
+                    mqi_output = flow_clustering(g,l1reg_output,method="mqi_weighted")[0]
+                    sl_output = flow_clustering(g,l1reg_output,method="sl_weighted",delta=delta)[0]
+                else:
+                    mqi_output = flow_clustering(g,l1reg_output,method="mqi")[0]
+                    sl_output = flow_clustering(g,l1reg_output,method="sl",delta=delta)[0]
+                l1reg_PR = len(set(truth).intersection(l1reg_output))/(1.0*len(l1reg_output))
+                l1reg_RC = len(set(truth).intersection(l1reg_output))/(1.0*len(truth))
+                l1reg_PR_curr.append(l1reg_PR)
+                l1reg_RC_curr.append(l1reg_RC)
+                l1reg_F1_curr.append(2*(l1reg_PR*l1reg_RC)/(l1reg_PR+l1reg_RC)) if (l1reg_PR+l1reg_RC) > 0 else 0
+                mqi_PR = len(set(truth).intersection(mqi_output))/(1.0*len(mqi_output))
+                mqi_RC = len(set(truth).intersection(mqi_output))/(1.0*len(truth))
+                mqi_PR_curr.append(mqi_PR)
+                mqi_RC_curr.append(mqi_RC)
+                mqi_F1_curr.append(2*(mqi_PR*mqi_RC)/(mqi_PR+mqi_RC)) if (mqi_PR+mqi_RC) > 0 else 0
+                sl_PR = len(set(truth).intersection(sl_output))/(1.0*len(sl_output))
+                sl_RC = len(set(truth).intersection(sl_output))/(1.0*len(truth))
+                sl_PR_curr.append(sl_PR)
+                sl_RC_curr.append(sl_RC)
+                sl_F1_curr.append(2*(sl_PR*sl_RC)/(sl_PR+sl_RC)) if (sl_PR+sl_RC) > 0 else 0
+                ntrials += 1
+            q_out.put((np.mean(input_size_curr),np.std(input_size_curr),
+                       np.mean(l1reg_PR_curr),np.std(l1reg_PR_curr),
+                       np.mean(l1reg_RC_curr),np.std(l1reg_RC_curr),
+                       np.mean(l1reg_F1_curr),np.std(l1reg_F1_curr),
+                       np.mean(mqi_PR_curr),np.std(mqi_PR_curr),
+                       np.mean(mqi_RC_curr),np.std(mqi_RC_curr),
+                       np.mean(mqi_F1_curr),np.std(mqi_F1_curr),
+                       np.mean(sl_PR_curr),np.std(sl_PR_curr),
+                       np.mean(sl_RC_curr),np.std(sl_RC_curr),
+                       np.mean(sl_F1_curr),np.std(sl_F1_curr)))
+    q_in,q_out = mp.Queue(),mp.Queue()
+    for kwargs in kwargs_list:
+        q_in.put(kwargs)
+    for _ in range(nprocs):
+        q_in.put(None)
+    procs = [mp.Process(target=wrapper,args=(q_in,q_out)) for _ in range(nprocs)]
+    for p in procs:
+        p.start()
+    ncounts = 0
+    while ncounts < len(kwargs_list):
+        output = q_out.get()
+        input_size_all.append((output[0],output[1]))
+        l1reg_PR_all.append((output[2],output[3]))
+        l1reg_RC_all.append((output[4],output[5]))
+        l1reg_F1_all.append((output[6],output[7]))
+        mqi_PR_all.append((output[8],output[9]))
+        mqi_RC_all.append((output[10],output[11]))
+        mqi_F1_all.append((output[12],output[13]))
+        sl_PR_all.append((output[14],output[15]))
+        sl_RC_all.append((output[16],output[17]))
+        sl_F1_all.append((output[18],output[19]))
+        ncounts += 1
+    for p in procs:
+        p.join()
+    return locals()
+
+
+def semisupervised_learning(g,truth,kwargs_list,nprocs=1):
+    input_size_all = []
+    l1reg_PR_all = []
+    l1reg_RC_all = []
+    l1reg_F1_all = []
+    sl_PR_all = []
+    sl_RC_all = []
+    sl_F1_all = []
+    def wrapper(q_in,q_out):
+        while True:
+            kwargs = q_in.get()
+            if kwargs is None:
+                break
+            delta = kwargs["delta"]
+            del kwargs["delta"]
+            ratio = kwargs["ratio"]
+            del kwargs["ratio"]
+            ntrials = 0
+            input_size_curr = []
+            l1reg_PR_curr = []
+            l1reg_RC_curr = []
+            l1reg_F1_curr = []
+            sl_PR_curr = []
+            sl_RC_curr = []
+            sl_F1_curr = []
+            nseeds = int(ratio*len(truth))
+            while ntrials < 20:
+                seeds = np.random.choice(truth,nseeds)
+                l1reg_output = spectral_clustering(g,seeds,**kwargs)[0]
+                if len(l1reg_output) == 0:
+                    continue
+                input_size_curr.append(len(l1reg_output))
+                if g._weighted:
+                    sl_output = flow_clustering(g,seeds,method="sl_weighted",delta=delta)[0]
+                else:
+                    sl_output = flow_clustering(g,seeds,method="sl",delta=delta)[0]
+                l1reg_PR = len(set(truth).intersection(l1reg_output))/(1.0*len(l1reg_output))
+                l1reg_RC = len(set(truth).intersection(l1reg_output))/(1.0*len(truth))
+                l1reg_PR_curr.append(l1reg_PR)
+                l1reg_RC_curr.append(l1reg_RC)
+                l1reg_F1_curr.append(2*(l1reg_PR*l1reg_RC)/(l1reg_PR+l1reg_RC)) if (l1reg_PR+l1reg_RC) > 0 else 0
+                sl_PR = len(set(truth).intersection(sl_output))/(1.0*len(sl_output))
+                sl_RC = len(set(truth).intersection(sl_output))/(1.0*len(truth))
+                sl_PR_curr.append(sl_PR)
+                sl_RC_curr.append(sl_RC)
+                sl_F1_curr.append(2*(sl_PR*sl_RC)/(sl_PR+sl_RC)) if (sl_PR+sl_RC) > 0 else 0
+                ntrials += 1
+            q_out.put((np.mean(input_size_curr),np.std(input_size_curr),
+                       np.mean(l1reg_PR_curr),np.std(l1reg_PR_curr),
+                       np.mean(l1reg_RC_curr),np.std(l1reg_RC_curr),
+                       np.mean(l1reg_F1_curr),np.std(l1reg_F1_curr),
+                       np.mean(sl_PR_curr),np.std(sl_PR_curr),
+                       np.mean(sl_RC_curr),np.std(sl_RC_curr),
+                       np.mean(sl_F1_curr),np.std(sl_F1_curr)))
+    q_in,q_out = mp.Queue(),mp.Queue()
+    for kwargs in kwargs_list:
+        q_in.put(kwargs)
+    for _ in range(nprocs):
+        q_in.put(None)
+    procs = [mp.Process(target=wrapper,args=(q_in,q_out)) for _ in range(nprocs)]
+    for p in procs:
+        p.start()
+    ncounts = 0
+    while ncounts < len(kwargs_list):
+        output = q_out.get()
+        input_size_all.append((output[0],output[1]))
+        l1reg_PR_all.append((output[2],output[3]))
+        l1reg_RC_all.append((output[4],output[5]))
+        l1reg_F1_all.append((output[6],output[7]))
+        sl_PR_all.append((output[8],output[9]))
+        sl_RC_all.append((output[10],output[11]))
+        sl_F1_all.append((output[12],output[13]))
+        ncounts += 1
+    for p in procs:
+        p.join()
+    return locals()
