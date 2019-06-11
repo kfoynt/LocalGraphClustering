@@ -917,8 +917,7 @@ def semisupervised_learning_with_improve(g,truth,kwargs_list,nprocs=1):
     return locals()
 
 
-def semisupervised_learning(g,truth,kwargs_list,nprocs=1):
-    input_size_all = []
+def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1):
     l1reg_PR_all = []
     l1reg_RC_all = []
     l1reg_F1_all = []
@@ -935,37 +934,52 @@ def semisupervised_learning(g,truth,kwargs_list,nprocs=1):
             ratio = kwargs["ratio"]
             del kwargs["ratio"]
             ntrials = 0
-            input_size_curr = []
             l1reg_PR_curr = []
             l1reg_RC_curr = []
             l1reg_F1_curr = []
             sl_PR_curr = []
             sl_RC_curr = []
             sl_F1_curr = []
-            nseeds = int(ratio*len(truth))
+            nlabels = len(list(truth_dict.keys()))
             while ntrials < 20:
-                seeds = np.random.choice(truth,nseeds)
-                l1reg_output = spectral_clustering(g,seeds,**kwargs)[0]
-                if len(l1reg_output) == 0:
-                    continue
-                input_size_curr.append(len(l1reg_output))
-                if g._weighted:
-                    sl_output = flow_clustering(g,seeds,method="sl_weighted",delta=delta)[0]
-                else:
-                    sl_output = flow_clustering(g,seeds,method="sl",delta=delta)[0]
-                l1reg_PR = len(set(truth).intersection(l1reg_output))/(1.0*len(l1reg_output))
-                l1reg_RC = len(set(truth).intersection(l1reg_output))/(1.0*len(truth))
+                l1reg_labels = np.zeros(g._num_vertices) - 1
+                true_labels = np.zeros(g._num_vertices) - 1
+                sl_labels = np.zeros(g._num_vertices) - 1
+                ranking = np.zeros(g._num_vertices) - 1
+                npositives = 0
+                for lid,label in enumerate(sorted(list(truth_dict.keys()))):
+                    truth = truth_dict[label]
+                    npositives += len(truth)
+                    true_labels[truth] = lid
+                    nseeds = int(ratio*len(truth))
+                    seeds = np.random.choice(truth,nseeds)
+                    l1reg_ids,l1reg_vals = approximate_PageRank(g,seeds,**kwargs)
+                    sorted_indices = np.argsort(-1*l1reg_vals)
+                    for i,idx in enumerate(sorted_indices):
+                        if ranking[l1reg_ids[idx]] == -1 or i < ranking[l1reg_ids[idx]]:
+                            ranking[l1reg_ids[idx]] = i
+                            l1reg_labels[l1reg_ids[idx]] = lid
+                    if g._weighted:
+                        sl_output = flow_clustering(g,seeds,method="sl_weighted",delta=delta)[0]
+                    else:
+                        sl_output = flow_clustering(g,seeds,method="sl",delta=delta)[0]
+                    for i,idx in enumerate(sl_output):
+                        if sl_labels[idx] == -1:
+                            sl_labels[idx] = lid
+                        else:
+                            sl_labels[idx] = nlabels + 1
+                l1reg_PR = np.sum((l1reg_labels == true_labels))/(1.0*np.sum(l1reg_labels!=-1))
+                l1reg_RC = np.sum((l1reg_labels == true_labels))/(1.0*npositives)
                 l1reg_PR_curr.append(l1reg_PR)
                 l1reg_RC_curr.append(l1reg_RC)
                 l1reg_F1_curr.append(2*(l1reg_PR*l1reg_RC)/(l1reg_PR+l1reg_RC)) if (l1reg_PR+l1reg_RC) > 0 else 0
-                sl_PR = len(set(truth).intersection(sl_output))/(1.0*len(sl_output))
-                sl_RC = len(set(truth).intersection(sl_output))/(1.0*len(truth))
+                sl_PR = np.sum((sl_labels == true_labels))/(1.0*np.sum(sl_labels!=-1))
+                sl_RC = np.sum((sl_labels == true_labels))/(1.0*npositives)
                 sl_PR_curr.append(sl_PR)
                 sl_RC_curr.append(sl_RC)
                 sl_F1_curr.append(2*(sl_PR*sl_RC)/(sl_PR+sl_RC)) if (sl_PR+sl_RC) > 0 else 0
                 ntrials += 1
-            q_out.put((np.mean(input_size_curr),np.std(input_size_curr),
-                       np.mean(l1reg_PR_curr),np.std(l1reg_PR_curr),
+            q_out.put((np.mean(l1reg_PR_curr),np.std(l1reg_PR_curr),
                        np.mean(l1reg_RC_curr),np.std(l1reg_RC_curr),
                        np.mean(l1reg_F1_curr),np.std(l1reg_F1_curr),
                        np.mean(sl_PR_curr),np.std(sl_PR_curr),
@@ -982,14 +996,19 @@ def semisupervised_learning(g,truth,kwargs_list,nprocs=1):
     ncounts = 0
     while ncounts < len(kwargs_list):
         output = q_out.get()
-        input_size_all.append((output[0],output[1]))
-        l1reg_PR_all.append((output[2],output[3]))
-        l1reg_RC_all.append((output[4],output[5]))
-        l1reg_F1_all.append((output[6],output[7]))
-        sl_PR_all.append((output[8],output[9]))
-        sl_RC_all.append((output[10],output[11]))
-        sl_F1_all.append((output[12],output[13]))
+        l1reg_PR_all.append((output[0],output[1]))
+        l1reg_RC_all.append((output[2],output[3]))
+        l1reg_F1_all.append((output[4],output[5]))
+        sl_PR_all.append((output[6],output[7]))
+        sl_RC_all.append((output[8],output[9]))
+        sl_F1_all.append((output[10],output[11]))
         ncounts += 1
     for p in procs:
         p.join()
+    
+    del procs
+    del p
+    del q_in
+    del q_out
+    del wrapper
     return locals()
