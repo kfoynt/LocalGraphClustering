@@ -1012,3 +1012,7 @@ def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1):
     del q_out
     del wrapper
     return locals()
+
+def seed_grow_bfs(g,seeds,ratio):
+    nseeds = int(g._num_vertices*ratio)
+    

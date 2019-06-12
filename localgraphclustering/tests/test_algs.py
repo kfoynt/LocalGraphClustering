@@ -59,7 +59,7 @@ def test_GraphLocal_methods():
 
     groups = np.loadtxt('notebooks/datasets/sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh.class', dtype = 'float')
 
-    drawing = g.draw_groups(pos,groups,figsize=(15,15),nodesize=10**2,edgealpha=0.05)
+    drawing = g.draw_groups(pos,groups,figsize=(15,15),nodesize_list=[10**2]*len(groups),edgealpha=0.05)
 
     # Find the solution of L1-regularized PageRank using localized accelerated gradient descent.
     # This method is the fastest among other l1-regularized solvers and other approximate PageRank solvers.
@@ -83,7 +83,7 @@ def test_GraphLocal_methods():
     drawing.show()
 
     #redraw the graph first
-    drawing = g.draw_groups(pos,groups,figsize=(15,15),nodesize=5**2,edgealpha=0.05)
+    drawing = g.draw_groups(pos,groups,figsize=(15,15),nodesize_list=[5**2]*len(groups),edgealpha=0.05)
 
     # Nodes circled whose color is not blue are missclassified
     drawing.nodecolor(l1_reg_vector_rounded,edgecolor='g',alpha=1)
