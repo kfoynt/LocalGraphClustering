@@ -863,14 +863,16 @@ class GraphLocal:
         l_initial_nodesize_list = len(nodesize_list)
         l_initial_nodemarker_list = len(nodemarker_list)
         l_initial_nodeorder_list = len(nodeorder_list)
+        
         if l_initial_node_color_list == 0:
             node_color_list = np.zeros(self._num_vertices)
         if l_initial_nodesize_list == 0:
-            nodesize_list = 5*np.ones(self._num_vertices)
+            nodesize_list = 25*np.ones(self._num_vertices)
         if l_initial_nodemarker_list == 0:
-            nodemarker_list = ['o']*self._num_vertices
+            nodemarker_list = 'o'
         if l_initial_nodeorder_list == 0:
-            nodeorder_list = 5*np.ones(self._num_vertices)
+            nodeorder_list = 2
+            
         groups = np.asarray(groups)
         if groups.ndim == 1:
             #convert 1-d group to a 2-d representation
