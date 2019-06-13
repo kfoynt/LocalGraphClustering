@@ -2,7 +2,10 @@ import scipy as sp
 import numpy as np
 import time
 import random
+import queue
 import multiprocessing as mp
+import copy
+from collections import defaultdict
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import pairwise_distances
 from joblib import Parallel, delayed
@@ -831,9 +834,9 @@ def semisupervised_learning_with_improve(g,truth,kwargs_list,nprocs=1):
     mqi_PR_all = []
     mqi_RC_all = []
     mqi_F1_all = []
-    sl_PR_all = []
-    sl_RC_all = []
-    sl_F1_all = []
+    flow_PR_all = []
+    flow_RC_all = []
+    flow_F1_all = []
     def wrapper(q_in,q_out):
         while True:
             kwargs = q_in.get()
@@ -849,9 +852,9 @@ def semisupervised_learning_with_improve(g,truth,kwargs_list,nprocs=1):
             mqi_PR_curr = []
             mqi_RC_curr = []
             mqi_F1_curr = []
-            sl_PR_curr = []
-            sl_RC_curr = []
-            sl_F1_curr = []
+            flow_PR_curr = []
+            flow_RC_curr = []
+            flow_F1_curr = []
             while ntrials < 20:
                 seed_node = np.random.choice(truth)
                 l1reg_output = spectral_clustering(g,[seed_node],**kwargs)[0]
@@ -860,10 +863,10 @@ def semisupervised_learning_with_improve(g,truth,kwargs_list,nprocs=1):
                 input_size_curr.append(len(l1reg_output))
                 if g._weighted:
                     mqi_output = flow_clustering(g,l1reg_output,method="mqi_weighted")[0]
-                    sl_output = flow_clustering(g,l1reg_output,method="sl_weighted",delta=delta)[0]
+                    flow_output = flow_clustering(g,l1reg_output,method="flow_weighted",delta=delta)[0]
                 else:
                     mqi_output = flow_clustering(g,l1reg_output,method="mqi")[0]
-                    sl_output = flow_clustering(g,l1reg_output,method="sl",delta=delta)[0]
+                    flow_output = flow_clustering(g,l1reg_output,method="flow",delta=delta)[0]
                 l1reg_PR = len(set(truth).intersection(l1reg_output))/(1.0*len(l1reg_output))
                 l1reg_RC = len(set(truth).intersection(l1reg_output))/(1.0*len(truth))
                 l1reg_PR_curr.append(l1reg_PR)
@@ -874,11 +877,11 @@ def semisupervised_learning_with_improve(g,truth,kwargs_list,nprocs=1):
                 mqi_PR_curr.append(mqi_PR)
                 mqi_RC_curr.append(mqi_RC)
                 mqi_F1_curr.append(2*(mqi_PR*mqi_RC)/(mqi_PR+mqi_RC)) if (mqi_PR+mqi_RC) > 0 else 0
-                sl_PR = len(set(truth).intersection(sl_output))/(1.0*len(sl_output))
-                sl_RC = len(set(truth).intersection(sl_output))/(1.0*len(truth))
-                sl_PR_curr.append(sl_PR)
-                sl_RC_curr.append(sl_RC)
-                sl_F1_curr.append(2*(sl_PR*sl_RC)/(sl_PR+sl_RC)) if (sl_PR+sl_RC) > 0 else 0
+                flow_PR = len(set(truth).intersection(flow_output))/(1.0*len(flow_output))
+                flow_RC = len(set(truth).intersection(flow_output))/(1.0*len(truth))
+                flow_PR_curr.append(flow_PR)
+                flow_RC_curr.append(flow_RC)
+                flow_F1_curr.append(2*(flow_PR*flow_RC)/(flow_PR+flow_RC)) if (flow_PR+flow_RC) > 0 else 0
                 ntrials += 1
             q_out.put((np.mean(input_size_curr),np.std(input_size_curr),
                        np.mean(l1reg_PR_curr),np.std(l1reg_PR_curr),
@@ -887,9 +890,9 @@ def semisupervised_learning_with_improve(g,truth,kwargs_list,nprocs=1):
                        np.mean(mqi_PR_curr),np.std(mqi_PR_curr),
                        np.mean(mqi_RC_curr),np.std(mqi_RC_curr),
                        np.mean(mqi_F1_curr),np.std(mqi_F1_curr),
-                       np.mean(sl_PR_curr),np.std(sl_PR_curr),
-                       np.mean(sl_RC_curr),np.std(sl_RC_curr),
-                       np.mean(sl_F1_curr),np.std(sl_F1_curr)))
+                       np.mean(flow_PR_curr),np.std(flow_PR_curr),
+                       np.mean(flow_RC_curr),np.std(flow_RC_curr),
+                       np.mean(flow_F1_curr),np.std(flow_F1_curr)))
     q_in,q_out = mp.Queue(),mp.Queue()
     for kwargs in kwargs_list:
         q_in.put(kwargs)
@@ -908,100 +911,109 @@ def semisupervised_learning_with_improve(g,truth,kwargs_list,nprocs=1):
         mqi_PR_all.append((output[8],output[9]))
         mqi_RC_all.append((output[10],output[11]))
         mqi_F1_all.append((output[12],output[13]))
-        sl_PR_all.append((output[14],output[15]))
-        sl_RC_all.append((output[16],output[17]))
-        sl_F1_all.append((output[18],output[19]))
+        flow_PR_all.append((output[14],output[15]))
+        flow_RC_all.append((output[16],output[17]))
+        flow_F1_all.append((output[18],output[19]))
         ncounts += 1
     for p in procs:
         p.join()
     return locals()
 
 
-def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1):
+def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1,size_ratio=0.1,use_bfs=False,flowmethod="mqi_weighted",use_spectral=True):
     l1reg_PR_all = []
     l1reg_RC_all = []
     l1reg_F1_all = []
-    sl_PR_all = []
-    sl_RC_all = []
-    sl_F1_all = []
-    def wrapper(q_in,q_out):
+    flow_PR_all = []
+    flow_RC_all = []
+    flow_F1_all = []
+    l1reg_PR_curr = defaultdict(list)
+    l1reg_RC_curr = defaultdict(list)
+    l1reg_F1_curr = defaultdict(list)
+    flow_PR_curr = defaultdict(list)
+    flow_RC_curr = defaultdict(list)
+    flow_F1_curr = defaultdict(list)
+    def wrapper(pid,q_in,q_out):
         while True:
-            kwargs = q_in.get()
+            kwargs,trial_id,delta,ratio = q_in.get()
             if kwargs is None:
                 break
-            delta = kwargs["delta"]
-            del kwargs["delta"]
-            ratio = kwargs["ratio"]
-            del kwargs["ratio"]
-            ntrials = 0
-            l1reg_PR_curr = []
-            l1reg_RC_curr = []
-            l1reg_F1_curr = []
-            sl_PR_curr = []
-            sl_RC_curr = []
-            sl_F1_curr = []
             nlabels = len(list(truth_dict.keys()))
-            while ntrials < 20:
-                l1reg_labels = np.zeros(g._num_vertices) - 1
-                true_labels = np.zeros(g._num_vertices) - 1
-                sl_labels = np.zeros(g._num_vertices) - 1
-                ranking = np.zeros(g._num_vertices) - 1
-                npositives = 0
-                for lid,label in enumerate(sorted(list(truth_dict.keys()))):
-                    truth = truth_dict[label]
-                    npositives += len(truth)
-                    true_labels[truth] = lid
-                    nseeds = int(ratio*len(truth))
-                    seeds = np.random.choice(truth,nseeds)
+            l1reg_labels = np.zeros(g._num_vertices) - 1
+            true_labels = np.zeros(g._num_vertices) - 1
+            flow_labels = np.zeros(g._num_vertices) - 1
+            ranking = np.zeros(g._num_vertices) - 1
+            npositives = 0
+            for lid,label in enumerate(sorted(list(truth_dict.keys()))):
+                truth = truth_dict[label]
+                npositives += len(truth)
+                true_labels[truth] = lid
+                nseeds = int(ratio*len(truth))
+                seeds = np.random.choice(truth,nseeds)
+                if use_spectral:
                     l1reg_ids,l1reg_vals = approximate_PageRank(g,seeds,**kwargs)
                     sorted_indices = np.argsort(-1*l1reg_vals)
                     for i,idx in enumerate(sorted_indices):
                         if ranking[l1reg_ids[idx]] == -1 or i < ranking[l1reg_ids[idx]]:
                             ranking[l1reg_ids[idx]] = i
                             l1reg_labels[l1reg_ids[idx]] = lid
-                    if g._weighted:
-                        sl_output = flow_clustering(g,seeds,method="sl_weighted",delta=delta)[0]
+                if use_bfs:
+                    seeds = seed_grow_bfs(g,seeds,size_ratio)
+                flow_output = flow_clustering(g,seeds,method=flowmethod,delta=delta)[0]
+                for i,idx in enumerate(flow_output):
+                    if flow_labels[idx] == -1:
+                        flow_labels[idx] = lid
                     else:
-                        sl_output = flow_clustering(g,seeds,method="sl",delta=delta)[0]
-                    for i,idx in enumerate(sl_output):
-                        if sl_labels[idx] == -1:
-                            sl_labels[idx] = lid
-                        else:
-                            sl_labels[idx] = nlabels + 1
+                        flow_labels[idx] = nlabels + 1
+            if use_spectral:
                 l1reg_PR = np.sum((l1reg_labels == true_labels))/(1.0*np.sum(l1reg_labels!=-1))
                 l1reg_RC = np.sum((l1reg_labels == true_labels))/(1.0*npositives)
-                l1reg_PR_curr.append(l1reg_PR)
-                l1reg_RC_curr.append(l1reg_RC)
-                l1reg_F1_curr.append(2*(l1reg_PR*l1reg_RC)/(l1reg_PR+l1reg_RC)) if (l1reg_PR+l1reg_RC) > 0 else 0
-                sl_PR = np.sum((sl_labels == true_labels))/(1.0*np.sum(sl_labels!=-1))
-                sl_RC = np.sum((sl_labels == true_labels))/(1.0*npositives)
-                sl_PR_curr.append(sl_PR)
-                sl_RC_curr.append(sl_RC)
-                sl_F1_curr.append(2*(sl_PR*sl_RC)/(sl_PR+sl_RC)) if (sl_PR+sl_RC) > 0 else 0
-                ntrials += 1
-            q_out.put((np.mean(l1reg_PR_curr),np.std(l1reg_PR_curr),
-                       np.mean(l1reg_RC_curr),np.std(l1reg_RC_curr),
-                       np.mean(l1reg_F1_curr),np.std(l1reg_F1_curr),
-                       np.mean(sl_PR_curr),np.std(sl_PR_curr),
-                       np.mean(sl_RC_curr),np.std(sl_RC_curr),
-                       np.mean(sl_F1_curr),np.std(sl_F1_curr)))
+                l1reg_F1 = 2*(l1reg_PR*l1reg_RC)/(l1reg_PR+l1reg_RC) if (l1reg_PR+l1reg_RC) > 0 else 0
+            else:
+                l1reg_PR,l1reg_RC,l1reg_F1 = 0,0,0
+            # l1reg_PR_curr.append(l1reg_PR)
+            # l1reg_RC_curr.append(l1reg_RC)
+            # l1reg_F1_curr.append() 
+            flow_PR = np.sum((flow_labels == true_labels))/(1.0*np.sum(flow_labels!=-1))
+            flow_RC = np.sum((flow_labels == true_labels))/(1.0*npositives)
+            flow_F1 = 2*(flow_PR*flow_RC)/(flow_PR+flow_RC) if (flow_PR+flow_RC) > 0 else 0
+            # flow_PR_curr.append(flow_PR)
+            # flow_RC_curr.append(flow_RC)
+            # flow_F1_curr.append() 
+            q_out.put((kwargs_id,trial_id,l1reg_PR,l1reg_RC,l1reg_F1,flow_PR,flow_RC,flow_F1))
     q_in,q_out = mp.Queue(),mp.Queue()
-    for kwargs in kwargs_list:
-        q_in.put(kwargs)
+    ntrials = 20
+    for kwargs_id in range(len(kwargs_list)):
+        kwargs = copy.deepcopy(kwargs_list[kwargs_id])
+        delta = kwargs["delta"]
+        del kwargs["delta"]
+        ratio = kwargs["ratio"]
+        del kwargs["ratio"]
+        for trial_id in range(ntrials):
+            q_in.put((kwargs,trial_id,delta,ratio))
     for _ in range(nprocs):
-        q_in.put(None)
-    procs = [mp.Process(target=wrapper,args=(q_in,q_out)) for _ in range(nprocs)]
+        q_in.put((None,None,None,None))
+    procs = [mp.Process(target=wrapper,args=(pid,q_in,q_out)) for pid in range(nprocs)]
     for p in procs:
         p.start()
     ncounts = 0
-    while ncounts < len(kwargs_list):
-        output = q_out.get()
-        l1reg_PR_all.append((output[0],output[1]))
-        l1reg_RC_all.append((output[2],output[3]))
-        l1reg_F1_all.append((output[4],output[5]))
-        sl_PR_all.append((output[6],output[7]))
-        sl_RC_all.append((output[8],output[9]))
-        sl_F1_all.append((output[10],output[11]))
+    while ncounts < len(kwargs_list)*ntrials:
+        if ncounts%10 == 0:
+            print("Finished "+str(ncounts)+"/"+str(len(kwargs_list)*ntrials)+" experiments.")
+        kwargs_id,trial_id,l1reg_PR,l1reg_RC,l1reg_F1,flow_PR,flow_RC,flow_F1 = q_out.get()
+        l1reg_PR_curr[kwargs_id].append(l1reg_PR)
+        l1reg_RC_curr[kwargs_id].append(l1reg_RC)
+        l1reg_F1_curr[kwargs_id].append(l1reg_F1)
+        flow_PR_curr[kwargs_id].append(flow_PR)
+        flow_RC_curr[kwargs_id].append(flow_RC)
+        flow_F1_curr[kwargs_id].append(flow_F1)
+        if trial_id == ntrials - 1:
+            l1reg_PR_all.append((np.mean(l1reg_PR_curr[kwargs_id]),np.std(l1reg_PR_curr[kwargs_id])))
+            l1reg_RC_all.append((np.mean(l1reg_RC_curr[kwargs_id]),np.std(l1reg_RC_curr[kwargs_id])))
+            l1reg_F1_all.append((np.mean(l1reg_F1_curr[kwargs_id]),np.std(l1reg_F1_curr[kwargs_id])))
+            flow_PR_all.append((np.mean(flow_PR_curr[kwargs_id]),np.std(flow_PR_curr[kwargs_id])))
+            flow_RC_all.append((np.mean(flow_RC_curr[kwargs_id]),np.std(flow_RC_curr[kwargs_id])))
+            flow_F1_all.append((np.mean(flow_F1_curr[kwargs_id]),np.std(flow_F1_curr[kwargs_id])))
         ncounts += 1
     for p in procs:
         p.join()
@@ -1014,5 +1026,29 @@ def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1):
     return locals()
 
 def seed_grow_bfs(g,seeds,ratio):
+    """
+    grow the initial seed set through BFS until its size reaches 
+    a given ratio of the total number of nodes.
+    """
     nseeds = int(g._num_vertices*ratio)
-    
+    Q = queue.Queue()
+    visited = np.zeros(g._num_vertices)
+    visited[seeds] = 1
+    for s in seeds:
+        Q.put(s)
+    if isinstance(seeds,np.ndarray):
+        seeds = seeds.tolist()
+    else:
+        seeds = list(seeds)
+    while len(seeds) < nseeds:
+        node = Q.get()
+        si,ei = g.adjacency_matrix.indptr[node],g.adjacency_matrix.indptr[node+1]
+        neighs = g.adjacency_matrix.indices[si:ei]
+        for i in range(len(neighs)):
+            if visited[neighs[i]] == 0:
+                visited[neighs[i]] = 1
+                seeds.append(neighs[i])
+                Q.put(neighs[i])
+            if len(seeds) == nseeds:
+                break
+    return seeds
