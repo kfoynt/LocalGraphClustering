@@ -935,7 +935,7 @@ def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1,size_ratio=0.1,use
     flow_F1_curr = defaultdict(list)
     def wrapper(pid,q_in,q_out):
         while True:
-            kwargs,trial_id,delta,ratio = q_in.get()
+            kwargs,kwargs_id,trial_id,delta,ratio = q_in.get()
             if kwargs is None:
                 break
             nlabels = len(list(truth_dict.keys()))
@@ -949,6 +949,7 @@ def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1,size_ratio=0.1,use
                 npositives += len(truth)
                 true_labels[truth] = lid
                 nseeds = int(ratio*len(truth))
+                np.random.seed(int(1000*time.time())%(2**32 - 1))
                 seeds = np.random.choice(truth,nseeds)
                 if use_spectral:
                     l1reg_ids,l1reg_vals = approximate_PageRank(g,seeds,**kwargs)
@@ -990,9 +991,9 @@ def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1,size_ratio=0.1,use
         ratio = kwargs["ratio"]
         del kwargs["ratio"]
         for trial_id in range(ntrials):
-            q_in.put((kwargs,trial_id,delta,ratio))
+            q_in.put((kwargs,kwargs_id,trial_id,delta,ratio))
     for _ in range(nprocs):
-        q_in.put((None,None,None,None))
+        q_in.put((None,None,None,None,None))
     procs = [mp.Process(target=wrapper,args=(pid,q_in,q_out)) for pid in range(nprocs)]
     for p in procs:
         p.start()
