@@ -141,7 +141,12 @@ class GraphLocal:
         if filename != None:
             self.read_graph(filename, file_type = file_type, separator = separator, remove_whitespace = remove_whitespace,
                 header = header, headerrow = headerrow, vtype=vtype, itype=itype)
-
+    
+    def __eq__(self,other):
+        if not isinstance(other, GraphLocal):
+            return NotImplemented
+        return np.array_equal(self.ai,other.ai) and np.array_equal(self.aj,other.aj) and np.array_equal(self.adjacency_matrix.data,other.adjacency_matrix.data)
+    
     def read_graph(self, filename, file_type='edgelist', separator='\t', remove_whitespace=False, header=False, headerrow=None, vtype=np.uint32, itype=np.uint32):
         """
         Reads the graph from an edgelist, gml or graphml file and initializes the class attribute adjacency_matrix.

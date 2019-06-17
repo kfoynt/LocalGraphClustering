@@ -7,6 +7,9 @@ import random
 def load_example_graph(vtype,itype):
     return GraphLocal("localgraphclustering/tests/data/dolphins.edges",separator=" ",vtype=vtype,itype=itype)
 
+def load_example_weighted_graph(vtype,itype):
+    return GraphLocal("localgraphclustering/tests/data/neuro-fmri-01.edges",header=True,separator=" ",vtype=vtype,itype=itype)
+
 def generate_random_3Dgraph(n_nodes, radius, seed=None):
 
     if seed is not None:
@@ -22,6 +25,9 @@ def generate_random_3Dgraph(n_nodes, radius, seed=None):
 
 def test_GraphLocal_methods():
     g = load_example_graph(np.uint32,np.uint32)
+    g1 = GraphLocal.from_shared(g.to_shared())
+    assert(g == g1)
+    
     g.largest_component()
     g.biconnected_components()
     g.core_number()
@@ -34,9 +40,7 @@ def test_GraphLocal_methods():
     g1 = GraphLocal()
     g1.list_to_gl(ei,ej,e)
 
-    assert(np.array_equal(g1.ai,g.ai))
-    assert(np.array_equal(g1.aj,g.aj))
-    assert(np.array_equal(g1.adjacency_matrix.data,g.adjacency_matrix.data))
+    assert(g1 == g)
 
     g1.discard_weights()
 
@@ -172,13 +176,24 @@ def setup_flow_clustering_test(g):
         phi = g.set_scores(flow_clustering(g,R,method=method)[0])["cond"]
         assert(phi <= phi0)
 
-def setup_mqi_weighted_test():
+def setup_flow_weighted_test():
     for vtype,itype in [(np.uint32,np.uint32),(np.uint32,np.int64),(np.int64,np.int64)]:
         g = load_example_graph(vtype,itype)
         g.discard_weights()
-        cond1 = MQI(g,range(20))[1]
-        cond2 = MQI_weighted(g,range(20))[1]
+        cond1 = flow_clustering(g,range(20),method="mqi")[1]
+        cond2 = flow_clustering(g,range(20),method="mqi_weighted")[1]
         # MQI_weighted should give the same result as MQI when running on unweighted graph
+        assert(cond1 == cond2)
+        cond1 = flow_clustering(g,range(20),method="sl")[1]
+        cond2 = flow_clustering(g,range(20),method="sl_weighted")[1]
+        # sl_weighted should give the same result as sl when running on unweighted graph
+        assert(cond1 == cond2)
+    for vtype,itype in [(np.uint32,np.uint32),(np.uint32,np.int64),(np.int64,np.int64)]:
+        g = load_example_weighted_graph(vtype,itype)
+        g1 = g.largest_component()
+        cond1 = flow_clustering(g1,range(100),method="mqi_weighted")[1]
+        cond2 = flow_clustering(g1,range(100),method="sl_weighted",delta=1.0e6)[1]
+        # sl_weighted should give the same result as mqi_weighted when delta is large
         assert(cond1 == cond2)
     # create a 100 node clique
     edges = []
