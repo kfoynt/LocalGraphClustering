@@ -36,7 +36,7 @@ jobs:
       script:
         # Output something every 10 minutes or Travis kills the job
         - while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - coverage run --source=localgraphclustering --omit=localgraphclustering/tests/* -m pytest --notebook-tests --long-tests --test-plots localgraphclustering/tests/
+        - coverage run --rcfile=.coveragerc -m pytest --notebook-tests --long-tests --test-plots localgraphclustering/tests/
         # Killing background sleep loop
         - kill %1
       after_success:
