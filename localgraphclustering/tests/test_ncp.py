@@ -120,22 +120,22 @@ def test_apr_refine():
         random_neighborhoods=False, localmins=False,
         spectral_args={'refine': lgc.partialfunc(lgc.flow_clustering, method="mqi")})
 
-@pytest.mark.long_tests
-def test_ncp_crd_big():
-    G = lgc.GraphLocal()
-    G.read_graph("notebooks/datasets/minnesota.edgelist","edgelist", remove_whitespace=True)
-    ncp_instance = lgc.NCPData(G)
-    df = ncp_instance.crd(ratio=0.5,w=10,U=10,h=1000,nthreads=4)
-    ncp_plots = lgc.ncpplots.NCPPlots(df)
+# @pytest.mark.long_tests
+# def test_ncp_crd_big():
+#     G = lgc.GraphLocal()
+#     G.read_graph("notebooks/datasets/minnesota.edgelist","edgelist", remove_whitespace=True)
+#     ncp_instance = lgc.NCPData(G)
+#     df = ncp_instance.crd(ratio=0.5,w=10,U=10,h=1000,nthreads=4)
+#     ncp_plots = lgc.ncpplots.NCPPlots(df)
 
-@pytest.mark.long_tests
-def test_ncp_l1reg_big():
-    G = lgc.GraphLocal()
-    G.read_graph("notebooks/datasets/neuro-fmri-01.edges","edgelist", " ", header=True)
-    Glcc = G.largest_component()
-    print(Glcc.adjacency_matrix.data)
-    ncp_instance = lgc.NCPData(G)
-    df = ncp_instance.l1reg(ratio=0.5,nthreads=4)
+# @pytest.mark.long_tests
+# def test_ncp_l1reg_big():
+#     G = lgc.GraphLocal()
+#     G.read_graph("notebooks/datasets/neuro-fmri-01.edges","edgelist", " ", header=True)
+#     Glcc = G.largest_component()
+#     print(Glcc.adjacency_matrix.data)
+#     ncp_instance = lgc.NCPData(G)
+#     df = ncp_instance.l1reg(ratio=0.5,nthreads=4)
 
 def read_minnesota():
     g = lgc.GraphLocal('notebooks/datasets/minnesota.edgelist','edgelist',' ')
