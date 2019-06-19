@@ -1,0 +1,5 @@
+[run]
+source = localgraphclustering
+omit = 
+    localgraphclustering/tests/* 
+    localgraphclustering/find_clusters.py
