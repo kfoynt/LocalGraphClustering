@@ -921,12 +921,12 @@ def semisupervised_learning_with_improve(g,truth,kwargs_list,nprocs=1):
 
 
 def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1,size_ratio=0.1,use_bfs=False,flowmethod="mqi_weighted",use_spectral=True):
-    l1reg_PR_all = []
-    l1reg_RC_all = []
-    l1reg_F1_all = []
-    flow_PR_all = []
-    flow_RC_all = []
-    flow_F1_all = []
+    l1reg_PR_all = np.zeros((len(kwargs_list),3))
+    l1reg_RC_all = np.zeros((len(kwargs_list),3))
+    l1reg_F1_all = np.zeros((len(kwargs_list),3))
+    flow_PR_all = np.zeros((len(kwargs_list),3))
+    flow_RC_all = np.zeros((len(kwargs_list),3))
+    flow_F1_all = np.zeros((len(kwargs_list),3))
     l1reg_PR_curr = defaultdict(list)
     l1reg_RC_curr = defaultdict(list)
     l1reg_F1_curr = defaultdict(list)
@@ -983,7 +983,7 @@ def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1,size_ratio=0.1,use
             # flow_F1_curr.append() 
             q_out.put((kwargs_id,trial_id,l1reg_PR,l1reg_RC,l1reg_F1,flow_PR,flow_RC,flow_F1))
     q_in,q_out = mp.Queue(),mp.Queue()
-    ntrials = 20
+    ntrials = 40
     for kwargs_id in range(len(kwargs_list)):
         kwargs = copy.deepcopy(kwargs_list[kwargs_id])
         delta = kwargs["delta"]
@@ -1009,12 +1009,18 @@ def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1,size_ratio=0.1,use
         flow_RC_curr[kwargs_id].append(flow_RC)
         flow_F1_curr[kwargs_id].append(flow_F1)
         if trial_id == ntrials - 1:
-            l1reg_PR_all.append((np.mean(l1reg_PR_curr[kwargs_id]),np.std(l1reg_PR_curr[kwargs_id])))
-            l1reg_RC_all.append((np.mean(l1reg_RC_curr[kwargs_id]),np.std(l1reg_RC_curr[kwargs_id])))
-            l1reg_F1_all.append((np.mean(l1reg_F1_curr[kwargs_id]),np.std(l1reg_F1_curr[kwargs_id])))
-            flow_PR_all.append((np.mean(flow_PR_curr[kwargs_id]),np.std(flow_PR_curr[kwargs_id])))
-            flow_RC_all.append((np.mean(flow_RC_curr[kwargs_id]),np.std(flow_RC_curr[kwargs_id])))
-            flow_F1_all.append((np.mean(flow_F1_curr[kwargs_id]),np.std(flow_F1_curr[kwargs_id])))
+            l1reg_PR_all[kwargs_id] = [np.median(l1reg_PR_curr[kwargs_id]),np.percentile(l1reg_PR_curr[kwargs_id],q=20),
+                np.percentile(l1reg_PR_curr[kwargs_id],q=80)]
+            l1reg_RC_all[kwargs_id] = [np.median(l1reg_RC_curr[kwargs_id]),np.percentile(l1reg_RC_curr[kwargs_id],q=20),
+                np.percentile(l1reg_RC_curr[kwargs_id],q=80)]
+            l1reg_F1_all[kwargs_id] = [np.median(l1reg_F1_curr[kwargs_id]),np.percentile(l1reg_F1_curr[kwargs_id],q=20),
+                np.percentile(l1reg_F1_curr[kwargs_id],q=80)]
+            flow_PR_all[kwargs_id] = [np.median(flow_PR_curr[kwargs_id]),np.percentile(flow_PR_curr[kwargs_id],q=20),
+                np.percentile(flow_PR_curr[kwargs_id],q=80)]
+            flow_RC_all[kwargs_id] = [np.median(flow_RC_curr[kwargs_id]),np.percentile(flow_RC_curr[kwargs_id],q=20),
+                np.percentile(flow_RC_curr[kwargs_id],q=80)]
+            flow_F1_all[kwargs_id] = [np.median(flow_F1_curr[kwargs_id]),np.percentile(flow_F1_curr[kwargs_id],q=20),
+                np.percentile(flow_F1_curr[kwargs_id],q=80)]
         ncounts += 1
     for p in procs:
         p.join()
