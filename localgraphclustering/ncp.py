@@ -181,6 +181,7 @@ def ncp_worker(workid, runtype, ncpdata, setids, func, timeout):
             raise(ValueError("the runtype must be 'node','refine','neighborhood', or 'set'"))
 
         end = time.time()
+        print(workid,setno,len(setids),end-start)
         if end - start > timeout:
             break
     return results
@@ -360,6 +361,7 @@ class NCPData:
                         r["methodfunc"] = method
                     self.results.extend(rval)
                 pool.close()
+        print("out")
 
     def add_random_node_samples(self, ratio=0.3, timeout=1000, nthreads=4, method=None, methodname=None):
         method = self._check_method(method, methodname)
@@ -660,6 +662,7 @@ class NCPData:
         funcs = {partialfunc(spectral_clustering, alpha=alpha,rho=rho,method="l1reg-rand"):'l1reg;rho=%.0e'%(rho)
                     for rho in rholist}
         for func in funcs.keys():
+            self.add_random_neighborhood_samples(method=func,methodname=funcs[func],ratio=ratio,nthreads=nthreads,timeout=timeout/len(funcs))
             self.add_random_node_samples(method=func,methodname=funcs[func],ratio=ratio,nthreads=nthreads,timeout=timeout/len(funcs))
         return self
 

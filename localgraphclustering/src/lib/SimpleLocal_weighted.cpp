@@ -236,6 +236,21 @@ void save_EL(vector<tuple<vtype,vtype,double>>& EL)
     wptr.close();
 }
 
+template<typename vtype, typename itype>
+void save_VL(unordered_map<vtype,vtype> VL)
+{
+    ofstream wptr;
+    wptr.open("VL.smat", std::ofstream::out | std::ofstream::trunc);
+    vtype u,v;
+    double w;
+    for (auto iter = VL.begin(); iter != VL.end(); ++iter) {
+        u = get<0>(*iter);
+        v = get<1>(*iter);
+        wptr << u << " " << v << endl;
+    }
+    wptr.close();
+}
+
 
 template<typename vtype, typename itype>
 void graph<vtype,itype>::STAGEFLOW_weighted(double delta, double alpha, double beta, unordered_map<vtype,vtype>& fullyvisited,
@@ -249,7 +264,8 @@ void graph<vtype,itype>::STAGEFLOW_weighted(double delta, double alpha, double b
     init_VL_weighted(VL,VL_rev,R_map);
     vtype t = VL.size()+1;
     init_EL_weighted(EL,R_map,VL,s,t,alpha,beta);
-    //cout << "EL size " << EL.size() << endl;
+    // cout << "VL size " << VL.size() << endl;
+    // cout << "EL size " << EL.size() << endl;
 
     //double F = 0;
     vtype nverts = VL.size()+2;
@@ -291,6 +307,8 @@ void graph<vtype,itype>::STAGEFLOW_weighted(double delta, double alpha, double b
 
 
     while (E.size() > 0 && get<1>(retData) > 1) {
+        // cout << "VL size " << VL.size() << endl;
+        // cout << "EL size " << EL.size() << endl;
         update_VL_weighted(VL, VL_rev, E);
         t = VL.size()+1;
         update_EL_weighted(EL, VL, R_map, fullyvisited, s, t, alpha, beta);
@@ -383,7 +401,7 @@ vtype graph<vtype,itype>::SimpleLocal_weighted(vtype nR, vtype* R, vtype* ret_se
         return actual_length;
     }
     while (alpha < alph0) {
-        //cout << alpha << endl;
+        //cout << alpha << " " << fullyvisited.size() << " " << R_map.size() << " " << S.size() << endl;
         copy_results<vtype,itype>(S,ret_set,&actual_length);
         alph0 = alpha;
         beta = alpha * (fR + delta);

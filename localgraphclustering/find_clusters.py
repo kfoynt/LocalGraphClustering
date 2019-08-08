@@ -920,19 +920,26 @@ def semisupervised_learning_with_improve(g,truth,kwargs_list,nprocs=1):
     return locals()
 
 
-def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1,size_ratio=0.1,use_bfs=False,flowmethod="mqi_weighted",use_spectral=True):
+def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1,size_ratio=0.1,use_bfs=True,flowmethod="mqi_weighted",use_spectral=True):
     l1reg_PR_all = np.zeros((len(kwargs_list),3))
     l1reg_RC_all = np.zeros((len(kwargs_list),3))
     l1reg_F1_all = np.zeros((len(kwargs_list),3))
     flow_PR_all = np.zeros((len(kwargs_list),3))
     flow_RC_all = np.zeros((len(kwargs_list),3))
     flow_F1_all = np.zeros((len(kwargs_list),3))
+    flow_PR_all1 = np.zeros((len(kwargs_list),3))
+    flow_RC_all1 = np.zeros((len(kwargs_list),3))
+    flow_F1_all1 = np.zeros((len(kwargs_list),3))
     l1reg_PR_curr = defaultdict(list)
     l1reg_RC_curr = defaultdict(list)
     l1reg_F1_curr = defaultdict(list)
     flow_PR_curr = defaultdict(list)
     flow_RC_curr = defaultdict(list)
     flow_F1_curr = defaultdict(list)
+    flow_PR_curr1 = defaultdict(list)
+    flow_RC_curr1 = defaultdict(list)
+    flow_F1_curr1 = defaultdict(list)
+    total_vol = np.sum(g.d)
     def wrapper(pid,q_in,q_out):
         while True:
             kwargs,kwargs_id,trial_id,delta,ratio = q_in.get()
@@ -942,6 +949,7 @@ def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1,size_ratio=0.1,use
             l1reg_labels = np.zeros(g._num_vertices) - 1
             true_labels = np.zeros(g._num_vertices) - 1
             flow_labels = np.zeros(g._num_vertices) - 1
+            flow_labels1 = np.zeros(g._num_vertices) - 1
             ranking = np.zeros(g._num_vertices) - 1
             npositives = 0
             for lid,label in enumerate(sorted(list(truth_dict.keys()))):
@@ -959,13 +967,20 @@ def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1,size_ratio=0.1,use
                             ranking[l1reg_ids[idx]] = i
                             l1reg_labels[l1reg_ids[idx]] = lid
                 if use_bfs:
-                    seeds = seed_grow_bfs(g,seeds,size_ratio)
+                    seeds = seed_grow_bfs_steps(g,seeds,1)
                 flow_output = flow_clustering(g,seeds,method=flowmethod,delta=delta)[0]
+                curr_vol = np.sum(g.d[seeds])
+                flow_output1 = flow_clustering(g,seeds,method=flowmethod,delta=curr_vol/(total_vol-curr_vol))[0]
                 for i,idx in enumerate(flow_output):
                     if flow_labels[idx] == -1:
                         flow_labels[idx] = lid
                     else:
                         flow_labels[idx] = nlabels + 1
+                for i,idx in enumerate(flow_output1):
+                    if flow_labels1[idx] == -1:
+                        flow_labels1[idx] = lid
+                    else:
+                        flow_labels1[idx] = nlabels + 1
             if use_spectral:
                 l1reg_PR = np.sum((l1reg_labels == true_labels))/(1.0*np.sum(l1reg_labels!=-1))
                 l1reg_RC = np.sum((l1reg_labels == true_labels))/(1.0*npositives)
@@ -978,12 +993,15 @@ def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1,size_ratio=0.1,use
             flow_PR = np.sum((flow_labels == true_labels))/(1.0*np.sum(flow_labels!=-1))
             flow_RC = np.sum((flow_labels == true_labels))/(1.0*npositives)
             flow_F1 = 2*(flow_PR*flow_RC)/(flow_PR+flow_RC) if (flow_PR+flow_RC) > 0 else 0
+            flow_PR1 = np.sum((flow_labels1 == true_labels))/(1.0*np.sum(flow_labels1!=-1))
+            flow_RC1 = np.sum((flow_labels1 == true_labels))/(1.0*npositives)
+            flow_F11 = 2*(flow_PR1*flow_RC1)/(flow_PR1+flow_RC1) if (flow_PR1+flow_RC1) > 0 else 0
             # flow_PR_curr.append(flow_PR)
             # flow_RC_curr.append(flow_RC)
             # flow_F1_curr.append() 
-            q_out.put((kwargs_id,trial_id,l1reg_PR,l1reg_RC,l1reg_F1,flow_PR,flow_RC,flow_F1))
+            q_out.put((kwargs_id,trial_id,l1reg_PR,l1reg_RC,l1reg_F1,flow_PR,flow_RC,flow_F1,flow_PR1,flow_RC1,flow_F11))
     q_in,q_out = mp.Queue(),mp.Queue()
-    ntrials = 40
+    ntrials = 30
     for kwargs_id in range(len(kwargs_list)):
         kwargs = copy.deepcopy(kwargs_list[kwargs_id])
         delta = kwargs["delta"]
@@ -1001,13 +1019,16 @@ def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1,size_ratio=0.1,use
     while ncounts < len(kwargs_list)*ntrials:
         if ncounts%10 == 0:
             print("Finished "+str(ncounts)+"/"+str(len(kwargs_list)*ntrials)+" experiments.")
-        kwargs_id,trial_id,l1reg_PR,l1reg_RC,l1reg_F1,flow_PR,flow_RC,flow_F1 = q_out.get()
+        kwargs_id,trial_id,l1reg_PR,l1reg_RC,l1reg_F1,flow_PR,flow_RC,flow_F1,flow_PR1,flow_RC1,flow_F11 = q_out.get()
         l1reg_PR_curr[kwargs_id].append(l1reg_PR)
         l1reg_RC_curr[kwargs_id].append(l1reg_RC)
         l1reg_F1_curr[kwargs_id].append(l1reg_F1)
         flow_PR_curr[kwargs_id].append(flow_PR)
         flow_RC_curr[kwargs_id].append(flow_RC)
         flow_F1_curr[kwargs_id].append(flow_F1)
+        flow_PR_curr1[kwargs_id].append(flow_PR1)
+        flow_RC_curr1[kwargs_id].append(flow_RC1)
+        flow_F1_curr1[kwargs_id].append(flow_F11)
         if trial_id == ntrials - 1:
             l1reg_PR_all[kwargs_id] = [np.median(l1reg_PR_curr[kwargs_id]),np.percentile(l1reg_PR_curr[kwargs_id],q=20),
                 np.percentile(l1reg_PR_curr[kwargs_id],q=80)]
@@ -1021,6 +1042,12 @@ def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1,size_ratio=0.1,use
                 np.percentile(flow_RC_curr[kwargs_id],q=80)]
             flow_F1_all[kwargs_id] = [np.median(flow_F1_curr[kwargs_id]),np.percentile(flow_F1_curr[kwargs_id],q=20),
                 np.percentile(flow_F1_curr[kwargs_id],q=80)]
+            flow_PR_all1[kwargs_id] = [np.median(flow_PR_curr1[kwargs_id]),np.percentile(flow_PR_curr1[kwargs_id],q=20),
+                np.percentile(flow_PR_curr1[kwargs_id],q=80)]
+            flow_RC_all1[kwargs_id] = [np.median(flow_RC_curr1[kwargs_id]),np.percentile(flow_RC_curr1[kwargs_id],q=20),
+                np.percentile(flow_RC_curr1[kwargs_id],q=80)]
+            flow_F1_all1[kwargs_id] = [np.median(flow_F1_curr1[kwargs_id]),np.percentile(flow_F1_curr1[kwargs_id],q=20),
+                np.percentile(flow_F1_curr1[kwargs_id],q=80)]
         ncounts += 1
     for p in procs:
         p.join()
@@ -1032,12 +1059,37 @@ def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1,size_ratio=0.1,use
     del wrapper
     return locals()
 
-def seed_grow_bfs(g,seeds,ratio):
+def seed_grow_bfs_steps(g,seeds,steps):
     """
     grow the initial seed set through BFS until its size reaches 
     a given ratio of the total number of nodes.
     """
-    nseeds = int(g._num_vertices*ratio)
+    Q = queue.Queue()
+    visited = np.zeros(g._num_vertices)
+    visited[seeds] = 1
+    for s in seeds:
+        Q.put(s)
+    if isinstance(seeds,np.ndarray):
+        seeds = seeds.tolist()
+    else:
+        seeds = list(seeds)
+    for step in range(steps):
+        for k in range(Q.qsize()):
+            node = Q.get()
+            si,ei = g.adjacency_matrix.indptr[node],g.adjacency_matrix.indptr[node+1]
+            neighs = g.adjacency_matrix.indices[si:ei]
+            for i in range(len(neighs)):
+                if visited[neighs[i]] == 0:
+                    visited[neighs[i]] = 1
+                    seeds.append(neighs[i])
+                    Q.put(neighs[i])
+    return seeds
+
+def seed_grow_bfs_size(g,seeds,nseeds):
+    """
+    grow the initial seed set through BFS until its size reaches 
+    a given ratio of the total number of nodes.
+    """
     Q = queue.Queue()
     visited = np.zeros(g._num_vertices)
     visited[seeds] = 1
