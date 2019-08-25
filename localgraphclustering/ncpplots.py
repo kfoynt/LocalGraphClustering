@@ -144,6 +144,8 @@ class NCPPlots:
         pos = dfmin["best"]
         ax.set_xlabel("effective size", fontsize=18)
         ax.set_ylabel("expansion", fontsize=18)
+        print(x)
+        print(y)
         ax.plot(x, y, linewidth=3)
         return fig, ax, list(zip(x,y,pos))
 
