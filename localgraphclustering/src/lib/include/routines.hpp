@@ -63,6 +63,8 @@ public:
     vtype get_degree_unweighted(vtype id);
     pair<itype, itype> get_stats(unordered_map<vtype, vtype>& R_map, vtype nR);
     pair<double, double> get_stats_weighted(unordered_map<vtype, vtype>& R_map, vtype nR);
+    pair<itype, itype> get_stats_rel(unordered_map<vtype, vtype>& S_map, unordered_map<vtype, vtype>& R_map, vtype nR, double delta);
+    pair<double, double> get_stats_rel_weighted(unordered_map<vtype, vtype>& S_map, unordered_map<vtype, vtype>& R_map, vtype nR, double delta);
     void addEdge(vtype u, vtype v, double C);
     bool BFS(vtype s, vtype t, vtype V);
     double sendFlow(vtype u, double flow, vtype t, vector<vtype>& start, vector<pair<int,double>>& SnapShots);
@@ -147,7 +149,7 @@ public:
 
     //functions in SimpleLocal.cpp
     void STAGEFLOW(double delta, double alpha, double beta, unordered_map<vtype,vtype>& fullyvisited, unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& S);
-    vtype SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double delta);
+    vtype SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double delta, bool relcondflag);
     void init_VL(unordered_map<vtype,vtype>& VL, unordered_map<vtype,vtype>& VL_rev,unordered_map<vtype,vtype>& R_map);
     void init_EL(vector< tuple<vtype,vtype,double> >& EL, unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& VL, vtype s, vtype t, double alpha, double beta);
     void update_VL(unordered_map<vtype,vtype>& VL, unordered_map<vtype,vtype>& VL_rev, vector<vtype>& E);
@@ -157,7 +159,7 @@ public:
 
     //functions in SimpleLocal_weighted.cpp
     void STAGEFLOW_weighted(double delta, double alpha, double beta, unordered_map<vtype,vtype>& fullyvisited, unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& S);
-    vtype SimpleLocal_weighted(vtype nR, vtype* R, vtype* ret_set, double delta);
+    vtype SimpleLocal_weighted(vtype nR, vtype* R, vtype* ret_set, double delta, bool relcondflag);
     void init_VL_weighted(unordered_map<vtype,vtype>& VL, unordered_map<vtype,vtype>& VL_rev,unordered_map<vtype,vtype>& R_map);
     void init_EL_weighted(vector< tuple<vtype,vtype,double> >& EL, unordered_map<vtype,vtype>& R_map, unordered_map<vtype,vtype>& VL, vtype s, vtype t, double alpha, double beta);
     void update_VL_weighted(unordered_map<vtype,vtype>& VL, unordered_map<vtype,vtype>& VL_rev, vector<vtype>& E);
@@ -256,6 +258,63 @@ pair<double, double> graph<vtype,itype>::get_stats_weighted(unordered_map<vtype,
         curvol += deg;
         for(itype j = ai[v] - offset; j < ai[v + 1] - offset; j ++){
             if(R_map.count(aj[j] - offset) == 0){
+                curcutsize += a[j];
+            }
+        }
+    }
+    
+    pair<double, double> set_stats (curvol, curcutsize);
+    return set_stats;
+}
+
+// This function and the following function return the same cut as "get_stats" or "get_stats_weighted" but relative volume values between set S and seeds set R
+// vol(S,R) = vol(S,R) - delta*vol(S,Rc)
+template<typename vtype, typename itype>
+pair<itype, itype> graph<vtype,itype>::get_stats_rel(unordered_map<vtype, vtype>& S_map, unordered_map<vtype, vtype>& R_map, vtype nR, double delta)
+{
+    itype curvol = 0;
+    itype curcutsize = 0;
+    itype deg;
+    for(auto S_iter = S_map.begin(); S_iter != S_map.end(); ++ S_iter){
+        vtype v = S_iter->first;
+        if (R_map.count(v) != 0) {
+            deg = get_degree_unweighted(v);
+            curvol += deg;
+        }
+        else {
+            deg = get_degree_unweighted(v);
+            curvol -= delta*deg;
+        }
+        for(itype j = ai[v] - offset; j < ai[v + 1] - offset; j ++){
+            if(S_map.count(aj[j] - offset) == 0){
+                curcutsize ++;
+            }
+        }
+    }
+    
+    pair<itype, itype> set_stats (curvol, curcutsize);
+    return set_stats;
+}
+
+
+template<typename vtype, typename itype>
+pair<double, double> graph<vtype,itype>::get_stats_rel_weighted(unordered_map<vtype, vtype>& S_map, unordered_map<vtype, vtype>& R_map, vtype nR, double delta)
+{
+    double curvol = 0;
+    double curcutsize = 0;
+    double deg;
+    for(auto S_iter = S_map.begin(); S_iter != S_map.end(); ++ S_iter){
+        vtype v = S_iter->first;
+        if (R_map.count(v) != 0) {
+            deg = degrees[v];
+            curvol += deg;
+        }
+        else {
+            deg = degrees[v];
+            curvol -= delta*deg;
+        }
+        for(itype j = ai[v] - offset; j < ai[v + 1] - offset; j ++){
+            if(S_map.count(aj[j] - offset) == 0){
                 curcutsize += a[j];
             }
         }

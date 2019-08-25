@@ -25,7 +25,8 @@ def _setup_SimpleLocal_args(vtypestr, itypestr, fun):
                   ctypes_vtype,
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
                   ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
-                  float_type]
+                  float_type,
+                  bool_type]
 
     return fun
 
@@ -73,11 +74,11 @@ def _get_SimpleLocal_cpp_types_fun(ai,aj):
         fun = _graphlib_funs_SimpleLocal32
     return float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun
 
-def SimpleLocal_cpp(n,ai,aj,nR,R,delta):
+def SimpleLocal_cpp(n,ai,aj,nR,R,delta,relcondflag):
     float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun = _get_SimpleLocal_cpp_types_fun(ai,aj)
     R=np.array(R,dtype=vtype)
     ret_set=np.zeros(n,dtype=vtype)
-    actual_length=fun(n,nR,ai,aj,0,R,ret_set,delta)
+    actual_length=fun(n,nR,ai,aj,0,R,ret_set,delta,relcondflag)
     #print(actual_length)
     actual_set=np.empty(actual_length,dtype=vtype)
     actual_set[:]=[ret_set[i] for i in range(actual_length)]

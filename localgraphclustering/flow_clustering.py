@@ -14,6 +14,7 @@ def flow_clustering(G, ref_nodes,
                     w: int = 2,
                     iterations: int = 20,
                     delta: float = 0.3,
+                    relcondflag: bool = True,
                     method: str = "mqi"):
     """
     Provide a simple interface to do spectral based clustering.
@@ -54,9 +55,9 @@ def flow_clustering(G, ref_nodes,
     elif method == "sl":
         if G._weighted:
             warnings.warn("The weights of the graph will be discarded. Use \"crd\" if you want to keep them.")
-        return SimpleLocal(G,ref_nodes,delta=delta)
+        return SimpleLocal(G,ref_nodes,delta=delta,relcondflag=relcondflag)
     elif method == "sl_weighted":
-        return SimpleLocal_weighted(G,ref_nodes,delta=delta)
+        return SimpleLocal_weighted(G,ref_nodes,delta=delta,relcondflag=relcondflag)
     else:
         raise Exception("Unknown method, available methods are \"mqi\", \"mqi_weighted\", \"crd\", \"sl\", \"sl_weighted\".")
 

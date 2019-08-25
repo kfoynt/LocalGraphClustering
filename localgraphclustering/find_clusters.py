@@ -970,7 +970,7 @@ def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1,size_ratio=0.1,use
                     seeds = seed_grow_bfs_steps(g,seeds,1)
                 flow_output = flow_clustering(g,seeds,method=flowmethod,delta=delta)[0]
                 curr_vol = np.sum(g.d[seeds])
-                flow_output1 = flow_clustering(g,seeds,method=flowmethod,delta=curr_vol/(total_vol-curr_vol))[0]
+                flow_output1 = flow_clustering(g,seeds,method=flowmethod,delta=0.0)[0]
                 for i,idx in enumerate(flow_output):
                     if flow_labels[idx] == -1:
                         flow_labels[idx] = lid
