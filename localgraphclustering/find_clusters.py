@@ -961,6 +961,11 @@ def semisupervised_learning(g,truth_dict,kwargs_list,nprocs=1,size_ratio=0.1,use
                 if use_bfs:
                     seeds = seed_grow_bfs(g,seeds,size_ratio)
                 flow_output = flow_clustering(g,seeds,method=flowmethod,delta=delta)[0]
+<<<<<<< HEAD
+=======
+                curr_vol = np.sum(g.d[seeds])
+                flow_output1 = flow_clustering(g,seeds,method=flowmethod,delta=0.0)[0]
+>>>>>>> 57fe97d... add uptional flag for SimpleLocal to control whether we want to minimize relative conductance exactly
                 for i,idx in enumerate(flow_output):
                     if flow_labels[idx] == -1:
                         flow_labels[idx] = lid

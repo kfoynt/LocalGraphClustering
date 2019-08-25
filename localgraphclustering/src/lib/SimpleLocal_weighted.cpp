@@ -352,7 +352,7 @@ void copy_results(unordered_map<vtype,vtype>& S, vtype* ret_set, vtype* actual_l
 }
 
 template<typename vtype, typename itype>
-vtype graph<vtype,itype>::SimpleLocal_weighted(vtype nR, vtype* R, vtype* ret_set, double delta)
+vtype graph<vtype,itype>::SimpleLocal_weighted(vtype nR, vtype* R, vtype* ret_set, double delta, bool relcondflag)
 {
     unordered_map<vtype,vtype> fullyvisited, S;
     unordered_map<vtype,vtype> R_map;
@@ -360,9 +360,32 @@ vtype graph<vtype,itype>::SimpleLocal_weighted(vtype nR, vtype* R, vtype* ret_se
 
     init_fullyvisited_R(fullyvisited, R_map, nR, R);
     double total_degree = std::accumulate(degrees,degrees+n,0);
-    pair<double, double> set_stats = get_stats_weighted(fullyvisited,fullyvisited.size());
-    double alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), total_degree - get<0>(set_stats));
+    pair<double, double> set_stats;
+
+    set_stats = get_stats_weighted(fullyvisited,fullyvisited.size());
     double fR = 1.0 * get<0>(set_stats) / (total_degree - get<0>(set_stats));
+    double alpha;
+    if (relcondflag == true) {
+        set_stats = get_stats_rel_weighted(fullyvisited,R_map,R_map.size(),fR + delta);
+        if ((get<0>(set_stats) <= 0) || (fullyvisited.size() == 0) || (fullyvisited.size() == n)) {
+            alpha = numeric_limits<double>::max();
+        }
+        else {
+            alpha = 1.0 * get<1>(set_stats) / get<0>(set_stats);
+        }
+        
+    }
+    else {
+        if (min(get<0>(set_stats), total_degree - get<0>(set_stats)) != 0)
+        {
+            alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), total_degree - get<0>(set_stats));
+        }
+        else {
+            alpha = numeric_limits<double>::max();
+        }
+    }
+    //cout << alpha << " " << get<0>(set_stats) << " " << get<1>(set_stats) << endl;
+
     double alph0;
     double beta = alpha * (fR + delta);
     alph0 = alpha;
@@ -370,13 +393,31 @@ vtype graph<vtype,itype>::SimpleLocal_weighted(vtype nR, vtype* R, vtype* ret_se
     clear_map<vtype,vtype>(S);
     STAGEFLOW_weighted(delta, alpha, beta, fullyvisited, R_map, S);
 
-    if (S.size() == 0) {
-    	copy_results<vtype,itype>(R_map,ret_set,&actual_length);
-    	return actual_length;
+    // if (S.size() == 0) {
+    // 	copy_results<vtype,itype>(R_map,ret_set,&actual_length);
+    // 	return actual_length;
+    // }
+    if (relcondflag == true) {
+        set_stats = get_stats_rel_weighted(S,R_map,R_map.size(),fR + delta);
+        if ((get<0>(set_stats) <= 0) || (S.size() == 0) || (S.size() == n)) {
+            alpha = numeric_limits<double>::max();
+        }
+        else {
+            alpha = 1.0 * get<1>(set_stats) / get<0>(set_stats);
+        }
     }
-
-    set_stats = get_stats_weighted(S,S.size());
-    alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), total_degree - get<0>(set_stats));
+    else {
+        set_stats = get_stats_weighted(S,S.size());
+        if (min(get<0>(set_stats), total_degree - get<0>(set_stats)) != 0)
+        {
+            alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), total_degree - get<0>(set_stats));
+        }
+        else {
+            alpha = numeric_limits<double>::max();
+        }
+    }
+    //cout << alpha << " " << get<0>(set_stats) << " " << get<1>(set_stats) << endl;
+    
     //cout << "after first step: " << alpha << endl;
     if (alpha >= alph0) {
         copy_results<vtype,itype>(R_map,ret_set,&actual_length);
@@ -392,14 +433,26 @@ vtype graph<vtype,itype>::SimpleLocal_weighted(vtype nR, vtype* R, vtype* ret_se
         init_fullyvisited_R(fullyvisited, R_map, nR, R);
         clear_map<vtype,vtype>(S);
         STAGEFLOW_weighted(delta, alpha, beta, fullyvisited, R_map, S);
-        set_stats = get_stats_weighted(S,S.size());
-        if (min(get<0>(set_stats), total_degree - get<0>(set_stats)) != 0)
-        {
-            alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), total_degree - get<0>(set_stats));
+        if (relcondflag == true) {
+            set_stats = get_stats_rel_weighted(S,R_map,R_map.size(),fR + delta);
+            if ((get<0>(set_stats) <= 0) || (S.size() == 0) || (S.size() == n)) {
+                alpha = numeric_limits<double>::max();
+            }
+            else {
+                alpha = 1.0 * get<1>(set_stats) / get<0>(set_stats);
+            }
         }
         else {
-            alpha = numeric_limits<double>::max();
+            set_stats = get_stats_weighted(S,S.size());
+            if (min(get<0>(set_stats), total_degree - get<0>(set_stats)) != 0)
+            {
+                alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), total_degree - get<0>(set_stats));
+            }
+            else {
+                alpha = numeric_limits<double>::max();
+            }
         }
+        //cout << alpha << " " << get<0>(set_stats) << " " << get<1>(set_stats) << endl;
     }
 
     //cout << alpha << min(get<0>(set_stats), ai[n] - get<0>(set_stats)) << endl;

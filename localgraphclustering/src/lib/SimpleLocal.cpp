@@ -386,16 +386,37 @@ void copy_results(unordered_map<vtype,vtype>& S, vtype* ret_set, vtype* actual_l
 }
 
 template<typename vtype, typename itype>
-vtype graph<vtype,itype>::SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double delta)
+vtype graph<vtype,itype>::SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double delta, bool relcondflag)
 {
     unordered_map<vtype,vtype> fullyvisited, S;
     unordered_map<vtype,vtype> R_map;
     vtype actual_length;
     //cout << "start" << endl;
     init_fullyvisited_R(fullyvisited, R_map, nR, R);
-    pair<itype, itype> set_stats = get_stats(fullyvisited,fullyvisited.size());
-    double alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), ai[n] - get<0>(set_stats));
+    pair<itype, itype> set_stats;
+    set_stats = get_stats(fullyvisited,fullyvisited.size());
     double fR = 1.0 * get<0>(set_stats) / (ai[n] - get<0>(set_stats));
+    double alpha;
+    if (relcondflag == true) {
+        set_stats = get_stats_rel(fullyvisited,R_map,R_map.size(),fR + delta);
+        if ((get<0>(set_stats) <= 0) || (fullyvisited.size() == 0) || (fullyvisited.size() == n)) {
+            alpha = numeric_limits<double>::max();
+        }
+        else {
+            alpha = 1.0 * get<1>(set_stats) / get<0>(set_stats);
+        }
+        
+    }
+    else {
+        if (min(get<0>(set_stats), ai[n] - get<0>(set_stats)) != 0)
+        {
+            alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), ai[n] - get<0>(set_stats));
+        }
+        else {
+            alpha = numeric_limits<double>::max();
+        }
+    }
+
     double alph0;
     double beta = alpha * (fR + delta);
     alph0 = alpha;
@@ -403,13 +424,26 @@ vtype graph<vtype,itype>::SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double
     clear_map<vtype,vtype>(S);
     STAGEFLOW(delta, alpha, beta, fullyvisited, R_map, S);
 
-    if (S.size() == 0) {
-    	copy_results<vtype,itype>(R_map,ret_set,&actual_length);
-    	return actual_length;
+    if (relcondflag == true) {
+        set_stats = get_stats_rel(S,R_map,R_map.size(),fR + delta);
+        if ((get<0>(set_stats) <= 0) || (S.size() == 0) || (S.size() == n)) {
+            alpha = numeric_limits<double>::max();
+        }
+        else {
+            alpha = 1.0 * get<1>(set_stats) / get<0>(set_stats);
+        }
+    }
+    else {
+        set_stats = get_stats(S,S.size());
+        if (min(get<0>(set_stats), ai[n] - get<0>(set_stats)) != 0)
+        {
+            alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), ai[n] - get<0>(set_stats));
+        }
+        else {
+            alpha = numeric_limits<double>::max();
+        }
     }
 
-    set_stats = get_stats(S,S.size());
-    alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), ai[n] - get<0>(set_stats));
     //cout << "after first step: " << alpha << endl;
     if (alpha >= alph0) {
         copy_results<vtype,itype>(R_map,ret_set,&actual_length);
@@ -425,13 +459,24 @@ vtype graph<vtype,itype>::SimpleLocal(vtype nR, vtype* R, vtype* ret_set, double
         init_fullyvisited_R(fullyvisited, R_map, nR, R);
         clear_map<vtype,vtype>(S);
         STAGEFLOW(delta, alpha, beta, fullyvisited, R_map, S);
-        set_stats = get_stats(S,S.size());
-        if (min(get<0>(set_stats), ai[n] - get<0>(set_stats)) != 0)
-        {
-            alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), ai[n] - get<0>(set_stats));
+        if (relcondflag == true) {
+            set_stats = get_stats_rel(S,R_map,R_map.size(),fR + delta);
+            if ((get<0>(set_stats) <= 0) || (S.size() == 0) || (S.size() == n)) {
+                alpha = numeric_limits<double>::max();
+            }
+            else {
+                alpha = 1.0 * get<1>(set_stats) / get<0>(set_stats);
+            }
         }
         else {
-            alpha = numeric_limits<double>::max();
+            set_stats = get_stats(S,S.size());
+            if (min(get<0>(set_stats), ai[n] - get<0>(set_stats)) != 0)
+            {
+                alpha = 1.0 * get<1>(set_stats) / min(get<0>(set_stats), ai[n] - get<0>(set_stats));
+            }
+            else {
+                alpha = numeric_limits<double>::max();
+            }
         }
     }
 

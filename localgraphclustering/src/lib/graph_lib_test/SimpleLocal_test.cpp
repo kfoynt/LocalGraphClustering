@@ -38,7 +38,7 @@ int main()
 
     //Begin calling C function
     cout << "calling C function" << endl;
-    uint32_t actual_length = SimpleLocal32(m, nR, ai, aj, 0, R, ret_set, 0.3);
+    uint32_t actual_length = SimpleLocal32(m, nR, ai, aj, 0, R, ret_set, 0.3, false);
     cout << "output set" << endl;
     for(int i = 0; i < actual_length; i ++){
         cout << ret_set[i] << " ";
