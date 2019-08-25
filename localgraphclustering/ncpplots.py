@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
-import plotly.plotly as py
+import chart_studio.plotly as py
 import plotly.graph_objs as go
 import plotly.tools as tls
 

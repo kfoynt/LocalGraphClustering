@@ -45,6 +45,7 @@ def SimpleLocal(G, ref_nodes,
     """ 
     n = G.adjacency_matrix.shape[0]
     (actual_length,actual_xids) = SimpleLocal_cpp(n,G.ai,G.aj,len(ref_nodes),ref_nodes,delta,relcondflag)
+    # Use DFS to guarantee the returned set is connected
     if relcondflag:
         stk = [actual_xids[0]]
         curr_set = set(actual_xids)
@@ -58,7 +59,8 @@ def SimpleLocal(G, ref_nodes,
                     ret_set.append(G.aj[i])
                     visited.add(G.aj[i])
         actual_xids = np.array(ret_set)
+    # always return the smaller set
     if len(actual_xids) > G._num_vertices/2:
         actual_xids = np.array(list(set(range(G._num_vertices)).difference(actual_xids)))
-        
+
     return [actual_xids, G.compute_conductance(actual_xids)]

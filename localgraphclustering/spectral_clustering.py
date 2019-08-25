@@ -119,12 +119,8 @@ def spectral_clustering(G, ref_nodes,
         if ref_nodes is not None and len(ref_nodes) > 0:
             warnings.warn("ref_nodes will be discarded since we are computing a global fiedler vector.")
         p = fiedler(G)[0]
-        p -= (np.min(p)-1)
-        p = (ref_nodes,p)
     elif method == "fiedler_local":
         p = fiedler_local(G,ref_nodes)[0]
-        p -= (np.min(p)-1)
-        p = (ref_nodes,p)
     else:
         raise Exception("Unknown method, available methods are \"acl\", \"acl_weighted\", \"l1reg\", \"l1reg-rand\", \"nibble\", \"fiedler\", \"fiedler_local\".")
 

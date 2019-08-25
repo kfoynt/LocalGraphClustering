@@ -181,7 +181,6 @@ def ncp_worker(workid, runtype, ncpdata, setids, func, timeout):
             raise(ValueError("the runtype must be 'node','refine','neighborhood', or 'set'"))
 
         end = time.time()
-        print(workid,setno,len(setids),end-start)
         if end - start > timeout:
             break
     return results
@@ -361,7 +360,6 @@ class NCPData:
                         r["methodfunc"] = method
                     self.results.extend(rval)
                 pool.close()
-        print("out")
 
     def add_random_node_samples(self, ratio=0.3, timeout=1000, nthreads=4, method=None, methodname=None):
         method = self._check_method(method, methodname)

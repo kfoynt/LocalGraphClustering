@@ -10,3 +10,4 @@ python-coveralls
 jupyter
 joblib
 sklearn
+chart_studio

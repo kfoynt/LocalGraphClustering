@@ -71,4 +71,4 @@ def eig2nL_subgraph(g, ref_nodes, tol_eigs = 1.0e-6, normalize: bool = True):
     f = emb_eig[:,0]
     if normalize:
         f *= g.dn_sqrt[ref_nodes]
-    return (f, emb_eig_val)
+    return ((ref_nodes,f), emb_eig_val)

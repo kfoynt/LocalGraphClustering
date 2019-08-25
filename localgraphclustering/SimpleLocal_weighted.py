@@ -60,6 +60,7 @@ def SimpleLocal_weighted(G, ref_nodes,
                     ret_set.append(G.aj[i])
                     visited.add(G.aj[i])
         actual_xids = np.array(ret_set)
+    # always return the smaller set
     if len(actual_xids) > G._num_vertices/2:
         actual_xids = np.array(list(set(range(G._num_vertices)).difference(actual_xids)))
     return [actual_xids, G.compute_conductance(actual_xids)]
