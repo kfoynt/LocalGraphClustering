@@ -14,6 +14,8 @@ def flow_clustering(G, ref_nodes,
                     w: int = 2,
                     iterations: int = 20,
                     delta: float = 0.3,
+                    relcondflag: bool = True,
+                    check_connectivity: bool = True,
                     method: str = "mqi"):
     """
     Provide a simple interface to do spectral based clustering.
@@ -31,6 +33,26 @@ def flow_clustering(G, ref_nodes,
         Which method to use for the nodes embedding.
         Options: "mqi", "mqi_weighted", "sl", "sl_weighted","crd"
 
+    Optional parameters for "sl" and "sl_weighted"
+    ----------------------
+
+    delta: float
+        locality parameter
+
+    relcondflag: bool, default is True
+        a boolean flag indicating whether to compute the relative
+        conductance score or the exact conductance score for each
+        intermediate improved set. Choosing false (i.e. updating with
+        exact conductance) will sometimes lead to fewer iterations and
+        lower conductance output, but will not actually minimize the
+        relative conductance or seed penalized conductance. Choosing true
+        will guarantee the returned set is connected.
+        
+    check_connectivity: bool, default is True
+        a boolean flag indicating whether to do ax extra DFS to ensure the
+        returned set is connected. Only effective when "relcondflag" is set
+        to be True.
+    
     Returns
     -------
 
@@ -54,9 +76,9 @@ def flow_clustering(G, ref_nodes,
     elif method == "sl":
         if G._weighted:
             warnings.warn("The weights of the graph will be discarded. Use \"crd\" if you want to keep them.")
-        return SimpleLocal(G,ref_nodes,delta=delta)
+        return SimpleLocal(G,ref_nodes,delta=delta,relcondflag=relcondflag,check_connectivity=check_connectivity)
     elif method == "sl_weighted":
-        return SimpleLocal_weighted(G,ref_nodes,delta=delta)
+        return SimpleLocal_weighted(G,ref_nodes,delta=delta,relcondflag=relcondflag,check_connectivity=check_connectivity)
     else:
         raise Exception("Unknown method, available methods are \"mqi\", \"mqi_weighted\", \"crd\", \"sl\", \"sl_weighted\".")
 

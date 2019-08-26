@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
-import plotly.plotly as py
+# import plotly.plotly as py
 import plotly.graph_objs as go
 import plotly.tools as tls
 
@@ -96,8 +96,8 @@ class NCPPlots:
             fig,ax = plt.subplots()
         dfmin = ncp_min_feature_by_group_binned(ncpdata, feature, group,
             nbins=nbins, log=log).dropna(axis=0)
-        y = dfmin[feature]
-        x = dfmin[group]
+        y = dfmin[feature].values
+        x = dfmin[group].values
         pos = dfmin["best"]
         tmp = list(zip(x,y))
         tmp.sort(key = lambda x: x[0])
@@ -139,8 +139,8 @@ class NCPPlots:
             "output_isop", "output_sizeeff", nbins=nbins, log=log)
         dfmin = ncp_min_feature_by_group_binned(ncpdata, "output_isop", "output_sizeeff",
             nbins=nbinsx).dropna(axis=0)
-        y = dfmin["output_isop"]
-        x = dfmin["output_sizeeff"]
+        y = dfmin["output_isop"].values
+        x = dfmin["output_sizeeff"].values
         pos = dfmin["best"]
         ax.set_xlabel("effective size", fontsize=18)
         ax.set_ylabel("expansion", fontsize=18)
@@ -200,8 +200,8 @@ class NCPPlots:
     def cond_by_vol_itrv(self, nbinsx=100, **kwargs):
         dfmin = ncp_min_feature_by_group_binned(self.df, "output_cond", "output_voleff",
             nbins=nbinsx).dropna(axis=0)
-        y = dfmin["output_cond"]
-        x = dfmin["output_voleff"]
+        y = dfmin["output_cond"].values
+        x = dfmin["output_voleff"].values
         pos = dfmin["best"]
         min_tuples = list(zip(x,y,pos))
         return self.interactive("output_cond", "output_voleff", min_tuples, **kwargs)
@@ -209,8 +209,8 @@ class NCPPlots:
     def cond_by_size_itrv(self, nbinsx=100, **kwargs):
         dfmin = ncp_min_feature_by_group_binned(self.df, "output_cond", "output_sizeeff",
             nbins=nbinsx).dropna(axis=0)
-        y = dfmin["output_cond"]
-        x = dfmin["output_sizeeff"]
+        y = dfmin["output_cond"].values
+        x = dfmin["output_sizeeff"].values
         pos = dfmin["best"]
         min_tuples = list(zip(x,y,pos))
         return self.interactive("output_cond", "output_sizeeff", min_tuples, **kwargs)
@@ -218,8 +218,8 @@ class NCPPlots:
     def isop_by_size_itrv(self, nbinsx=100, **kwargs):
         dfmin = ncp_min_feature_by_group_binned(self.df, "output_isop", "output_sizeeff",
             nbins=nbinsx).dropna(axis=0)
-        y = dfmin["output_isop"]
-        x = dfmin["output_sizeeff"]
+        y = dfmin["output_isop"].values
+        x = dfmin["output_sizeeff"].values
         pos = dfmin["best"]
         min_tuples = list(zip(x,y,pos))
         return self.interactive("output_isop", "output_sizeeff", min_tuples, **kwargs)
