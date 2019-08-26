@@ -4,7 +4,8 @@ from .cpp import *
 from .GraphLocal import GraphLocal
 
 def SimpleLocal(G, ref_nodes,
-                delta: float = 0.3, relcondflag: bool = True):
+                delta: float = 0.3, relcondflag: bool = True,
+                check_connectivity: bool = True):
     """
     A Simple and Strongly-Local Flow-Based Method for Cut Improvement.
     For details please refer to: Veldt, Gleich and Mahoney (2016).
@@ -45,7 +46,8 @@ def SimpleLocal(G, ref_nodes,
     """ 
     n = G.adjacency_matrix.shape[0]
     (actual_length,actual_xids) = SimpleLocal_cpp(n,G.ai,G.aj,len(ref_nodes),ref_nodes,delta,relcondflag)
-    if relcondflag:
+    # Use DFS to guarantee the returned set is connected
+    if relcondflag and check_connectivity:
         stk = [actual_xids[0]]
         curr_set = set(actual_xids)
         ret_set = [actual_xids[0]]

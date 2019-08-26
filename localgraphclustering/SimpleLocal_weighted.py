@@ -4,7 +4,8 @@ from .cpp import *
 from .GraphLocal import GraphLocal
 
 def SimpleLocal_weighted(G, ref_nodes,
-                delta: float = 0.3, relcondflag: bool = True):
+                delta: float = 0.3, relcondflag: bool = True,
+                check_connectivity: bool = True):
     """
     A Simple and Strongly-Local Flow-Based Method for Cut Improvement.
     For details please refer to: Veldt, Gleich and Mahoney (2016).
@@ -47,7 +48,7 @@ def SimpleLocal_weighted(G, ref_nodes,
     (actual_length,actual_xids) = SimpleLocal_weighted_cpp(n,G.ai,G.aj,G.adjacency_matrix.data,G.d,len(ref_nodes),ref_nodes,delta,relcondflag)
     # we need to make sure the set returned is connected since there could be tie where disconneted set has the same objective value, in that case
     # we just need to return one component of the induced subgraph
-    if relcondflag:
+    if relcondflag and check_connectivity:
         stk = [actual_xids[0]]
         curr_set = set(actual_xids)
         ret_set = [actual_xids[0]]
