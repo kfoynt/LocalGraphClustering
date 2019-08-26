@@ -33,6 +33,26 @@ def flow_clustering(G, ref_nodes,
         Which method to use for the nodes embedding.
         Options: "mqi", "mqi_weighted", "sl", "sl_weighted","crd"
 
+    Optional parameters for "sl" and "sl_weighted"
+    ----------------------
+
+    delta: float
+        locality parameter
+
+    relcondflag: bool, default is True
+        a boolean flag indicating whether to compute the relative
+        conductance score or the exact conductance score for each
+        intermediate improved set. Choosing false (i.e. updating with
+        exact conductance) will sometimes lead to fewer iterations and
+        lower conductance output, but will not actually minimize the
+        relative conductance or seed penalized conductance. Choosing true
+        will guarantee the returned set is connected.
+        
+    check_connectivity: bool, default is True
+        a boolean flag indicating whether to do ax extra DFS to ensure the
+        returned set is connected. Only effective when "relcondflag" is set
+        to be True.
+    
     Returns
     -------
 

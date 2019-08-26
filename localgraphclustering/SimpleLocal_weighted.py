@@ -31,7 +31,12 @@ def SimpleLocal_weighted(G, ref_nodes,
         lower conductance output, but will not actually minimize the
         relative conductance or seed penalized conductance. Choosing true
         will guarantee the returned set is connected.
-            
+    
+    check_connectivity: bool, default is True
+        a boolean flag indicating whether to do ax extra DFS to ensure the
+        returned set is connected. Only effective when "relcondflag" is set
+        to be True.
+
     Returns
     -------
         
