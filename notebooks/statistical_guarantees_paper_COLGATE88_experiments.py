@@ -804,7 +804,7 @@ for rr in all_clusters:
     eigv, lambda_val = fiedler_local(g, rr)
     lambda_val = np.real(lambda_val)
     
-    n_step = g._num_vertices
+    n_step = 24
     
     step_list = range(1,n_step,5)
     
