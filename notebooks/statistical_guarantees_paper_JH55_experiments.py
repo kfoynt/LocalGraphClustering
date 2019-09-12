@@ -349,7 +349,7 @@ for rr in all_clusters:
         ct += 1
     end = time.time()
     print(" ")
-    print("Outer: ", ct_outer," Elapsed time ACL without rounding: ", end - start)
+    print("Outer: ", ct_outer," Elapsed time ACL with rounding: ", end - start)
     print("Outer: ", ct_outer," Number of experiments: ", number_experiments)
     print(" ")
     ct_outer += 1
@@ -517,7 +517,7 @@ for rr in all_clusters:
 
     end = time.time()
     print(" ")
-    print("Outer: ", ct_outer," Elapsed time ACL without rounding: ", end - start)
+    print("Outer: ", ct_outer," Elapsed time l1-reg. without rounding: ", end - start)
     print("Outer: ", ct_outer," Number of experiments: ", number_experiments)
     print(" ")
     ct_outer += 1
@@ -685,7 +685,7 @@ for rr in all_clusters:
 
     end = time.time()
     print(" ")
-    print("Outer: ", ct_outer," Elapsed time ACL without rounding: ", end - start)
+    print("Outer: ", ct_outer," Elapsed time l1-reg. with rounding: ", end - start)
     print("Outer: ", ct_outer," Number of experiments: ", number_experiments)
     print(" ")
     ct_outer += 1
@@ -730,11 +730,11 @@ avg_conductance = sum_conductance/l_info_ref_nodes
 ## Function for seed set expansion using BFS
 
 import queue
-def seed_grow_bfs_steps(g,seeds,steps,vol_target):
+def seed_grow_bfs_steps(g,seeds,steps,vol_target,target_cluster):
     """
-        grow the initial seed set through BFS until its size reaches
-        a given ratio of the total number of nodes.
-        """
+    grow the initial seed set through BFS until its size reaches 
+    a given ratio of the total number of nodes.
+    """
     Q = queue.Queue()
     visited = np.zeros(g._num_vertices)
     visited[seeds] = 1
@@ -754,15 +754,30 @@ def seed_grow_bfs_steps(g,seeds,steps,vol_target):
                     visited[neighs[i]] = 1
                     seeds.append(neighs[i])
                     Q.put(neighs[i])
-                    if np.sum(g.d[seeds]) > 0.75*vol_target:
+                    
+                    vol_seeds = np.sum(g.d[seeds])
+                    vol_target_intersection_input = np.sum(g.d[list(set(target_cluster).intersection(set(seeds)))])
+                    sigma = vol_target_intersection_input/vol_target
+                    
+                    if sigma > 0.75 or vol_seeds > 0.25*g.vol_G:
                         break
-            if np.sum(g.d[seeds]) > 0.75*vol_target:
+                 
+            vol_seeds = np.sum(g.d[seeds])
+            vol_target_intersection_input = np.sum(g.d[list(set(target_cluster).intersection(set(seeds)))])
+            sigma = vol_target_intersection_input/vol_target   
+            
+            if sigma > 0.75 or vol_seeds > 0.25*g.vol_G:
                 break
-        if np.sum(g.d[seeds]) > 0.75*vol_target:
+               
+        vol_seeds = np.sum(g.d[seeds])
+        vol_target_intersection_input = np.sum(g.d[list(set(target_cluster).intersection(set(seeds)))])
+        sigma = vol_target_intersection_input/vol_target
+                
+        if sigma > 0.75 or vol_seeds > 0.25*g.vol_G:
             break
     return seeds
 
-## Collect data for seed set expansion + FlowImprove, try a lot of parameters
+## Collect data for seed set expansion + SL, try a lot of parameters
 
 nodes = {}
 external_best_cond_flBFS = {}
@@ -799,15 +814,10 @@ for rr in all_clusters:
     random.seed(4)
     
     nodes[ct_outer] = np.random.choice(rr, how_many, replace=False)
-    
-    eigv, lambda_val = fiedler_local(g, rr)
-    lambda_val = np.real(lambda_val)
     
     n_step = 24
     
-    step_list = range(1,n_step,5)
-    
-    delta_list = [1.0e-8,0.3,0.6,1]
+    vol_target = np.sum(g.d[rr])
     
     ct = 0
     for node in nodes[ct_outer]:
@@ -815,88 +825,101 @@ for rr in all_clusters:
         
         max_precision = -1
         min_conduct = 100
+                
+        seeds = seed_grow_bfs_steps(g,[node],g._num_vertices,vol_target,rr)
+
+        vol_input = np.sum(g.d[seeds])
+
+        vol_graph_minus_input = np.sum(g.d[list(set(range(g._num_vertices)) - set(seeds))])
+
+        vol_target_intersection_input = np.sum(g.d[list(set(rr).intersection(set(seeds)))])
+
+        gamma = vol_input/vol_graph_minus_input
         
-        ct_inner = 0
-        for steps in step_list:
-            
-            ct_double_inner = 0
-            
-            for delta in delta_list:
+#         print("gamma: ", gamma)
+        
+        sigma = max(vol_target_intersection_input/vol_target,gamma)
+        
+#         print("sigma: ", sigma)
+
+        delta = min(max(1.0/(1.0/sigma - 1) - gamma,0),1)
+        
+#         print("(1.0/3.0)*(1.0/(1.0/sigma - 1)): ", (1.0/3.0)*(1.0/(1.0/sigma - 1)))
+
+        print("DELTA: ", delta)
                 
-                seeds = seed_grow_bfs_steps(g,[node],steps,np.sum(g.d[rr]))
-                
-                S = flow_clustering(g,seeds,method="sl",delta=delta)[0]
-                number_experiments += 1
-                
-                cuts_flBFS_ALL[ct_outer,node,ct_inner,ct_double_inner] = S
-                
-                size_clust_flBFS_ = len(S)
-                
-                cond_val_l1pr = g.compute_conductance(S)
-                
-                vol_ = sum(g.d[S])
-                true_positives_flBFS_ = set(rr).intersection(S)
-                if len(true_positives_flBFS_) == 0:
-                    true_positives_flBFS_ = set(ref_node)
-                    vol_ = g.d[ref_node][0]
-                precision = sum(g.d[np.array(list(true_positives_flBFS_))])/vol_
-                recall = sum(g.d[np.array(list(true_positives_flBFS_))])/sum(g.d[rr])
-                f1_score_ = 2*(precision*recall)/(precision + recall)
-                
-                if f1_score_ >= max_precision:
-                    
-                    max_precision = f1_score_
-                    
-                    S_smqi, S_smqi_val = fiedler_local(g, S)
-                    S_smqi_val = np.real(S_smqi_val)
-                    
-                    external_best_pre_cond_flBFS[ct_outer,node] = cond_val_l1pr
-                    gap_best_pre_flBFS[ct_outer,node] = (S_smqi_val/np.log(sum(g.d[S])))/cond_val_l1pr
-                    vol_best_pre_flBFS[ct_outer,node] = vol_
-                    
-                    size_clust_best_pre_flBFS[ct_outer,node] = size_clust_flBFS_
-                    true_positives_best_pre_flBFS[ct_outer,node] = true_positives_flBFS_
-                    precision_best_pre_flBFS[ct_outer,node] = precision
-                    recall_best_pre_flBFS[ct_outer,node] = recall
-                    f1score_best_pre_flBFS[ct_outer,node] = f1_score_
-                    
-                    cuts_best_pre_flBFS[ct_outer,node] = S
-            
-                if cond_val_l1pr <= min_conduct:
-                    
-                    min_conduct = cond_val_l1pr
-                    
-                    S_smqi, S_smqi_val = fiedler_local(g, S)
-                    S_smqi_val = np.real(S_smqi_val)
-                    
-                    external_best_cond_flBFS[ct_outer,node] = cond_val_l1pr
-                    gap_best_cond_flBFS[ct_outer,node] = (S_smqi_val/np.log(sum(g.d[S])))/cond_val_l1pr
-                    vol_best_cond_flBFS[ct_outer,node] = vol_
-                    
-                    size_clust_best_cond_flBFS[ct_outer,node] = size_clust_flBFS_
-                    true_positives_best_cond_flBFS[ct_outer,node] = true_positives_flBFS_
-                    precision_best_cond_flBFS[ct_outer,node] = precision
-                    recall_best_cond_flBFS[ct_outer,node] = recall
-                    f1score_best_cond_flBFS[ct_outer,node] = f1_score_
-                    
-                    cuts_best_cond_flBFS[ct_outer,node] = S
+        S = flow_clustering(g,seeds,method="sl",delta=delta)[0]
+        number_experiments += 1
+
+        cuts_flBFS_ALL[ct_outer,node] = S
+
+        size_clust_flBFS_ = len(S)
+
+        cond_val_l1pr = g.compute_conductance(S)
+
+        vol_ = sum(g.d[S])
+        true_positives_flBFS_ = set(rr).intersection(S)
+        if len(true_positives_flBFS_) == 0:
+            true_positives_flBFS_ = set(ref_node)
+            vol_ = g.d[ref_node][0]
+        precision = sum(g.d[np.array(list(true_positives_flBFS_))])/vol_
+        recall = sum(g.d[np.array(list(true_positives_flBFS_))])/sum(g.d[rr])
+        f1_score_ = 2*(precision*recall)/(precision + recall)
+
+        if f1_score_ >= max_precision:
+
+            max_precision = f1_score_
+
+            S_smqi, S_smqi_val = fiedler_local(g, S)
+            S_smqi_val = np.real(S_smqi_val)
+
+            external_best_pre_cond_flBFS[ct_outer,node] = cond_val_l1pr
+            gap_best_pre_flBFS[ct_outer,node] = (S_smqi_val/np.log(sum(g.d[S])))/cond_val_l1pr
+            vol_best_pre_flBFS[ct_outer,node] = vol_
+
+            size_clust_best_pre_flBFS[ct_outer,node] = size_clust_flBFS_
+            true_positives_best_pre_flBFS[ct_outer,node] = true_positives_flBFS_
+            precision_best_pre_flBFS[ct_outer,node] = precision
+            recall_best_pre_flBFS[ct_outer,node] = recall
+            f1score_best_pre_flBFS[ct_outer,node] = f1_score_
+
+            cuts_best_pre_flBFS[ct_outer,node] = S
+
+        if cond_val_l1pr <= min_conduct:
+
+            min_conduct = cond_val_l1pr
+
+            S_smqi, S_smqi_val = fiedler_local(g, S)
+            S_smqi_val = np.real(S_smqi_val)
+
+            external_best_cond_flBFS[ct_outer,node] = cond_val_l1pr
+            gap_best_cond_flBFS[ct_outer,node] = (S_smqi_val/np.log(sum(g.d[S])))/cond_val_l1pr
+            vol_best_cond_flBFS[ct_outer,node] = vol_
+
+            size_clust_best_cond_flBFS[ct_outer,node] = size_clust_flBFS_
+            true_positives_best_cond_flBFS[ct_outer,node] = true_positives_flBFS_
+            precision_best_cond_flBFS[ct_outer,node] = precision
+            recall_best_cond_flBFS[ct_outer,node] = recall
+            f1score_best_cond_flBFS[ct_outer,node] = f1_score_
+
+            cuts_best_cond_flBFS[ct_outer,node] = S
 
         print('outer:', ct_outer, 'number of node: ',node, ' completed: ', ct/how_many, ' degree: ', g.d[node])
         print('conductance: ', external_best_cond_flBFS[ct_outer,node], 'f1score: ', f1score_best_pre_flBFS[ct_outer,node], 'precision: ', precision_best_pre_flBFS[ct_outer,node], 'recall: ', recall_best_pre_flBFS[ct_outer,node])
         ct += 1
     end = time.time()
     print(" ")
-    print("Outer: ", ct_outer," Elapsed time ACL without rounding: ", end - start)
+    print("Outer: ", ct_outer," Elapsed time BFS+SL: ", end - start)
     print("Outer: ", ct_outer," Number of experiments: ", number_experiments)
     print(" ")
     ct_outer += 1
 
-## Performance of BFS+FlowImp.
+## Performance of BFS+SL.
 
 all_data = []
 xlabels_ = []
 
-print('Results for BFS+FlowImp')
+print('Results for BFS+SL')
 sum_precision = 0
 sum_recall = 0
 sum_f1 = 0
@@ -916,178 +939,15 @@ for i in range(l_info_ref_nodes):
         temp_rec.append(recall_best_cond_flBFS[i,j])
         temp_f1.append(f1score_best_cond_flBFS[i,j])
         temp_conductance.append(external_best_cond_flBFS[i,j])
-    
+
     print('Feature:', i,'Precision', stat_.median(temp_pre), 'Recall', stat_.median(temp_rec), 'F1', stat_.median(temp_f1), 'Cond.', stat_.median(temp_conductance))
     sum_precision += stat_.median(temp_pre)
     sum_recall += stat_.median(temp_rec)
     sum_f1 += stat_.median(temp_f1)
     sum_conductance += stat_.median(temp_conductance)
-
+    
 avg_precision = sum_precision/l_info_ref_nodes
 avg_recall = sum_recall/l_info_ref_nodes
 avg_f1 = sum_f1/l_info_ref_nodes
 avg_conductance = sum_conductance/l_info_ref_nodes
 
-## Collect data for seed set expansion + FlowImprove, as many parameters as l1-reg
-
-nodes = {}
-external_best_cond_flBFS = {}
-external_best_pre_cond_flBFS = {}
-gap_best_cond_flBFS = {}
-gap_best_pre_flBFS = {}
-vol_best_cond_flBFS = {}
-vol_best_pre_flBFS = {}
-size_clust_best_cond_flBFS = {}
-size_clust_best_pre_flBFS = {}
-f1score_best_cond_flBFS = {}
-f1score_best_pre_flBFS = {}
-true_positives_best_cond_flBFS = {}
-true_positives_best_pre_flBFS = {}
-precision_best_cond_flBFS = {}
-precision_best_pre_flBFS = {}
-recall_best_cond_flBFS = {}
-recall_best_pre_flBFS = {}
-cuts_best_cond_flBFS = {}
-cuts_best_pre_flBFS = {}
-cuts_flBFS_ALL = {}
-
-ct_outer = 0
-
-start = time.time()
-
-number_experiments = 0
-
-for rr in all_clusters:
-    
-    how_many = int(len(rr))
-    print(how_many)
-    
-    random.seed(4)
-    
-    nodes[ct_outer] = np.random.choice(rr, how_many, replace=False)
-    
-    eigv, lambda_val = fiedler_local(g, rr)
-    lambda_val = np.real(lambda_val)
-    
-    step_list = range(1,12,5)
-    
-    delta_list = [1.0e-8,0.3,0.6,1]
-    
-    ct = 0
-    for node in nodes[ct_outer]:
-        ref_node = [node]
-        
-        max_precision = -1
-        min_conduct = 100
-        
-        ct_inner = 0
-        for steps in step_list:
-            
-            ct_double_inner = 0
-            
-            for delta in delta_list:
-                
-                seeds = seed_grow_bfs_steps(g,[node],steps,np.sum(g.d[rr]))
-                
-                S = flow_clustering(g,seeds,method="sl",delta=delta)[0]
-                number_experiments += 1
-                
-                cuts_flBFS_ALL[ct_outer,node,ct_inner,ct_double_inner] = S
-                
-                size_clust_flBFS_ = len(S)
-                
-                cond_val_l1pr = g.compute_conductance(S)
-                
-                vol_ = sum(g.d[S])
-                true_positives_flBFS_ = set(rr).intersection(S)
-                if len(true_positives_flBFS_) == 0:
-                    true_positives_flBFS_ = set(ref_node)
-                    vol_ = g.d[ref_node][0]
-                precision = sum(g.d[np.array(list(true_positives_flBFS_))])/vol_
-                recall = sum(g.d[np.array(list(true_positives_flBFS_))])/sum(g.d[rr])
-                f1_score_ = 2*(precision*recall)/(precision + recall)
-                
-                if f1_score_ >= max_precision:
-                    
-                    max_precision = f1_score_
-                    
-                    S_smqi, S_smqi_val = fiedler_local(g, S)
-                    S_smqi_val = np.real(S_smqi_val)
-                    
-                    external_best_pre_cond_flBFS[ct_outer,node] = cond_val_l1pr
-                    gap_best_pre_flBFS[ct_outer,node] = (S_smqi_val/np.log(sum(g.d[S])))/cond_val_l1pr
-                    vol_best_pre_flBFS[ct_outer,node] = vol_
-                    
-                    size_clust_best_pre_flBFS[ct_outer,node] = size_clust_flBFS_
-                    true_positives_best_pre_flBFS[ct_outer,node] = true_positives_flBFS_
-                    precision_best_pre_flBFS[ct_outer,node] = precision
-                    recall_best_pre_flBFS[ct_outer,node] = recall
-                    f1score_best_pre_flBFS[ct_outer,node] = f1_score_
-                    
-                    cuts_best_pre_flBFS[ct_outer,node] = S
-            
-                if cond_val_l1pr <= min_conduct:
-                    
-                    min_conduct = cond_val_l1pr
-                    
-                    S_smqi, S_smqi_val = fiedler_local(g, S)
-                    S_smqi_val = np.real(S_smqi_val)
-                    
-                    external_best_cond_flBFS[ct_outer,node] = cond_val_l1pr
-                    gap_best_cond_flBFS[ct_outer,node] = (S_smqi_val/np.log(sum(g.d[S])))/cond_val_l1pr
-                    vol_best_cond_flBFS[ct_outer,node] = vol_
-                    
-                    size_clust_best_cond_flBFS[ct_outer,node] = size_clust_flBFS_
-                    true_positives_best_cond_flBFS[ct_outer,node] = true_positives_flBFS_
-                    precision_best_cond_flBFS[ct_outer,node] = precision
-                    recall_best_cond_flBFS[ct_outer,node] = recall
-                    f1score_best_cond_flBFS[ct_outer,node] = f1_score_
-                    
-                    cuts_best_cond_flBFS[ct_outer,node] = S
-
-        print('outer:', ct_outer, 'number of node: ',node, ' completed: ', ct/how_many, ' degree: ', g.d[node])
-        print('conductance: ', external_best_cond_flBFS[ct_outer,node], 'f1score: ', f1score_best_pre_flBFS[ct_outer,node], 'precision: ', precision_best_pre_flBFS[ct_outer,node], 'recall: ', recall_best_pre_flBFS[ct_outer,node])
-        ct += 1
-    end = time.time()
-    print(" ")
-    print("Outer: ", ct_outer," Elapsed time ACL without rounding: ", end - start)
-    print("Outer: ", ct_outer," Number of experiments: ", number_experiments)
-    print(" ")
-    ct_outer += 1
-
-## Performance of BFS+FlowImp.
-
-all_data = []
-xlabels_ = []
-
-print('Results for BFS+FlowImp')
-sum_precision = 0
-sum_recall = 0
-sum_f1 = 0
-sum_conductance = 0
-
-info_ref_nodes = all_clusters
-l_info_ref_nodes = len(info_ref_nodes)
-
-for i in range(l_info_ref_nodes):
-    temp_pre = []
-    temp_rec = []
-    temp_f1 = []
-    temp_conductance = []
-    
-    for j in all_clusters[i]:
-        temp_pre.append(precision_best_cond_flBFS[i,j])
-        temp_rec.append(recall_best_cond_flBFS[i,j])
-        temp_f1.append(f1score_best_cond_flBFS[i,j])
-        temp_conductance.append(external_best_cond_flBFS[i,j])
-    
-    print('Feature:', i,'Precision', stat_.median(temp_pre), 'Recall', stat_.median(temp_rec), 'F1', stat_.median(temp_f1), 'Cond.', stat_.median(temp_conductance))
-    sum_precision += stat_.median(temp_pre)
-    sum_recall += stat_.median(temp_rec)
-    sum_f1 += stat_.median(temp_f1)
-    sum_conductance += stat_.median(temp_conductance)
-
-avg_precision = sum_precision/l_info_ref_nodes
-avg_recall = sum_recall/l_info_ref_nodes
-avg_f1 = sum_f1/l_info_ref_nodes
-avg_conductance = sum_conductance/l_info_ref_nodes
