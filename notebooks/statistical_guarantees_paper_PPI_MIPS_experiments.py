@@ -211,7 +211,7 @@ for rr in all_clusters:
     print("Outer: ", ct_outer," Number of experiments: ", number_experiments)
     print(" ")
     ct_outer += 1
-
+    
 ## Performance of ACL (without rounding).
 
 all_data = []
@@ -238,16 +238,9 @@ for i in range(l_info_ref_nodes):
         temp_f1.append(f1score_best_cond_acl[i,j])
         temp_conductance.append(external_best_cond_acl[i,j])
     
-    print('Feature:', i,'Precision', stat_.median(temp_pre), 'Recall', stat_.median(temp_rec), 'F1', stat_.median(temp_f1), 'Cond.', stat_.median(temp_conductance))
-    sum_precision += stat_.median(temp_pre)
-    sum_recall += stat_.median(temp_rec)
-    sum_f1 += stat_.median(temp_f1)
-    sum_conductance += stat_.median(temp_conductance)
+    print('Feature:', i,'Precision', stat_.mean(temp_pre), 'Recall', stat_.mean(temp_rec), 'F1', stat_.mean(temp_f1), 'Cond.', stat_.mean(temp_conductance))
 
-avg_precision = sum_precision/l_info_ref_nodes
-avg_recall = sum_recall/l_info_ref_nodes
-avg_f1 = sum_f1/l_info_ref_nodes
-avg_conductance = sum_conductance/l_info_ref_nodes
+
 
 ## Collect data for ACL (with rounding)
 
@@ -405,16 +398,9 @@ for i in range(l_info_ref_nodes):
         temp_f1.append(f1score_best_cond_acl[i,j])
         temp_conductance.append(external_best_cond_acl[i,j])
     
-    print('Feature:', i,'Precision', stat_.median(temp_pre), 'Recall', stat_.median(temp_rec), 'F1', stat_.median(temp_f1), 'Cond.', stat_.median(temp_conductance))
-    sum_precision += stat_.median(temp_pre)
-    sum_recall += stat_.median(temp_rec)
-    sum_f1 += stat_.median(temp_f1)
-    sum_conductance += stat_.median(temp_conductance)
+    print('Feature:', i,'Precision', stat_.mean(temp_pre), 'Recall', stat_.mean(temp_rec), 'F1', stat_.mean(temp_f1), 'Cond.', stat_.mean(temp_conductance))
 
-avg_precision = sum_precision/l_info_ref_nodes
-avg_recall = sum_recall/l_info_ref_nodes
-avg_f1 = sum_f1/l_info_ref_nodes
-avg_conductance = sum_conductance/l_info_ref_nodes
+
 
 ## Collect data for l1-reg. PR (without rounding)
 
@@ -573,16 +559,8 @@ for i in range(l_info_ref_nodes):
         temp_f1.append(f1score_best_cond_acl[i,j])
         temp_conductance.append(external_best_cond_acl[i,j])
     
-    print('Feature:', i,'Precision', stat_.median(temp_pre), 'Recall', stat_.median(temp_rec), 'F1', stat_.median(temp_f1), 'Cond.', stat_.median(temp_conductance))
-    sum_precision += stat_.median(temp_pre)
-    sum_recall += stat_.median(temp_rec)
-    sum_f1 += stat_.median(temp_f1)
-    sum_conductance += stat_.median(temp_conductance)
-
-avg_precision = sum_precision/l_info_ref_nodes
-avg_recall = sum_recall/l_info_ref_nodes
-avg_f1 = sum_f1/l_info_ref_nodes
-avg_conductance = sum_conductance/l_info_ref_nodes
+    print('Feature:', i,'Precision', stat_.mean(temp_pre), 'Recall', stat_.mean(temp_rec), 'F1', stat_.mean(temp_f1), 'Cond.', stat_.mean(temp_conductance))
+    
 
 ## Collect data for l1-reg. PR (with rounding)
 
@@ -741,16 +719,9 @@ for i in range(l_info_ref_nodes):
         temp_f1.append(f1score_best_cond_acl[i,j])
         temp_conductance.append(external_best_cond_acl[i,j])
     
-    print('Feature:', i,'Precision', stat_.median(temp_pre), 'Recall', stat_.median(temp_rec), 'F1', stat_.median(temp_f1), 'Cond.', stat_.median(temp_conductance))
-    sum_precision += stat_.median(temp_pre)
-    sum_recall += stat_.median(temp_rec)
-    sum_f1 += stat_.median(temp_f1)
-    sum_conductance += stat_.median(temp_conductance)
+    print('Feature:', i,'Precision', stat_.mean(temp_pre), 'Recall', stat_.mean(temp_rec), 'F1', stat_.mean(temp_f1), 'Cond.', stat_.mean(temp_conductance))
 
-avg_precision = sum_precision/l_info_ref_nodes
-avg_recall = sum_recall/l_info_ref_nodes
-avg_f1 = sum_f1/l_info_ref_nodes
-avg_conductance = sum_conductance/l_info_ref_nodes
+
 
 ## Function for seed set expansion using BFS
 
@@ -867,7 +838,7 @@ for rr in all_clusters:
         
 #         print("sigma: ", sigma)
 
-        delta = min(max(1.0/(1.0/sigma - 1) - gamma,0),1)
+        delta = min(max((1/3)*(1.0/(1.0/sigma - 1)) - gamma,0),1)
         
 #         print("(1.0/3.0)*(1.0/(1.0/sigma - 1)): ", (1.0/3.0)*(1.0/(1.0/sigma - 1)))
 
@@ -965,13 +936,372 @@ for i in range(l_info_ref_nodes):
         temp_f1.append(f1score_best_cond_flBFS[i,j])
         temp_conductance.append(external_best_cond_flBFS[i,j])
 
-    print('Feature:', i,'Precision', stat_.median(temp_pre), 'Recall', stat_.median(temp_rec), 'F1', stat_.median(temp_f1), 'Cond.', stat_.median(temp_conductance))
-    sum_precision += stat_.median(temp_pre)
-    sum_recall += stat_.median(temp_rec)
-    sum_f1 += stat_.median(temp_f1)
-    sum_conductance += stat_.median(temp_conductance)
+    print('Feature:', i,'Precision', stat_.mean(temp_pre), 'Recall', stat_.mean(temp_rec), 'F1', stat_.mean(temp_f1), 'Cond.', stat_.mean(temp_conductance))
+
+
+
+## Collect data for APPR+SL
+
+nodes = {}
+external_best_cond_apprSL = {}
+external_best_pre_cond_apprSL = {}
+gap_best_cond_apprSL = {}
+gap_best_pre_apprSL = {}
+vol_best_cond_apprSL = {}
+vol_best_pre_apprSL = {}
+size_clust_best_cond_apprSL = {}
+size_clust_best_pre_apprSL = {}
+f1score_best_cond_apprSL = {}
+f1score_best_pre_apprSL = {}
+true_positives_best_cond_apprSL = {}
+true_positives_best_pre_apprSL = {}
+precision_best_cond_apprSL = {}
+precision_best_pre_apprSL = {}
+recall_best_cond_apprSL = {}
+recall_best_pre_apprSL = {}
+cuts_best_cond_apprSL = {}
+cuts_best_pre_apprSL = {}
+cuts_apprSL_ALL = {}
+
+ct_outer = 0
+
+start = time.time()
+
+number_experiments = 0
+
+for rr in all_clusters:
     
-avg_precision = sum_precision/l_info_ref_nodes
-avg_recall = sum_recall/l_info_ref_nodes
-avg_f1 = sum_f1/l_info_ref_nodes
-avg_conductance = sum_conductance/l_info_ref_nodes
+    how_many = int(len(rr))
+    print(how_many)
+    
+    random.seed(4)
+    
+    nodes[ct_outer] = np.random.choice(rr, how_many, replace=False)
+    
+    eigv, lambda_val = fiedler_local(g, rr)
+    lambda_val = np.real(lambda_val)
+    
+    step = (2*lambda_val - lambda_val/2)/4
+    
+    a_list = np.arange(lambda_val/2,2*lambda_val,step)
+    
+    vol_target = np.sum(g.d[rr])
+    
+    ct = 0
+    for node in nodes[ct_outer]:
+        ref_node = [node]
+        
+        max_precision = -1
+        min_conduct = 100
+        
+        ct_inner = 0
+        for a in a_list:
+            
+            if ct_outer <= 1:
+                rho = 0.15/np.sum(g.d[rr])
+            else:
+                rho = 0.2/np.sum(g.d[rr])
+            
+            output_pr_clustering = approximate_PageRank(g,ref_node,method = "acl", rho=rho, alpha=a, cpp = True, normalize=True,normalized_objective=True)
+            number_experiments += 1
+            
+            output_pr_sc = sweep_cut(g,output_pr_clustering,cpp=True)
+            
+            S = output_pr_sc[0]
+            
+            vol_input = np.sum(g.d[S])
+
+            vol_graph_minus_input = np.sum(g.d[list(set(range(g._num_vertices)) - set(S))])
+
+            vol_target_intersection_input = np.sum(g.d[list(set(rr).intersection(set(S)))])
+
+            gamma = vol_input/vol_graph_minus_input
+
+    #         print("gamma: ", gamma)
+
+            sigma = max(vol_target_intersection_input/vol_target,gamma)
+
+    #         print("sigma: ", sigma)
+
+            delta = min(max((1/3)*(1.0/(1.0/sigma - 1)) - gamma,0),1)
+
+    #         print("(1.0/3.0)*(1.0/(1.0/sigma - 1)): ", (1.0/3.0)*(1.0/(1.0/sigma - 1)))
+
+            print("DELTA: ", delta)
+
+            S = flow_clustering(g,S,method="sl",delta=delta)[0]
+            
+            cuts_apprSL_ALL[ct_outer,node,ct_inner] = S
+            
+            size_clust_apprSL_ = len(S)
+            
+            cond_val_l1pr = g.compute_conductance(S)
+            
+            vol_ = sum(g.d[S])
+            true_positives_apprSL_ = set(rr).intersection(S)
+            if len(true_positives_apprSL_) == 0:
+                true_positives_apprSL_ = set(ref_node)
+                vol_ = g.d[ref_node][0]
+            precision = sum(g.d[np.array(list(true_positives_apprSL_))])/vol_
+            recall = sum(g.d[np.array(list(true_positives_apprSL_))])/sum(g.d[rr])
+            f1_score_ = 2*(precision*recall)/(precision + recall)
+            
+            if f1_score_ >= max_precision:
+                
+                max_precision = f1_score_
+                
+                S_smqi, S_smqi_val = fiedler_local(g, S)
+                S_smqi_val = np.real(S_smqi_val)
+                
+                external_best_pre_cond_apprSL[ct_outer,node] = cond_val_l1pr
+                gap_best_pre_apprSL[ct_outer,node] = (S_smqi_val/np.log(sum(g.d[S])))/cond_val_l1pr
+                vol_best_pre_apprSL[ct_outer,node] = vol_
+                
+                size_clust_best_pre_apprSL[ct_outer,node] = size_clust_apprSL_
+                true_positives_best_pre_apprSL[ct_outer,node] = true_positives_apprSL_
+                precision_best_pre_apprSL[ct_outer,node] = precision
+                recall_best_pre_apprSL[ct_outer,node] = recall
+                f1score_best_pre_apprSL[ct_outer,node] = f1_score_
+                
+                cuts_best_pre_apprSL[ct_outer,node] = S
+        
+            if cond_val_l1pr <= min_conduct:
+                
+                min_conduct = cond_val_l1pr
+                
+                S_smqi, S_smqi_val = fiedler_local(g, S)
+                S_smqi_val = np.real(S_smqi_val)
+                
+                external_best_cond_apprSL[ct_outer,node] = cond_val_l1pr
+                gap_best_cond_apprSL[ct_outer,node] = (S_smqi_val/np.log(sum(g.d[S])))/cond_val_l1pr
+                vol_best_cond_apprSL[ct_outer,node] = vol_
+                
+                size_clust_best_cond_apprSL[ct_outer,node] = size_clust_apprSL_
+                true_positives_best_cond_apprSL[ct_outer,node] = true_positives_apprSL_
+                precision_best_cond_apprSL[ct_outer,node] = precision
+                recall_best_cond_apprSL[ct_outer,node] = recall
+                f1score_best_cond_apprSL[ct_outer,node] = f1_score_
+                
+                cuts_best_cond_apprSL[ct_outer,node] = S
+
+        print('outer:', ct_outer, 'number of node: ',node, ' completed: ', ct/how_many, ' degree: ', g.d[node])
+        print('conductance: ', external_best_cond_apprSL[ct_outer,node], 'f1score: ', f1score_best_pre_apprSL[ct_outer,node], 'precision: ', precision_best_pre_apprSL[ct_outer,node], 'recall: ', recall_best_pre_apprSL[ct_outer,node])
+        ct += 1
+    end = time.time()
+    print(" ")
+    print("Outer: ", ct_outer," Elapsed time APPR+SL with rounding: ", end - start)
+    print("Outer: ", ct_outer," Number of experiments: ", number_experiments)
+    print(" ")
+    ct_outer += 1
+
+## Performance of APPR+SL
+
+all_data = []
+xlabels_ = []
+
+print('Results for APPR+SL')
+sum_precision = 0
+sum_recall = 0
+sum_f1 = 0
+sum_conductance = 0
+
+info_ref_nodes = all_clusters
+l_info_ref_nodes = len(info_ref_nodes)
+
+for i in range(l_info_ref_nodes):
+    temp_pre = []
+    temp_rec = []
+    temp_f1 = []
+    temp_conductance = []
+    
+    for j in all_clusters[i]:
+        temp_pre.append(precision_best_cond_apprSL[i,j])
+        temp_rec.append(recall_best_cond_apprSL[i,j])
+        temp_f1.append(f1score_best_cond_apprSL[i,j])
+        temp_conductance.append(external_best_cond_apprSL[i,j])
+
+    print('Feature:', i,'Precision', stat_.mean(temp_pre), 'Recall', stat_.mean(temp_rec), 'F1', stat_.mean(temp_f1), 'Cond.', stat_.mean(temp_conductance))
+
+
+## Collect data for L1+SL
+
+nodes = {}
+external_best_cond_l1SL = {}
+external_best_pre_cond_l1SL = {}
+gap_best_cond_l1SL = {}
+gap_best_pre_l1SL = {}
+vol_best_cond_l1SL = {}
+vol_best_pre_l1SL = {}
+size_clust_best_cond_l1SL = {}
+size_clust_best_pre_l1SL = {}
+f1score_best_cond_l1SL = {}
+f1score_best_pre_l1SL = {}
+true_positives_best_cond_l1SL = {}
+true_positives_best_pre_l1SL = {}
+precision_best_cond_l1SL = {}
+precision_best_pre_l1SL = {}
+recall_best_cond_l1SL = {}
+recall_best_pre_l1SL = {}
+cuts_best_cond_l1SL = {}
+cuts_best_pre_l1SL = {}
+cuts_l1SL_ALL = {}
+
+ct_outer = 0
+
+start = time.time()
+
+number_experiments = 0
+
+for rr in all_clusters:
+    
+    how_many = int(len(rr))
+    print(how_many)
+    
+    random.seed(4)
+    
+    nodes[ct_outer] = np.random.choice(rr, how_many, replace=False)
+    
+    eigv, lambda_val = fiedler_local(g, rr)
+    lambda_val = np.real(lambda_val)
+    
+    step = (2*lambda_val - lambda_val/2)/4
+    
+    a_list = np.arange(lambda_val/2,2*lambda_val,step)
+    
+    vol_target = np.sum(g.d[rr])
+    
+    ct = 0
+    for node in nodes[ct_outer]:
+        ref_node = [node]
+        
+        max_precision = -1
+        min_conduct = 100
+        
+        ct_inner = 0
+        for a in a_list:
+            
+            if ct_outer <= 1:
+                rho = 0.15/np.sum(g.d[rr])
+            else:
+                rho = 0.2/np.sum(g.d[rr])
+            
+            output_pr_clustering = approximate_PageRank(g,ref_node,method = "l1reg-rand", epsilon=1.0e-2, rho=rho, alpha=a, cpp = True, normalize=True,normalized_objective=True)
+            number_experiments += 1
+            
+            output_pr_sc = sweep_cut(g,output_pr_clustering,cpp=True)
+            
+            S = output_pr_sc[0]
+            
+            vol_input = np.sum(g.d[S])
+
+            vol_graph_minus_input = np.sum(g.d[list(set(range(g._num_vertices)) - set(S))])
+
+            vol_target_intersection_input = np.sum(g.d[list(set(rr).intersection(set(S)))])
+
+            gamma = vol_input/vol_graph_minus_input
+
+    #         print("gamma: ", gamma)
+
+            sigma = max(vol_target_intersection_input/vol_target,gamma)
+
+    #         print("sigma: ", sigma)
+
+            delta = min(max((1/3)*(1.0/(1.0/sigma - 1)) - gamma,0),1)
+
+    #         print("(1.0/3.0)*(1.0/(1.0/sigma - 1)): ", (1.0/3.0)*(1.0/(1.0/sigma - 1)))
+
+            print("DELTA: ", delta)
+
+            S = flow_clustering(g,S,method="sl",delta=delta)[0]
+            
+            cuts_l1SL_ALL[ct_outer,node,ct_inner] = S
+            
+            size_clust_l1SL_ = len(S)
+            
+            cond_val_l1pr = g.compute_conductance(S)
+            
+            vol_ = sum(g.d[S])
+            true_positives_l1SL_ = set(rr).intersection(S)
+            if len(true_positives_l1SL_) == 0:
+                true_positives_l1SL_ = set(ref_node)
+                vol_ = g.d[ref_node][0]
+            precision = sum(g.d[np.array(list(true_positives_l1SL_))])/vol_
+            recall = sum(g.d[np.array(list(true_positives_l1SL_))])/sum(g.d[rr])
+            f1_score_ = 2*(precision*recall)/(precision + recall)
+            
+            if f1_score_ >= max_precision:
+                
+                max_precision = f1_score_
+                
+                S_smqi, S_smqi_val = fiedler_local(g, S)
+                S_smqi_val = np.real(S_smqi_val)
+                
+                external_best_pre_cond_l1SL[ct_outer,node] = cond_val_l1pr
+                gap_best_pre_l1SL[ct_outer,node] = (S_smqi_val/np.log(sum(g.d[S])))/cond_val_l1pr
+                vol_best_pre_l1SL[ct_outer,node] = vol_
+                
+                size_clust_best_pre_l1SL[ct_outer,node] = size_clust_l1SL_
+                true_positives_best_pre_l1SL[ct_outer,node] = true_positives_l1SL_
+                precision_best_pre_l1SL[ct_outer,node] = precision
+                recall_best_pre_l1SL[ct_outer,node] = recall
+                f1score_best_pre_l1SL[ct_outer,node] = f1_score_
+                
+                cuts_best_pre_l1SL[ct_outer,node] = S
+        
+            if cond_val_l1pr <= min_conduct:
+                
+                min_conduct = cond_val_l1pr
+                
+                S_smqi, S_smqi_val = fiedler_local(g, S)
+                S_smqi_val = np.real(S_smqi_val)
+                
+                external_best_cond_l1SL[ct_outer,node] = cond_val_l1pr
+                gap_best_cond_l1SL[ct_outer,node] = (S_smqi_val/np.log(sum(g.d[S])))/cond_val_l1pr
+                vol_best_cond_l1SL[ct_outer,node] = vol_
+                
+                size_clust_best_cond_l1SL[ct_outer,node] = size_clust_l1SL_
+                true_positives_best_cond_l1SL[ct_outer,node] = true_positives_l1SL_
+                precision_best_cond_l1SL[ct_outer,node] = precision
+                recall_best_cond_l1SL[ct_outer,node] = recall
+                f1score_best_cond_l1SL[ct_outer,node] = f1_score_
+                
+                cuts_best_cond_l1SL[ct_outer,node] = S
+
+        print('outer:', ct_outer, 'number of node: ',node, ' completed: ', ct/how_many, ' degree: ', g.d[node])
+        print('conductance: ', external_best_cond_l1SL[ct_outer,node], 'f1score: ', f1score_best_pre_l1SL[ct_outer,node], 'precision: ', precision_best_pre_l1SL[ct_outer,node], 'recall: ', recall_best_pre_l1SL[ct_outer,node])
+        ct += 1
+    end = time.time()
+    print(" ")
+    print("Outer: ", ct_outer," Elapsed time L1+SL with rounding: ", end - start)
+    print("Outer: ", ct_outer," Number of experiments: ", number_experiments)
+    print(" ")
+    ct_outer += 1
+
+## Performance of l1+SL
+
+all_data = []
+xlabels_ = []
+
+print('Results for L1+SL')
+sum_precision = 0
+sum_recall = 0
+sum_f1 = 0
+sum_conductance = 0
+
+info_ref_nodes = all_clusters
+l_info_ref_nodes = len(info_ref_nodes)
+
+for i in range(l_info_ref_nodes):
+    temp_pre = []
+    temp_rec = []
+    temp_f1 = []
+    temp_conductance = []
+    
+    for j in all_clusters[i]:
+        temp_pre.append(precision_best_cond_l1SL[i,j])
+        temp_rec.append(recall_best_cond_l1SL[i,j])
+        temp_f1.append(f1score_best_cond_l1SL[i,j])
+        temp_conductance.append(external_best_cond_l1SL[i,j])
+
+    print('Feature:', i,'Precision', stat_.mean(temp_pre), 'Recall', stat_.mean(temp_rec), 'F1', stat_.mean(temp_f1), 'Cond.', stat_.mean(temp_conductance))
+    
