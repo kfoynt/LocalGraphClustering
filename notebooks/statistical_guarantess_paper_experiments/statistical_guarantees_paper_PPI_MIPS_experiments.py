@@ -18,12 +18,12 @@ import random
 
 import statistics as stat_
 
-g = GraphLocal('./datasets/ppi_mips.graphml','graphml',' ')
+g = GraphLocal('../datasets/ppi_mips.graphml','graphml',' ')
 
 G = nx.read_graphml('./datasets/ppi_mips.graphml')
 
 # groups = np.loadtxt('./datasets/ppi_mips.class', dtype = 'float')
-groups = np.loadtxt('./datasets/ppi_mips_ground_truth.csv', dtype = 'str')
+groups = np.loadtxt('../datasets/ppi_mips_ground_truth.csv', dtype = 'str')
 
 groups_by_id = dict()
 

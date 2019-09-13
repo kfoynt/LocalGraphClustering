@@ -18,9 +18,9 @@ import random
 
 import statistics as stat_
 
-g = GraphLocal('datasets/JohnsHopkins.graphml','graphml')
+g = GraphLocal('../datasets/JohnsHopkins.graphml','graphml')
 
-G = nx.read_graphml('datasets/JohnsHopkins.graphml')
+G = nx.read_graphml('../datasets/JohnsHopkins.graphml')
 
 ground_truth_clusters_by_number = dict()
 

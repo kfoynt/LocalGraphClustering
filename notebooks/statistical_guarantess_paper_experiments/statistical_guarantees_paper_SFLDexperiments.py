@@ -18,12 +18,12 @@ import random
 
 import statistics as stat_
 
-g = GraphLocal('./datasets/sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh.graphml','graphml',' ')
+g = GraphLocal('../datasets/sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh.graphml','graphml',' ')
 
-G = nx.read_graphml('./datasets/sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh.graphml')
+G = nx.read_graphml('../datasets/sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh.graphml')
 
 # groups = np.loadtxt('./datasets/ppi_mips.class', dtype = 'float')
-groups = np.loadtxt('./datasets/sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh_ground_truth.csv', dtype = 'str')
+groups = np.loadtxt('../datasets/sfld_brown_et_al_amidohydrolases_protein_similarities_for_beh_ground_truth.csv', dtype = 'str')
 
 groups_by_id = dict()
 
