@@ -13,61 +13,60 @@ import helper
 import pickle
 import csv
 
-print("Running senate")
+# print("Running senate")
 
-# Read graph. This also supports gml and graphml format.
-g = lgc.GraphLocal('./datasets/senate.graphml','graphml')
-g.discard_weights()
+# # Read graph. This also supports gml and graphml format.
+# g = lgc.GraphLocal('./datasets/senate.graphml','graphml')
+# g.discard_weights()
 
-ncp_instance = lgc.NCPData(g)
-ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=24)
+# ncp_instance = lgc.NCPData(g)
+# ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=24)
 
-ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
-#plot conductance vs size
-fig, ax, min_tuples = ncp_plots.cond_by_size()
-plt.savefig('figures/cond_card_senate.png', bbox_inches='tight')
-plt.show()
-#plot conductance vs volume
-fig, ax, min_tuples = ncp_plots.cond_by_vol()
-plt.savefig('figures/cond_vol_senate.png', bbox_inches='tight')
-plt.show()
-#plot isoperimetry vs size
-fig, ax, min_tuples = ncp_plots.isop_by_size()
-plt.savefig('figures/expand_card_senate.png', bbox_inches='tight')
-plt.show()
+# ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
+# #plot conductance vs size
+# fig, ax, min_tuples = ncp_plots.cond_by_size()
+# plt.savefig('figures/cond_card_senate.png', bbox_inches='tight')
+# plt.show()
+# #plot conductance vs volume
+# fig, ax, min_tuples = ncp_plots.cond_by_vol()
+# plt.savefig('figures/cond_vol_senate.png', bbox_inches='tight')
+# plt.show()
+# #plot isoperimetry vs size
+# fig, ax, min_tuples = ncp_plots.isop_by_size()
+# plt.savefig('figures/expand_card_senate.png', bbox_inches='tight')
+# plt.show()
 
-pickle.dump(ncp_instance, open('results/ncp-senate.pickle', 'wb'))
+# pickle.dump(ncp_instance, open('results/ncp-senate.pickle', 'wb'))
 
-# Run us-roads
-g = lgc.GraphLocal('./datasets/usroads-cc.graphml','graphml')
-g.discard_weights()
+# # Run us-roads
+# g = lgc.GraphLocal('./datasets/usroads-cc.graphml','graphml')
+# g.discard_weights()
 
-ncp_instance = lgc.NCPData(g)
-ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=24)
+# ncp_instance = lgc.NCPData(g)
+# ncp_instance.approxPageRank(ratio=0.8,timeout=5000000,nthreads=24)
 
-ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
-#plot conductance vs size
-fig, ax, min_tuples = ncp_plots.cond_by_size()
-plt.savefig('figures/cond_card_usroads.png', bbox_inches='tight')
-plt.show()
-#plot conductance vs volume
-fig, ax, min_tuples = ncp_plots.cond_by_vol()
-plt.savefig('figures/cond_vol_usroads.png', bbox_inches='tight')
-plt.show()
-#plot isoperimetry vs size
-fig, ax, min_tuples = ncp_plots.isop_by_size()
-plt.savefig('figures/expand_card_usroads.png', bbox_inches='tight')
-plt.show()
+# ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "acl")
+# #plot conductance vs size
+# fig, ax, min_tuples = ncp_plots.cond_by_size()
+# plt.savefig('figures/cond_card_usroads.png', bbox_inches='tight')
+# plt.show()
+# #plot conductance vs volume
+# fig, ax, min_tuples = ncp_plots.cond_by_vol()
+# plt.savefig('figures/cond_vol_usroads.png', bbox_inches='tight')
+# plt.show()
+# #plot isoperimetry vs size
+# fig, ax, min_tuples = ncp_plots.isop_by_size()
+# plt.savefig('figures/expand_card_usroads.png', bbox_inches='tight')
+# plt.show()
 
-pickle.dump(ncp_instance, open('results/ncp-usroads.pickle', 'wb'))
+# pickle.dump(ncp_instance, open('results/ncp-usroads.pickle', 'wb'))
 
-mygraphs = {'email-Enron':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/email-Enron.edgelist',
-            'pokec':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/soc-pokec-relationships.edgelist',
+mygraphs = {#'email-Enron':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/email-Enron.edgelist',
+            #'pokec':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/soc-pokec-relationships.edgelist',
             #'orkut':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/com-orkut.ungraph.edgelist',
             'livejournal':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/soc-LiveJournal1.edgelist'
            }
 
-start = time.time()
 for (gname,gfile) in mygraphs.items():
     print(gname, gfile)
     sep = ' '
@@ -80,6 +79,8 @@ for (gname,gfile) in mygraphs.items():
     g = lgc.GraphLocal(os.path.join("..", "data", gfile),'edgelist', "	")
     g.discard_weights()
 
+    start = time.time()
+    
     ncp_instance = lgc.NCPData(g)
     ncp_instance.approxPageRank(ratio=0.1,timeout=5000000,nthreads=24)
 
@@ -97,7 +98,11 @@ for (gname,gfile) in mygraphs.items():
     plt.savefig('figures/expand_card_' + gname + '.png', bbox_inches='tight')
     plt.show()
     
+    end = time.time()
+    print(" Elapsed time: ", end - start)
+    
     pickle.dump(ncp_instance, open('results/ncp' + gname + '.pickle', 'wb'))
+    ncp.write('results/ncp' + gname, writepython=False)
     
     
 # Run orkut seperately
@@ -149,11 +154,17 @@ for ff in ref_nodes_unfiltered:
         
     number_feature += 1
 
+start = time.time()
+
 ncp_instance = lgc.NCPData(g)
 ncp_instance.approxPageRank(ratio=0.1,timeout=5000000,nthreads=24)
 ncp_instance.add_set_samples_without_method(ref_nodes)
 
 ncp_plots = lgc.NCPPlots(ncp_instance,method_name = "")
+
+end = time.time()
+print(" Elapsed time: ", end - start)
+    
 #plot conductance vs size
 fig, ax, min_tuples = ncp_plots.cond_by_size()
 counter = 0
@@ -172,3 +183,5 @@ plt.savefig('figures/expand_card_orkut.png', bbox_inches='tight')
 plt.show()
 
 pickle.dump(ncp_instance, open('results/ncporkut.pickle', 'wb'))
+
+ncp.write('results/ncporkut' + gname, writepython=False)
