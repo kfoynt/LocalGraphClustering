@@ -211,9 +211,9 @@ for i in range(l_info_ref_nodes):
     
     print('Feature:', i,'Precision', stat_.mean(temp_pre), 'Recall', stat_.mean(temp_rec), 'F1', stat_.mean(temp_f1), 'Cond.', stat_.mean(temp_conductance))
 
-np.save('results/f1score_best_pre_acl_ORKUT', f1score_best_pre_acl) 
-np.save('results/precision_best_pre_acl_ORKUT', precision_best_pre_acl) 
-np.save('results/recall_best_pre_acl_ORKUT', recall_best_pre_acl) 
+np.save('f1score_best_pre_acl_ORKUT', f1score_best_pre_acl) 
+np.save('precision_best_pre_acl_ORKUT', precision_best_pre_acl) 
+np.save('recall_best_pre_acl_ORKUT', recall_best_pre_acl) 
 
 ## Collect data for l1-reg. PR (with rounding)
 
@@ -365,9 +365,9 @@ for i in range(l_info_ref_nodes):
     
     print('Feature:', i,'Precision', stat_.mean(temp_pre), 'Recall', stat_.mean(temp_rec), 'F1', stat_.mean(temp_f1), 'Cond.', stat_.mean(temp_conductance))
 
-np.save('results/f1score_best_pre_l1reg_ORKUT', f1score_best_pre_l1reg) 
-np.save('results/precision_best_pre_l1reg_ORKUT', precision_best_pre_l1reg) 
-np.save('results/recall_best_pre_l1reg_ORKUT', recall_best_pre_l1reg)
+np.save('f1score_best_pre_l1reg_ORKUT', f1score_best_pre_l1reg) 
+np.save('precision_best_pre_l1reg_ORKUT', precision_best_pre_l1reg) 
+np.save('recall_best_pre_l1reg_ORKUT', recall_best_pre_l1reg)
 
 ## Function for seed set expansion using BFS
 
@@ -567,9 +567,9 @@ for i in range(l_info_ref_nodes):
 
     print('Feature:', i,'Precision', stat_.mean(temp_pre), 'Recall', stat_.mean(temp_rec), 'F1', stat_.mean(temp_f1), 'Cond.', stat_.mean(temp_conductance))
 
-np.save('results/f1score_best_pre_flBFS_ORKUT', f1score_best_pre_flBFS) 
-np.save('results/precision_best_pre_flBFS_ORKUT', precision_best_pre_flBFS) 
-np.save('results/recall_best_pre_flBFS_ORKUT', recall_best_pre_flBFS) 
+np.save('f1score_best_pre_flBFS_ORKUT', f1score_best_pre_flBFS) 
+np.save('precision_best_pre_flBFS_ORKUT', precision_best_pre_flBFS) 
+np.save('recall_best_pre_flBFS_ORKUT', recall_best_pre_flBFS) 
 
 ## Collect data for APPR+SL
 nodes = {}
@@ -736,9 +736,9 @@ for i in range(l_info_ref_nodes):
     print('Feature:', i,'Precision', stat_.mean(temp_pre), 'Recall', stat_.mean(temp_rec), 'F1', stat_.mean(temp_f1), 'Cond.', stat_.mean(temp_conductance))
 
 
-np.save('results/f1score_best_pre_apprSL_ORKUT', f1score_best_pre_apprSL) 
-np.save('results/precision_best_pre_apprSL_ORKUT', precision_best_pre_apprSL) 
-np.save('results/recall_best_pre_apprSL_ORKUT', recall_best_pre_apprSL) 
+np.save('f1score_best_pre_apprSL_ORKUT', f1score_best_pre_apprSL) 
+np.save('precision_best_pre_apprSL_ORKUT', precision_best_pre_apprSL) 
+np.save('recall_best_pre_apprSL_ORKUT', recall_best_pre_apprSL) 
 
 ## Collect data for L1+SL
 
@@ -905,7 +905,7 @@ for i in range(l_info_ref_nodes):
 
     print('Feature:', i,'Precision', stat_.mean(temp_pre), 'Recall', stat_.mean(temp_rec), 'F1', stat_.mean(temp_f1), 'Cond.', stat_.mean(temp_conductance))
     
-np.save('results/f1score_best_pre_l1SL_ORKUT', f1score_best_pre_l1SL) 
-np.save('results/precision_best_pre_l1SL_ORKUT', precision_best_pre_l1SL) 
-np.save('results/recall_best_pre_l1SL_ORKUT', recall_best_pre_l1SL)
+np.save('f1score_best_pre_l1SL_ORKUT', f1score_best_pre_l1SL) 
+np.save('precision_best_pre_l1SL_ORKUT', precision_best_pre_l1SL) 
+np.save('recall_best_pre_l1SL_ORKUT', recall_best_pre_l1SL)
     
