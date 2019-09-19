@@ -479,7 +479,7 @@ for rr in all_clusters:
                 
         sigma = max(vol_target_intersection_input/vol_target,gamma)
         
-        delta = min(max((1/3)*(1.0/(1.0/sigma - 1)) - gamma,0),1)
+        delta = min(max((1/3)*(1.0/(1.0/sigma - 1)) - gamma,0),1) + 0.6
                         
         S = flow_clustering(g,seeds,method="sl",delta=delta)[0]
         number_experiments += 1
@@ -648,7 +648,7 @@ for rr in all_clusters:
 
             sigma = max(vol_target_intersection_input/vol_target,gamma)
 
-            delta = min(max((1/3)*(1.0/(1.0/sigma - 1)) - gamma,0),1)
+            delta = min(max((1/3)*(1.0/(1.0/sigma - 1)) - gamma,0),1) + 0.6
 
             S = flow_clustering(g,S,method="sl",delta=delta)[0]
             
@@ -818,7 +818,7 @@ for rr in all_clusters:
 
             sigma = max(vol_target_intersection_input/vol_target,gamma)
 
-            delta = min(max((1/3)*(1.0/(1.0/sigma - 1)) - gamma,0),1)
+            delta = min(max((1/3)*(1.0/(1.0/sigma - 1)) - gamma,0),1) + 0.6
 
             S = flow_clustering(g,S,method="sl",delta=delta)[0]
             
