@@ -23,10 +23,10 @@ import statistics as stat_
 import sys,os
 
 data_path = os.getcwd()
-name = '/Users/kimonfountoulakis/Downloads/com-orkut.ungraph.edgelist'
+name = '../datasets/com-orkut.ungraph.edgelist'
 g = GraphLocal(os.path.join(data_path,name),'edgelist', "	")
 
-comm_name = '/Users/kimonfountoulakis/Downloads/com-orkut.top5000.cmty.txt'
+comm_name = '../datasets/com-orkut.top5000.cmty.txt'
 ground_truth_clusters = []
 with open(comm_name, "r") as f:
     for line in f:
