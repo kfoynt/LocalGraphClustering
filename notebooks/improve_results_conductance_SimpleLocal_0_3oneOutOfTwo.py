@@ -47,10 +47,12 @@ def run_improve(g, gname, method, methodname, delta, nthreads=24, timeout=1000):
     fig.savefig("figures/" + method + "delta" + str(delta) + "-ncp-"+gname+".pdf", bbox_inches="tight", figsize=(100,100))
     plt.show()
     pickle.dump(ncp, open('results/' + method + "delta" + str(delta) + "-ncp-" + gname + '.pickle', 'wb'))
+    ncp.write('results/' + method + "delta" + str(delta) + "-ncp-csv-" + gname, writepython=False)
     pickle.dump(ncp2, open('results/' + method + "delta" + str(delta) + "-ncp2-" + gname + '.pickle', 'wb'))
-
-mygraphs = {'email-Enron':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/email-Enron.edgelist',
-            'pokec':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/soc-pokec-relationships.edgelist',
+    ncp2.write('results/' + method + "delta" + str(delta) + "-ncp2-csv-" + gname, writepython=False)
+    
+mygraphs = {#'email-Enron':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/email-Enron.edgelist',
+            #'pokec':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/soc-pokec-relationships.edgelist',
             'livejournal':'/u4/kfountoulakis/flowReviewPaper/LocalGraphClustering/notebooks/datasets/soc-LiveJournal1.edgelist'
            }
 
