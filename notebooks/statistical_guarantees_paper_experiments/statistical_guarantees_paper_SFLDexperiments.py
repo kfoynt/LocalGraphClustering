@@ -126,6 +126,7 @@ for rr in all_clusters:
     a_list = np.arange(lambda_val/2,2*lambda_val,step)
     
     ct = 0
+    
     start = time.time()
     
     for node in nodes[ct_outer]:
@@ -135,7 +136,6 @@ for rr in all_clusters:
         min_conduct = 100
         
         ct_inner = 0
-        
         for a in a_list:
             
             if ct_outer <= 1:
@@ -196,7 +196,7 @@ for rr in all_clusters:
                 cuts_best_cond_acl[ct_outer,node] = S
 
         print('outer:', ct_outer, 'number of node: ',node, ' completed: ', ct/how_many, ' degree: ', g.d[node])
-        print('conductance: ', external_best_cond_acl[ct_outer,node], 'f1score: ', f1score_best_pre_acl[ct_outer,node], 'precision: ', precision_best_pre_acl[ct_outer,node], 'recall: ', recall_best_pre_acl[ct_outer,node])
+        print('conductance: ', external_best_cond_acl[ct_outer,node], 'f1score: ', f1score_best_cond_acl[ct_outer,node], 'precision: ', precision_best_cond_acl[ct_outer,node], 'recall: ', recall_best_cond_acl[ct_outer,node])
         ct += 1
     end = time.time()
     print(" ")
@@ -234,7 +234,8 @@ for i in range(l_info_ref_nodes):
     print('Feature:', i,'Precision', stat_.mean(temp_pre), 'Recall', stat_.mean(temp_rec), 'F1', stat_.mean(temp_f1), 'Cond.', stat_.mean(temp_conductance))
 
 
-    
+
+
 ## Collect data for l1-reg. PR (with rounding)
 
 nodes = {}
@@ -347,7 +348,7 @@ for rr in all_clusters:
                 cuts_best_cond_acl[ct_outer,node] = S
 
         print('outer:', ct_outer, 'number of node: ',node, ' completed: ', ct/how_many, ' degree: ', g.d[node])
-        print('conductance: ', external_best_cond_acl[ct_outer,node], 'f1score: ', f1score_best_pre_acl[ct_outer,node], 'precision: ', precision_best_pre_acl[ct_outer,node], 'recall: ', recall_best_pre_acl[ct_outer,node])
+        print('conductance: ', external_best_cond_acl[ct_outer,node], 'f1score: ', f1score_best_cond_acl[ct_outer,node], 'precision: ', precision_best_cond_acl[ct_outer,node], 'recall: ', recall_best_cond_acl[ct_outer,node])
         ct += 1
 
     end = time.time()
@@ -356,7 +357,7 @@ for rr in all_clusters:
     print("Outer: ", ct_outer," Number of experiments: ", number_experiments)
     print(" ")
     ct_outer += 1
-
+    
 ## Performance of l1-reg. PR (with rounding).
 
 all_data = []
@@ -384,7 +385,6 @@ for i in range(l_info_ref_nodes):
         temp_conductance.append(external_best_cond_acl[i,j])
     
     print('Feature:', i,'Precision', stat_.mean(temp_pre), 'Recall', stat_.mean(temp_rec), 'F1', stat_.mean(temp_f1), 'Cond.', stat_.mean(temp_conductance))
-
 
 
 ## Function for seed set expansion using BFS
@@ -548,7 +548,7 @@ for rr in all_clusters:
             cuts_best_cond_flBFS[ct_outer,node] = S
 
         print('outer:', ct_outer, 'number of node: ',node, ' completed: ', ct/how_many, ' degree: ', g.d[node])
-        print('conductance: ', external_best_cond_flBFS[ct_outer,node], 'f1score: ', f1score_best_pre_flBFS[ct_outer,node], 'precision: ', precision_best_pre_flBFS[ct_outer,node], 'recall: ', recall_best_pre_flBFS[ct_outer,node])
+        print('conductance: ', external_best_cond_flBFS[ct_outer,node], 'f1score: ', f1score_best_cond_flBFS[ct_outer,node], 'precision: ', precision_best_cond_flBFS[ct_outer,node], 'recall: ', recall_best_cond_flBFS[ct_outer,node])
         ct += 1
     end = time.time()
     print(" ")
@@ -587,7 +587,6 @@ for i in range(l_info_ref_nodes):
 
 
 ## Collect data for APPR+SL
-
 nodes = {}
 external_best_cond_apprSL = {}
 external_best_pre_cond_apprSL = {}
@@ -714,7 +713,7 @@ for rr in all_clusters:
                 cuts_best_cond_apprSL[ct_outer,node] = S
 
         print('outer:', ct_outer, 'number of node: ',node, ' completed: ', ct/how_many, ' degree: ', g.d[node])
-        print('conductance: ', external_best_cond_apprSL[ct_outer,node], 'f1score: ', f1score_best_pre_apprSL[ct_outer,node], 'precision: ', precision_best_pre_apprSL[ct_outer,node], 'recall: ', recall_best_pre_apprSL[ct_outer,node])
+        print('conductance: ', external_best_cond_apprSL[ct_outer,node], 'f1score: ', f1score_best_cond_apprSL[ct_outer,node], 'precision: ', precision_best_cond_apprSL[ct_outer,node], 'recall: ', recall_best_cond_apprSL[ct_outer,node])
         ct += 1
     end = time.time()
     print(" ")
@@ -750,7 +749,6 @@ for i in range(l_info_ref_nodes):
         temp_conductance.append(external_best_cond_apprSL[i,j])
 
     print('Feature:', i,'Precision', stat_.mean(temp_pre), 'Recall', stat_.mean(temp_rec), 'F1', stat_.mean(temp_f1), 'Cond.', stat_.mean(temp_conductance))
-
 
 
 ## Collect data for L1+SL
@@ -881,7 +879,7 @@ for rr in all_clusters:
                 cuts_best_cond_l1SL[ct_outer,node] = S
 
         print('outer:', ct_outer, 'number of node: ',node, ' completed: ', ct/how_many, ' degree: ', g.d[node])
-        print('conductance: ', external_best_cond_l1SL[ct_outer,node], 'f1score: ', f1score_best_pre_l1SL[ct_outer,node], 'precision: ', precision_best_pre_l1SL[ct_outer,node], 'recall: ', recall_best_pre_l1SL[ct_outer,node])
+        print('conductance: ', external_best_cond_l1SL[ct_outer,node], 'f1score: ', f1score_best_cond_l1SL[ct_outer,node], 'precision: ', precision_best_cond_l1SL[ct_outer,node], 'recall: ', recall_best_cond_l1SL[ct_outer,node])
         ct += 1
     end = time.time()
     print(" ")
@@ -891,6 +889,7 @@ for rr in all_clusters:
     ct_outer += 1
     
 ## Performance of l1+SL
+
 all_data = []
 xlabels_ = []
 
@@ -916,5 +915,4 @@ for i in range(l_info_ref_nodes):
         temp_conductance.append(external_best_cond_l1SL[i,j])
 
     print('Feature:', i,'Precision', stat_.mean(temp_pre), 'Recall', stat_.mean(temp_rec), 'F1', stat_.mean(temp_f1), 'Cond.', stat_.mean(temp_conductance))
-    
     

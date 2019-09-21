@@ -274,7 +274,7 @@ for rr in all_clusters:
             else:
                 rho = 0.2/np.sum(g.d[rr])
             
-            output_pr_clustering = approximate_PageRank(g,ref_node,method = "l1reg-rand", epsilon=1.0e-2, rho=rho, alpha=a, cpp = True, normalize=True,normalized_objective=True)
+            output_pr_clustering = approximate_PageRank(g,ref_node,method = "l1reg-rand", epsilon=1.0e-6, rho=rho, alpha=a, cpp = True, normalize=True,normalized_objective=True)
             number_experiments += 1
             
             output_pr_sc = sweep_cut(g,output_pr_clustering,cpp=True)
@@ -801,7 +801,7 @@ for rr in all_clusters:
             else:
                 rho = 0.2/np.sum(g.d[rr])
             
-            output_pr_clustering = approximate_PageRank(g,ref_node,method = "l1reg-rand", epsilon=1.0e-2, rho=rho, alpha=a, cpp = True, normalize=True,normalized_objective=True)
+            output_pr_clustering = approximate_PageRank(g,ref_node,method = "l1reg-rand", epsilon=1.0e-6, rho=rho, alpha=a, cpp = True, normalize=True,normalized_objective=True)
             number_experiments += 1
             
             output_pr_sc = sweep_cut(g,output_pr_clustering,cpp=True)
