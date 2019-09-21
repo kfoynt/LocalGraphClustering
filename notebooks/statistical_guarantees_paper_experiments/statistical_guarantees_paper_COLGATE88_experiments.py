@@ -266,9 +266,9 @@ for rr in all_clusters:
         for a in a_list:
             
             if ct_outer <= 1:
-                rho = (0.15/np.sum(g.d[rr]))/(1.1)
+                rho = (0.15/np.sum(g.d[rr]))/(1.2)
             else:
-                rho = (0.2/np.sum(g.d[rr]))/(1.1)
+                rho = (0.2/np.sum(g.d[rr]))/(1.2)
             
             output_pr_clustering = approximate_PageRank(g,ref_node,method = "l1reg-rand", epsilon=1.0e-2, rho=rho, alpha=a, cpp = True, normalize=True,normalized_objective=True,iterations=1000000)
             number_experiments += 1
@@ -783,9 +783,9 @@ for rr in all_clusters:
         for a in a_list:
             
             if ct_outer <= 1:
-                rho = (0.15/np.sum(g.d[rr]))/(1.1)
+                rho = (0.15/np.sum(g.d[rr]))/(1.2)
             else:
-                rho = (0.2/np.sum(g.d[rr]))/(1.1)
+                rho = (0.2/np.sum(g.d[rr]))/(1.2)
             
             output_pr_clustering = approximate_PageRank(g,ref_node,method = "l1reg-rand", epsilon=1.0e-2, rho=rho, alpha=a, cpp = True, normalize=True,normalized_objective=True,iterations=1000000)
             number_experiments += 1
