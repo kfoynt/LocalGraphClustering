@@ -125,6 +125,15 @@ def spectral_clustering(G, ref_nodes,
         raise Exception("Unknown method, available methods are \"acl\", \"acl_weighted\", \"l1reg\", \"l1reg-rand\", \"nibble\", \"fiedler\", \"fiedler_local\".")
 
     output = sweep_cut(G,p)
+    
+    if method == "fiedler":
+        output1 = sweep_cut(G,-1*p)
+        if output1[1] < output[1]:
+            output = output1
+    if method == "fiedler_local":
+        output1 = sweep_cut(G,(p[0],-1*p[1]))
+        if output1[1] < output[1]:
+            output = output1
 
     if refine is not None:
         output = refine(G,list(output[0]))
