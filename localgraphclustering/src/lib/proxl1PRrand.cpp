@@ -30,6 +30,8 @@
 #include <unordered_set>
 #include "include/routines.hpp"
 #include "include/proxl1PRrand_c_interface.h"
+#include <random>
+#include <cmath>
 
 using namespace std;
 
@@ -128,8 +130,12 @@ namespace proxl1PRrand
 
     inline
     long long getRand() {
-        g_seed = (214013*g_seed+2531011); 
-        return (g_seed>>16)&0x7FFF; 
+        // g_seed = (214013*g_seed+2531011); 
+        // return (g_seed>>16)&0x7FFF; 
+        random_device rd;
+        mt19937_64 e2(rd());
+        uniform_int_distribution<long long int> dist(std::llround(std::pow(2,0)), std::llround(std::pow(2,63)));
+        return dist(e2);
     }
 
     template<typename vtype, typename itype>
@@ -324,6 +330,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //         }
         
         vtype r = proxl1PRrand::getRand() % candidates_size;
+
         proxl1PRrand::updateGrad(candidates[r], stepSize, c, ra, q, grad, ds, dsinv, ai, aj, a, visited, candidates, candidates_size);
         
 //         for (vtype i = 0; i < num_nodes; ++i) {
@@ -334,7 +341,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //             cout  << "iter.: " << numiter << ", after grad[" << i << "]: " << grad[i] << endl;
 //         }
         
-        if (numiter % num_nodes == 0) {
+        if (numiter % 1000 == 0) {
             maxNorm = 0;
             for (vtype i = 0; i < num_nodes; ++i) {
                 maxNorm = max(maxNorm, abs(grad[i]*dsinv[i]));
@@ -347,6 +354,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
             break;
         }
     }
+    
     //proxl1PRrand::writeTime(timeStamp, "/home/c55hu/Documents/research/experiment/output/time-rand.txt");
     //proxl1PRrand::writeLog(num_nodes, "/home/c55hu/Documents/research/experiment/output/q-rand.txt", q);
     // update y and q
@@ -435,7 +443,6 @@ vtype graph<vtype,itype>::proxl1PRrand_unnormalized(vtype num_nodes, vtype* seed
             }
         }
     }
-    
 //     double maxNorm;
 //     grad[Seed] = -alpha;  // grad = -gradient
 //     maxNorm = abs(grad[Seed]/d[Seed]);
@@ -461,7 +468,7 @@ vtype graph<vtype,itype>::proxl1PRrand_unnormalized(vtype num_nodes, vtype* seed
         vtype r =  proxl1PRrand::getRand() % candidates_size;
         proxl1PRrand::updateGrad_unnormalized(candidates[r], stepSize_const, c, ra, q, grad, d, ai, aj, a, visited, candidates, candidates_size);
         
-        if (numiter % num_nodes == 0) {
+        if (numiter % 1000 == 0) {
             maxNorm = 0;
             for (vtype i = 0; i < num_nodes; ++i) {
                 maxNorm = max(maxNorm, abs(grad[i]/d[i]));
