@@ -375,7 +375,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
         }
 //         timeStamp2 = clock();
         
-        sum_term = sum_term + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
+//         sum_term = sum_term + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
         
         if (numiter++ > maxiter) {
             not_converged = 1;
