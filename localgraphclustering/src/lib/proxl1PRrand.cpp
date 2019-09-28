@@ -389,17 +389,15 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //             cout  << "iter.: " << numiter << ", after grad[" << i << "]: " << grad[i] << endl;
 //         }
         
-        maxNorm = max(maxNorm, abs(grad[candidates[r]]*dsinv[candidates[r]]));
-        
 //         timeStamp1 = clock();
-//         if (numiter % 10000 == 0) {
-//             maxNorm = 0;
-//             for (vtype i = 0; i < candidates_size; ++i) {
-//                 r = candidates[i];
-//                 maxNorm = max(maxNorm, abs(grad[r]*dsinv[r]));
-// //             cout << "iter.: " << numiter << " maxNorm: " <<  maxNorm << endl;
-//             }
-//         }
+        if (numiter % 1000 == 0) {
+            maxNorm = 0;
+            for (vtype i = 0; i < candidates_size; ++i) {
+                r = candidates[i];
+                maxNorm = max(maxNorm, abs(grad[r]*dsinv[r]));
+//             cout << "iter.: " << numiter << " maxNorm: " <<  maxNorm << endl;
+            }
+        }
 //         timeStamp2 = clock();
         
 //         sum_term = sum_term + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
