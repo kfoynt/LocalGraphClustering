@@ -390,7 +390,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //         }
         
 //         timeStamp1 = clock();
-        if (numiter % 1000 == 0) {
+        if (numiter % 10000 == 0) {
             maxNorm = 0;
             for (vtype i = 0; i < candidates_size; ++i) {
                 r = candidates[i];
