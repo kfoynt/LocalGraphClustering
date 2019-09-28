@@ -158,15 +158,19 @@ def approximate_PageRank(G,
         else:
             p = fista_dinput_dense(ref_nodes, G, alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout)
         # convert result to a sparse vector
-        nonzeros = np.count_nonzero(p)
-        idx = np.zeros(nonzeros,dtype=np.dtype(G.aj[0]))
-        vals = np.zeros(nonzeros,dtype=np.float64)
-        it = 0
-        for i in range(len(p)):
-            if p[i] != 0:
-                idx[it] = i
-                vals[it] = p[i]*1.0 * G.dn[i] if normalize else p[i]
-                it += 1
+#         nonzeros = np.count_nonzero(p)
+        idx = np.nonzero(p)[0]
+        vals = p[idx]
+        
+        if normalize:
+            vals = np.multiply(G.dn[idx], vals)
+
+#         it = 0
+#         for i in range(len(p)):
+#             if p[i] != 0:
+#                 idx[it] = i
+#                 vals[it] = p[i]*1.0 * G.dn[i] if normalize else p[i]
+#                 it += 1
         return (idx,vals)
     else:
         raise Exception("Unknown method, available methods are \"acl\" or \"acl_weighted\" or \"l1reg\" or \"l1reg-rand\".")
