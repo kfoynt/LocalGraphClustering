@@ -270,9 +270,9 @@ for rr in all_clusters:
         for a in a_list:
             
             if ct_outer <= 1:
-                rho = 0.15/np.sum(g.d[rr])
+                rho = 0.1 # 0.15/np.sum(g.d[rr])
             else:
-                rho = 0.20/np.sum(g.d[rr])
+                rho = 0.1 # 0.20/np.sum(g.d[rr])
             
             output_pr_clustering = approximate_PageRank(g,ref_node,method = "l1reg-rand", epsilon=1.0e-2, rho=rho, alpha=a, cpp = True, normalize=True,normalized_objective=True)
             number_experiments += 1
