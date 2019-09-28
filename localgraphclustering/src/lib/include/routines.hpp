@@ -133,7 +133,7 @@ public:
                         vtype maxiter,double max_time);
                         
     // functions in proxl1PRrand.cpp
-    vtype proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* y, double* d, double* ds, double* dsinv, double* grad, vtype maxiter);
+    vtype proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* y, double* d, double* ds, double* dsinv, double* grad, vtype maxiter, vtype* candidates);
     // functions in proxl1PRrand.cpp
     vtype proxl1PRrand_unnormalized(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* y, double* d, double* ds, double* dsinv, double* grad, vtype maxiter);
     //functions in proxl1PRaccel.cpp

@@ -84,12 +84,14 @@ def proxl1PRrand_cpp(ai,aj,a,ref_node,d,ds,dsinv,y=None,alpha = 0.15,rho = 1.0e-
     else:
         new_y = np.array(y,dtype=float_type)
         
+    xids = np.zeros(n,dtype=vtype)
+        
 #     end = time.time()
 #     print(" Elapsed time inside initialization l1-reg. with rounding: ", end - start)
 
 #     start2 = time.time()
     
-    not_converged=fun(n,ai,aj,a,alpha,rho,ref_node,len(ref_node),d,ds,dsinv,epsilon,grad,p,new_y,maxiter,0,max_time, normalized_objective)
+    actual_length=fun(n,ai,aj,a,alpha,rho,ref_node,len(ref_node),d,ds,dsinv,epsilon,grad,p,new_y,maxiter,0,max_time, normalized_objective,xids)
 
     if y != None:
         for i in range(n):
@@ -98,4 +100,7 @@ def proxl1PRrand_cpp(ai,aj,a,ref_node,d,ds,dsinv,y=None,alpha = 0.15,rho = 1.0e-
 #     end2 = time.time()
 #     print(" Elapsed time inside l1-reg. with rounding: ", end2 - start2)
 
-    return (not_converged,grad,p)
+    actual_xids=xids[0:actual_length]
+    actual_values=p[actual_xids]
+
+    return (actual_length,actual_xids,actual_values)

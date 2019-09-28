@@ -162,11 +162,11 @@ def approximate_PageRank(G,
         algo = proxl1PRaccel_cpp if method == "l1reg" else proxl1PRrand_cpp
         if cpp:
             if ys == None:
-                p = algo(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, alpha = alpha,
-                                     rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout, normalized_objective = normalized_objective)[2]
+                (length,xids,values) = algo(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, alpha = alpha,
+                                     rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout, normalized_objective = normalized_objective)
             else:
-                p = algo(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, y = ys, alpha = alpha,
-                                     rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout, normalized_objective = normalized_objective)[2]
+                (length,xids,values) = algo(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, y = ys, alpha = alpha,
+                                     rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout, normalized_objective = normalized_objective)
         else:
             p = fista_dinput_dense(ref_nodes, G, alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout)
         # convert result to a sparse vector
@@ -176,16 +176,25 @@ def approximate_PageRank(G,
 #         end = time.time()
 #         print(" Elapsed time l1reg with rounding: ", end - start)
             
-        start = time.time()
+#         start = time.time()
         
-        idx = np.nonzero(p)[0]
-        vals = p[idx]
+#         idx = np.nonzero(p)[0]
         
+#         end = time.time()
+#         print(" Elapsed time one: ", end - start) 
+        
+#         start = time.time()
+#         vals = p[idx]
+        
+#         end = time.time()
+#         print(" Elapsed time two: ", end - start) 
+        
+#         start = time.time()
         if normalize:
-            vals = np.multiply(G.dn[idx], vals)
+            values = np.multiply(G.dn[xids], values)
             
 #         end = time.time()
-#         print(" Elapsed time conversion l1-reg. with rounding: ", end - start)
+#         print(" Elapsed time three: ", end - start)
 
 #         it = 0
 #         for i in range(len(p)):
@@ -193,6 +202,6 @@ def approximate_PageRank(G,
 #                 idx[it] = i
 #                 vals[it] = p[i]*1.0 * G.dn[i] if normalize else p[i]
 #                 it += 1
-        return (idx,vals)
+        return (xids,values)
     else:
         raise Exception("Unknown method, available methods are \"acl\" or \"acl_weighted\" or \"l1reg\" or \"l1reg-rand\".")

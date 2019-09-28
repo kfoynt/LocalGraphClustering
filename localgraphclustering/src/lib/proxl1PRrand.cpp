@@ -228,7 +228,7 @@ namespace proxl1PRrand
 }
 
 template<typename vtype, typename itype>
-vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* y, double* d, double* ds, double* dsinv, double* grad, vtype maxiter)
+vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* y, double* d, double* ds, double* dsinv, double* grad, vtype maxiter, vtype* candidates)
 {
 //     clock_t timeStamp1;
 //     clock_t timeStamp2;
@@ -245,7 +245,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //     timeStamp1 = clock();
     vtype r;
 	vtype not_converged = 0;
-    vtype* candidates = new vtype[num_nodes];
+//     vtype* candidates = new vtype[num_nodes];
     bool* visited = new bool[num_nodes];
     for (vtype i = 0; i < num_nodes; ++i) visited[i] = false;
     
@@ -440,7 +440,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     
     delete [] candidates;
     delete [] visited;
-    return not_converged;
+    return candidates_size;
 }
 
 template<typename vtype, typename itype>
@@ -567,11 +567,11 @@ vtype graph<vtype,itype>::proxl1PRrand_unnormalized(vtype num_nodes, vtype* seed
 uint32_t proxl1PRrand32(uint32_t n, uint32_t* ai, uint32_t* aj, double* a, double alpha,
                          double rho, uint32_t* v, uint32_t v_nums, double* d, double* ds,
                          double* dsinv, double epsilon, double* grad, double* p, double* y,
-                         uint32_t maxiter, uint32_t offset, double max_time,bool normalized_objective)
+                         uint32_t maxiter, uint32_t offset, double max_time,bool normalized_objective,uint32_t* xids)
 {
     graph<uint32_t,uint32_t> g(ai[n],n,ai,aj,a,offset,NULL);
     if (normalized_objective){
-        return g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
+        return g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter, xids);
     }
     else{
         return g.proxl1PRrand_unnormalized(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
@@ -581,11 +581,11 @@ uint32_t proxl1PRrand32(uint32_t n, uint32_t* ai, uint32_t* aj, double* a, doubl
 int64_t proxl1PRrand64(int64_t n, int64_t* ai, int64_t* aj, double* a, double alpha,
                         double rho, int64_t* v, int64_t v_nums, double* d, double* ds,
                         double* dsinv,double epsilon, double* grad, double* p, double* y,
-                        int64_t maxiter, int64_t offset, double max_time,bool normalized_objective)
+                        int64_t maxiter, int64_t offset, double max_time,bool normalized_objective,int64_t* xids)
 {
     graph<int64_t,int64_t> g(ai[n],n,ai,aj,a,offset,NULL);
     if (normalized_objective){
-        return g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
+        return g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter, xids);
     }
     else{
         return g.proxl1PRrand_unnormalized(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
@@ -595,11 +595,11 @@ int64_t proxl1PRrand64(int64_t n, int64_t* ai, int64_t* aj, double* a, double al
 uint32_t proxl1PRrand32_64(uint32_t n, int64_t* ai, uint32_t* aj, double* a, double alpha,
                             double rho, uint32_t* v, uint32_t v_nums, double* d, double* ds,
                             double* dsinv, double epsilon, double* grad, double* p, double* y,
-                            uint32_t maxiter, uint32_t offset, double max_time,bool normalized_objective)
+                            uint32_t maxiter, uint32_t offset, double max_time,bool normalized_objective,uint32_t* xids)
 {
     graph<uint32_t,int64_t> g(ai[n],n,ai,aj,a,offset,NULL);
     if (normalized_objective){
-        return g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
+        return g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter, xids);
     }
     else{
         return g.proxl1PRrand_unnormalized(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
