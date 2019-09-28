@@ -237,6 +237,11 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     double sum_term = 0;
     double sum_random = 0;
     
+    random_device rd;
+    mt19937_64 e2(rd());
+    uniform_int_distribution<long long int> dist(std::llround(std::pow(2,0)), std::llround(std::pow(2,63)));
+//     return dist(e2);
+    
 	vtype not_converged = 0;
     vtype* candidates = new vtype[num_nodes];
     bool* visited = new bool[num_nodes];
@@ -337,7 +342,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //         }
         
         timeStamp1 = clock();
-        vtype r = proxl1PRrand::getRand() % candidates_size;
+        vtype r = dist(e2) % candidates_size;
         timeStamp2 = clock();
         
         sum_random = sum_random + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
