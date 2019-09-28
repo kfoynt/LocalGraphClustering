@@ -318,7 +318,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     double threshold = (1+epsilon)*rho*alpha;
     vtype numiter = 1;
     // some constant
-    maxiter *= 100;
+    // maxiter *= 100;
     while (maxNorm > threshold) {
         
 //         for (vtype i = 0; i < num_nodes; ++i) {
@@ -461,7 +461,7 @@ vtype graph<vtype,itype>::proxl1PRrand_unnormalized(vtype num_nodes, vtype* seed
     double threshold = (1+epsilon)*rho*alpha;
     vtype numiter = 1;
     // some constant
-    maxiter *= 100;
+    // maxiter *= 100;
     //for (vtype i = 0; i < num_nodes; ++i) ds[i] *= ra;
     while (maxNorm > threshold) {
         
