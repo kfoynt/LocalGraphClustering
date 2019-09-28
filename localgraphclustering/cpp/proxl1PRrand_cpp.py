@@ -25,7 +25,7 @@ from numpy.ctypeslib import ndpointer
 import ctypes
 from .utility import determine_types, standard_types
 from . import _graphlib
-
+import time
 
 # Load the functions
 def _setup_proxl1PRrand_args(vtypestr, itypestr, fun):
@@ -68,6 +68,9 @@ def _get_proxl1PRrand_cpp_types_fun(ai,aj):
 
 def proxl1PRrand_cpp(ai,aj,a,ref_node,d,ds,dsinv,y=None,alpha = 0.15,rho = 1.0e-5,epsilon = 1.0e-4,maxiter = 10000,max_time = 100,normalized_objective=True):
     float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun = _get_proxl1PRrand_cpp_types_fun(ai,aj)
+    
+#     start = time.time()
+    
     n = len(ai) - 1
     if type(ref_node) is not list:
         ref_node = np.array([ref_node],dtype = ctypes_vtype)
@@ -80,11 +83,19 @@ def proxl1PRrand_cpp(ai,aj,a,ref_node,d,ds,dsinv,y=None,alpha = 0.15,rho = 1.0e-
         new_y = np.zeros(n,dtype=float_type)
     else:
         new_y = np.array(y,dtype=float_type)
+        
+#     end = time.time()
+#     print(" Elapsed time inside initialization l1-reg. with rounding: ", end - start)
 
+#     start2 = time.time()
+    
     not_converged=fun(n,ai,aj,a,alpha,rho,ref_node,len(ref_node),d,ds,dsinv,epsilon,grad,p,new_y,maxiter,0,max_time, normalized_objective)
 
     if y != None:
         for i in range(n):
             y[i] = new_y[i]
+            
+#     end2 = time.time()
+#     print(" Elapsed time inside l1-reg. with rounding: ", end2 - start2)
 
     return (not_converged,grad,p)

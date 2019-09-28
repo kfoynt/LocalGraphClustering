@@ -242,11 +242,19 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     uniform_int_distribution<long long int> dist(std::llround(std::pow(2,0)), std::llround(std::pow(2,63)));
 //     return dist(e2);
     
+//     timeStamp1 = clock();
+    
 	vtype not_converged = 0;
     vtype* candidates = new vtype[num_nodes];
     bool* visited = new bool[num_nodes];
     for (vtype i = 0; i < num_nodes; ++i) visited[i] = false;
+    
+//     timeStamp2 = clock();
+    
+//     cout << "time initialization visited: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
 
+//     timeStamp1 = clock();
+    
     // initialize seed nodes as candidates
     double maxNorm = 0;
     vtype candidates_size = num_seeds;
@@ -259,6 +267,10 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
         visited[seed[i]] = true;
 //         cout << "seed[" << i << "]: " << seed[i] << endl;
     }
+    
+//     timeStamp2 = clock();
+    
+//     cout << "time initialization seed nodes and candidates: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
     
 //     for (vtype i = 0; i < num_nodes; ++i) {
 //         cout << "grad[" << i << "]: " << grad[i] << endl;
@@ -282,23 +294,29 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //         }
 //     }
     
-    for(vtype i = 0; i < num_seeds; i ++){
-        grad[seed[i]] = -alpha*dsinv[seed[i]]/num_seeds;
-    }
-
+//     timeStamp1 = clock();
+    
     //Find nonzero indices in y and dsinv
     unordered_map<vtype,vtype> indices;
     unordered_set<vtype> nz_ids;
-    for (vtype i = 0; i < num_nodes; i ++) {
-        if (y[i] != 0 && dsinv[i] != 0) {
-            indices[i] = 0;
-            q[i] = y[i];
-        }
-        if (y[i] != 0 || grad[i] != 0) {
-            nz_ids.insert(i);
-        }
-    }
     
+    vtype temp_int;
+    
+    for(vtype i = 0; i < num_seeds; i ++){
+        temp_int = seed[i];
+        grad[temp_int] = -alpha*dsinv[temp_int]/num_seeds;
+        nz_ids.insert(temp_int);
+        indices[temp_int] = 0;
+        q[temp_int] = y[temp_int];
+    }
+
+//     for (vtype i = 0; i < num_nodes; i ++) indices[i] = 0;
+    
+//     timeStamp2 = clock();
+    
+//     cout << "time initialization indices: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
+    
+//     timeStamp1 = clock();
     
     for(auto it = nz_ids.begin() ; it != nz_ids.end(); ++it){
         vtype i = *it;
@@ -319,6 +337,10 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
         }
     }
     
+//     timeStamp2 = clock();
+    
+//     cout << "time initialization gradient: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
+    
 //     for (vtype i = 0; i < num_nodes; ++i) {
 //         cout << "1st grad[" << i << "]: " << grad[i] << endl;
 //     }
@@ -331,6 +353,9 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     vtype numiter = 1;
     // some constant
     // maxiter *= 100;
+    
+//     timeStamp1 = clock();
+    
     while (maxNorm > threshold) {
         
 //         for (vtype i = 0; i < num_nodes; ++i) {
@@ -406,6 +431,10 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //     for (vtype i = 0; i < num_nodes; ++i) {
 //         cout << "last grad[" << i << "]: " << grad[i] << endl;
 //     }
+    
+//     timeStamp2 = clock();
+    
+//     cout << "time loop: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
     
     delete [] candidates;
     delete [] visited;

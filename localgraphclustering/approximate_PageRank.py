@@ -5,6 +5,8 @@ from .algorithms import fista_dinput_dense
 from .cpp import *
 import warnings
 
+import time
+
 def approximate_PageRank(G,
                          ref_nodes,
                          timeout: float = 100,
@@ -122,12 +124,19 @@ def approximate_PageRank(G,
         if ys != None:
             warnings.warn("\"acl\" doesn't support initial solutions, please use \"l1reg\" instead.")
         if cpp:
+            
+#             start = time.time()
+            
             n = G.adjacency_matrix.shape[0]
             (length,xids,values) = aclpagerank_cpp(n,G.ai,G.aj,alpha,rho,ref_nodes,iterations)
             # TODO, implement this in the C++ function
             if normalize:
                 for i in range(len(xids)): # we can't use degrees because it could be weighted
                     values[i] /= (G.ai[xids[i]+1]-G.ai[xids[i]])
+                    
+#             end = time.time()
+#             print(" Elapsed time acl with rounding: ", end - start)
+            
             return (xids,values)
         else:
             return acl_list(ref_nodes, G, alpha = alpha, rho = rho, max_iter = iterations, max_time = timeout)
@@ -147,6 +156,9 @@ def approximate_PageRank(G,
         #print("Uses the Fast Iterative Soft Thresholding Algorithm (FISTA).")
         # TODO fix the following warning
         # warnings.warn("The normalization of this routine hasn't been adjusted to the new system yet")
+        
+#         start = time.time()
+        
         algo = proxl1PRaccel_cpp if method == "l1reg" else proxl1PRrand_cpp
         if cpp:
             if ys == None:
@@ -159,11 +171,21 @@ def approximate_PageRank(G,
             p = fista_dinput_dense(ref_nodes, G, alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout)
         # convert result to a sparse vector
 #         nonzeros = np.count_nonzero(p)
+    
+    
+#         end = time.time()
+#         print(" Elapsed time l1reg with rounding: ", end - start)
+            
+        start = time.time()
+        
         idx = np.nonzero(p)[0]
         vals = p[idx]
         
         if normalize:
             vals = np.multiply(G.dn[idx], vals)
+            
+#         end = time.time()
+#         print(" Elapsed time conversion l1-reg. with rounding: ", end - start)
 
 #         it = 0
 #         for i in range(len(p)):
