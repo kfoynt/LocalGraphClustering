@@ -438,7 +438,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     
 //     cout << "time loop: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
     
-    delete [] candidates;
+//     delete [] candidates;
     delete [] visited;
     return candidates_size;
 }
@@ -567,11 +567,13 @@ vtype graph<vtype,itype>::proxl1PRrand_unnormalized(vtype num_nodes, vtype* seed
 uint32_t proxl1PRrand32(uint32_t n, uint32_t* ai, uint32_t* aj, double* a, double alpha,
                          double rho, uint32_t* v, uint32_t v_nums, double* d, double* ds,
                          double* dsinv, double epsilon, double* grad, double* p, double* y,
-                         uint32_t maxiter, uint32_t offset, double max_time,bool normalized_objective,uint32_t* xids)
+                         uint32_t maxiter, uint32_t offset, double max_time,bool normalized_objective,
+                         uint32_t* candidates)
 {
     graph<uint32_t,uint32_t> g(ai[n],n,ai,aj,a,offset,NULL);
     if (normalized_objective){
-        return g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter, xids);
+        uint32_t actual_length = g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter, candidates);
+        return actual_length;
     }
     else{
         return g.proxl1PRrand_unnormalized(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
@@ -581,11 +583,13 @@ uint32_t proxl1PRrand32(uint32_t n, uint32_t* ai, uint32_t* aj, double* a, doubl
 int64_t proxl1PRrand64(int64_t n, int64_t* ai, int64_t* aj, double* a, double alpha,
                         double rho, int64_t* v, int64_t v_nums, double* d, double* ds,
                         double* dsinv,double epsilon, double* grad, double* p, double* y,
-                        int64_t maxiter, int64_t offset, double max_time,bool normalized_objective,int64_t* xids)
+                        int64_t maxiter, int64_t offset, double max_time,bool normalized_objective,
+                        int64_t* candidates)
 {
     graph<int64_t,int64_t> g(ai[n],n,ai,aj,a,offset,NULL);
     if (normalized_objective){
-        return g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter, xids);
+        int64_t actual_length = g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter, candidates);
+        return actual_length;
     }
     else{
         return g.proxl1PRrand_unnormalized(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
@@ -595,11 +599,13 @@ int64_t proxl1PRrand64(int64_t n, int64_t* ai, int64_t* aj, double* a, double al
 uint32_t proxl1PRrand32_64(uint32_t n, int64_t* ai, uint32_t* aj, double* a, double alpha,
                             double rho, uint32_t* v, uint32_t v_nums, double* d, double* ds,
                             double* dsinv, double epsilon, double* grad, double* p, double* y,
-                            uint32_t maxiter, uint32_t offset, double max_time,bool normalized_objective,uint32_t* xids)
-{
+                            uint32_t maxiter, uint32_t offset, double max_time,bool normalized_objective,
+                            uint32_t* candidates)
+{    
     graph<uint32_t,int64_t> g(ai[n],n,ai,aj,a,offset,NULL);
     if (normalized_objective){
-        return g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter, xids);
+        uint32_t actual_length = g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter, candidates);
+        return actual_length;
     }
     else{
         return g.proxl1PRrand_unnormalized(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
