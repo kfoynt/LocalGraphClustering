@@ -230,12 +230,12 @@ namespace proxl1PRrand
 template<typename vtype, typename itype>
 vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* y, double* d, double* ds, double* dsinv, double* grad, vtype maxiter)
 {
-    clock_t timeStamp1;
-    clock_t timeStamp2;
+//     clock_t timeStamp1;
+//     clock_t timeStamp2;
     
-    double sum_grad = 0;
-    double sum_term = 0;
-    double sum_random = 0;
+//     double sum_grad = 0;
+//     double sum_term = 0;
+//     double sum_random = 0;
     
     random_device rd;
     mt19937_64 e2(rd());
@@ -341,20 +341,20 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //             cout  << "iter.: " << numiter << ", before grad[" << i << "]: " << grad[i] << endl;
 //         }
         
-        timeStamp1 = clock();
+//         timeStamp1 = clock();
         vtype r = dist(e2) % candidates_size;
-        timeStamp2 = clock();
+//         timeStamp2 = clock();
         
-        sum_random = sum_random + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
+//         sum_random = sum_random + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
         
 //        cout<< "Quicksort time "<< (float)(clock2 - clock1)/ CLOCKS_PER_SEC << " "<<endl;;
 
 
-        timeStamp1 = clock();
+//         timeStamp1 = clock();
         proxl1PRrand::updateGrad(candidates[r], stepSize, c, ra, q, grad, ds, dsinv, ai, aj, a, visited, candidates, candidates_size);
-        timeStamp2 = clock();
+//         timeStamp2 = clock();
         
-        sum_grad = sum_grad + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
+//         sum_grad = sum_grad + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
         
 //         for (vtype i = 0; i < num_nodes; ++i) {
 //             cout  << "iter.: " << numiter << ", after q[" << i << "]: " << q[i] << endl;
@@ -364,7 +364,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //             cout  << "iter.: " << numiter << ", after grad[" << i << "]: " << grad[i] << endl;
 //         }
         
-        timeStamp1 = clock();
+//         timeStamp1 = clock();
         if (numiter % 1000 == 0) {
             maxNorm = 0;
             for (vtype i = 0; i < candidates_size; ++i) {
@@ -373,7 +373,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //             cout << "iter.: " << numiter << " maxNorm: " <<  maxNorm << endl;
             }
         }
-        timeStamp2 = clock();
+//         timeStamp2 = clock();
         
         sum_term = sum_term + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
         
@@ -387,9 +387,9 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     //proxl1PRrand::writeLog(num_nodes, "/home/c55hu/Documents/research/experiment/output/q-rand.txt", q);
     // update y and q
     
-    cout << "sum_grad.: " << sum_grad << endl;
-    cout << "sum_term.: " << sum_term << endl;
-    cout << "sum_random.: " << sum_random << endl;
+//     cout << "sum_grad.: " << sum_grad << endl;
+//     cout << "sum_term.: " << sum_term << endl;
+//     cout << "sum_random.: " << sum_random << endl;
     
     for (vtype i = 0; i < num_nodes; ++i) y[i] = q[i];
     
@@ -416,6 +416,10 @@ template<typename vtype, typename itype>
 vtype graph<vtype,itype>::proxl1PRrand_unnormalized(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* y, double* d, double* ds, double* dsinv, double* grad, vtype maxiter)
 {
     clock_t timeStamp = clock();
+    
+    random_device rd;
+    mt19937_64 e2(rd());
+    uniform_int_distribution<long long int> dist(std::llround(std::pow(2,0)), std::llround(std::pow(2,63)));
     
 	vtype not_converged = 0;
     vtype* candidates = new vtype[num_nodes];
@@ -497,15 +501,16 @@ vtype graph<vtype,itype>::proxl1PRrand_unnormalized(vtype num_nodes, vtype* seed
     //for (vtype i = 0; i < num_nodes; ++i) ds[i] *= ra;
     while (maxNorm > threshold) {
         
-        vtype r =  proxl1PRrand::getRand() % candidates_size;
+        vtype r = dist(e2) % candidates_size;
         proxl1PRrand::updateGrad_unnormalized(candidates[r], stepSize_const, c, ra, q, grad, d, ai, aj, a, visited, candidates, candidates_size);
         
         if (numiter % 1000 == 0) {
             maxNorm = 0;
-            for (vtype i = 0; i < num_nodes; ++i) {
-                maxNorm = max(maxNorm, abs(grad[i]/d[i]));
-            }
+            for (vtype i = 0; i < candidates_size; ++i) {
+                r = candidates[i];
+                maxNorm = max(maxNorm, abs(grad[r]*dsinv[r]));
 //             cout << "iter.: " << numiter << " maxNorm: " <<  maxNorm << endl;
+            }
         }
         
         if (numiter++ > maxiter) {
