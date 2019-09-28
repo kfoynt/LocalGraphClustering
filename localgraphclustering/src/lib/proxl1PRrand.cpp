@@ -243,7 +243,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //     return dist(e2);
     
 //     timeStamp1 = clock();
-    
+    vtype r;
 	vtype not_converged = 0;
     vtype* candidates = new vtype[num_nodes];
     bool* visited = new bool[num_nodes];
@@ -367,7 +367,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //         }
         
 //         timeStamp1 = clock();
-        vtype r = dist(e2) % candidates_size;
+        r = dist(e2) % candidates_size;
 //         timeStamp2 = clock();
         
 //         sum_random = sum_random + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
@@ -416,10 +416,12 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //     cout << "sum_term.: " << sum_term << endl;
 //     cout << "sum_random.: " << sum_random << endl;
     
-    for (vtype i = 0; i < num_nodes; ++i) y[i] = q[i];
-    
-    for (vtype i = 0; i < num_nodes; ++i) q[i] *= ds[i];
-    
+    for (vtype i = 0; i < candidates_size; ++i) {
+        r = candidates[i];
+        y[r] = q[r];
+        q[r] *= ds[r];
+    }
+        
 //     for (vtype i = 0; i < num_nodes; ++i) {
 //         cout << "q[" << i << "]: " << q[i] << endl;
 //     }
