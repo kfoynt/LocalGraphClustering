@@ -156,11 +156,12 @@ namespace proxl1PRrand
             got = grad->find(neighbor);
             if (got == grad->end()) {
                 (*grad)[neighbor] = cdqdsinv*dsinv[neighbor]*a[j]; 
+                if (grad->at(neighbor) <= -ra*ds[neighbor]) (*q)[neighbor] = 0;
             }
             else {
                 grad->at(neighbor) -= cdqdsinv*dsinv[neighbor]*a[j];
+                if ((grad->at(neighbor) <= -ra*ds[neighbor]) && q->find(neighbor) == q->end()) (*q)[neighbor] = 0;
             }
-            if (grad->at(neighbor) <= -ra*ds[neighbor]) (*q)[neighbor] = 0;
         }
     }
 
@@ -284,7 +285,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     
 //     timeStamp2 = clock();
     
-//     cout << "time initialization seed nodes and candidates: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
+//     cout << "time initialization seed nodes: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
     
 //     for (vtype i = 0; i < num_nodes; ++i) {
 //         cout << "grad[" << i << "]: " << grad[i] << endl;

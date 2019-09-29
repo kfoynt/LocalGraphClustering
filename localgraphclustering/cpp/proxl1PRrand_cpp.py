@@ -68,7 +68,7 @@ def _get_proxl1PRrand_cpp_types_fun(ai,aj):
 def proxl1PRrand_cpp(ai,aj,a,ref_node,d,ds,dsinv,alpha = 0.15,rho = 1.0e-5,epsilon = 1.0e-4,maxiter = 10000,max_time = 100,normalized_objective=True):
     float_type,vtype,itype,ctypes_vtype,ctypes_itype,fun = _get_proxl1PRrand_cpp_types_fun(ai,aj)
     
-#     star t = time.time()
+#     start = time.time()
     
     n = len(ai) - 1
     if type(ref_node) is not list:
@@ -98,8 +98,5 @@ def proxl1PRrand_cpp(ai,aj,a,ref_node,d,ds,dsinv,alpha = 0.15,rho = 1.0e-5,epsil
     
 #     end2 = time.time()
 #     print(" Elapsed time post processsing: ", end2 - start2)
-    
-#     end2 = time.time()
-#     print(" Elapsed time inside l1-reg. with rounding: ", end2 - start2)
 
     return (actual_length,actual_xids,actual_values)
