@@ -432,12 +432,12 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     
 //     timeStamp1 = clock();
     
-    for (vtype i = 0; i < candidates_size; ++i) {
-        r = candidates[i];
-        q[r] *= ds[r];
-    }
+//     for (vtype i = 0; i < candidates_size; ++i) {
+//         r = candidates[i];
+//         q[r] *= ds[r];
+//     }
     
-//     for (vtype i = 0; i < candidates_size; ++i) q[candidates[i]] *= ds[candidates[i]];
+    for (vtype i = 0; i < candidates_size; ++i) q[candidates[i]] *= ds[candidates[i]];
         
 //     for (vtype i = 0; i < num_nodes; ++i) {
 //         cout << "q[" << i << "]: " << q[i] << endl;
