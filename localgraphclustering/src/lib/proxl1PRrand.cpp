@@ -267,7 +267,8 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     
 //     cout << "time initialization distribution: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
     
-    double dqs, dq, cdqdsinv, grad_old, temp; 
+    double dqs, dq, cdqdsinv, grad_old, temp, temp2; 
+    typename unordered_map<vtype, double>::const_iterator got;
     
     vtype neighbor;
     
@@ -403,10 +404,13 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
             neighbor = aj[j];
             
             temp = -threshold*ds[neighbor];
+            temp2 = cdqdsinv*dsinv[neighbor];
             
-            if (grad.find(neighbor) == grad.end()) {
+            got = grad.find(neighbor);
+            
+            if (got == grad.end()) {
 //                 (*grad)[neighbor] = cdqdsinv*dsinv[neighbor]*a[j]; 
-                grad[neighbor] = cdqdsinv*dsinv[neighbor]; 
+                grad[neighbor] = temp2; 
                 if (grad.at(neighbor) < temp) {
                     Q.push(neighbor);
                     values[neighbor] = 0;
@@ -414,8 +418,8 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
             }
             else {
 //                 grad->at(neighbor) -= cdqdsinv*dsinv[neighbor]*a[j];
-                grad_old = grad.at(neighbor);
-                grad.at(neighbor) -= cdqdsinv*dsinv[neighbor];
+                grad_old = got->second;
+                grad.at(neighbor) -= temp2;
                 if ((grad.at(neighbor) < temp) && (grad_old >= temp)) {
                     Q.push(neighbor);
                     if (values.find(neighbor) == values.end()) values[neighbor] = 0;
