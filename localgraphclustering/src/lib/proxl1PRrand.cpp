@@ -170,7 +170,8 @@ namespace proxl1PRrand
                 grad->at(neighbor) -= cdqdsinv*dsinv[neighbor];
                 if ((grad->at(neighbor) < -threshold*ds[neighbor]) && (grad_old >= -threshold*ds[neighbor])) {
                     Q->push(neighbor);
-                    (*q)[neighbor] = 0;
+                    got = q->find(neighbor);
+                    if (got == q->end()) (*q)[neighbor] = 0;
                 }
             }
         }
