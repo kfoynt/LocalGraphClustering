@@ -139,7 +139,7 @@ namespace proxl1PRrand
     }
 
     template<typename vtype, typename itype>
-    void updateGrad(vtype& node, double& stepSize, double& c, double& ra, double* q, double* grad, double* ds, double* dsinv, itype* ai, vtype* aj, double* a, unordered_set<vtype>* visited, vtype* candidates, vtype& candidates_size, double& stepszra) {
+    void updateGrad(const vtype& node, double& stepSize, double& c, double& ra, double* q, double* grad, double* ds, double* dsinv, itype* ai, vtype* aj, double* a, unordered_set<vtype>* candidates, double& stepszra) {
         double dqs = -grad[node]-ds[node]*ra;
         double dq = dqs*stepSize;
         double cdq = c*dq;
@@ -151,10 +151,7 @@ namespace proxl1PRrand
         for (itype j = ai[node]; j < ai[node + 1]; ++j) {
             neighbor = aj[j];
             grad[neighbor] -= cdqdsinv*dsinv[neighbor]*a[j]; //(1 + alpha)
-            if (visited->find(neighbor) == visited->end() && q[neighbor] - stepSize*grad[neighbor] >= stepszra*ds[neighbor]) {
-                visited->insert(neighbor);
-                candidates[candidates_size++] = neighbor;
-            }
+            if (q[neighbor] - stepSize*grad[neighbor] >= stepszra*ds[neighbor]) candidates->insert(neighbor);
         }
     }
 
@@ -229,7 +226,7 @@ namespace proxl1PRrand
 }
 
 template<typename vtype, typename itype>
-vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* d, double* ds, double* dsinv, double* grad, vtype maxiter, vtype* candidates)
+vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* d, double* ds, double* dsinv, double* grad, vtype maxiter, vtype* xids)
 {
 //     clock_t timeStamp1;
 //     clock_t timeStamp2;
@@ -239,9 +236,9 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //     double sum_random = 0;
     
 //     timeStamp1 = clock();
-    random_device rd;
-    mt19937_64 e2(rd());
-    uniform_int_distribution<long long int> dist(std::llround(std::pow(2,0)), std::llround(std::pow(2,63)));
+//     random_device rd;
+//     mt19937_64 e2(rd());
+//     uniform_int_distribution<long long int> dist(std::llround(std::pow(2,0)), std::llround(std::pow(2,63)));
 //     return dist(e2);
     
 //     timeStamp2 = clock();
@@ -264,16 +261,14 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     
     // initialize seed nodes as candidates
     double maxNorm = 0;
-    vtype candidates_size = num_seeds;
-    unordered_set<vtype> visited;
+    unordered_set<vtype> candidates;
     
     for (vtype i = 0; i < num_seeds; ++i) {
         // set gradient and update max norm
         grad[seed[i]] = -alpha*dsinv[seed[i]]/num_seeds;
         maxNorm = max(maxNorm, abs(grad[seed[i]]*dsinv[seed[i]]));
         // set as candidate nodes
-        candidates[i] = seed[i];
-        visited.insert(seed[i]);
+        candidates.insert(seed[i]);
 //         cout << "seed[" << i << "]: " << seed[i] << endl;
     }
     
@@ -340,10 +335,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
             temp = aj[j];
             grad[temp] -= q[i] * a[j] * dsinv[i] * dsinv[temp] * c;
             
-            if (visited.find(temp) == visited.end() && q[temp] - stepSize*grad[temp] >= stepszra*ds[temp]) {
-                visited.insert(temp);
-                candidates[candidates_size++] = temp;
-            }
+            if (q[temp] - stepSize*grad[temp] >= stepszra*ds[temp]) candidates.insert(temp);
         }
     }
     
@@ -368,53 +360,52 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     
     while (maxNorm > threshold) {
         
-//         for (vtype i = 0; i < num_nodes; ++i) {
-//             cout  << "iter.: " << numiter << ", before q[" << i << "]: " << q[i] << endl;
-//         }
+        for (const vtype& r: candidates) {
+            
+    //         for (vtype i = 0; i < num_nodes; ++i) {
+    //             cout  << "iter.: " << numiter << ", before q[" << i << "]: " << q[i] << endl;
+    //         }
 
-//         for (vtype i = 0; i < num_nodes; ++i) {
-//             cout  << "iter.: " << numiter << ", before grad[" << i << "]: " << grad[i] << endl;
-//         }
-        
-//         timeStamp1 = clock();
-        r = dist(e2) % candidates_size;
-//         timeStamp2 = clock();
-        
-//         sum_random = sum_random + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
-        
-//        cout<< "Quicksort time "<< (float)(clock2 - clock1)/ CLOCKS_PER_SEC << " "<<endl;;
+    //         for (vtype i = 0; i < num_nodes; ++i) {
+    //             cout  << "iter.: " << numiter << ", before grad[" << i << "]: " << grad[i] << endl;
+    //         }
+
+    //         timeStamp1 = clock();
+    //         r = dist(e2) % candidates_size;
+    //         timeStamp2 = clock();
+
+    //         sum_random = sum_random + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
+
+    //        cout<< "Quicksort time "<< (float)(clock2 - clock1)/ CLOCKS_PER_SEC << " "<<endl;;
 
 
-//         timeStamp1 = clock();
-        proxl1PRrand::updateGrad(candidates[r], stepSize, c, ra, q, grad, ds, dsinv, ai, aj, a, &visited, candidates, candidates_size, stepszra);
-//         timeStamp2 = clock();
-        
-//         sum_grad = sum_grad + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
-        
-//         for (vtype i = 0; i < num_nodes; ++i) {
-//             cout  << "iter.: " << numiter << ", after q[" << i << "]: " << q[i] << endl;
-//         }
+    //         timeStamp1 = clock();
+            proxl1PRrand::updateGrad(r, stepSize, c, ra, q, grad, ds, dsinv, ai, aj, a, &candidates, stepszra);
+    //         timeStamp2 = clock();
 
-//         for (vtype i = 0; i < num_nodes; ++i) {
-//             cout  << "iter.: " << numiter << ", after grad[" << i << "]: " << grad[i] << endl;
-//         }
-        
-//         timeStamp1 = clock();
-        if (numiter % 1000 == 0) {
-            maxNorm = 0;
-            for (vtype i = 0; i < candidates_size; ++i) {
-                r = candidates[i];
-                maxNorm = max(maxNorm, abs(grad[r]*dsinv[r]));
-//             cout << "iter.: " << numiter << " maxNorm: " <<  maxNorm << endl;
+    //         sum_grad = sum_grad + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
+
+    //         for (vtype i = 0; i < num_nodes; ++i) {
+    //             cout  << "iter.: " << numiter << ", after q[" << i << "]: " << q[i] << endl;
+    //         }
+
+    //         for (vtype i = 0; i < num_nodes; ++i) {
+    //             cout  << "iter.: " << numiter << ", after grad[" << i << "]: " << grad[i] << endl;
+    //         }
+
+    //         timeStamp1 = clock();
+            if (numiter % 1000 == 0) {
+                maxNorm = 0;
+                for (const vtype& it: candidates) maxNorm = max(maxNorm, abs(grad[it]*dsinv[it]));
             }
-        }
-//         timeStamp2 = clock();
-        
-//         sum_term = sum_term + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
-        
-        if (numiter++ > maxiter) {
-            not_converged = 1;
-            break;
+    //         timeStamp2 = clock();
+
+    //         sum_term = sum_term + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
+
+            if (numiter++ > maxiter) {
+                not_converged = 1;
+                break;
+            }
         }
     }
     
@@ -437,7 +428,11 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //         q[r] *= ds[r];
 //     }
     
-    for (vtype i = 0; i < candidates_size; ++i) q[candidates[i]] *= ds[candidates[i]];
+    vtype counter = 0;
+    for (const vtype& it: candidates) {
+        xids[counter++] = it;
+        q[it] *= ds[it];
+    }
         
 //     for (vtype i = 0; i < num_nodes; ++i) {
 //         cout << "q[" << i << "]: " << q[i] << endl;
@@ -457,7 +452,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     
 //     delete [] candidates;
 //     delete [] visited;
-    return candidates_size;
+    return candidates.size();
 }
 
 template<typename vtype, typename itype>
