@@ -29,6 +29,7 @@
 #include <ctime>
 #include <unordered_set>
 #include <unordered_map>
+#include <queue>
 #include "include/routines.hpp"
 #include "include/proxl1PRrand_c_interface.h"
 #include <random>
@@ -140,12 +141,13 @@ namespace proxl1PRrand
     }
 
     template<typename vtype, typename itype>
-    void inline updateGrad(vtype& node, double& stepSize, double& c, double& ra, unordered_map<vtype,double>* q, unordered_map<vtype,double>* grad, double* ds, double* dsinv, itype* ai, vtype* aj, double* a, double& stepszra) {
+    void inline updateGrad(vtype& node, double& stepSize, double& c, double& ra, unordered_map<vtype,double>* q, unordered_map<vtype,double>* grad, double* ds, double* dsinv, itype* ai, vtype* aj, double* a, double& stepszra, queue<vtype>* Q, double & threshold) {
         double dqs = -grad->at(node)-ds[node]*ra;
         double dq = dqs*stepSize;
         double cdqdsinv = c*dq*dsinv[node];   
         q->at(node) += dq;
         grad->at(node) += dqs;
+        double grad_old;
         
         vtype neighbor;
         typename unordered_map<vtype,double>::const_iterator got;
@@ -157,12 +159,19 @@ namespace proxl1PRrand
             if (got == grad->end()) {
 //                 (*grad)[neighbor] = cdqdsinv*dsinv[neighbor]*a[j]; 
                 (*grad)[neighbor] = cdqdsinv*dsinv[neighbor]; 
-                if (grad->at(neighbor) <= -ra*ds[neighbor]) (*q)[neighbor] = 0;
+                if (grad->at(neighbor) < -threshold*ds[neighbor]) {
+                    Q->push(neighbor);
+                    (*q)[neighbor] = 0;
+                }
             }
             else {
 //                 grad->at(neighbor) -= cdqdsinv*dsinv[neighbor]*a[j];
+                grad_old = grad->at(neighbor);
                 grad->at(neighbor) -= cdqdsinv*dsinv[neighbor];
-                if ((grad->at(neighbor) <= -ra*ds[neighbor]) && q->find(neighbor) == q->end()) (*q)[neighbor] = 0;
+                if ((grad->at(neighbor) < -threshold*ds[neighbor]) && (grad_old >= -threshold*ds[neighbor])) {
+                    Q->push(neighbor);
+                    (*q)[neighbor] = 0;
+                }
             }
         }
     }
@@ -272,16 +281,18 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //     timeStamp1 = clock();
     
     // initialize seed nodes as candidates
-    double maxNorm = 0;
+//     double maxNorm = 0;
     unordered_map<vtype,double> grad;
     unordered_map<vtype,double> values;
+    queue<vtype> Q;
     
     for (vtype i = 0; i < num_seeds; ++i) {
         // set gradient and update max norm
         grad[seed[i]] = -alpha*dsinv[seed[i]]/num_seeds;
-        maxNorm = max(maxNorm, abs(grad[seed[i]]*dsinv[seed[i]]));
+//         maxNorm = max(maxNorm, abs(grad[seed[i]]*dsinv[seed[i]]));
         // set as candidate nodes
         values[seed[i]] = 0;
+        Q.push(seed[i]);
 //         cout << "seed[" << i << "]: " << seed[i] << endl;
     }
     
@@ -350,58 +361,62 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     
     vtype idx;
     
-    while (maxNorm > threshold) {
+    while (Q.size()>0 && numiter<maxiter) {
         
-        for (pair<vtype, double> r : values) {
+//         for (pair<vtype, double> r : values) {
+        r = Q.front();
+        Q.pop();
             
-    //         for (vtype i = 0; i < num_nodes; ++i) {
-    //             cout  << "iter.: " << numiter << ", before q[" << i << "]: " << q[i] << endl;
-    //         }
+//         for (vtype i = 0; i < num_nodes; ++i) {
+//             cout  << "iter.: " << numiter << ", before q[" << i << "]: " << q[i] << endl;
+//         }
 
-    //         for (vtype i = 0; i < num_nodes; ++i) {
-    //             cout  << "iter.: " << numiter << ", before grad[" << i << "]: " << grad[i] << endl;
-    //         }
+//         for (vtype i = 0; i < num_nodes; ++i) {
+//             cout  << "iter.: " << numiter << ", before grad[" << i << "]: " << grad[i] << endl;
+//         }
 
-    //         timeStamp1 = clock();
-    //         r = dist(e2) % candidates_size;
-    //         timeStamp2 = clock();
+//         timeStamp1 = clock();
+//         r = dist(e2) % candidates_size;
+//         timeStamp2 = clock();
 
-    //         sum_random = sum_random + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
+//         sum_random = sum_random + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
 
-    //        cout<< "Quicksort time "<< (float)(clock2 - clock1)/ CLOCKS_PER_SEC << " "<<endl;;
+//        cout<< "Quicksort time "<< (float)(clock2 - clock1)/ CLOCKS_PER_SEC << " "<<endl;;
 
 
-    //         timeStamp1 = clock();
-            proxl1PRrand::updateGrad(r.first, stepSize, c, ra, &values, &grad, ds, dsinv, ai, aj, a, stepszra);
-    //         timeStamp2 = clock();
+//             timeStamp1 = clock();
+        proxl1PRrand::updateGrad(r, stepSize, c, ra, &values, &grad, ds, dsinv, ai, aj, a, stepszra, &Q, threshold);
+//             timeStamp2 = clock();
 
-    //         sum_grad = sum_grad + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
+//             sum_grad = sum_grad + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
 
-    //         for (vtype i = 0; i < num_nodes; ++i) {
-    //             cout  << "iter.: " << numiter << ", after q[" << i << "]: " << q[i] << endl;
-    //         }
+//         for (vtype i = 0; i < num_nodes; ++i) {
+//             cout  << "iter.: " << numiter << ", after q[" << i << "]: " << q[i] << endl;
+//         }
 
-    //         for (vtype i = 0; i < num_nodes; ++i) {
-    //             cout  << "iter.: " << numiter << ", after grad[" << i << "]: " << grad[i] << endl;
-    //         }
+//         for (vtype i = 0; i < num_nodes; ++i) {
+//             cout  << "iter.: " << numiter << ", after grad[" << i << "]: " << grad[i] << endl;
+//         }
 
-    //         timeStamp1 = clock();
-            if (numiter % values.size() == 0) {
-                maxNorm = 0;
-                for (pair<vtype, double> it : values) {
-                    idx = it.first;
-                    maxNorm = max(maxNorm, abs(grad[idx]*dsinv[idx])); 
-                }
-            }
-    //         timeStamp2 = clock();
+//             timeStamp1 = clock();
+//         if (numiter % values.size() == 0) {
+//             maxNorm = 0;
+//             for (pair<vtype, double> it : values) {
+//                 idx = it.first;
+//                 maxNorm = max(maxNorm, abs(grad[idx]*dsinv[idx])); 
+//             }
+//         }
+//             timeStamp2 = clock();
 
-    //         sum_term = sum_term + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
+//             sum_term = sum_term + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
 
-            if (numiter++ > maxiter) {
-                not_converged = 1;
-                break;
-            }
-        }
+        numiter++;
+
+//             if (numiter++ > maxiter) {
+//                 not_converged = 1;
+//                 break;
+//             }
+//         }
     }
     
 //     timeStamp2 = clock();
