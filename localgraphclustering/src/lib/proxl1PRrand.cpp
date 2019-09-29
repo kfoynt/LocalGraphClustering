@@ -144,7 +144,7 @@ namespace proxl1PRrand
         double dq = dqs*stepSize;
         double cdq = c*dq;
         double cdqdsinv = cdq*dsinv[node];
-        double stepszra = stepSize_constant*ra;
+        double stepszra = stepSize*ra;
         q[node] += dq;
         grad[node] += dqs;
 
