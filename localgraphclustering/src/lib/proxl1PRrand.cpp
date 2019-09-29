@@ -130,52 +130,52 @@ namespace proxl1PRrand
 
     static long long g_seed = 1;
 
-    inline
-    long long getRand() {
-        // g_seed = (214013*g_seed+2531011); 
-        // return (g_seed>>16)&0x7FFF; 
-        random_device rd;
-        mt19937_64 e2(rd());
-        uniform_int_distribution<long long int> dist(std::llround(std::pow(2,0)), std::llround(std::pow(2,63)));
-        return dist(e2);
-    }
+//     inline
+//     long long getRand() {
+//         // g_seed = (214013*g_seed+2531011); 
+//         // return (g_seed>>16)&0x7FFF; 
+//         random_device rd;
+//         mt19937_64 e2(rd());
+//         uniform_int_distribution<long long int> dist(std::llround(std::pow(2,0)), std::llround(std::pow(2,63)));
+//         return dist(e2);
+//     }
 
-    template<typename vtype, typename itype>
-    void inline updateGrad(vtype& node, double& stepSize, double& c, double& ra, unordered_map<vtype,double>* q, unordered_map<vtype,double>* grad, double* ds, double* dsinv, itype* ai, vtype* aj, double* a, double& stepszra, queue<vtype>* Q, double & threshold) {
-        double dqs = -grad->at(node)-ds[node]*ra;
-        double dq = dqs*stepSize;
-        double cdqdsinv = c*dq*dsinv[node];   
-        q->at(node) += dq;
-        grad->at(node) += dqs;
-        double grad_old;
+//     template<typename vtype, typename itype>
+//     void inline updateGrad(vtype& node, double& stepSize, double& c, double& ra, unordered_map<vtype,double>* q, unordered_map<vtype,double>* grad, double* ds, double* dsinv, itype* ai, vtype* aj, double* a, double& stepszra, queue<vtype>* Q, double & threshold) {
+//         double dqs = -grad->at(node)-ds[node]*ra;
+//         double dq = dqs*stepSize;
+//         double cdqdsinv = c*dq*dsinv[node];   
+//         q->at(node) += dq;
+//         grad->at(node) += dqs;
+//         double grad_old;
         
-        vtype neighbor;
-        typename unordered_map<vtype,double>::const_iterator got;
+//         vtype neighbor;
+//         typename unordered_map<vtype,double>::const_iterator got;
         
-        for (itype j = ai[node]; j < ai[node + 1]; ++j) {
-            neighbor = aj[j];
+//         for (itype j = ai[node]; j < ai[node + 1]; ++j) {
+//             neighbor = aj[j];
             
-            got = grad->find(neighbor);
-            if (got == grad->end()) {
-//                 (*grad)[neighbor] = cdqdsinv*dsinv[neighbor]*a[j]; 
-                (*grad)[neighbor] = cdqdsinv*dsinv[neighbor]; 
-                if (grad->at(neighbor) < -threshold*ds[neighbor]) {
-                    Q->push(neighbor);
-                    (*q)[neighbor] = 0;
-                }
-            }
-            else {
-//                 grad->at(neighbor) -= cdqdsinv*dsinv[neighbor]*a[j];
-                grad_old = grad->at(neighbor);
-                grad->at(neighbor) -= cdqdsinv*dsinv[neighbor];
-                if ((grad->at(neighbor) < -threshold*ds[neighbor]) && (grad_old >= -threshold*ds[neighbor])) {
-                    Q->push(neighbor);
-                    got = q->find(neighbor);
-                    if (got == q->end()) (*q)[neighbor] = 0;
-                }
-            }
-        }
-    }
+//             got = grad->find(neighbor);
+//             if (got == grad->end()) {
+// //                 (*grad)[neighbor] = cdqdsinv*dsinv[neighbor]*a[j]; 
+//                 (*grad)[neighbor] = cdqdsinv*dsinv[neighbor]; 
+//                 if (grad->at(neighbor) < -threshold*ds[neighbor]) {
+//                     Q->push(neighbor);
+//                     (*q)[neighbor] = 0;
+//                 }
+//             }
+//             else {
+// //                 grad->at(neighbor) -= cdqdsinv*dsinv[neighbor]*a[j];
+//                 grad_old = grad->at(neighbor);
+//                 grad->at(neighbor) -= cdqdsinv*dsinv[neighbor];
+//                 if ((grad->at(neighbor) < -threshold*ds[neighbor]) && (grad_old >= -threshold*ds[neighbor])) {
+//                     Q->push(neighbor);
+//                     got = q->find(neighbor);
+//                     if (got == q->end()) (*q)[neighbor] = 0;
+//                 }
+//             }
+//         }
+//     }
 
 
 //     template<typename vtype, typename itype>
@@ -267,9 +267,13 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     
 //     cout << "time initialization distribution: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
     
+    double dqs, dq, cdqdsinv, grad_old, temp; 
+    
+    vtype neighbor;
+    
 //     timeStamp1 = clock();
-    vtype r;
-	vtype not_converged = 0;
+    vtype node;
+// 	vtype not_converged = 0;
 //     vtype* candidates = new vtype[num_nodes];
 //     bool* visited = new bool[num_nodes];
 //     for (vtype i = 0; i < num_nodes; ++i) visited[i] = false;
@@ -360,12 +364,12 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     
 //     timeStamp1 = clock();
     
-    vtype idx;
+//     vtype idx;
     
     while (Q.size()>0 && numiter<maxiter) {
         
 //         for (pair<vtype, double> r : values) {
-        r = Q.front();
+        node = Q.front();
         Q.pop();
             
 //         for (vtype i = 0; i < num_nodes; ++i) {
@@ -386,7 +390,39 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 
 
 //             timeStamp1 = clock();
-        proxl1PRrand::updateGrad(r, stepSize, c, ra, &values, &grad, ds, dsinv, ai, aj, a, stepszra, &Q, threshold);
+//         proxl1PRrand::updateGrad(r, stepSize, c, ra, &values, &grad, ds, dsinv, ai, aj, a, stepszra, &Q, threshold);
+        
+        
+        dqs = -grad.at(node)-ds[node]*ra;
+        dq = dqs*stepSize;
+        cdqdsinv = c*dq*dsinv[node];   
+        values.at(node) += dq;
+        grad.at(node) += dqs;
+        
+        for (itype j = ai[node]; j < ai[node + 1]; ++j) {
+            neighbor = aj[j];
+            
+            temp = -threshold*ds[neighbor];
+            
+            if (grad.find(neighbor) == grad.end()) {
+//                 (*grad)[neighbor] = cdqdsinv*dsinv[neighbor]*a[j]; 
+                grad[neighbor] = cdqdsinv*dsinv[neighbor]; 
+                if (grad.at(neighbor) < temp) {
+                    Q.push(neighbor);
+                    values[neighbor] = 0;
+                }
+            }
+            else {
+//                 grad->at(neighbor) -= cdqdsinv*dsinv[neighbor]*a[j];
+                grad_old = grad.at(neighbor);
+                grad.at(neighbor) -= cdqdsinv*dsinv[neighbor];
+                if ((grad.at(neighbor) < temp) && (grad_old >= temp)) {
+                    Q.push(neighbor);
+                    if (values.find(neighbor) == values.end()) values[neighbor] = 0;
+                }
+            }
+        }
+        
 //             timeStamp2 = clock();
 
 //             sum_grad = sum_grad + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
@@ -441,9 +477,9 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     
     vtype counter = 0;
     for (pair<vtype, double> it : values) {
-        idx = it.first;
-        xids[counter] = idx;
-        q[counter] = values[idx]*ds[idx];
+        node = it.first;
+        xids[counter] = node;
+        q[counter] = values[node]*ds[node];
         counter++;
     }
         
