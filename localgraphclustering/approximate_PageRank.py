@@ -161,7 +161,11 @@ def approximate_PageRank(G,
         
         algo = proxl1PRaccel_cpp if method == "l1reg" else proxl1PRrand_cpp
         if cpp:
-            (length,xids,values) = algo(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, alpha = alpha,
+            if method == "l1reg":
+                p = algo(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, alpha = alpha,
+                                     rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout, normalized_objective = normalized_objective)[2]
+            else:
+                (length,xids,values) = algo(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, alpha = alpha,
                                      rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout, normalized_objective = normalized_objective)
         else:
             p = fista_dinput_dense(ref_nodes, G, alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout)
@@ -187,17 +191,20 @@ def approximate_PageRank(G,
         
 #         start = time.time()
         if normalize:
-            values = np.multiply(G.dn[xids], values)
-            
-#         end = time.time()
-#         print(" Elapsed scaling: ", end - start)
-
-#         it = 0
-#         for i in range(len(p)):
-#             if p[i] != 0:
-#                 idx[it] = i
-#                 vals[it] = p[i]*1.0 * G.dn[i] if normalize else p[i]
-#                 it += 1
-        return (xids,values)
+            if method == "l1reg":
+                # convert result to a sparse vector
+                nonzeros = np.count_nonzero(p)
+                idx = np.zeros(nonzeros,dtype=np.dtype(G.aj[0]))
+                vals = np.zeros(nonzeros,dtype=np.float64)
+                it = 0
+                for i in range(len(p)):
+                    if p[i] != 0:
+                        idx[it] = i
+                        vals[it] = p[i]*1.0 * G.dn[i] if normalize else p[i]
+                        it += 1
+                return (idx,vals)
+            else:
+                values = np.multiply(G.dn[xids], values)
+                return (xids,values)
     else:
         raise Exception("Unknown method, available methods are \"acl\" or \"acl_weighted\" or \"l1reg\" or \"l1reg-rand\".")
