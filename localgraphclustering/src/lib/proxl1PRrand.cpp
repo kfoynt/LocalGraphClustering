@@ -140,18 +140,16 @@ namespace proxl1PRrand
     }
 
     template<typename vtype, typename itype>
-    void updateGrad(const vtype& node, double& stepSize, double& c, double& ra, double* q, unordered_map<vtype,double>* grad, double* ds, double* dsinv, itype* ai, vtype* aj, double* a, unordered_set<vtype>* candidates, double& stepszra) {
+    void updateGrad(vtype& node, double& stepSize, double& c, double& ra, unordered_map<vtype,double>* q, unordered_map<vtype,double>* grad, double* ds, double* dsinv, itype* ai, vtype* aj, double* a, double& stepszra) {
         double dqs = -grad->at(node)-ds[node]*ra;
         double dq = dqs*stepSize;
-        double cdq = c*dq;
-        double cdqdsinv = cdq*dsinv[node];
-        q[node] += dq;
+        double cdqdsinv = c*dq*dsinv[node];   
+        q->at(node) += dq;
         grad->at(node) += dqs;
-
-
-        typename unordered_map<vtype,double>::const_iterator got;
         
         vtype neighbor;
+        typename unordered_map<vtype,double>::const_iterator got;
+        
         for (itype j = ai[node]; j < ai[node + 1]; ++j) {
             neighbor = aj[j];
             
@@ -162,7 +160,7 @@ namespace proxl1PRrand
             else {
                 grad->at(neighbor) -= cdqdsinv*dsinv[neighbor]*a[j];
             }
-            if (q[neighbor] - stepSize*grad->at(neighbor) >= stepszra*ds[neighbor]) candidates->insert(neighbor);
+            if (grad->at(neighbor) <= -ra*ds[neighbor]) (*q)[neighbor] = 0;
         }
     }
 
@@ -272,15 +270,15 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     
     // initialize seed nodes as candidates
     double maxNorm = 0;
-    unordered_set<vtype> candidates;
     unordered_map<vtype,double> grad;
+    unordered_map<vtype,double> values;
     
     for (vtype i = 0; i < num_seeds; ++i) {
         // set gradient and update max norm
         grad[seed[i]] = -alpha*dsinv[seed[i]]/num_seeds;
         maxNorm = max(maxNorm, abs(grad[seed[i]]*dsinv[seed[i]]));
         // set as candidate nodes
-        candidates.insert(seed[i]);
+        values[seed[i]] = 0;
 //         cout << "seed[" << i << "]: " << seed[i] << endl;
     }
     
@@ -312,19 +310,6 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //     }
     
 //     timeStamp1 = clock();
-    
-    //Find nonzero indices in y and dsinv
-    unordered_map<vtype,vtype> indices;
-    unordered_set<vtype> nz_ids;
-    
-    vtype temp_int;
-    
-    for(vtype i = 0; i < num_seeds; i ++){
-        temp_int = seed[i];
-        grad[temp_int] = -alpha*dsinv[temp_int]/num_seeds;
-        nz_ids.insert(temp_int);
-        indices[temp_int] = 0;
-    }
 
 //     for (vtype i = 0; i < num_nodes; i ++) indices[i] = 0;
     
@@ -339,17 +324,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //         grad[i] += q[i]/stepSize;
 //     }
     
-    vtype temp;
-
-    for(auto it = indices.begin() ; it != indices.end(); ++it){
-        vtype i = it->first;
-        for(itype j = ai[i]; j < ai[i+1]; j ++){
-            temp = aj[j];
-            grad[temp] -= q[i] * a[j] * dsinv[i] * dsinv[temp] * c;
-            
-            if (q[temp] - stepSize*grad[temp] >= stepszra*ds[temp]) candidates.insert(temp);
-        }
-    }
+    for(itype j = ai[seed[0]]; j < ai[seed[0]+1]; j ++) grad[aj[j]] = 0;
     
 //     timeStamp2 = clock();
     
@@ -370,9 +345,11 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     
 //     timeStamp1 = clock();
     
+    vtype idx;
+    
     while (maxNorm > threshold) {
         
-        for (const vtype& r: candidates) {
+        for (pair<vtype, double> r : values) {
             
     //         for (vtype i = 0; i < num_nodes; ++i) {
     //             cout  << "iter.: " << numiter << ", before q[" << i << "]: " << q[i] << endl;
@@ -392,7 +369,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 
 
     //         timeStamp1 = clock();
-            proxl1PRrand::updateGrad(r, stepSize, c, ra, q, &grad, ds, dsinv, ai, aj, a, &candidates, stepszra);
+            proxl1PRrand::updateGrad(r.first, stepSize, c, ra, &values, &grad, ds, dsinv, ai, aj, a, stepszra);
     //         timeStamp2 = clock();
 
     //         sum_grad = sum_grad + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
@@ -406,9 +383,12 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     //         }
 
     //         timeStamp1 = clock();
-            if (numiter % 1000 == 0) {
+            if (numiter % values.size() == 0) {
                 maxNorm = 0;
-                for (const vtype& it: candidates) maxNorm = max(maxNorm, abs(grad[it]*dsinv[it]));
+                for (pair<vtype, double> it : values) {
+                    idx = it.first;
+                    maxNorm = max(maxNorm, abs(grad[idx]*dsinv[idx])); 
+                }
             }
     //         timeStamp2 = clock();
 
@@ -441,9 +421,11 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //     }
     
     vtype counter = 0;
-    for (const vtype& it: candidates) {
-        xids[counter++] = it;
-        q[it] *= ds[it];
+    for (pair<vtype, double> it : values) {
+        idx = it.first;
+        xids[counter] = idx;
+        q[counter] = values[idx]*ds[idx];
+        counter++;
     }
         
 //     for (vtype i = 0; i < num_nodes; ++i) {
@@ -464,7 +446,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     
 //     delete [] candidates;
 //     delete [] visited;
-    return candidates.size();
+    return values.size();
 }
 
 // template<typename vtype, typename itype>

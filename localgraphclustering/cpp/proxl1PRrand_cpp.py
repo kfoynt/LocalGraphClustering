@@ -94,7 +94,7 @@ def proxl1PRrand_cpp(ai,aj,a,ref_node,d,ds,dsinv,alpha = 0.15,rho = 1.0e-5,epsil
 #     start2 = time.time()
 
     actual_xids=candidates[0:actual_length]
-    actual_values=p[actual_xids]
+    actual_values=p[0:actual_length]
     
 #     end2 = time.time()
 #     print(" Elapsed time post processsing: ", end2 - start2)
