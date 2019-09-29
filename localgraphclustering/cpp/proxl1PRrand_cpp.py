@@ -43,7 +43,8 @@ def _setup_proxl1PRrand_args(vtypestr, itypestr, fun):
                   ndpointer(float_type, flags="C_CONTIGUOUS"),
                   ndpointer(float_type, flags="C_CONTIGUOUS"),
                   ndpointer(float_type, flags="C_CONTIGUOUS"),ctypes_vtype,ctypes_vtype,
-                  float_type, bool_type, ndpointer(ctypes_vtype, flags="C_CONTIGUOUS")]
+                  float_type, bool_type, ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
+                  ndpointer(bool_type, flags="C_CONTIGUOUS")]
 
     return fun
 
@@ -85,13 +86,15 @@ def proxl1PRrand_cpp(ai,aj,a,ref_node,d,ds,dsinv,y=None,alpha = 0.15,rho = 1.0e-
         new_y = np.array(y,dtype=float_type)
         
     candidates = np.zeros(n,dtype=vtype)
+    
+    visited = np.zeros(n,dtype=bool)
         
 #     end = time.time()
-#     print(" Elapsed time inside initialization l1-reg. with rounding: ", end - start)
+#     print(" Elapsed time initialization in python: ", end - start)
 
 #     start2 = time.time()
     
-    actual_length=fun(n,ai,aj,a,alpha,rho,ref_node,len(ref_node),d,ds,dsinv,epsilon,grad,p,new_y,maxiter,0,max_time, normalized_objective,candidates)
+    actual_length=fun(n,ai,aj,a,alpha,rho,ref_node,len(ref_node),d,ds,dsinv,epsilon,grad,p,new_y,maxiter,0,max_time, normalized_objective,candidates,visited)
 
     if y != None:
         for i in range(n):

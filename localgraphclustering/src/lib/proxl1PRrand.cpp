@@ -228,26 +228,32 @@ namespace proxl1PRrand
 }
 
 template<typename vtype, typename itype>
-vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* y, double* d, double* ds, double* dsinv, double* grad, vtype maxiter, vtype* candidates)
+vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* y, double* d, double* ds, double* dsinv, double* grad, vtype maxiter, vtype* candidates, bool* visited)
 {
-//     clock_t timeStamp1;
-//     clock_t timeStamp2;
+    clock_t timeStamp1;
+    clock_t timeStamp2;
     
 //     double sum_grad = 0;
 //     double sum_term = 0;
 //     double sum_random = 0;
     
+//     timeStamp1 = clock();
     random_device rd;
     mt19937_64 e2(rd());
     uniform_int_distribution<long long int> dist(std::llround(std::pow(2,0)), std::llround(std::pow(2,63)));
 //     return dist(e2);
     
-//     timeStamp1 = clock();
+//     timeStamp2 = clock();
+    
+//     cout << "time initialization distribution: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
+    
+    timeStamp1 = clock();
     vtype r;
 	vtype not_converged = 0;
 //     vtype* candidates = new vtype[num_nodes];
-    bool* visited = new bool[num_nodes];
-    for (vtype i = 0; i < num_nodes; ++i) visited[i] = false;
+//     bool* visited = new bool[num_nodes];
+//     for (vtype i = 0; i < num_nodes; ++i) visited[i] = false;
+//     bool* visited[ num_nodes ] = { false };
     
 //     timeStamp2 = clock();
     
@@ -294,7 +300,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //         }
 //     }
     
-//     timeStamp1 = clock();
+    timeStamp1 = clock();
     
     //Find nonzero indices in y and dsinv
     unordered_map<vtype,vtype> indices;
@@ -354,7 +360,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     // some constant
     // maxiter *= 100;
     
-//     timeStamp1 = clock();
+    timeStamp1 = clock();
     
     while (maxNorm > threshold) {
         
@@ -408,6 +414,10 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
         }
     }
     
+//     timeStamp2 = clock();
+    
+//     cout << "time loop: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
+    
     //proxl1PRrand::writeTime(timeStamp, "/home/c55hu/Documents/research/experiment/output/time-rand.txt");
     //proxl1PRrand::writeLog(num_nodes, "/home/c55hu/Documents/research/experiment/output/q-rand.txt", q);
     // update y and q
@@ -415,6 +425,8 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //     cout << "sum_grad.: " << sum_grad << endl;
 //     cout << "sum_term.: " << sum_term << endl;
 //     cout << "sum_random.: " << sum_random << endl;
+    
+//     timeStamp1 = clock();
     
     for (vtype i = 0; i < candidates_size; ++i) {
         r = candidates[i];
@@ -436,10 +448,10 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     
 //     timeStamp2 = clock();
     
-//     cout << "time loop: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
+//     cout << "time finalizing: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
     
 //     delete [] candidates;
-    delete [] visited;
+//     delete [] visited;
     return candidates_size;
 }
 
@@ -568,11 +580,11 @@ uint32_t proxl1PRrand32(uint32_t n, uint32_t* ai, uint32_t* aj, double* a, doubl
                          double rho, uint32_t* v, uint32_t v_nums, double* d, double* ds,
                          double* dsinv, double epsilon, double* grad, double* p, double* y,
                          uint32_t maxiter, uint32_t offset, double max_time,bool normalized_objective,
-                         uint32_t* candidates)
+                         uint32_t* candidates, bool* visited)
 {
     graph<uint32_t,uint32_t> g(ai[n],n,ai,aj,a,offset,NULL);
     if (normalized_objective){
-        uint32_t actual_length = g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter, candidates);
+        uint32_t actual_length = g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter, candidates, visited);
         return actual_length;
     }
     else{
@@ -584,11 +596,11 @@ int64_t proxl1PRrand64(int64_t n, int64_t* ai, int64_t* aj, double* a, double al
                         double rho, int64_t* v, int64_t v_nums, double* d, double* ds,
                         double* dsinv,double epsilon, double* grad, double* p, double* y,
                         int64_t maxiter, int64_t offset, double max_time,bool normalized_objective,
-                        int64_t* candidates)
+                        int64_t* candidates, bool* visited)
 {
     graph<int64_t,int64_t> g(ai[n],n,ai,aj,a,offset,NULL);
     if (normalized_objective){
-        int64_t actual_length = g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter, candidates);
+        int64_t actual_length = g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter, candidates, visited);
         return actual_length;
     }
     else{
@@ -600,11 +612,11 @@ uint32_t proxl1PRrand32_64(uint32_t n, int64_t* ai, uint32_t* aj, double* a, dou
                             double rho, uint32_t* v, uint32_t v_nums, double* d, double* ds,
                             double* dsinv, double epsilon, double* grad, double* p, double* y,
                             uint32_t maxiter, uint32_t offset, double max_time,bool normalized_objective,
-                            uint32_t* candidates)
+                            uint32_t* candidates, bool* visited)
 {    
     graph<uint32_t,int64_t> g(ai[n],n,ai,aj,a,offset,NULL);
     if (normalized_objective){
-        uint32_t actual_length = g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter, candidates);
+        uint32_t actual_length = g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter, candidates, visited);
         return actual_length;
     }
     else{

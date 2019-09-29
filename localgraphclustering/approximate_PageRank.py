@@ -194,7 +194,7 @@ def approximate_PageRank(G,
             values = np.multiply(G.dn[xids], values)
             
 #         end = time.time()
-#         print(" Elapsed time three: ", end - start)
+#         print(" Elapsed scaling: ", end - start)
 
 #         it = 0
 #         for i in range(len(p)):
