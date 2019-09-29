@@ -140,7 +140,7 @@ namespace proxl1PRrand
     }
 
     template<typename vtype, typename itype>
-    void updateGrad(vtype& node, double& stepSize, double& c, double& ra, unordered_map<vtype,double>* q, unordered_map<vtype,double>* grad, double* ds, double* dsinv, itype* ai, vtype* aj, double* a, double& stepszra) {
+    void inline updateGrad(vtype& node, double& stepSize, double& c, double& ra, unordered_map<vtype,double>* q, unordered_map<vtype,double>* grad, double* ds, double* dsinv, itype* ai, vtype* aj, double* a, double& stepszra) {
         double dqs = -grad->at(node)-ds[node]*ra;
         double dq = dqs*stepSize;
         double cdqdsinv = c*dq*dsinv[node];   
