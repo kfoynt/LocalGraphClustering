@@ -76,6 +76,7 @@ def proxl1PRrand_cpp(ai,aj,a,ref_node,d,ds,dsinv,alpha = 0.15,rho = 1.0e-5,epsil
     else:
         ref_node = np.array(ref_node,dtype = ctypes_vtype)
         
+#     grad = np.zeros(n,dtype=float_type)
     p = np.zeros(n,dtype=float_type)
         
     candidates = np.zeros(n,dtype=vtype)

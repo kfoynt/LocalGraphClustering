@@ -142,17 +142,28 @@ namespace proxl1PRrand
     template<typename vtype, typename itype>
     void updateGrad(vtype& node, double& stepSize, double& c, double& ra, double* q, unordered_map<vtype,double>* grad, double* ds, double* dsinv, itype* ai, vtype* aj, double* a, unordered_set<vtype>* visited, vtype* candidates, vtype& candidates_size, double& stepszra) {
         double dqs = -grad->at(node)-ds[node]*ra;
+        
         double dq = dqs*stepSize;
         double cdq = c*dq;
         double cdqdsinv = cdq*dsinv[node];
         q[node] += dq;
         grad->at(node) += dqs;
+        
+        typename unordered_map<vtype, double>::const_iterator grad_iter;
 
         vtype neighbor;
         for (itype j = ai[node]; j < ai[node + 1]; ++j) {
             neighbor = aj[j];
-            grad->at(neighbor) -= cdqdsinv*dsinv[neighbor]*a[j]; //(1 + alpha)
-            if (visited->find(neighbor) != visited->end() && q[neighbor] - stepSize*grad->at(neighbor) >= stepszra*ds[neighbor]) {
+            
+            grad_iter = grad->find(neighbor);
+            if(grad_iter == grad->end()){
+                (*grad)[neighbor] = cdqdsinv*dsinv[neighbor]*a[j]; //(1 + alpha)
+            }
+            else{
+                grad->at(neighbor) -= cdqdsinv*dsinv[neighbor]*a[j]; //(1 + alpha)
+            }
+            
+            if (visited->find(neighbor) == visited->end() && q[neighbor] - stepSize*grad->at(neighbor) >= stepszra*ds[neighbor]) {
                 visited->insert(neighbor);
                 candidates[candidates_size++] = neighbor;
             }
@@ -342,7 +353,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
             temp = aj[j];
             grad[temp] -= q[i] * a[j] * dsinv[i] * dsinv[temp] * c;
             
-            if (visited.find(temp) != visited.end() && q[temp] - stepSize*grad[temp] >= stepszra*ds[temp]) {
+            if (visited.find(temp) == visited.end() && q[temp] - stepSize*grad[temp] >= stepszra*ds[temp]) {
                 visited.insert(temp);
                 candidates[candidates_size++] = temp;
             }
