@@ -155,11 +155,13 @@ namespace proxl1PRrand
             
             got = grad->find(neighbor);
             if (got == grad->end()) {
-                (*grad)[neighbor] = cdqdsinv*dsinv[neighbor]*a[j]; 
+//                 (*grad)[neighbor] = cdqdsinv*dsinv[neighbor]*a[j]; 
+                (*grad)[neighbor] = cdqdsinv*dsinv[neighbor]; 
                 if (grad->at(neighbor) <= -ra*ds[neighbor]) (*q)[neighbor] = 0;
             }
             else {
-                grad->at(neighbor) -= cdqdsinv*dsinv[neighbor]*a[j];
+//                 grad->at(neighbor) -= cdqdsinv*dsinv[neighbor]*a[j];
+                grad->at(neighbor) -= cdqdsinv*dsinv[neighbor];
                 if ((grad->at(neighbor) <= -ra*ds[neighbor]) && q->find(neighbor) == q->end()) (*q)[neighbor] = 0;
             }
         }
