@@ -139,12 +139,11 @@ namespace proxl1PRrand
     }
 
     template<typename vtype, typename itype>
-    void updateGrad(vtype& node, double& stepSize, double& c, double& ra, double* q, double* grad, double* ds, double* dsinv, itype* ai, vtype* aj, double* a, unordered_set<vtype>* visited, vtype* candidates, vtype& candidates_size) {
+    void updateGrad(vtype& node, double& stepSize, double& c, double& ra, double* q, double* grad, double* ds, double* dsinv, itype* ai, vtype* aj, double* a, unordered_set<vtype>* visited, vtype* candidates, vtype& candidates_size, double& stepszra) {
         double dqs = -grad[node]-ds[node]*ra;
         double dq = dqs*stepSize;
         double cdq = c*dq;
         double cdqdsinv = cdq*dsinv[node];
-        double stepszra = stepSize*ra;
         q[node] += dq;
         grad[node] += dqs;
 
@@ -289,6 +288,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     double c = (1-alpha)/2;
     double ra = rho*alpha;
     double stepSize = 2.0/(1+alpha);
+    double stepszra = stepSize*ra;
     
 //     // for warm start frame work
 //     for (vtype i = 0; i < num_nodes; ++i) {
@@ -340,7 +340,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
             temp = aj[j];
             grad[temp] -= q[i] * a[j] * dsinv[i] * dsinv[temp] * c;
             
-            if (visited.find(temp) != visited.end() && q[temp] - stepSize*grad[temp] >= stepSize*ds[temp]*ra) {
+            if (visited.find(temp) != visited.end() && q[temp] - stepSize*grad[temp] >= stepszra*ds[temp]) {
                 visited.insert(temp);
                 candidates[candidates_size++] = temp;
             }
@@ -386,7 +386,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 
 
 //         timeStamp1 = clock();
-        proxl1PRrand::updateGrad(candidates[r], stepSize, c, ra, q, grad, ds, dsinv, ai, aj, a, &visited, candidates, candidates_size);
+        proxl1PRrand::updateGrad(candidates[r], stepSize, c, ra, q, grad, ds, dsinv, ai, aj, a, &visited, candidates, candidates_size, stepszra);
 //         timeStamp2 = clock();
         
 //         sum_grad = sum_grad + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
@@ -433,7 +433,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //     timeStamp1 = clock();
     
     for (vtype i = 0; i < candidates_size; ++i) {
-        r = candidates[i]
+        r = candidates[i];
         q[r] *= ds[r];
     }
         
