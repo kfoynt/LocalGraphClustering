@@ -43,8 +43,7 @@ def _setup_proxl1PRrand_args(vtypestr, itypestr, fun):
                   ndpointer(float_type, flags="C_CONTIGUOUS"),
                   ndpointer(float_type, flags="C_CONTIGUOUS"),
                   ctypes_vtype,ctypes_vtype,
-                  float_type, bool_type, ndpointer(ctypes_vtype, flags="C_CONTIGUOUS"),
-                  ndpointer(bool_type, flags="C_CONTIGUOUS")]
+                  float_type, bool_type, ndpointer(ctypes_vtype, flags="C_CONTIGUOUS")]
 
     return fun
 
@@ -82,15 +81,13 @@ def proxl1PRrand_cpp(ai,aj,a,ref_node,d,ds,dsinv,alpha = 0.15,rho = 1.0e-5,epsil
     p = np.zeros(n,dtype=float_type)
         
     candidates = np.zeros(n,dtype=vtype)
-    
-    visited = np.zeros(n,dtype=bool)
         
 #     end = time.time()
 #     print(" Elapsed time initialization in python: ", end - start)
 
 #     start2 = time.time()
     
-    actual_length=fun(n,ai,aj,a,alpha,rho,ref_node,len(ref_node),d,ds,dsinv,epsilon,grad,p,maxiter,0,max_time, normalized_objective,candidates,visited)
+    actual_length=fun(n,ai,aj,a,alpha,rho,ref_node,len(ref_node),d,ds,dsinv,epsilon,grad,p,maxiter,0,max_time, normalized_objective,candidates)
             
 #     end2 = time.time()
 #     print(" Elapsed time inside l1-reg. with rounding: ", end2 - start2)
