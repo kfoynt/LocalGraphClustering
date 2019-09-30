@@ -268,9 +268,9 @@ for rr in all_clusters:
         for a in a_list:
             
             if ct_outer <= 1:
-                rho = 0.15/np.sum(g.d[rr])
+                rho = 0.10/np.sum(g.d[rr])
             else:
-                rho = 0.20/np.sum(g.d[rr])
+                rho = 0.15/np.sum(g.d[rr])
             
             output_pr_clustering = approximate_PageRank(g,ref_node,method = "l1reg-rand", epsilon=1.0e-2, rho=rho, alpha=a, cpp = True, normalize=True,normalized_objective=True)
             number_experiments += 1
@@ -363,6 +363,6 @@ for i in range(l_info_ref_nodes):
     
     print('Feature:', i,'Precision', stat_.mean(temp_pre), 'Recall', stat_.mean(temp_rec), 'F1', stat_.mean(temp_f1), 'Cond.', stat_.mean(temp_conductance))
 
-np.save('f1score_best_pre_l1reg_ORKUT', f1score_best_pre_l1reg) 
-np.save('precision_best_pre_l1reg_ORKUT', precision_best_pre_l1reg) 
-np.save('recall_best_pre_l1reg_ORKUT', recall_best_pre_l1reg)
+np.save('f1score_best_pre_l1reg_ORKUT_2', f1score_best_pre_l1reg)
+np.save('precision_best_pre_l1reg_ORKUT_2', precision_best_pre_l1reg)
+np.save('recall_best_pre_l1reg_ORKUT_2', recall_best_pre_l1reg)
