@@ -194,17 +194,17 @@ def approximate_PageRank(G,
             if method == "l1reg":
                 # convert result to a sparse vector
                 nonzeros = np.count_nonzero(p)
-                idx = np.zeros(nonzeros,dtype=np.dtype(G.aj[0]))
-                vals = np.zeros(nonzeros,dtype=np.float64)
+                xids = np.zeros(nonzeros,dtype=np.dtype(G.aj[0]))
+                values = np.zeros(nonzeros,dtype=np.float64)
                 it = 0
                 for i in range(len(p)):
                     if p[i] != 0:
-                        idx[it] = i
-                        vals[it] = p[i]*1.0 * G.dn[i] if normalize else p[i]
+                        xids[it] = i
+                        values[it] = p[i]*1.0 * G.dn[i] if normalize else p[i]
                         it += 1
-                return (idx,vals)
             else:
                 values = np.multiply(G.dn[xids], values)
-                return (xids,values)
+                
+        return (xids,values)
     else:
         raise Exception("Unknown method, available methods are \"acl\" or \"acl_weighted\" or \"l1reg\" or \"l1reg-rand\".")

@@ -302,6 +302,20 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //         cout << "seed[" << i << "]: " << seed[i] << endl;
     }
     
+//     double sum_ = 0;
+    
+//     for (pair<vtype, double> element : grad)
+//     {
+//         sum_ += -ds[element.first]*element.second/alpha;
+//     }
+    
+//     for (pair<vtype, double> element : values)
+//     {
+//         sum_ += ds[element.first]*element.second;
+//     }
+    
+//     cout << "sum: " << sum_ << endl;
+    
 //     timeStamp2 = clock();
     
 //     cout << "time initialization seed nodes: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
@@ -410,7 +424,7 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
             
             if (got == grad.end()) {
 //                 (*grad)[neighbor] = cdqdsinv*dsinv[neighbor]*a[j]; 
-                grad[neighbor] = temp2; 
+                grad[neighbor] = -temp2; 
                 if (grad.at(neighbor) < temp) {
                     Q.push(neighbor);
                     values[neighbor] = 0;
@@ -426,6 +440,21 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
                 }
             }
         }
+        
+        
+//         sum_ = 0;
+
+//         for (pair<vtype, double> element : grad)
+//         {
+//             sum_ += -ds[element.first]*element.second/alpha;
+//         }
+
+//         for (pair<vtype, double> element : values)
+//         {
+//             sum_ += ds[element.first]*element.second;
+//         }
+
+//         cout << "sum: " << sum_ << endl;
         
 //             timeStamp2 = clock();
 
@@ -480,12 +509,31 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //     }
     
     vtype counter = 0;
+//     sum_ = 0;
     for (pair<vtype, double> it : values) {
         node = it.first;
         xids[counter] = node;
         q[counter] = values[node]*ds[node];
         counter++;
+        
+//         sum_ += values[node]*ds[node];
     }
+    
+//     cout << "sum: " << sum_ << endl;
+    
+//     sum_ = 0;
+
+//     for (pair<vtype, double> element : grad)
+//     {
+//         sum_ += -ds[element.first]*element.second/alpha;
+//     }
+
+//     for (pair<vtype, double> element : values)
+//     {
+//         sum_ += ds[element.first]*element.second;
+//     }
+
+//     cout << "sum: " << sum_ << endl;
         
 //     for (vtype i = 0; i < num_nodes; ++i) {
 //         cout << "q[" << i << "]: " << q[i] << endl;
