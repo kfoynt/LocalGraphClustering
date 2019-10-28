@@ -38,7 +38,7 @@ The current version is 0.5.0 and it is appropriate for experts and intermediates
 - [Multiclass label prediction](https://dl.acm.org/citation.cfm?id=2783376)
 - [Network Community Profiles](http://www.tandfonline.com/doi/abs/10.1080/15427951.2009.10129177)
 - Global spectral partitioning
-- Find k clusters using local graph clustering (uses local graph clustering to do graph partitioning (local to global graph clustering))
+- Find k clusters using local graph clustering (uses local graph clustering to do graph partitioning, local to global graph clustering)
 - Graph partitioning using local graph clustering
 - Image segmentation using local graph clustering
 - Densest subgraph
