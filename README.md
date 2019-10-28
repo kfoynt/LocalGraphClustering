@@ -38,7 +38,7 @@ The current version is 0.5.0 and it is appropriate for experts and intermediates
 - [Multiclass label prediction](https://dl.acm.org/citation.cfm?id=2783376)
 - [Network Community Profiles](http://www.tandfonline.com/doi/abs/10.1080/15427951.2009.10129177)
 - Global spectral partitioning
-- Find k clusters using local graph clustering
+- Find k clusters using local graph clustering (global local graph clustering)
 - Graph partitioning using local graph clustering
 - Image segmentation using local graph clustering
 - Densest subgraph
@@ -50,7 +50,7 @@ The current version is 0.5.0 and it is appropriate for experts and intermediates
 - [Network Community Profiles](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/NCPs.ipynb)
 - [Multiclass label prediction](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/multiclasslabelprediction.ipynb)
 - [Triangle clusters and vertex neighborhood metrics](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/TriangleClustersAndVertexNeighborhoodMetrics.ipynb)
-- [Find k clusters](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/find_clusters_social_network.ipynb)
+- [Find k clusters (global local graph clustering)](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/find_clusters_social_network.ipynb)
 - [Image segmentation](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/image_segmentation_using_local_graph_clustering.ipynb)
 - [Image segmentation](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/image_segmentation_using_local_graph_clustering_and_gPb.ipynb) using [gPb](https://www2.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/papers/amfm_pami2010.pdf)
 - [Find small clusters in image using conductance](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/find_very_small_clusters_in_images.ipynb)
