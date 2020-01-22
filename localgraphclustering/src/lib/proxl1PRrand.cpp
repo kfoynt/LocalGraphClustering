@@ -28,8 +28,6 @@
 #include <cmath>
 #include <ctime>
 #include <unordered_set>
-#include <unordered_map>
-#include <queue>
 #include "include/routines.hpp"
 #include "include/proxl1PRrand_c_interface.h"
 #include <random>
@@ -130,73 +128,55 @@ namespace proxl1PRrand
 
     static long long g_seed = 1;
 
-//     inline
-//     long long getRand() {
-//         // g_seed = (214013*g_seed+2531011); 
-//         // return (g_seed>>16)&0x7FFF; 
-//         random_device rd;
-//         mt19937_64 e2(rd());
-//         uniform_int_distribution<long long int> dist(std::llround(std::pow(2,0)), std::llround(std::pow(2,63)));
-//         return dist(e2);
-//     }
+    inline
+    long long getRand() {
+        // g_seed = (214013*g_seed+2531011); 
+        // return (g_seed>>16)&0x7FFF; 
+        random_device rd;
+        mt19937_64 e2(rd());
+        uniform_int_distribution<long long int> dist(std::llround(std::pow(2,0)), std::llround(std::pow(2,63)));
+        return dist(e2);
+    }
 
-//     template<typename vtype, typename itype>
-//     void inline updateGrad(vtype& node, double& stepSize, double& c, double& ra, unordered_map<vtype,double>* q, unordered_map<vtype,double>* grad, double* ds, double* dsinv, itype* ai, vtype* aj, double* a, double& stepszra, queue<vtype>* Q, double & threshold) {
-//         double dqs = -grad->at(node)-ds[node]*ra;
-//         double dq = dqs*stepSize;
-//         double cdqdsinv = c*dq*dsinv[node];   
-//         q->at(node) += dq;
-//         grad->at(node) += dqs;
-//         double grad_old;
-        
-//         vtype neighbor;
-//         typename unordered_map<vtype,double>::const_iterator got;
-        
-//         for (itype j = ai[node]; j < ai[node + 1]; ++j) {
-//             neighbor = aj[j];
-            
-//             got = grad->find(neighbor);
-//             if (got == grad->end()) {
-// //                 (*grad)[neighbor] = cdqdsinv*dsinv[neighbor]*a[j]; 
-//                 (*grad)[neighbor] = cdqdsinv*dsinv[neighbor]; 
-//                 if (grad->at(neighbor) < -threshold*ds[neighbor]) {
-//                     Q->push(neighbor);
-//                     (*q)[neighbor] = 0;
-//                 }
-//             }
-//             else {
-// //                 grad->at(neighbor) -= cdqdsinv*dsinv[neighbor]*a[j];
-//                 grad_old = grad->at(neighbor);
-//                 grad->at(neighbor) -= cdqdsinv*dsinv[neighbor];
-//                 if ((grad->at(neighbor) < -threshold*ds[neighbor]) && (grad_old >= -threshold*ds[neighbor])) {
-//                     Q->push(neighbor);
-//                     got = q->find(neighbor);
-//                     if (got == q->end()) (*q)[neighbor] = 0;
-//                 }
-//             }
-//         }
-//     }
+    template<typename vtype, typename itype>
+    void updateGrad(vtype& node, double& stepSize, double& c, double& ra, double* q, double* grad, double* ds, double* dsinv, itype* ai, vtype* aj, double* a, bool* visited, vtype* candidates, vtype& candidates_size) {
+        double dqs = -grad[node]-ds[node]*ra;
+        double dq = dqs*stepSize;
+        double cdq = c*dq;
+        double cdqdsinv = cdq*dsinv[node];
+        q[node] += dq;
+        grad[node] += dqs;
+
+        vtype neighbor;
+        for (itype j = ai[node]; j < ai[node + 1]; ++j) {
+            neighbor = aj[j];
+            grad[neighbor] -= cdqdsinv*dsinv[neighbor]*a[j]; //(1 + alpha)
+            if (!visited[neighbor] && q[neighbor] - stepSize*grad[neighbor] >= stepSize*ds[neighbor]*ra) {
+                visited[neighbor] = true;
+                candidates[candidates_size++] = neighbor;
+            }
+        }
+    }
 
 
-//     template<typename vtype, typename itype>
-//     void updateGrad_unnormalized(vtype& node, double& stepSize_constant, double& c, double& ra, double* q, double* grad, double* d, itype* ai, vtype* aj, double* a, bool* visited, vtype* candidates, vtype& candidates_size) {
-//         double dqs = -grad[node]/d[node]-ra;
-//         double dq = dqs*stepSize_constant;
-//         double cdq = c*dq;
-//         double stepszra = stepSize_constant*ra;
-//         q[node] += dq;
-//         grad[node] += dqs*d[node];
+    template<typename vtype, typename itype>
+    void updateGrad_unnormalized(vtype& node, double& stepSize_constant, double& c, double& ra, double* q, double* grad, double* d, itype* ai, vtype* aj, double* a, bool* visited, vtype* candidates, vtype& candidates_size) {
+        double dqs = -grad[node]/d[node]-ra;
+        double dq = dqs*stepSize_constant;
+        double cdq = c*dq;
+        q[node] += dq;
+        grad[node] += dqs*d[node];
 
-//         vtype neighbor;
-//         for (itype j = ai[node]; j < ai[node + 1]; ++j) {
-//             neighbor = aj[j];
-//             grad[neighbor] -= cdq*a[j]; //(1 + alpha)
-//             if (!visited[neighbor] && q[neighbor] - stepSize_constant*(grad[neighbor]/d[neighbor]) >= stepszra) {
-//                 visited[neighbor] = true;
-//                 candidates[candidates_size++] = neighbor;
-//             }
-//         }
-//     }
+        vtype neighbor;
+        for (itype j = ai[node]; j < ai[node + 1]; ++j) {
+            neighbor = aj[j];
+            grad[neighbor] -= cdq*a[j]; //(1 + alpha)
+            if (!visited[neighbor] && q[neighbor] - stepSize_constant*(grad[neighbor]/d[neighbor]) >= stepSize_constant*ra) {
+                visited[neighbor] = true;
+                candidates[candidates_size++] = neighbor;
+            }
+        }
+    }
     
 //     template<typename vtype, typename itype>
 //     void warm_start(vtype& node, double& stepSize, double& alpha, double* y, double* ds, double* dsinv, double* grad, itype* ai, vtype* aj, bool* visited, vtype* candidates, vtype& candidates_size, double& ra, double& c) {
@@ -248,77 +228,32 @@ namespace proxl1PRrand
 }
 
 template<typename vtype, typename itype>
-vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* d, double* ds, double* dsinv, vtype maxiter, vtype* xids)
+vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* y, double* d, double* ds, double* dsinv, double* grad, vtype maxiter)
 {
-//     clock_t timeStamp1;
-//     clock_t timeStamp2;
+    clock_t timeStamp1;
+    clock_t timeStamp2;
     
-//     double sum_grad = 0;
-//     double sum_term = 0;
-//     double sum_random = 0;
+    double sum_grad = 0;
+    double sum_term = 0;
+    double sum_random = 0;
     
-//     timeStamp1 = clock();
-//     random_device rd;
-//     mt19937_64 e2(rd());
-//     uniform_int_distribution<long long int> dist(std::llround(std::pow(2,0)), std::llround(std::pow(2,63)));
-//     return dist(e2);
-    
-//     timeStamp2 = clock();
-    
-//     cout << "time initialization distribution: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
-    
-    double dqs, dq, cdqdsinv, grad_old, temp, temp2; 
-    typename unordered_map<vtype, double>::const_iterator got;
-    
-    vtype neighbor;
-    
-//     timeStamp1 = clock();
-    vtype node;
-// 	vtype not_converged = 0;
-//     vtype* candidates = new vtype[num_nodes];
-//     bool* visited = new bool[num_nodes];
-//     for (vtype i = 0; i < num_nodes; ++i) visited[i] = false;
-//     bool* visited[ num_nodes ] = { false };
-    
-//     timeStamp2 = clock();
-    
-//     cout << "time initialization visited: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
+	vtype not_converged = 0;
+    vtype* candidates = new vtype[num_nodes];
+    bool* visited = new bool[num_nodes];
+    for (vtype i = 0; i < num_nodes; ++i) visited[i] = false;
 
-//     timeStamp1 = clock();
-    
     // initialize seed nodes as candidates
-//     double maxNorm = 0;
-    unordered_map<vtype,double> grad;
-    unordered_map<vtype,double> values;
-    queue<vtype> Q;
-    
+    double maxNorm = 0;
+    vtype candidates_size = num_seeds;
     for (vtype i = 0; i < num_seeds; ++i) {
         // set gradient and update max norm
         grad[seed[i]] = -alpha*dsinv[seed[i]]/num_seeds;
-//         maxNorm = max(maxNorm, abs(grad[seed[i]]*dsinv[seed[i]]));
+        maxNorm = max(maxNorm, abs(grad[seed[i]]*dsinv[seed[i]]));
         // set as candidate nodes
-        values[seed[i]] = 0;
-        Q.push(seed[i]);
+        candidates[i] = seed[i];
+        visited[seed[i]] = true;
 //         cout << "seed[" << i << "]: " << seed[i] << endl;
     }
-    
-//     double sum_ = 0;
-    
-//     for (pair<vtype, double> element : grad)
-//     {
-//         sum_ += -ds[element.first]*element.second/alpha;
-//     }
-    
-//     for (pair<vtype, double> element : values)
-//     {
-//         sum_ += ds[element.first]*element.second;
-//     }
-    
-//     cout << "sum: " << sum_ << endl;
-    
-//     timeStamp2 = clock();
-    
-//     cout << "time initialization seed nodes: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
     
 //     for (vtype i = 0; i < num_nodes; ++i) {
 //         cout << "grad[" << i << "]: " << grad[i] << endl;
@@ -327,7 +262,6 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     double c = (1-alpha)/2;
     double ra = rho*alpha;
     double stepSize = 2.0/(1+alpha);
-    double stepszra = stepSize*ra;
     
 //     // for warm start frame work
 //     for (vtype i = 0; i < num_nodes; ++i) {
@@ -343,26 +277,42 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //         }
 //     }
     
-//     timeStamp1 = clock();
+    for(vtype i = 0; i < num_seeds; i ++){
+        grad[seed[i]] = -alpha*dsinv[seed[i]]/num_seeds;
+    }
 
-//     for (vtype i = 0; i < num_nodes; i ++) indices[i] = 0;
+    //Find nonzero indices in y and dsinv
+    unordered_map<vtype,vtype> indices;
+    unordered_set<vtype> nz_ids;
+    for (vtype i = 0; i < num_nodes; i ++) {
+        if (y[i] != 0 && dsinv[i] != 0) {
+            indices[i] = 0;
+            q[i] = y[i];
+        }
+        if (y[i] != 0 || grad[i] != 0) {
+            nz_ids.insert(i);
+        }
+    }
     
-//     timeStamp2 = clock();
     
-//     cout << "time initialization indices: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
-    
-//     timeStamp1 = clock();
-    
-//     for(auto it = nz_ids.begin() ; it != nz_ids.end(); ++it){
-//         vtype i = *it;
-//         grad[i] += q[i]/stepSize;
-//     }
-    
-    for(itype j = ai[seed[0]]; j < ai[seed[0]+1]; j ++) grad[aj[j]] = 0;
-    
-//     timeStamp2 = clock();
-    
-//     cout << "time initialization gradient: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
+    for(auto it = nz_ids.begin() ; it != nz_ids.end(); ++it){
+        vtype i = *it;
+        grad[i] += y[i]/stepSize;
+    }
+    vtype temp;
+
+    for(auto it = indices.begin() ; it != indices.end(); ++it){
+        vtype i = it->first;
+        for(itype j = ai[i]; j < ai[i+1]; j ++){
+            temp = aj[j];
+            grad[temp] -= y[i] * a[j] * dsinv[i] * dsinv[temp] * c;
+            
+            if (!visited[temp] && y[temp] - stepSize*grad[temp] >= stepSize*ds[temp]*ra) {
+                visited[temp] = true;
+                candidates[candidates_size++] = temp;
+            }
+        }
+    }
     
 //     for (vtype i = 0; i < num_nodes; ++i) {
 //         cout << "1st grad[" << i << "]: " << grad[i] << endl;
@@ -376,17 +326,8 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     vtype numiter = 1;
     // some constant
     // maxiter *= 100;
-    
-//     timeStamp1 = clock();
-    
-//     vtype idx;
-    
-    while (Q.size()>0 && numiter<maxiter) {
+    while (maxNorm > threshold) {
         
-//         for (pair<vtype, double> r : values) {
-        node = Q.front();
-        Q.pop();
-            
 //         for (vtype i = 0; i < num_nodes; ++i) {
 //             cout  << "iter.: " << numiter << ", before q[" << i << "]: " << q[i] << endl;
 //         }
@@ -394,72 +335,22 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //         for (vtype i = 0; i < num_nodes; ++i) {
 //             cout  << "iter.: " << numiter << ", before grad[" << i << "]: " << grad[i] << endl;
 //         }
-
-//         timeStamp1 = clock();
-//         r = dist(e2) % candidates_size;
-//         timeStamp2 = clock();
-
-//         sum_random = sum_random + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
-
+        
+        timeStamp1 = clock();
+        vtype r = proxl1PRrand::getRand() % candidates_size;
+        timeStamp2 = clock();
+        
+        sum_random = sum_random + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
+        
 //        cout<< "Quicksort time "<< (float)(clock2 - clock1)/ CLOCKS_PER_SEC << " "<<endl;;
 
 
-//             timeStamp1 = clock();
-//         proxl1PRrand::updateGrad(r, stepSize, c, ra, &values, &grad, ds, dsinv, ai, aj, a, stepszra, &Q, threshold);
+        timeStamp1 = clock();
+        proxl1PRrand::updateGrad(candidates[r], stepSize, c, ra, q, grad, ds, dsinv, ai, aj, a, visited, candidates, candidates_size);
+        timeStamp2 = clock();
         
+        sum_grad = sum_grad + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
         
-        dqs = -grad.at(node)-ds[node]*ra;
-        dq = dqs*stepSize;
-        cdqdsinv = c*dq*dsinv[node];   
-        values.at(node) += dq;
-        grad.at(node) += dqs;
-        
-        for (itype j = ai[node]; j < ai[node + 1]; ++j) {
-            neighbor = aj[j];
-            
-            temp = -threshold*ds[neighbor];
-            temp2 = cdqdsinv*dsinv[neighbor];
-            
-            got = grad.find(neighbor);
-            
-            if (got == grad.end()) {
-//                 (*grad)[neighbor] = cdqdsinv*dsinv[neighbor]*a[j]; 
-                grad[neighbor] = -temp2; 
-                if (grad.at(neighbor) < temp) {
-                    Q.push(neighbor);
-                    values[neighbor] = 0;
-                }
-            }
-            else {
-//                 grad->at(neighbor) -= cdqdsinv*dsinv[neighbor]*a[j];
-                grad_old = got->second;
-                grad.at(neighbor) -= temp2;
-                if ((grad.at(neighbor) < temp) && (grad_old >= temp)) {
-                    Q.push(neighbor);
-                    if (values.find(neighbor) == values.end()) values[neighbor] = 0;
-                }
-            }
-        }
-        
-        
-//         sum_ = 0;
-
-//         for (pair<vtype, double> element : grad)
-//         {
-//             sum_ += -ds[element.first]*element.second/alpha;
-//         }
-
-//         for (pair<vtype, double> element : values)
-//         {
-//             sum_ += ds[element.first]*element.second;
-//         }
-
-//         cout << "sum: " << sum_ << endl;
-        
-//             timeStamp2 = clock();
-
-//             sum_grad = sum_grad + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
-
 //         for (vtype i = 0; i < num_nodes; ++i) {
 //             cout  << "iter.: " << numiter << ", after q[" << i << "]: " << q[i] << endl;
 //         }
@@ -467,74 +358,38 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //         for (vtype i = 0; i < num_nodes; ++i) {
 //             cout  << "iter.: " << numiter << ", after grad[" << i << "]: " << grad[i] << endl;
 //         }
-
-//             timeStamp1 = clock();
-//         if (numiter % values.size() == 0) {
-//             maxNorm = 0;
-//             for (pair<vtype, double> it : values) {
-//                 idx = it.first;
-//                 maxNorm = max(maxNorm, abs(grad[idx]*dsinv[idx])); 
-//             }
-//         }
-//             timeStamp2 = clock();
-
-//             sum_term = sum_term + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
-
-        numiter++;
-
-//             if (numiter++ > maxiter) {
-//                 not_converged = 1;
-//                 break;
-//             }
-//         }
+        
+        timeStamp1 = clock();
+        if (numiter % 1000 == 0) {
+            maxNorm = 0;
+            for (vtype i = 0; i < candidates_size; ++i) {
+                r = candidates[i];
+                maxNorm = max(maxNorm, abs(grad[r]*dsinv[r]));
+//             cout << "iter.: " << numiter << " maxNorm: " <<  maxNorm << endl;
+            }
+        }
+        timeStamp2 = clock();
+        
+        sum_term = sum_term + (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC;
+        
+        if (numiter++ > maxiter) {
+            not_converged = 1;
+            break;
+        }
     }
-    
-//     timeStamp2 = clock();
-    
-//     cout << "time loop: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
     
     //proxl1PRrand::writeTime(timeStamp, "/home/c55hu/Documents/research/experiment/output/time-rand.txt");
     //proxl1PRrand::writeLog(num_nodes, "/home/c55hu/Documents/research/experiment/output/q-rand.txt", q);
     // update y and q
     
-//     cout << "sum_grad.: " << sum_grad << endl;
-//     cout << "sum_term.: " << sum_term << endl;
-//     cout << "sum_random.: " << sum_random << endl;
+    cout << "sum_grad.: " << sum_grad << endl;
+    cout << "sum_term.: " << sum_term << endl;
+    cout << "sum_random.: " << sum_random << endl;
     
-//     timeStamp1 = clock();
+    for (vtype i = 0; i < num_nodes; ++i) y[i] = q[i];
     
-//     for (vtype i = 0; i < candidates_size; ++i) {
-//         r = candidates[i];
-//         q[r] *= ds[r];
-//     }
+    for (vtype i = 0; i < num_nodes; ++i) q[i] *= ds[i];
     
-    vtype counter = 0;
-//     sum_ = 0;
-    for (pair<vtype, double> it : values) {
-        node = it.first;
-        xids[counter] = node;
-        q[counter] = values[node]*ds[node];
-        counter++;
-        
-//         sum_ += values[node]*ds[node];
-    }
-    
-//     cout << "sum: " << sum_ << endl;
-    
-//     sum_ = 0;
-
-//     for (pair<vtype, double> element : grad)
-//     {
-//         sum_ += -ds[element.first]*element.second/alpha;
-//     }
-
-//     for (pair<vtype, double> element : values)
-//     {
-//         sum_ += ds[element.first]*element.second;
-//     }
-
-//     cout << "sum: " << sum_ << endl;
-        
 //     for (vtype i = 0; i < num_nodes; ++i) {
 //         cout << "q[" << i << "]: " << q[i] << endl;
 //     }
@@ -547,165 +402,165 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
 //         cout << "last grad[" << i << "]: " << grad[i] << endl;
 //     }
     
-//     timeStamp2 = clock();
-    
-//     cout << "time finalizing: " << (float)(timeStamp2 - timeStamp1)/ CLOCKS_PER_SEC << endl;
-    
-//     delete [] candidates;
-//     delete [] visited;
-    return values.size();
+    delete [] candidates;
+    delete [] visited;
+    return not_converged;
 }
 
-// template<typename vtype, typename itype>
-// vtype graph<vtype,itype>::proxl1PRrand_unnormalized(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* d, double* ds, double* dsinv, double* grad, vtype maxiter)
-// {
-//     clock_t timeStamp = clock();
+template<typename vtype, typename itype>
+vtype graph<vtype,itype>::proxl1PRrand_unnormalized(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* y, double* d, double* ds, double* dsinv, double* grad, vtype maxiter)
+{
+    clock_t timeStamp = clock();
     
-//     random_device rd;
-//     mt19937_64 e2(rd());
-//     uniform_int_distribution<long long int> dist(std::llround(std::pow(2,0)), std::llround(std::pow(2,63)));
+	vtype not_converged = 0;
+    vtype* candidates = new vtype[num_nodes];
+    bool* visited = new bool[num_nodes];
+    for (vtype i = 0; i < num_nodes; ++i) visited[i] = false;
     
-// 	vtype not_converged = 0;
+    
+    // initialize seed nodes as candidates
+    double maxNorm = 0;
+    vtype candidates_size = num_seeds;
+    for (vtype i = 0; i < num_seeds; ++i) {
+        // set gradient and update max norm
+        grad[seed[i]] = -alpha/num_seeds;
+        maxNorm = max(maxNorm, abs(grad[seed[i]]*d[seed[i]]));
+        // set as candidate nodes
+        candidates[i] = seed[i];
+        visited[seed[i]] = true;
+    }
+    
+    double c = (1-alpha)/2;
+    double ra = rho*alpha;
+    double stepSize_const = 2.0/(1+alpha);
+
+    for(vtype i = 0; i < num_seeds; i ++){
+        grad[seed[i]] = -alpha/num_seeds;
+    }
+
+    //Find nonzero indices in y and dsinv
+    unordered_map<vtype,vtype> indices;
+    unordered_set<vtype> nz_ids;
+    for (vtype i = 0; i < num_nodes; i ++) {
+        if (y[i] != 0 && dsinv[i] != 0) {
+            indices[i] = 0;
+            q[i] = y[i];
+        }
+        if (y[i] != 0 || grad[i] != 0) {
+            nz_ids.insert(i);
+        }
+    }
+    
+    
+    for(auto it = nz_ids.begin() ; it != nz_ids.end(); ++it){
+        vtype i = *it;
+        grad[i] += y[i]*d[i]/stepSize_const;
+    }
+    vtype temp;
+
+    for(auto it = indices.begin() ; it != indices.end(); ++it){
+        vtype i = it->first;
+        for(itype j = ai[i]; j < ai[i+1]; j ++){
+            temp = aj[j];
+            grad[temp] -= y[i] * a[j] * c;
+            
+            if (!visited[temp] && y[temp] - stepSize_const*(grad[temp]/d[temp]) >= stepSize_const*ra) {
+                visited[temp] = true;
+                candidates[candidates_size++] = temp;
+            }
+        }
+    }
+//     double maxNorm;
+//     grad[Seed] = -alpha;  // grad = -gradient
+//     maxNorm = abs(grad[Seed]/d[Seed]);
 //     vtype* candidates = new vtype[num_nodes];
 //     bool* visited = new bool[num_nodes];
 //     for (vtype i = 0; i < num_nodes; ++i) visited[i] = false;
+//     vtype candidates_size = 1;
+//     candidates[0] = Seed;
+//     visited[Seed] = true;
     
     
-//     // initialize seed nodes as candidates
-//     double maxNorm = 0;
-//     vtype candidates_size = num_seeds;
-//     for (vtype i = 0; i < num_seeds; ++i) {
-//         // set gradient and update max norm
-//         grad[seed[i]] = -alpha/num_seeds;
-//         maxNorm = max(maxNorm, abs(grad[seed[i]]*d[seed[i]]));
-//         // set as candidate nodes
-//         candidates[i] = seed[i];
-//         visited[seed[i]] = true;
-//     }
-    
-//     double c = (1-alpha)/2;
-//     double ra = rho*alpha;
-//     double stepSize_const = 2.0/(1+alpha);
+    // exp start write graph
+    // proxl1PRrand::writeGraph(num_nodes, "/home/c55hu/Documents/research/experiment/output/graph.txt", ai, aj);
+    // proxl1PRrand::writeQdiag(num_nodes, "/home/c55hu/Documents/research/experiment/output/Qdiag.txt", ai, aj, d, alpha);
+    // exp end
+    double threshold = (1+epsilon)*rho*alpha;
+    vtype numiter = 1;
+    // some constant
+    // maxiter *= 100;
+    //for (vtype i = 0; i < num_nodes; ++i) ds[i] *= ra;
+    while (maxNorm > threshold) {
+        
+        vtype r =  proxl1PRrand::getRand() % candidates_size;
+        proxl1PRrand::updateGrad_unnormalized(candidates[r], stepSize_const, c, ra, q, grad, d, ai, aj, a, visited, candidates, candidates_size);
+        
+        if (numiter % 1000 == 0) {
+            maxNorm = 0;
+            for (vtype i = 0; i < num_nodes; ++i) {
+                maxNorm = max(maxNorm, abs(grad[i]/d[i]));
+            }
+//             cout << "iter.: " << numiter << " maxNorm: " <<  maxNorm << endl;
+        }
+        
+        if (numiter++ > maxiter) {
+            //cout << "not converged" << endl;
+            not_converged = 1;
+            break;
+        }
+        
+        // double crit = proxl1PRrand::compute_l2_norm<vtype>(grad,n);
+        // cout << "iter.: " << numiter << " l2norm: " <<  crit << endl;        
+        
+    }
+    //proxl1PRrand::writeTime(timeStamp, "/home/c55hu/Documents/research/experiment/output/time-rand.txt");
+    //proxl1PRrand::writeLog(num_nodes, "/home/c55hu/Documents/research/experiment/output/q-rand.txt", q);
 
-//     for(vtype i = 0; i < num_seeds; i ++){
-//         grad[seed[i]] = -alpha/num_seeds;
-//     }
-
-//     //Find nonzero indices in y and dsinv
-//     unordered_map<vtype,vtype> indices;
-//     unordered_set<vtype> nz_ids;
+    for (vtype i = 0; i < num_nodes; ++i) y[i] = q[i];
     
-//     for (vtype i = 0; i < num_nodes; i ++) {
-//         if (q[i] != 0 && dsinv[i] != 0) {
-//             indices[i] = 0;
-//         }
-//         if (q[i] != 0 || grad[i] != 0) {
-//             nz_ids.insert(i);
-//         }
-//     }
-    
-    
-//     for(auto it = nz_ids.begin() ; it != nz_ids.end(); ++it){
-//         vtype i = *it;
-//         grad[i] += q[i]*d[i]/stepSize_const;
-//     }
-//     vtype temp;
-
-//     for(auto it = indices.begin() ; it != indices.end(); ++it){
-//         vtype i = it->first;
-//         for(itype j = ai[i]; j < ai[i+1]; j ++){
-//             temp = aj[j];
-//             grad[temp] -= q[i] * a[j] * c;
-            
-//             if (!visited[temp] && q[temp] - stepSize_const*(grad[temp]/d[temp]) >= stepSize_const*ra) {
-//                 visited[temp] = true;
-//                 candidates[candidates_size++] = temp;
-//             }
-//         }
-//     }
-// //     double maxNorm;
-// //     grad[Seed] = -alpha;  // grad = -gradient
-// //     maxNorm = abs(grad[Seed]/d[Seed]);
-// //     vtype* candidates = new vtype[num_nodes];
-// //     bool* visited = new bool[num_nodes];
-// //     for (vtype i = 0; i < num_nodes; ++i) visited[i] = false;
-// //     vtype candidates_size = 1;
-// //     candidates[0] = Seed;
-// //     visited[Seed] = true;
-    
-    
-//     // exp start write graph
-//     // proxl1PRrand::writeGraph(num_nodes, "/home/c55hu/Documents/research/experiment/output/graph.txt", ai, aj);
-//     // proxl1PRrand::writeQdiag(num_nodes, "/home/c55hu/Documents/research/experiment/output/Qdiag.txt", ai, aj, d, alpha);
-//     // exp end
-//     double threshold = (1+epsilon)*rho*alpha;
-//     vtype numiter = 1;
-//     // some constant
-//     // maxiter *= 100;
-//     //for (vtype i = 0; i < num_nodes; ++i) ds[i] *= ra;
-//     while (maxNorm > threshold) {
-        
-//         vtype r = dist(e2) % candidates_size;
-//         proxl1PRrand::updateGrad_unnormalized(candidates[r], stepSize_const, c, ra, q, grad, d, ai, aj, a, visited, candidates, candidates_size);
-        
-//         if (numiter % 1000 == 0) {
-//             maxNorm = 0;
-//             for (vtype i = 0; i < candidates_size; ++i) {
-//                 r = candidates[i];
-//                 maxNorm = max(maxNorm, abs(grad[r]*dsinv[r]));
-// //             cout << "iter.: " << numiter << " maxNorm: " <<  maxNorm << endl;
-//             }
-//         }
-        
-//         if (numiter++ > maxiter) {
-//             //cout << "not converged" << endl;
-//             not_converged = 1;
-//             break;
-//         }
-        
-//         // double crit = proxl1PRrand::compute_l2_norm<vtype>(grad,n);
-//         // cout << "iter.: " << numiter << " l2norm: " <<  crit << endl;        
-        
-//     }
-//     //proxl1PRrand::writeTime(timeStamp, "/home/c55hu/Documents/research/experiment/output/time-rand.txt");
-//     //proxl1PRrand::writeLog(num_nodes, "/home/c55hu/Documents/research/experiment/output/q-rand.txt", q);
-
-// //     for (vtype i = 0; i < num_nodes; ++i) y[i] = q[i];
-    
-//     delete [] candidates;
-//     delete [] visited;
-//     return not_converged;
-// }
+    delete [] candidates;
+    delete [] visited;
+    return not_converged;
+}
 
 uint32_t proxl1PRrand32(uint32_t n, uint32_t* ai, uint32_t* aj, double* a, double alpha,
                          double rho, uint32_t* v, uint32_t v_nums, double* d, double* ds,
-                         double* dsinv, double epsilon, double* p,
-                         uint32_t maxiter, uint32_t offset, double max_time,bool normalized_objective,
-                         uint32_t* candidates)
+                         double* dsinv, double epsilon, double* grad, double* p, double* y,
+                         uint32_t maxiter, uint32_t offset, double max_time,bool normalized_objective)
 {
     graph<uint32_t,uint32_t> g(ai[n],n,ai,aj,a,offset,NULL);
-    uint32_t actual_length = g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, d, ds, dsinv, maxiter, candidates);
-    return actual_length;
+    if (normalized_objective){
+        return g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
+    }
+    else{
+        return g.proxl1PRrand_unnormalized(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
+    }
 }
 
 int64_t proxl1PRrand64(int64_t n, int64_t* ai, int64_t* aj, double* a, double alpha,
                         double rho, int64_t* v, int64_t v_nums, double* d, double* ds,
-                        double* dsinv,double epsilon, double* p,
-                        int64_t maxiter, int64_t offset, double max_time,bool normalized_objective,
-                        int64_t* candidates)
+                        double* dsinv,double epsilon, double* grad, double* p, double* y,
+                        int64_t maxiter, int64_t offset, double max_time,bool normalized_objective)
 {
     graph<int64_t,int64_t> g(ai[n],n,ai,aj,a,offset,NULL);
-    int64_t actual_length = g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, d, ds, dsinv, maxiter, candidates);
-    return actual_length;
+    if (normalized_objective){
+        return g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
+    }
+    else{
+        return g.proxl1PRrand_unnormalized(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
+    }
 }
 
 uint32_t proxl1PRrand32_64(uint32_t n, int64_t* ai, uint32_t* aj, double* a, double alpha,
                             double rho, uint32_t* v, uint32_t v_nums, double* d, double* ds,
-                            double* dsinv, double epsilon, double* p,
-                            uint32_t maxiter, uint32_t offset, double max_time,bool normalized_objective,
-                            uint32_t* candidates)
-{    
+                            double* dsinv, double epsilon, double* grad, double* p, double* y,
+                            uint32_t maxiter, uint32_t offset, double max_time,bool normalized_objective)
+{
     graph<uint32_t,int64_t> g(ai[n],n,ai,aj,a,offset,NULL);
-    uint32_t actual_length = g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, d, ds, dsinv, maxiter, candidates);
-    return actual_length;
+    if (normalized_objective){
+        return g.proxl1PRrand(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
+    }
+    else{
+        return g.proxl1PRrand_unnormalized(n, v, v_nums, epsilon, alpha, rho, p, y, d, ds, dsinv, grad, maxiter);
+    }
 }
