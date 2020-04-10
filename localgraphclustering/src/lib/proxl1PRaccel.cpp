@@ -18,15 +18,11 @@
  *
  */
 
-#include <iostream>
-#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <algorithm>
-#include <stdint.h>
 #include <cmath>
-#include <vector>
 #include <time.h>
+#include <vector>
 #include <unordered_set>
 
 #include "include/proxl1PRaccel_c_interface.h"
@@ -34,432 +30,240 @@
 
 using namespace std;
 
-template<typename vtype>
-double find_max(double* grad, double* ds, vtype n){
-    double max_num = 0;
-    for(vtype i = 0; i < n; i ++){
-        //cout << max_num << " " << grad[i]/ds[i] << endl;
-        max_num = max(max_num,abs(grad[i]/ds[i]));
-    }
-    return max_num;
-}
+#define INDEX(idx, offset) (idx - offset)
 
 template<typename vtype>
-double find_min(double* vec, vtype n){
-    double min_num = vec[0];
-    for(vtype i = 0; i < n; i ++){
-        min_num = max(min_num,vec[i]);
-    }
-    return min_num;
-}
+struct FistaParams {
+    vtype num_iter;
+    vtype max_iter;
 
-template<typename vtype>
-double compute_l2_norm(vector<double> &q, vector<double> &q_old, vtype n){
-    double l2_norm = 0;
-    for(vtype i = 0; i < n; i ++){
-        //cout << max_num << " " << grad[i]/ds[i] << endl;
-        l2_norm += (q[i] - q_old[i])*(q[i] - q_old[i]);
+    double start_runtime;
+    double max_runtime;
+    double alpha;
+    double epsilon;
+    double rho;
+
+    vector<double> x;
+    vector<double> y;
+    vector<double> gradient;
+    unordered_set<vtype> nonzero_set;
+};
+
+template<typename vtype, typename itype>
+struct GraphParams {
+    double* a;
+    itype* ai;
+    vtype* aj;
+
+    double* d;
+    double* ds;
+    double* dsinv;
+};
+
+///////////////////////
+// Function declaration
+///////////////////////
+
+template<typename vtype, typename itype>
+double get_dx(vtype node, const FistaParams<vtype>& fista_params, const GraphParams<vtype, itype>& graph_params);
+
+template<typename vtype, typename itype>
+unordered_set<vtype> update_gradient(vector<pair<vtype, double> >& node_to_dy, FistaParams<vtype>& fista_params, const GraphParams<vtype, itype>& graph_params);
+
+template<typename vtype, typename itype>
+void update_nonzeros(unordered_set<vtype>& nodes_touched, FistaParams<vtype>& fista_params, const GraphParams<vtype, itype>& graph_params);
+
+template<typename vtype, typename itype>
+bool is_nonzero(vtype node, const FistaParams<vtype>& fista_params, const GraphParams<vtype, itype>& graph_params);
+
+template<typename vtype, typename itype>
+bool is_converged(const FistaParams<vtype>& fista_params, GraphParams<vtype, itype>& graph_params);
+
+//////////////////////
+// Function definition
+//////////////////////
+
+template<typename vtype, typename itype>
+void update(FistaParams<vtype>& fista_params, const GraphParams<vtype, itype>& graph_params) {
+    double beta = (1 - sqrt(fista_params.alpha)) / (1 + sqrt(fista_params.alpha));
+    vector<pair<vtype, double> > node_to_dy;
+
+    for (vtype node : fista_params.nonzero_set) {
+        double dx = get_dx(node, fista_params, graph_params);
+        fista_params.x[node] += dx;
+        double dy = fista_params.x[node] + beta * dx - fista_params.y[node];
+        fista_params.y[node] += dy;
+        node_to_dy.push_back(make_pair(node, dy));
     }
-    l2_norm = sqrt(l2_norm);
-    
-    return l2_norm;
+
+    unordered_set<vtype> nodes_touched = update_gradient(node_to_dy, fista_params, graph_params);
+    update_nonzeros(nodes_touched, fista_params, graph_params);
 }
 
 template<typename vtype, typename itype>
-void update_grad(double* grad, double* y, vector<double>& c, itype* ai, vtype* aj, double* a,
-                 vtype n, double alpha, double* dsinv, vtype offset, unordered_map<vtype,vtype>& indices,
-                 unordered_set<vtype>& nz_ids)
-{
-    for(auto it = nz_ids.begin() ; it != nz_ids.end(); ++it){
-        vtype i = *it;
-        grad[i] = (1+alpha)/2*y[i] - c[i];
-    }
-    vtype temp;
+double get_dx(vtype node, const FistaParams<vtype>& fista_params, const GraphParams<vtype, itype>& graph_params) {
+    double threshold = fista_params.alpha * fista_params.rho * graph_params.ds[node];
+    double dx;
 
-    for(auto it = indices.begin() ; it != indices.end(); ++it){
-        vtype i = it->first;
-        for(itype j = ai[i]-offset; j < ai[i+1]-offset; j ++){
-            temp = aj[j]-offset;
-            //grad[i] -= a[j] * y[temp] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5;
-            grad[temp] -= 2*(a[j]* y[i] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5);
-        }
+    if (fista_params.y[node] - fista_params.gradient[node] > threshold) {
+        dx = fista_params.y[node] - fista_params.gradient[node] - threshold - fista_params.x[node];
+    } else if (fista_params.y[node] - fista_params.gradient[node] < -threshold) {
+        dx = fista_params.y[node] - fista_params.gradient[node] + threshold - fista_params.x[node];
+    } else {
+        dx = -fista_params.x[node];
     }
-
-    /*
-    for(vtype i = 0; i < n; i ++){
-        for(itype j = ai[i]-offset; j < ai[i+1]-offset; j ++){
-            temp = aj[j]-offset;
-            //grad[i] -= a[j] * y[temp] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5;
-            grad[temp] -= 2*(a[j]* y[i] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5);
-            //grad[temp] -= (a[j]* y[i] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5);
-        }
-    }
-    */
-
+    return dx;
 }
+
+template<typename vtype, typename itype>
+unordered_set<vtype> update_gradient(vector<pair<vtype, double> >& node_to_dy, FistaParams<vtype>& fista_params, const GraphParams<vtype, itype>& graph_params) {
+    unordered_set<vtype> nodes_touched;
+
+    for (auto iter : node_to_dy) {
+        vtype node = iter.first;
+        double dy = iter.second;
+        fista_params.gradient[node] += .5 * (1 + fista_params.alpha) * dy;
+        nodes_touched.insert(node);
+
+        for (itype neighbor_idx = graph_params.ai[node]; neighbor_idx < graph_params.ai[node + 1]; ++neighbor_idx) {
+            vtype neighbor = graph_params.aj[neighbor_idx];
+            fista_params.gradient[neighbor] -= .5 * (1 - fista_params.alpha) * graph_params.dsinv[node] * graph_params.dsinv[neighbor] * graph_params.a[neighbor_idx] * dy;
+            nodes_touched.insert(neighbor);
+        }
+    }
+
+    return nodes_touched;
+}
+
+template<typename vtype, typename itype>
+void update_nonzeros(unordered_set<vtype>& nodes_touched, FistaParams<vtype>& fista_params, const GraphParams<vtype, itype>& graph_params) {
+    for (vtype node : nodes_touched) {
+        if (is_nonzero(node, fista_params, graph_params)) {
+            fista_params.nonzero_set.insert(node);
+        } else {
+            fista_params.nonzero_set.erase(node);
+        }
+    }
+}
+
+template<typename vtype, typename itype>
+bool is_nonzero(vtype node, const FistaParams<vtype>& fista_params, const GraphParams<vtype, itype>& graph_params) {
+    double FLOAT_PRECISION = 1e-9;
+    double threshold = fista_params.rho * fista_params.alpha * graph_params.ds[node];
+
+    if (fabs(fista_params.x[node]) > FLOAT_PRECISION || fabs(fista_params.y[node]) > FLOAT_PRECISION) {
+        return true;
+    } else if (fista_params.gradient[node] < -threshold || fista_params.gradient[node] > threshold) {
+        return true;
+    }
+    return false;
+}
+
+template<typename vtype, typename itype>
+bool is_converged(FistaParams<vtype>& fista_params, GraphParams<vtype, itype>& graph_params) {
+    if (++fista_params.num_iter >= fista_params.max_iter || double(clock()) - fista_params.start_runtime >= fista_params.max_runtime) {
+        return true;
+    }
+
+    for (vtype node : fista_params.nonzero_set) {
+        if (fabs(fista_params.gradient[node]) > (1 + fista_params.epsilon) * fista_params.rho * fista_params.alpha * graph_params.ds[node]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 
 template<typename vtype, typename itype>
 vtype graph<vtype,itype>::proxl1PRaccel(double alpha, double rho, vtype* v, vtype v_nums, double* d,
                                         double* ds, double* dsinv, double epsilon, double* grad, double* p,
-                                        double* y, vtype maxiter,double max_time)
+                                        double* y, vtype maxiter, double max_time, bool use_distribution, double* distribution)
 {
-    /*cout << "dsinv" << endl;
-    for(vtype i = 0; i < n; i ++){
-        cout << dsinv[i] << endl;
+    GraphParams<vtype, itype> graph_params = {this->a, this->ai, this->aj, d, ds, dsinv};
+    FistaParams<vtype> fista_params = {
+        0,
+        maxiter,
+        double(clock()),
+        max_time * 1000,
+        alpha,
+        epsilon,
+        rho,
+        vector<double>(this->n, 0),
+        vector<double>(this->n, 0),
+        vector<double>(this->n, 0),
+        unordered_set<vtype>()
+    };
+
+    if (use_distribution) {
+        for (vtype idx = 0; idx < this->n; ++idx) {
+            fista_params.nonzero_set.insert(idx);
+            fista_params.gradient[idx] = -fista_params.alpha * graph_params.dsinv[idx] * distribution[idx];
+        }
+    } else {
+        for (vtype idx = 0; idx < v_nums; ++idx) {
+            vtype seed_node = v[idx];
+            fista_params.nonzero_set.insert(seed_node);
+            fista_params.gradient[seed_node] = -fista_params.alpha * graph_params.dsinv[seed_node] / v_nums;
+        }
     }
-    cout << "a" << endl;
-    for(vtype i = 0; i < 8; i ++){
-        cout << a[i] << endl;
-    }*/
-    clock_t t1,t4;
-    vtype not_converged = 0;
-    vector<double> c (n,0);
-    for(vtype i = 0; i < v_nums; i ++){
-        grad[v[i]-offset] = -1 * alpha / (v_nums * ds[v[i]-offset]);
-        c[v[i]-offset] = -1 * grad[v[i]-offset];
+    while (!is_converged(fista_params, graph_params)) {
+        update(fista_params, graph_params);
     }
 
-    //Find nonzero indices in y and dsinv
-    unordered_map<vtype,vtype> indices;
-    unordered_set<vtype> nz_ids;
-    for (vtype i = 0; i < n; i ++) {
-        if (y[i] != 0 && dsinv[i] != 0) {
-            indices[i] = 0;
-        }
-        if (y[i] != 0 || c[i] != 0) {
-            nz_ids.insert(i);
-        }
-    }
-
-    //New Change for p_0
-    update_grad(grad,y,c,ai,aj,a,n,alpha,dsinv,offset,indices,nz_ids);
-    //cout << "max grad: " << *max_element(grad,grad+n) << " min grad: " << *min_element(grad,grad+n) << endl;
-    /*for(vtype i = 0; i < n; i ++){
-        cout << grad[i] << endl;
-    }*/
-    
-//     for (vtype i = 0; i < n; ++i) {
-//         cout << "grad[" << i << "]: " << grad[i] << endl;
-//     }
-    
-    vector<double> q (n,0);
-    vector<double> q_old (n,0);
-    //vector<double> y (n,0);
-    double z;
-    size_t iter = 0;
-    double thd = (1 + epsilon) * rho * alpha;
-    //cout << thd << " " << find_max<vtype>(grad,ds,n) << endl;
-    double thd1,betak;
-    t1 = clock();
-    //t2 = clock();
-    if(find_max<vtype>(grad,ds,n) > thd) {
-        fill(y,y+n,0);
-        indices.clear();
-    }
-    else {
-        for(vtype i = 0; i < n; i ++){
-            p[i] = abs(y[i])*ds[i];
-        }
-        //cout << "max y: " << *max_element(y,y+n) << " min y: " << *min_element(y,y+n) << endl;
-        //cout << "max grad: " << *max_element(grad,grad+n) << " min grad: " << *min_element(grad,grad+n) << endl;
-        return not_converged;
-    }
-    while((iter < (size_t)maxiter) && (find_max<vtype>(grad,ds,n) > thd)){
-        /*
-        t3 = clock();
-        cout << "1: " <<  ((double)t3 - (double)t2)/double(CLOCKS_PER_SEC) << endl;
-        t2 = clock();
-        */
-        iter ++;
-        q_old = q;
-        if(iter == 1){
-            betak = 0;
-        }
-        else{
-            betak = (1-sqrt(alpha))/(1+sqrt(alpha));
-        }
-        for(vtype i = 0; i < n; i ++){
-            z = y[i] - grad[i];
-            thd1 = rho*alpha*ds[i];
-            if(z >= thd1){
-                q[i] = z - thd1;
-            }
-            else if(z <= -1 * thd1){
-                q[i] = z + thd1;
-            }
-            else{
-                q[i] = 0;
-            }
-        }
-        for(vtype i = 0; i < n; i ++){
-            y[i] = q[i] + betak*(q[i]-q_old[i]);
-            if (y[i] != 0 && indices.find(i) == indices.end() && dsinv[i] != 0) {
-                indices[i] = 0;
-            }
-            if (y[i] != 0 && nz_ids.find(i) == nz_ids.end()) {
-                nz_ids.insert(i);
-            }
-        }
-        /*
-        t3 = clock();
-        cout << "2: " <<  ((double)t3 - (double)t2)/double(CLOCKS_PER_SEC) << endl;
-        t2 = clock();
-        */
-        update_grad(grad,y,c,ai,aj,a,n,alpha,dsinv,offset,indices,nz_ids);
-        /*
-        t3 = clock();
-        cout << "3: " <<  ((double)t3 - (double)t2)/double(CLOCKS_PER_SEC) << endl;
-        t2 = clock();
-        */
-        t4 = clock();
-        if(((double)t4 - (double)t1)/double(CLOCKS_PER_SEC) > max_time){
-            not_converged = 1;
-            return not_converged;
-        }
-    }
-
-    if(iter >= (size_t)maxiter){
-        not_converged = 1;
-    }
-
-    for(vtype i = 0; i < n; i ++){
-        p[i] = abs(q[i])*ds[i];
+    for (vtype node = 0; node < this->n; ++node) {
+        p[node] = fabs(fista_params.x[node]) * ds[node];
     }
     
-    //cout << "max y: " << *max_element(y,y+n) << " min y: " << *min_element(y,y+n) << endl;
-    //cout << "max grad: " << *max_element(grad,grad+n) << " min grad: " << *min_element(grad,grad+n) << endl;
-    
-//     for (vtype i = 0; i < n; ++i) {
-//         cout << "grad[" << i << "]: " << grad[i] << endl;
-//     }
-    
-//     for (vtype i = 0; i < n; ++i) {
-//         cout << "y[" << i << "]: " << y[i] << endl;
-//     }
-    
-//     for (vtype i = 0; i < n; ++i) {
-//         cout << "p[" << i << "]: " << p[i] << endl;
-//     }
-    
-    return not_converged;
-}
-
-template<typename vtype, typename itype>
-void update_grad_unnormalized(double* grad, double* y, vector<double>& c, itype* ai, vtype* aj, double* a,
-                 vtype n, double alpha, double* d, vtype offset, unordered_map<vtype,vtype>& indices)
-{
-    for(vtype i = 0; i < n; i ++){
-        grad[i] = ((1+alpha)/2)*d[i]*y[i] - c[i];
-    }
-    vtype temp;
-
-    for(auto it = indices.begin(); it != indices.end(); ++it){
-        vtype i = it->first;
-        for(itype j = ai[i]-offset; j < ai[i+1]-offset; j ++){
-            temp = aj[j]-offset;
-            grad[temp] -= ((1-alpha)/2)*a[j]*y[i];
-        }
-    }
-
-    /*
-    for(vtype i = 0; i < n; i ++){
-        for(itype j = ai[i]-offset; j < ai[i+1]-offset; j ++){
-            temp = aj[j]-offset;
-            //grad[i] -= a[j] * y[temp] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5;
-            grad[temp] -= 2*(a[j]* y[i] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5);
-            //grad[temp] -= (a[j]* y[i] * dsinv[i] * dsinv[temp] * (1-alpha)/2 * 0.5);
-        }
-    }
-    */
-
+    return 0;
 }
 
 template<typename vtype, typename itype>
 vtype graph<vtype,itype>::proxl1PRaccel_unnormalized(double alpha, double rho, vtype* v, vtype v_nums, double* d,
                                         double* ds, double* dsinv, double epsilon, double* grad, double* p,
-                                        double* y, vtype maxiter,double max_time)
+                                        double* y, vtype maxiter,double max_time, bool use_distribution, double* distribution)
 {
-    /*cout << "dsinv" << endl;
-    for(vtype i = 0; i < n; i ++){
-        cout << dsinv[i] << endl;
-    }
-    cout << "a" << endl;
-    for(vtype i = 0; i < 8; i ++){
-        cout << a[i] << endl;
-    }*/
-    clock_t t1,t4;
-    vtype not_converged = 0;
-    vector<double> c (n,0);
-    for(vtype i = 0; i < v_nums; i ++){
-        grad[v[i]-offset] = -1 * alpha / v_nums;
-        c[v[i]-offset] = -1 * grad[v[i]-offset];
-    }
-
-    //Find nonzero indices in y and dsinv
-    unordered_map<vtype,vtype> indices;
-    unordered_set<vtype> nz_ids;
-    for (vtype i = 0; i < n; i ++) {
-        if (y[i] != 0 && d[i] != 0) {
-            indices[i] = 0;
-        }
-        if (y[i] != 0 || c[i] != 0) {
-            nz_ids.insert(i);
-        }
-    }
-
-    //New Change for p_0
-    update_grad_unnormalized(grad,y,c,ai,aj,a,n,alpha,d,offset,indices);
-    //cout << "max grad: " << *max_element(grad,grad+n) << " min grad: " << *min_element(grad,grad+n) << endl;
-    /*
-    for(vtype i = 0; i < n; i ++){
-        cout << "grad[" << i << "] " << grad[i] << endl;
-    }
-    */
-    vector<double> q (n,0);
-    vector<double> q_old (n,0);
-    //vector<double> y (n,0);
-    double z;
-    size_t iter = 0;
-
-    double thd = (1 + epsilon) * rho * alpha;
-    
-    double thd1,betak;
-    t1 = clock();
-    //t2 = clock();
-    
-    fill(y,y+n,0);
-    indices.clear();
-    
-    double min_d;
-    min_d = find_min<vtype>(d,n);
-    double mu = ((1+alpha)/2)*min_d;
-
-    while((iter < (size_t)maxiter) && (find_max<vtype>(grad,d,n) > thd)){
-        /*
-        t3 = clock();
-        cout << "1: " <<  ((double)t3 - (double)t2)/double(CLOCKS_PER_SEC) << endl;
-        t2 = clock();
-        */
-        iter ++;
-        q_old = q;
-        
-        if(iter == 1){
-            betak = 0;
-        }
-        else{
-            betak = (1-sqrt(mu))/(1+sqrt(mu));
-        }
-
-        for(vtype i = 0; i < n; i ++){
-            z = y[i] - grad[i]/d[i];
-            thd1 = rho*alpha;
-            if(z >= thd1){
-                q[i] = z - thd1;
-            }
-            else if(z <= -1 * thd1){
-                q[i] = z + thd1;
-            }
-            else{
-                q[i] = 0;
-            }
-        }
-        for(vtype i = 0; i < n; i ++){
-            y[i] = q[i] + betak*(q[i]-q_old[i]);
-            if (y[i] != 0 && indices.find(i) == indices.end() && d[i] != 0) {
-                indices[i] = 0;
-            }
-        }
-       
-        /*
-        for(vtype i = 0; i < n; i ++){
-            cout << "iter.: " << iter << " y[" << i << "] " << y[i] << endl;
-        }
-        if(iter == 2) break;
-        */
-        
-        /*
-        t3 = clock();
-        cout << "2: " <<  ((double)t3 - (double)t2)/double(CLOCKS_PER_SEC) << endl;
-        t2 = clock();
-        */
-
-        update_grad_unnormalized(grad,y,c,ai,aj,a,n,alpha,d,offset,indices);
-        
-        /*
-        for(vtype i = 0; i < n; i ++){
-            cout << "iter.: " << iter << " grad[" << i << "] " << grad[i] << endl;
-        }
-        */
-        
-        /*
-        t3 = clock();
-        cout << "3: " <<  ((double)t3 - (double)t2)/double(CLOCKS_PER_SEC) << endl;
-        t2 = clock();
-        */
-        t4 = clock();
-        if(((double)t4 - (double)t1)/double(CLOCKS_PER_SEC) > max_time){
-            not_converged = 1;
-            return not_converged;
-        }
-        
-        //crit = compute_l2_norm<vtype>(q,q_old,n);
-        //cout << "iter.: " << iter << " l2norm: " <<  crit << endl;
-//         if (crit < epsilon){
-//             not_converged = 0;
-//             break;
-//         }
-    }
-
-    if(iter >= (size_t)maxiter){
-        not_converged = 1;
-    }
-
-    for(vtype i = 0; i < n; i ++){
-        p[i] = abs(q[i]);
-    }
-    //cout << "max y: " << *max_element(y,y+n) << " min y: " << *min_element(y,y+n) << endl;
-    //cout << "max grad: " << *max_element(grad,grad+n) << " min grad: " << *min_element(grad,grad+n) << endl;
-    return not_converged;
+    // TODO: implement unnormalized method
+    return this->proxl1PRaccel(alpha,rho,v,v_nums,d,ds,dsinv,epsilon,grad,p,y,maxiter,max_time, use_distribution, distribution);
 }
 
 uint32_t proxl1PRaccel32(uint32_t n, uint32_t* ai, uint32_t* aj, double* a, double alpha,
                          double rho, uint32_t* v, uint32_t v_nums, double* d, double* ds,
                          double* dsinv, double epsilon, double* grad, double* p, double* y,
-                         uint32_t maxiter, uint32_t offset,double max_time,bool normalized_objective)
+                         uint32_t maxiter, uint32_t offset,double max_time, bool normalized_objective, bool use_distribution, double* distribution)
 {
     graph<uint32_t,uint32_t> g(ai[n],n,ai,aj,a,offset,NULL);
     if (normalized_objective){
-        return g.proxl1PRaccel(alpha,rho,v,v_nums,d,ds,dsinv,epsilon,grad,p,y,maxiter,max_time);
+        return g.proxl1PRaccel(alpha,rho,v,v_nums,d,ds,dsinv,epsilon,grad,p,y,maxiter,max_time, use_distribution, distribution);
     }
     else{
-        return g.proxl1PRaccel_unnormalized(alpha,rho,v,v_nums,d,ds,dsinv,epsilon,grad,p,y,maxiter,max_time);
+        return g.proxl1PRaccel_unnormalized(alpha,rho,v,v_nums,d,ds,dsinv,epsilon,grad,p,y,maxiter,max_time, use_distribution, distribution);
     }
 }
 
 int64_t proxl1PRaccel64(int64_t n, int64_t* ai, int64_t* aj, double* a, double alpha,
                         double rho, int64_t* v, int64_t v_nums, double* d, double* ds,
                         double* dsinv,double epsilon, double* grad, double* p, double* y,
-                        int64_t maxiter, int64_t offset,double max_time,bool normalized_objective)
+                        int64_t maxiter, int64_t offset,double max_time,bool normalized_objective, bool use_distribution,  double* distribution)
 {
     graph<int64_t,int64_t> g(ai[n],n,ai,aj,a,offset,NULL);
     if (normalized_objective){
-        return g.proxl1PRaccel(alpha,rho,v,v_nums,d,ds,dsinv,epsilon,grad,p,y,maxiter,max_time);
+        return g.proxl1PRaccel(alpha,rho,v,v_nums,d,ds,dsinv,epsilon,grad,p,y,maxiter,max_time, use_distribution, distribution);
     }
     else{
-        return g.proxl1PRaccel_unnormalized(alpha,rho,v,v_nums,d,ds,dsinv,epsilon,grad,p,y,maxiter,max_time);
+        return g.proxl1PRaccel_unnormalized(alpha,rho,v,v_nums,d,ds,dsinv,epsilon,grad,p,y,maxiter,max_time, use_distribution, distribution);
     }
 }
 
 uint32_t proxl1PRaccel32_64(uint32_t n, int64_t* ai, uint32_t* aj, double* a, double alpha,
                             double rho, uint32_t* v, uint32_t v_nums, double* d, double* ds,
                             double* dsinv, double epsilon, double* grad, double* p, double* y,
-                            uint32_t maxiter, uint32_t offset,double max_time,bool normalized_objective)
+                            uint32_t maxiter, uint32_t offset,double max_time,bool normalized_objective, bool use_distribution,  double* distribution)
 {
     graph<uint32_t,int64_t> g(ai[n],n,ai,aj,a,offset,NULL);
     if (normalized_objective){
-        return g.proxl1PRaccel(alpha,rho,v,v_nums,d,ds,dsinv,epsilon,grad,p,y,maxiter,max_time);
+        return g.proxl1PRaccel(alpha,rho,v,v_nums,d,ds,dsinv,epsilon,grad,p,y,maxiter,max_time, use_distribution, distribution);
     }
     else{
-        return g.proxl1PRaccel_unnormalized(alpha,rho,v,v_nums,d,ds,dsinv,epsilon,grad,p,y,maxiter,max_time);
+        return g.proxl1PRaccel_unnormalized(alpha,rho,v,v_nums,d,ds,dsinv,epsilon,grad,p,y,maxiter,max_time, use_distribution, distribution);
     }
 }
