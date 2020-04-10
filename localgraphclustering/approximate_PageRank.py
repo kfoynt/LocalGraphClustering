@@ -18,7 +18,9 @@ def approximate_PageRank(G,
                          cpp: bool = True,
                          normalize: bool = True,
                          normalized_objective: bool = True,
-                         method: str = "acl"):
+                         method: str = "acl",
+                         use_distribution: bool = False,
+                         distribution: list = []):
     """
     Computes PageRank vector locally.
     --------------------------------
@@ -163,7 +165,8 @@ def approximate_PageRank(G,
         if cpp:
             if method == "l1reg":
                 p = algo(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, alpha = alpha,
-                                     rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout, normalized_objective = normalized_objective)[2]
+                                     rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout, normalized_objective = normalized_objective, 
+                                     use_distribution = use_distribution, distribution = distribution)[2]
             else:
                 (length,xids,values) = algo(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, alpha = alpha,
                                      rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout, normalized_objective = normalized_objective)

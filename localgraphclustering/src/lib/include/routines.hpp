@@ -130,7 +130,7 @@ public:
     //functions in proxl1PRaccel.cpp
     vtype proxl1PRaccel(double alpha, double rho, vtype* v, vtype v_nums, double* d,
                         double* ds, double* dsinv, double epsilon, double* grad, double* p, double* y,
-                        vtype maxiter,double max_time);
+                        vtype maxiter,double max_time, bool use_distribution, double* distribution);
                         
     // functions in proxl1PRrand.cpp
     vtype proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_seeds, double epsilon, double alpha, double rho, double* q, double* d, double* ds, double* dsinv, vtype maxiter, vtype* candidates);
@@ -139,7 +139,7 @@ public:
 //     //functions in proxl1PRaccel.cpp
     vtype proxl1PRaccel_unnormalized(double alpha, double rho, vtype* v, vtype v_nums, double* d,
                         double* ds, double* dsinv, double epsilon, double* grad, double* p, double* y,
-                        vtype maxiter,double max_time);
+                        vtype maxiter, double max_time, bool use_distribution, double* distribution);
 
 
     //functions in densest_subgraph.cpp
