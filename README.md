@@ -55,6 +55,11 @@ The current version is 0.5.0 and it is appropriate for experts and intermediates
 - [Image segmentation](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/image_segmentation_using_local_graph_clustering_and_gPb.ipynb) using [gPb](https://www2.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/papers/amfm_pami2010.pdf)
 - [Find small clusters in image using conductance](https://github.com/kfoynt/LocalGraphClustering/blob/master/notebooks/find_very_small_clusters_in_images.ipynb)
 
+## Papers that use this code
+
+[Flow-based Algorithms for Improving Clusters: A Unifying Framework, Software, and Performance](https://arxiv.org/abs/2004.09608)
+[A Short Introduction to Local Graph Clustering Methods and Software](https://arxiv.org/abs/1810.07324)
+
 ## Examples
 
 All examples are in the [notebooks](https://github.com/kfoynt/LocalGraphClustering/tree/master/notebooks) folder.
