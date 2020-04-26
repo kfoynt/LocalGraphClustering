@@ -57,8 +57,8 @@ The current version is 0.5.0 and it is appropriate for experts and intermediates
 
 ## Papers that use this code
 
-[Flow-based Algorithms for Improving Clusters: A Unifying Framework, Software, and Performance](https://arxiv.org/abs/2004.09608)
-[A Short Introduction to Local Graph Clustering Methods and Software](https://arxiv.org/abs/1810.07324)
+- [Flow-based Algorithms for Improving Clusters: A Unifying Framework, Software, and Performance](https://arxiv.org/abs/2004.09608)
+- [A Short Introduction to Local Graph Clustering Methods and Software](https://arxiv.org/abs/1810.07324)
 
 ## Examples
 
