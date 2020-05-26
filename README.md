@@ -57,6 +57,7 @@ The current version is 0.5.0 and it is appropriate for experts and intermediates
 
 ## Papers that use this code
 
+- [p-Norm Flow Diffusion for Local Graph Clustering](https://arxiv.org/abs/2005.09810)
 - [Flow-based Algorithms for Improving Clusters: A Unifying Framework, Software, and Performance](https://arxiv.org/abs/2004.09608)
 - [A Short Introduction to Local Graph Clustering Methods and Software](https://arxiv.org/abs/1810.07324)
 
