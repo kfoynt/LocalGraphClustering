@@ -151,13 +151,7 @@ Enter the folder using the termimal
 ```
 Type in the terminal `python setup.py install`
 ```
-Note that this package runs only with Python 3.
-
-It can also be installed through pip:
-
-```
-pip3 install localgraphclustering
-```
+Note that this package runs only with Python 3 on Mac or Linux.
 
 ## Import from Julia
 
