@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/kfoynt/LocalGraphClustering.svg?branch=master)](https://travis-ci.org/kfoynt/LocalGraphClustering)
-[![Coverage Status](https://coveralls.io/repos/github/kfoynt/LocalGraphClustering/badge.svg?branch=master)](https://coveralls.io/github/kfoynt/LocalGraphClustering?branch=master)
 # Local Graph Clustering
 
 Local Graph Clustering provides
