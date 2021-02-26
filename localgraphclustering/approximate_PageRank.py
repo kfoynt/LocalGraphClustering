@@ -5,8 +5,6 @@ from .algorithms import fista_dinput_dense
 from .cpp import *
 import warnings
 
-import time
-
 def approximate_PageRank(G,
                          ref_nodes,
                          timeout: float = 100,
@@ -124,19 +122,12 @@ def approximate_PageRank(G,
         if ys != None:
             warnings.warn("\"acl\" doesn't support initial solutions, please use \"l1reg\" instead.")
         if cpp:
-            
-#             start = time.time()
-            
             n = G.adjacency_matrix.shape[0]
             (length,xids,values) = aclpagerank_cpp(n,G.ai,G.aj,alpha,rho,ref_nodes,iterations)
             # TODO, implement this in the C++ function
             if normalize:
                 for i in range(len(xids)): # we can't use degrees because it could be weighted
                     values[i] /= (G.ai[xids[i]+1]-G.ai[xids[i]])
-                    
-#             end = time.time()
-#             print(" Elapsed time acl with rounding: ", end - start)
-            
             return (xids,values)
         else:
             return acl_list(ref_nodes, G, alpha = alpha, rho = rho, max_iter = iterations, max_time = timeout)
@@ -156,55 +147,26 @@ def approximate_PageRank(G,
         #print("Uses the Fast Iterative Soft Thresholding Algorithm (FISTA).")
         # TODO fix the following warning
         # warnings.warn("The normalization of this routine hasn't been adjusted to the new system yet")
-        
-#         start = time.time()
-        
         algo = proxl1PRaccel_cpp if method == "l1reg" else proxl1PRrand_cpp
         if cpp:
-            if method == "l1reg":
+            if ys == None:
                 p = algo(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, alpha = alpha,
                                      rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout, normalized_objective = normalized_objective)[2]
             else:
-                (length,xids,values) = algo(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, alpha = alpha,
-                                     rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout, normalized_objective = normalized_objective)
+                p = algo(G.ai, G.aj, G.adjacency_matrix.data, ref_nodes, G.d, G.d_sqrt, G.dn_sqrt, y = ys, alpha = alpha,
+                                     rho = rho, epsilon = epsilon, maxiter = iterations, max_time = timeout, normalized_objective = normalized_objective)[2]
         else:
             p = fista_dinput_dense(ref_nodes, G, alpha = alpha, rho = rho, epsilon = epsilon, max_iter = iterations, max_time = timeout)
         # convert result to a sparse vector
-#         nonzeros = np.count_nonzero(p)
-    
-    
-#         end = time.time()
-#         print(" Elapsed time l1reg with rounding: ", end - start)
-            
-#         start = time.time()
-        
-#         idx = np.nonzero(p)[0]
-        
-#         end = time.time()
-#         print(" Elapsed time one: ", end - start) 
-        
-#         start = time.time()
-#         vals = p[idx]
-        
-#         end = time.time()
-#         print(" Elapsed time two: ", end - start) 
-        
-#         start = time.time()
-        if normalize:
-            if method == "l1reg":
-                # convert result to a sparse vector
-                nonzeros = np.count_nonzero(p)
-                xids = np.zeros(nonzeros,dtype=np.dtype(G.aj[0]))
-                values = np.zeros(nonzeros,dtype=np.float64)
-                it = 0
-                for i in range(len(p)):
-                    if p[i] != 0:
-                        xids[it] = i
-                        values[it] = p[i]*1.0 * G.dn[i] if normalize else p[i]
-                        it += 1
-            else:
-                values = np.multiply(G.dn[xids], values)
-                
-        return (xids,values)
+        nonzeros = np.count_nonzero(p)
+        idx = np.zeros(nonzeros,dtype=np.dtype(G.aj[0]))
+        vals = np.zeros(nonzeros,dtype=np.float64)
+        it = 0
+        for i in range(len(p)):
+            if p[i] != 0:
+                idx[it] = i
+                vals[it] = p[i]*1.0 * G.dn[i] if normalize else p[i]
+                it += 1
+        return (idx,vals)
     else:
         raise Exception("Unknown method, available methods are \"acl\" or \"acl_weighted\" or \"l1reg\" or \"l1reg-rand\".")
