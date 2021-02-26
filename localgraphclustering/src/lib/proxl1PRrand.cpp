@@ -382,9 +382,9 @@ vtype graph<vtype,itype>::proxl1PRrand(vtype num_nodes, vtype* seed, vtype num_s
     //proxl1PRrand::writeLog(num_nodes, "/home/c55hu/Documents/research/experiment/output/q-rand.txt", q);
     // update y and q
     
-    cout << "sum_grad.: " << sum_grad << endl;
-    cout << "sum_term.: " << sum_term << endl;
-    cout << "sum_random.: " << sum_random << endl;
+    // cout << "sum_grad.: " << sum_grad << endl;
+    // cout << "sum_term.: " << sum_term << endl;
+    // cout << "sum_random.: " << sum_random << endl;
     
     for (vtype i = 0; i < num_nodes; ++i) y[i] = q[i];
     
